@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
-import { User, Shield, Crown, Skull } from 'lucide-react';
+import { User, Copy, Users, Settings, Shield, Crown, Skull } from 'lucide-react';
 
 // Card Image Imports
 import backImg from '../../assets/cards/back.png';
@@ -54,9 +54,6 @@ const CARD_IMAGES: Record<number, string> = {
   8: princessImg
 };
 
-// DEBUG: Check if images are resolving correctly
-console.log("LoveLetterGame: Loaded Card Images", CARD_IMAGES);
-
 const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
@@ -65,11 +62,12 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
+  const otherPlayers = lobby.players.filter(p => p.id !== me?.id);
 
   const handlePlayCard = () => {
     if (!selectedCard) return;
 
-    // Validation before emit?
+    // Validation before emit
     const needsTarget = [1, 2, 3, 5, 6].includes(selectedCard);
     const needsGuess = selectedCard === 1;
 
@@ -94,222 +92,267 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
     setGuessCard(null);
   };
 
+  const copyRoomCode = () => {
+    navigator.clipboard.writeText(lobby.code);
+  };
 
-
-  if (!lobby.gameData) return <div>Loading Game Data...</div>;
+  if (!lobby.gameData) return <div className="text-white text-center mt-20">Loading Game Data...</div>;
 
   return (
-    <div className="flex flex-col h-screen bg-amber-50 p-4 font-sans text-slate-800 overflow-hidden">
+    <div className="h-screen bg-[#1a0b2e] font-sans text-slate-100 flex flex-col items-center p-4 overflow-hidden">
       
-      {/* Header Info */}
-      <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
-        <div>
-           <h1 className="text-xl font-bold text-amber-800">Love Letter</h1>
-           <span className="text-sm text-gray-500">Room: {lobby.code} | Round: {lobby.gameData.currentRound}</span>
-        </div>
-        <div className="text-right">
-           <div className="text-lg font-semibold">
-              Deck: {lobby.gameData.deckCount} cards
-           </div>
-        </div>
-      </div>
 
-      {/* Main Game Area */}
-      <div className="flex-1 flex flex-col gap-4">
+
+      {/* Main Game Container */}
+      <div className="w-full bg-[#fffbf0] rounded-xl overflow-hidden shadow-2xl flex flex-col flex-1">
         
-        {/* Opponents Row */}
-        <div className="flex justify-center gap-4 flex-wrap">
-          {lobby.players.filter(p => p.id !== me?.id).map(player => (
-            <div 
-              key={player.id} 
-              className={`
-                relative p-4 rounded-xl border-2 w-48 transition-all
-                ${lobby.gameData?.currentTurn === player.id ? 'border-amber-500 shadow-lg scale-105 bg-amber-50' : 'border-gray-200 bg-white'}
-                ${player.isEliminated ? 'opacity-50 grayscale' : ''}
-                ${targetId === player.id ? 'ring-4 ring-blue-400' : ''}
-                ${player.isImmune ? 'border-blue-300 bg-blue-50' : ''}
-              `}
-              onClick={() => !player.isEliminated && player.isImmune === false && player.id ? setTargetId(player.id) : null}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                 {player.avatarUrl ? <img src={player.avatarUrl} className="w-8 h-8 rounded-full" /> : <User className="w-6 h-6" />}
-                 <span className="font-bold truncate">{player.name}</span>
-                 {player.isHost && <Crown className="w-4 h-4 text-yellow-500" />}
-              </div>
-              
-              <div className="space-y-1 text-sm">
-                 <div className="flex items-center gap-1">
-                    <span className="w-4 h-4 rounded-full bg-red-500 inline-block"></span>
-                    <span>Tokens: {player.tokens}</span>
-                 </div>
-                 <div>Hand: {player.handCount} card(s)</div>
-                 {player.isImmune && <div className="flex items-center text-blue-600 gap-1"><Shield className="w-3 h-3"/> Immune</div>}
-                 {player.isEliminated && <div className="flex items-center text-red-600 gap-1"><Skull className="w-3 h-3"/> Eliminated</div>}
-              </div>
+        {/* TOP SECTION: Opponents Area */}
+        <div className="relative h-[30%] min-h-0 p-6 flex items-center justify-center gap-8 border-b-8 border-[#e2d5b5] bg-[#fffbf0]">
+          <div className="absolute top-2 left-0 w-full text-center">
+             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Opponents</span>
+          </div>
 
-              {/* Discard Pile (Last played) */}
-              <div className="mt-2 flex items-center gap-2 justify-center">
-                <span className="text-xs text-gray-500">Last:</span>
-                {player.discarded.length > 0 ? (
-                    <div className="relative group">
-                        <img 
-                            src={CARD_IMAGES[player.discarded[player.discarded.length-1]]} 
-                            alt={CARD_NAMES[player.discarded[player.discarded.length-1]]}
-                            className="w-8 h-12 object-cover rounded border border-gray-300 shadow-sm"
-                        />
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs p-1 rounded whitespace-nowrap z-20">
-                            {CARD_NAMES[player.discarded[player.discarded.length-1]]}
+          {otherPlayers.map(player => (
+             <div 
+                key={player.id} 
+                className={`
+                    relative flex flex-col items-center transition-all cursor-pointer p-2 rounded-xl
+                    ${targetId === player.id ? 'bg-amber-100 ring-4 ring-amber-400 scale-105' : ''}
+                    ${lobby.gameData?.currentTurn === player.id ? 'ring-2 ring-indigo-500 bg-indigo-50' : ''}
+                    ${player.isEliminated ? 'opacity-50 grayscale' : ''}
+                `}
+                onClick={() => !player.isEliminated && player.isImmune === false && player.id ? setTargetId(player.id) : null}
+             >
+                {/* Player Info */}
+                <div className="flex items-center gap-3 bg-white/80 p-2 rounded-xl border border-slate-200 shadow-sm w-48 mb-2">
+                    <div className="w-10 h-10 bg-indigo-500 rounded-lg overflow-hidden border-2 border-slate-800 flex items-center justify-center shrink-0">
+                        {player.avatarUrl ? (
+                            <img src={player.avatarUrl} alt="avatar" className="w-full h-full" />
+                        ) : (
+                            <User className="text-white w-6 h-6" />
+                        )}
+                    </div>
+                    <div className="overflow-hidden">
+                        <div className="flex items-center gap-1">
+                            <span className="text-sm font-bold text-slate-800 truncate">{player.name}</span>
+                            {player.isHost && <Crown className="w-3 h-3 text-yellow-500" />}
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> {player.tokens} Tokens</span>
+                             {player.isImmune && <Shield className="w-3 h-3 text-blue-500" />}
+                             {player.isEliminated && <Skull className="w-3 h-3 text-red-500" />}
                         </div>
                     </div>
-                ) : (
-                    <span className="text-xs text-gray-400">None</span>
-                )}
-              </div>
-            </div>
+                </div>
+
+                {/* Opponent Card (Face Down) or Last Played */}
+                <div className="relative">
+                    {/* Hand Count representation */}
+                    <div className="flex justify-center -space-x-8">
+                         {Array.from({length: Math.min(player.handCount, 3)}).map((_, i) => (
+                             <div key={i} className="w-20 h-28 rounded shadow-md transition-transform" style={{ transform: `rotate(${(i - (player.handCount-1)/2) * 5}deg)` }}>
+                                <img src={backImg} alt="Card Back" className="w-full h-full object-contain drop-shadow-md" />
+                             </div>
+                         ))}
+                    </div>
+                    
+                    {/* Last Played Overlay */}
+                    {player.discarded.length > 0 && (
+                        <div className="absolute top-12 -right-12 z-10 w-12 h-16 shadow-lg rotate-12 bg-white p-0.5 rounded">
+                            <img 
+                                src={CARD_IMAGES[player.discarded[player.discarded.length-1]]} 
+                                alt="Discard" 
+                                className="w-full h-full object-cover rounded-sm"
+                            />
+                            <div className="absolute -bottom-4 left-0 right-0 text-[8px] bg-black text-white text-center rounded px-1">
+                                Last
+                            </div>
+                        </div>
+                    )}
+                </div>
+             </div>
           ))}
+          
+          {otherPlayers.length === 0 && (
+             <div className="text-slate-400 italic">Waiting for opponents...</div>
+          )}
         </div>
 
-        {/* Action Area / Log */}
-        <div className="flex-1 bg-white rounded-lg shadow-inner p-4 overflow-y-auto border border-gray-200">
-           {/* Lobby / Start Game Control */}
-           {lobby.state === 'LOBBY' && (
-              <div className="text-center mb-6 py-6 bg-amber-100 rounded-lg border border-amber-300">
-                 <h2 className="text-2xl font-bold text-amber-800 mb-2">Waiting for Players...</h2>
-                 <p className="mb-4 text-amber-900">
-                    {lobby.players.length} / 4 Players Joined
-                 </p>
-                 {me?.isHost ? (
-                    <>
-                      <button
-                         onClick={() => socket.emit('game:start', {})}
-                         className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
-                         disabled={lobby.players.length < 2}
-                      >
-                         Start Game
-                      </button>
-                    </>
-                 ) : (
-                    <p className="text-gray-500 italic">Waiting for host to start...</p>
-                 )}
-                 {lobby.players.length < 2 && me?.isHost && (
-                    <p className="text-red-500 text-sm mt-2">Need at least 2 players.</p>
-                 )}
-              </div>
-           )}
+        {/* MIDDLE SECTION: Deck & Game Log */}
+        <div className="bg-[#1e293b] p-4 flex-1 flex border-b-4 border-slate-900 relative shadow-inner gap-4 overflow-hidden">
+          
+          {/* Deck Area */}
+          <div className="flex-1 flex flex-col items-center justify-center border-2 border-slate-700/50 rounded-xl bg-[#0f172a]/50 relative">
+            <h3 className="absolute top-2 text-xs font-bold text-[#e2e8f0] uppercase tracking-wider drop-shadow-md opacity-70">
+              Deck ({lobby.gameData.deckCount})
+            </h3>
+            
+            <div className="flex items-center justify-center mt-4 pl-12"> 
+              {Array.from({ length: Math.min(lobby.gameData.deckCount, 5) }).map((_, i) => (
+                <div 
+                  key={i} 
+                  className="transition-transform"
+                  style={{ 
+                    marginLeft: '-45px', 
+                    zIndex: i 
+                  }}
+                >
+                  <img src={backImg} alt="Deck" className="w-24 h-36 object-contain drop-shadow-xl" />
+                </div>
+              ))}
+            </div>
 
-           <h3 className="text-gray-400 font-bold text-xs uppercase mb-2">Game Log</h3>
-           {/* Add logs from messages here if you want, or assume generic logs */}
-           <div className="space-y-1 text-sm">
-             {lobby.messages?.slice(-5).map(msg => (
-               <div key={msg.id} className="text-gray-700">
-                 <span className="font-bold">{msg.playerName}:</span> {msg.message}
-               </div>
-             ))}
-           </div>
+            {/* Waiting State */}
+            {lobby.state === 'LOBBY' && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center flex-col gap-4 z-20 backdrop-blur-sm rounded-xl">
+                    <h2 className="text-2xl font-bold text-white">Waiting for Players</h2>
+                     {me?.isHost && (
+                        <button
+                            onClick={() => socket.emit('game:start', {})}
+                            disabled={lobby.players.length < 2}
+                            className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Start Game
+                        </button>
+                    )}
+                </div>
+            )}
+          </div>
+
+          {/* Game Log Area */}
+          <div className="w-1/3 min-w-[200px] border-l border-slate-700 pl-4 flex flex-col">
+             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <Settings size={12} /> Game Log
+             </div>
+             <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+                {lobby.messages?.slice().reverse().map(msg => (
+                   <div key={msg.id} className="text-xs text-slate-300 border-b border-slate-700/50 pb-1">
+                      <span className="font-bold text-indigo-400">{msg.playerName}:</span> {msg.message}
+                   </div>
+                ))}
+             </div>
+          </div>
         </div>
 
-        {/* My Player Area */}
-        <div className="bg-white p-4 rounded-xl shadow-lg border-t-4 border-amber-500">
-           <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-3">
-                 <h2 className="text-xl font-bold">{me?.name} (You)</h2>
-                 <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">
-                    {me?.tokens} Tokens
-                 </span>
-                 {isMyTurn && <span className="animate-pulse text-amber-600 font-bold">YOUR TURN</span>}
-              </div>
-           </div>
+        {/* BOTTOM SECTION: Player Area */}
+        <div className="bg-[#1e293b] h-[35%] min-h-0 p-6 relative">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-500/20 via-amber-500/50 to-amber-500/20"></div>
+            
+            <div className="flex items-center gap-4 mb-4 z-10 relative">
+              <span className="text-xl font-bold text-white">{me?.name} (You)</span>
+              <span className="bg-rose-300 text-rose-900 text-xs font-black px-3 py-1 rounded-full uppercase">
+                {me?.tokens} Tokens
+              </span>
+              {isMyTurn && <span className="bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">YOUR TURN</span>}
+            </div>
 
-           {/* My Hand */}
-           <div className="flex gap-4 overflow-x-auto pb-2 justify-center">
-              {myHand.map((card, idx) => (
+            <div className="w-full flex justify-center items-end h-full pb-4 gap-8">
+               {/* My Hand */}
+               {myHand.map((card, idx) => (
                  <div 
                     key={`${card}-${idx}`}
-                    onClick={() => isMyTurn && setSelectedCard(card)}
                     className={`
-                       cursor-pointer relative w-32 h-48 rounded-lg border-2 shadow-sm hover:-translate-y-2 transition-transform overflow-hidden
-                       ${selectedCard === card ? 'ring-4 ring-amber-400 shadow-xl z-10 border-amber-500' : 'border-gray-400'}
-                       bg-white
+                       relative group cursor-pointer transition-all duration-300 ease-out h-[85%] aspect-[2/3]
+                       ${selectedCard === card ? '-translate-y-8 z-20 scale-110' : 'hover:-translate-y-4 hover:z-10'}
+                       ${!isMyTurn ? 'opacity-80' : ''}
                     `}
+                    onClick={() => isMyTurn && setSelectedCard(card)}
                  >
                     <img 
                         src={CARD_IMAGES[card]} 
-                        alt={CARD_NAMES[card]} 
-                        className="absolute inset-0 w-full h-full object-cover"
+                        alt={CARD_NAMES[card]}
+                        className={`
+                            h-full w-full object-cover rounded-xl shadow-2xl border-4 
+                            ${selectedCard === card ? 'border-amber-400' : 'border-[#2d3748]'}
+                        `}
                     />
+                    
+                    {/* Card Glow */}
+                    <div className={`
+                        absolute inset-0 bg-amber-400/20 blur-xl rounded-lg -z-10 transition-opacity
+                        ${selectedCard === card ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                    `}></div>
                  </div>
-              ))}
-           </div>
+               ))}
+            </div>
 
-           {/* Controls */}
-           {isMyTurn && selectedCard && (
-             <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 flex flex-wrap gap-4 items-center justify-between">
-                <div className="flex items-center gap-4">
-                   <span className="font-bold text-gray-700">Playing: {CARD_NAMES[selectedCard]}</span>
-                   
-                   {/* Target Selection Feedback */}
-                   {[1, 2, 3, 5, 6].includes(selectedCard) && (
-                      <span className={`text-sm ${targetId ? 'text-green-600 font-bold' : 'text-red-500'}`}>
-                         Target: {targetId ? lobby.players.find(p=>p.id===targetId)?.name : 'Select a player above'}
-                      </span>
-                   )}
+            {/* Context Actions Menu (Floating above cards when selected) */}
+            {isMyTurn && selectedCard && (
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-800/90 backdrop-blur text-white p-4 rounded-xl shadow-2xl border border-slate-600 z-30 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4">
+                     <div className="flex flex-col">
+                        <span className="text-xs text-slate-400 uppercase font-bold">Playing</span>
+                        <span className="font-bold text-amber-400">{CARD_NAMES[selectedCard]}</span>
+                     </div>
 
-                   {/* Guess Selection for Guard */}
-                   {selectedCard === 1 && (
-                      <select 
-                         className="p-2 border rounded shadow-sm"
-                         value={guessCard || ''} 
-                         onChange={(e) => setGuessCard(Number(e.target.value) as CardType)}
-                      >
-                         <option value="">Guess a Card...</option>
-                         <option value="2">Priest (2)</option>
-                         <option value="3">Baron (3)</option>
-                         <option value="4">Handmaid (4)</option>
-                         <option value="5">Prince (5)</option>
-                         <option value="6">King (6)</option>
-                         <option value="7">Countess (7)</option>
-                         <option value="8">Princess (8)</option>
-                      </select>
-                   )}
+                     <div className="h-8 w-px bg-slate-600"></div>
+
+                     {/* Dynamic Inputs based on Card */}
+                     {[1, 2, 3, 5, 6].includes(selectedCard) && (
+                         <div className="flex flex-col">
+                            <span className="text-xs text-slate-400 uppercase font-bold">Target</span>
+                            <span className={`font-bold ${targetId ? 'text-green-400' : 'text-red-400 animate-pulse'}`}>
+                                {targetId ? lobby.players.find(p=>p.id===targetId)?.name : 'Select Player Above'}
+                            </span>
+                         </div>
+                     )}
+
+                     {selectedCard === 1 && (
+                         <select 
+                            className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-sm outline-none focus:border-indigo-500"
+                            value={guessCard || ''} 
+                            onChange={(e) => setGuessCard(Number(e.target.value) as CardType)}
+                         >
+                            <option value="">Guess Card...</option>
+                            <option value="2">Priest (2)</option>
+                            <option value="3">Baron (3)</option>
+                            <option value="4">Handmaid (4)</option>
+                            <option value="5">Prince (5)</option>
+                            <option value="6">King (6)</option>
+                            <option value="7">Countess (7)</option>
+                            <option value="8">Princess (8)</option>
+                         </select>
+                     )}
+
+                     <button 
+                        onClick={handlePlayCard}
+                        disabled={([1, 2, 3, 5, 6].includes(selectedCard) && !targetId) || (selectedCard === 1 && !guessCard)}
+                        className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg disabled:opacity-50 disabled:grayscale transition-all"
+                     >
+                        Confirm
+                     </button>
+                     <button 
+                        onClick={() => { setSelectedCard(null); setTargetId(null); setGuessCard(null); }}
+                        className="text-slate-400 hover:text-white px-2"
+                     >
+                        Cancel
+                     </button>
                 </div>
-
-                <div className="flex gap-2">
-                   <button 
-                      onClick={() => { setSelectedCard(null); setTargetId(null); setGuessCard(null); }}
-                      className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded"
-                   >
-                      Cancel
-                   </button>
-                   <button 
-                      onClick={handlePlayCard}
-                      disabled={[1, 2, 3, 5, 6].includes(selectedCard) && !targetId || (selectedCard === 1 && !guessCard)}
-                      className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                   >
-                      Play Card
-                   </button>
-                </div>
-             </div>
-           )}
+            )}
         </div>
 
       </div>
 
       {/* Winner Overlay */}
       {(lobby.gameData.roundWinner || lobby.gameData.winner) && (
-         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-2xl max-w-md w-full text-center shadow-2xl animate-bounce-in">
-               <h2 className="text-3xl font-bold mb-4 text-amber-600">
-                  {lobby.gameData.winner ? 'Game Over!' : 'Round Over!'}
+         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-[#1a0b2e] border-2 border-amber-500 p-10 rounded-2xl max-w-lg w-full text-center shadow-[0_0_50px_rgba(245,158,11,0.5)]">
+               <h2 className="text-4xl font-black mb-4 text-amber-500 uppercase tracking-widest drop-shadow-md">
+                  {lobby.gameData.winner ? 'Victory!' : 'Round Over'}
                </h2>
-               <p className="text-xl mb-6">
-                  {lobby.gameData.winner 
-                     ? `${lobby.players.find(p => p.id === lobby.gameData?.winner)?.name} Wins the Game!` 
-                     : `${lobby.players.find(p => p.id === lobby.gameData?.roundWinner)?.name} Wins the Round!`}
-               </p>
+               
+               <div className="my-8">
+                  <div className="text-slate-300 mb-2 uppercase text-xs tracking-widest">Winner</div>
+                  <div className="text-3xl font-bold text-white">
+                      {lobby.gameData.winner 
+                        ? lobby.players.find(p => p.id === lobby.gameData?.winner)?.name 
+                        : lobby.players.find(p => p.id === lobby.gameData?.roundWinner)?.name}
+                  </div>
+               </div>
+
                {me?.isHost && (
                   <button 
-                     onClick={() => socket.emit('game:start', {})} // Reuse start for next round/new game
-                     className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
+                     onClick={() => socket.emit('game:start', {})}
+                     className="px-10 py-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-black rounded-xl text-xl shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider"
                   >
                      {lobby.gameData.winner ? 'New Game' : 'Next Round'}
                   </button>
@@ -317,7 +360,6 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
             </div>
          </div>
       )}
-
     </div>
   );
 };
