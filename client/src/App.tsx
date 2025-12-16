@@ -196,8 +196,8 @@ function AppContent() {
               <div className="app-layout">
                 {lobby && <GameHeader lobby={lobby} gameBuddiesSession={gameBuddiesSession} />}
 
-                <div className="flex flex-col lg:flex-row flex-1 min-h-0 lg:h-full">
-                  <div className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6 overflow-y-auto main-scroll-area">
+                <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden game-content-wrapper">
+                  <div className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6 overflow-hidden flex flex-col main-scroll-area">
                     {error && (
                       <div className="error-message bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-lg" style={{ margin: '20px auto', maxWidth: '600px' }}>
                         {error}
