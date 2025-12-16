@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { User, Shield, Crown, Skull } from 'lucide-react';
@@ -66,6 +66,15 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
 
+  // Set theme on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'loveletter');
+    return () => {
+      // Optional: reset to default or leave it
+      // document.documentElement.removeAttribute('data-theme');
+    };
+  }, []);
+
   const handlePlayCard = () => {
     if (!selectedCard) return;
 
@@ -99,13 +108,13 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   if (!lobby.gameData) return <div>Loading Game Data...</div>;
 
   return (
-    <div className="flex flex-col h-screen bg-amber-50 p-4 font-sans text-slate-800 overflow-hidden">
+    <div className="flex flex-col h-full p-2 overflow-hidden bg-transparent">
       
       {/* Header Info */}
-      <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
+      <div className="flex justify-between items-center mb-2 card p-3 rounded-lg shadow-sm">
         <div>
-           <h1 className="text-xl font-bold text-amber-800">Love Letter</h1>
-           <span className="text-sm text-gray-500">Room: {lobby.code} | Round: {lobby.gameData.currentRound}</span>
+           <h1 className="text-xl font-bold">Love Letter</h1>
+           <span className="text-sm opacity-75">Room: {lobby.code} | Round: {lobby.gameData.currentRound}</span>
         </div>
         <div className="text-right">
            <div className="text-lg font-semibold">
@@ -115,7 +124,7 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
       </div>
 
       {/* Main Game Area */}
-      <div className="flex-1 flex flex-col gap-4">
+      <div className="flex-1 flex flex-col gap-2 min-h-0">
         
         {/* Opponents Row */}
         <div className="flex justify-center gap-4 flex-wrap">
@@ -123,46 +132,50 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
             <div 
               key={player.id} 
               className={`
-                relative p-4 rounded-xl border-2 w-48 transition-all
-                ${lobby.gameData?.currentTurn === player.id ? 'border-amber-500 shadow-lg scale-105 bg-amber-50' : 'border-gray-200 bg-white'}
+                relative p-2 rounded-xl border-2 flex-grow min-w-[120px] max-w-[calc(50%-1rem)] sm:max-w-48 transition-all card
+                ${lobby.gameData?.currentTurn === player.id ? 'border-[var(--accent-color)] shadow-lg scale-105' : 'border-[var(--border-color)]'}
                 ${player.isEliminated ? 'opacity-50 grayscale' : ''}
-                ${targetId === player.id ? 'ring-4 ring-blue-400' : ''}
-                ${player.isImmune ? 'border-blue-300 bg-blue-50' : ''}
+                ${targetId === player.id ? 'ring-4 ring-[var(--accent-color)]' : ''}
+                ${player.isImmune ? 'border-blue-400 bg-blue-900/20' : ''}
               `}
               onClick={() => !player.isEliminated && player.isImmune === false && player.id ? setTargetId(player.id) : null}
             >
               <div className="flex items-center gap-2 mb-2">
-                 {player.avatarUrl ? <img src={player.avatarUrl} className="w-8 h-8 rounded-full" /> : <User className="w-6 h-6" />}
+                 {player.avatarUrl ? (
+                    <div className="avatar-container">
+                        <img src={player.avatarUrl} className="w-8 h-8 rounded-full" />
+                    </div>
+                 ) : <User className="w-6 h-6" />}
                  <span className="font-bold truncate">{player.name}</span>
-                 {player.isHost && <Crown className="w-4 h-4 text-yellow-500" />}
+                 {player.isHost && <Crown className="w-4 h-4 text-[var(--accent-color)]" />}
               </div>
               
               <div className="space-y-1 text-sm">
                  <div className="flex items-center gap-1">
-                    <span className="w-4 h-4 rounded-full bg-red-500 inline-block"></span>
+                    <span className="w-4 h-4 rounded-full bg-red-600 inline-block border border-white/20"></span>
                     <span>Tokens: {player.tokens}</span>
                  </div>
                  <div>Hand: {player.handCount} card(s)</div>
-                 {player.isImmune && <div className="flex items-center text-blue-600 gap-1"><Shield className="w-3 h-3"/> Immune</div>}
-                 {player.isEliminated && <div className="flex items-center text-red-600 gap-1"><Skull className="w-3 h-3"/> Eliminated</div>}
+                 {player.isImmune && <div className="flex items-center text-blue-400 gap-1"><Shield className="w-3 h-3"/> Immune</div>}
+                 {player.isEliminated && <div className="flex items-center text-red-500 gap-1"><Skull className="w-3 h-3"/> Eliminated</div>}
               </div>
 
               {/* Discard Pile (Last played) */}
               <div className="mt-2 flex items-center gap-2 justify-center">
-                <span className="text-xs text-gray-500">Last:</span>
+                <span className="text-xs opacity-75">Last:</span>
                 {player.discarded.length > 0 ? (
                     <div className="relative group">
                         <img 
                             src={CARD_IMAGES[player.discarded[player.discarded.length-1]]} 
                             alt={CARD_NAMES[player.discarded[player.discarded.length-1]]}
-                            className="w-8 h-12 object-cover rounded border border-gray-300 shadow-sm"
+                            className="w-8 h-12 object-cover rounded border border-gray-600 shadow-sm"
                         />
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs p-1 rounded whitespace-nowrap z-20">
                             {CARD_NAMES[player.discarded[player.discarded.length-1]]}
                         </div>
                     </div>
                 ) : (
-                    <span className="text-xs text-gray-400">None</span>
+                    <span className="text-xs opacity-50">None</span>
                 )}
               </div>
             </div>
@@ -170,26 +183,26 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
         </div>
 
         {/* Action Area / Log */}
-        <div className="flex-1 bg-white rounded-lg shadow-inner p-4 overflow-y-auto border border-gray-200">
+        <div className="flex-1 card rounded-lg shadow-inner p-4 overflow-y-auto min-h-0">
            {/* Lobby / Start Game Control */}
            {lobby.state === 'LOBBY' && (
-              <div className="text-center mb-6 py-6 bg-amber-100 rounded-lg border border-amber-300">
-                 <h2 className="text-2xl font-bold text-amber-800 mb-2">Waiting for Players...</h2>
-                 <p className="mb-4 text-amber-900">
+              <div className="text-center mb-6 py-6 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-color)]">
+                 <h2 className="text-2xl font-bold mb-2 text-[var(--royal-gold)]">Waiting for Players...</h2>
+                 <p className="mb-4">
                     {lobby.players.length} / 4 Players Joined
                  </p>
                  {me?.isHost ? (
                     <>
                       <button
                          onClick={() => socket.emit('game:start', {})}
-                         className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
+                         className="btn btn-primary px-8 py-3 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
                          disabled={lobby.players.length < 2}
                       >
                          Start Game
                       </button>
                     </>
                  ) : (
-                    <p className="text-gray-500 italic">Waiting for host to start...</p>
+                    <p className="opacity-75 italic">Waiting for host to start...</p>
                  )}
                  {lobby.players.length < 2 && me?.isHost && (
                     <p className="text-red-500 text-sm mt-2">Need at least 2 players.</p>
@@ -197,11 +210,11 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
               </div>
            )}
 
-           <h3 className="text-gray-400 font-bold text-xs uppercase mb-2">Game Log</h3>
+           <h3 className="font-bold text-xs uppercase mb-2 opacity-50 text-[var(--text-secondary)]">Game Log</h3>
            {/* Add logs from messages here if you want, or assume generic logs */}
            <div className="space-y-1 text-sm">
              {lobby.messages?.slice(-5).map(msg => (
-               <div key={msg.id} className="text-gray-700">
+               <div key={msg.id} className="opacity-90 text-[var(--text-primary)]">
                  <span className="font-bold">{msg.playerName}:</span> {msg.message}
                </div>
              ))}
@@ -209,14 +222,14 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
         </div>
 
         {/* My Player Area */}
-        <div className="bg-white p-4 rounded-xl shadow-lg border-t-4 border-amber-500">
-           <div className="flex justify-between items-center mb-4">
+        <div className="card p-3 rounded-xl shadow-lg border-t-4 border-[var(--accent-color)]">
+           <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-3">
                  <h2 className="text-xl font-bold">{me?.name} (You)</h2>
-                 <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">
+                 <span className="bg-red-900/50 text-white px-2 py-1 rounded-full text-xs font-bold border border-red-800">
                     {me?.tokens} Tokens
                  </span>
-                 {isMyTurn && <span className="animate-pulse text-amber-600 font-bold">YOUR TURN</span>}
+                 {isMyTurn && <span className="animate-pulse text-[var(--accent-color)] font-bold">YOUR TURN</span>}
               </div>
            </div>
 
@@ -227,9 +240,9 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                     key={`${card}-${idx}`}
                     onClick={() => isMyTurn && setSelectedCard(card)}
                     className={`
-                       cursor-pointer relative w-32 h-48 rounded-lg border-2 shadow-sm hover:-translate-y-2 transition-transform overflow-hidden
-                       ${selectedCard === card ? 'ring-4 ring-amber-400 shadow-xl z-10 border-amber-500' : 'border-gray-400'}
-                       bg-white
+                       cursor-pointer relative w-[calc(50%-0.5rem)] sm:w-[calc(33.33%-0.66rem)] md:w-28 aspect-[2/3] rounded-lg border-2 shadow-sm hover:-translate-y-2 transition-transform overflow-hidden
+                       ${selectedCard === card ? 'ring-4 ring-[var(--accent-color)] shadow-xl z-10 border-[var(--accent-color)]' : 'border-[var(--border-color)]'}
+                       bg-[var(--bg-secondary)]
                     `}
                  >
                     <img 
@@ -243,13 +256,13 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
 
            {/* Controls */}
            {isMyTurn && selectedCard && (
-             <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 flex flex-wrap gap-4 items-center justify-between">
+             <div className="mt-4 p-4 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-color)] flex flex-wrap gap-4 items-center justify-between">
                 <div className="flex items-center gap-4">
-                   <span className="font-bold text-gray-700">Playing: {CARD_NAMES[selectedCard]}</span>
+                   <span className="font-bold">Playing: {CARD_NAMES[selectedCard]}</span>
                    
                    {/* Target Selection Feedback */}
                    {[1, 2, 3, 5, 6].includes(selectedCard) && (
-                      <span className={`text-sm ${targetId ? 'text-green-600 font-bold' : 'text-red-500'}`}>
+                      <span className={`text-sm ${targetId ? 'text-green-400 font-bold' : 'text-red-400'}`}>
                          Target: {targetId ? lobby.players.find(p=>p.id===targetId)?.name : 'Select a player above'}
                       </span>
                    )}
@@ -257,7 +270,7 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                    {/* Guess Selection for Guard */}
                    {selectedCard === 1 && (
                       <select 
-                         className="p-2 border rounded shadow-sm"
+                         className="p-2 border rounded shadow-sm bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border-color)]"
                          value={guessCard || ''} 
                          onChange={(e) => setGuessCard(Number(e.target.value) as CardType)}
                       >
@@ -276,14 +289,14 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                 <div className="flex gap-2">
                    <button 
                       onClick={() => { setSelectedCard(null); setTargetId(null); setGuessCard(null); }}
-                      className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded"
+                      className="px-4 py-2 hover:bg-[var(--bg-quaternary)] text-[var(--text-primary)] rounded transition-colors"
                    >
                       Cancel
                    </button>
                    <button 
                       onClick={handlePlayCard}
                       disabled={[1, 2, 3, 5, 6].includes(selectedCard) && !targetId || (selectedCard === 1 && !guessCard)}
-                      className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn btn-primary px-6 py-2 rounded shadow disabled:opacity-50 disabled:cursor-not-allowed"
                    >
                       Play Card
                    </button>
@@ -296,9 +309,9 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
 
       {/* Winner Overlay */}
       {(lobby.gameData.roundWinner || lobby.gameData.winner) && (
-         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-2xl max-w-md w-full text-center shadow-2xl animate-bounce-in">
-               <h2 className="text-3xl font-bold mb-4 text-amber-600">
+         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="card p-8 rounded-2xl max-w-md w-full text-center shadow-2xl animate-bounce-in border-4 border-[var(--accent-color)]">
+               <h2 className="text-3xl font-bold mb-4 text-[var(--accent-color)]" style={{ fontFamily: 'var(--font-heading)' }}>
                   {lobby.gameData.winner ? 'Game Over!' : 'Round Over!'}
                </h2>
                <p className="text-xl mb-6">
@@ -309,7 +322,7 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                {me?.isHost && (
                   <button 
                      onClick={() => socket.emit('game:start', {})} // Reuse start for next round/new game
-                     className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
+                     className="btn btn-primary px-8 py-3 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
                   >
                      {lobby.gameData.winner ? 'New Game' : 'Next Round'}
                   </button>

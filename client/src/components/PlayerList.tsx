@@ -108,41 +108,44 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
               key={player.id || player.socketId}
               className={`player-item ${isMe ? 'is-me' : ''} ${isActive ? 'is-active' : ''} ${isHostPlayer ? 'is-host' : ''}`}
             >
-              {renderAvatar(player)}
+              {/* Group avatar and player content */}
+              <div className="flex items-center gap-2 flex-grow">
+                {renderAvatar(player)}
 
-              <div className="player-content">
-                <div className="player-name-row">
-                  <span className="player-name">{player.name}</span>
-                  <div className="player-badges">
-                    {isHostPlayer && <span className="badge-host">HOST</span>}
-                    {isMe && <span className="badge-you">YOU</span>}
-                    {isActive && <span className="badge-active">ACTIVE</span>}
-                    {player.premiumTier === 'lifetime' && (
-                      <span className="badge-premium lifetime" title="Lifetime Premium">PREMIUM</span>
-                    )}
-                    {player.premiumTier === 'monthly' && (
-                      <span className="badge-premium monthly" title="Pro Member">PRO</span>
-                    )}
-                    {/* Ready status - ThinkAlike specific feature */}
-                    {showReadyStatus && !isHostPlayer && (
-                      player.isReady ? (
-                        <span className="badge-ready">READY</span>
-                      ) : (
-                        <span className="badge-not-ready">NOT READY</span>
-                      )
-                    )}
+                <div className="player-content">
+                  <div className="player-name-row">
+                    <span className="player-name">{player.name}</span>
+                    <div className="player-badges">
+                      {isHostPlayer && <span className="badge-host">HOST</span>}
+                      {isMe && <span className="badge-you">YOU</span>}
+                      {isActive && <span className="badge-active">ACTIVE</span>}
+                      {player.premiumTier === 'lifetime' && (
+                        <span className="badge-premium lifetime" title="Lifetime Premium">PREMIUM</span>
+                      )}
+                      {player.premiumTier === 'monthly' && (
+                        <span className="badge-premium monthly" title="Pro Member">PRO</span>
+                      )}
+                      {/* Ready status - ThinkAlike specific feature */}
+                      {showReadyStatus && !isHostPlayer && (
+                        player.isReady ? (
+                          <span className="badge-ready">READY</span>
+                        ) : (
+                          <span className="badge-not-ready">NOT READY</span>
+                        )
+                      )}
+                    </div>
                   </div>
+
+                  {/* isDisconnected && player.disconnectedAt && (
+                    <DisconnectedTimer disconnectedAt={player.disconnectedAt} />
+                  ) */}
+
+                  {isDisconnected && <div className="player-score text-red-500">Disconnected</div>}
+
+                  {!isDisconnected && (
+                    <div className="player-score">Tokens: {(player as any).tokens || 0}</div>
+                  )}
                 </div>
-
-                {/* isDisconnected && player.disconnectedAt && (
-                  <DisconnectedTimer disconnectedAt={player.disconnectedAt} />
-                ) */}
-
-                {isDisconnected && <div className="player-score text-red-500">Disconnected</div>}
-
-                {!isDisconnected && (
-                  <div className="player-score">Tokens: {(player as any).tokens || 0}</div>
-                )}
               </div>
 
               {isHost && !isMe && !isDisconnected && (

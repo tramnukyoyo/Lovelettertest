@@ -22,7 +22,7 @@
    SECTION 1: CSS RESET & TAILWIND BASE
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Gloria+Hallelujah&family=Permanent+Marker&family=VT323&family=Special+Elite&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Gloria+Hallelujah&family=Permanent+Marker&family=VT323&family=Special+Elite&family=Cinzel:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -441,6 +441,56 @@
   --danger-color: #f87171;
 }
 
+/* LoveLetter Theme - Royal Court (Dark Mode) */
+[data-theme="loveletter"] {
+  /* Royal Colors */
+  --royal-red: #7f1d1d;
+  --royal-gold: #fbbf24;
+  --royal-parchment: #e2d9c0; /* Slightly darker parchment for text readability */
+  --royal-ink: #fef3c7;       /* Light text for dark mode */
+  --royal-wood: #2a0a12;
+  --royal-void: #120404;
+  
+  --accent-color: var(--royal-gold);
+  --accent-hover: #f59e0b;
+  --accent-glow: rgba(251, 191, 36, 0.4);
+  --accent-color-rgb: 251, 191, 36;
+  --primary-rgb: 127, 29, 29;
+
+  /* Gradient system - Royal Red → Gold */
+  --gradient-start: #7f1d1d;
+  --gradient-end: #b45309;
+  --gradient-button: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  --gradient-badge: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+
+  /* Wobbly borders - Elegant curves */
+  --border-wobbly-xs: 2px;
+  --border-wobbly-sm: 4px;
+  --border-wobbly-md: 8px;
+
+  /* Backgrounds - Dark Mode */
+  --bg-primary: #120404;      /* Deepest Red/Black */
+  --bg-secondary: #2a0a12;    /* Dark Mahogany */
+  --bg-tertiary: #451a03;     /* Dark Leather */
+  --bg-quaternary: #78350f;   /* Wood Accent */
+
+  /* Typography */
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Patrick Hand', cursive;
+
+  /* Text Colors - Light on Dark */
+  --text-primary: var(--royal-parchment);
+  --text-secondary: rgba(254, 243, 199, 0.7);
+  --text-accent: var(--royal-gold);
+
+  --border-color: #92400e;    /* Bronze/Gold Border */
+  --card-bg: var(--bg-secondary);
+
+  /* Button colors */
+  --success-color: #15803d;
+  --danger-color: #991b1b;
+}
+
 /* ============================================
    EXTENDED COLOR PALETTES - Game-Specific Components
    ============================================ */
@@ -691,6 +741,124 @@
   background: rgba(26, 11, 46, 0.8);
   border-color: var(--chalk-purple);
 }
+
+/* LoveLetter - Visual Styling & Overrides (Dark Mode) */
+[data-theme="loveletter"] body,
+[data-theme="loveletter"] .app-root {
+  background-color: var(--bg-primary) !important;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.03) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, rgba(146, 64, 14, 0.05) 0px, rgba(146, 64, 14, 0.05) 1px, transparent 1px, transparent 20px);
+}
+
+[data-theme="loveletter"] .card {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.5), 
+    0 2px 4px -1px rgba(0, 0, 0, 0.3),
+    inset 0 0 40px rgba(0, 0, 0, 0.5); /* Deep shadow inset */
+}
+
+[data-theme="loveletter"] .card * {
+  color: var(--text-primary);
+}
+
+[data-theme="loveletter"] h1, 
+[data-theme="loveletter"] h2, 
+[data-theme="loveletter"] h3 {
+  font-family: var(--font-heading) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--royal-gold) !important;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="loveletter"] .btn {
+  font-family: var(--font-heading);
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-width: 1px;
+}
+
+[data-theme="loveletter"] .btn-primary {
+  background: linear-gradient(to bottom, #991b1b, #7f1d1d);
+  border: 1px solid #b45309;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 6px rgba(0,0,0,0.4);
+  color: var(--royal-gold) !important; /* Brighter gold for better contrast */
+  text-shadow: 2px 2px 2px rgba(0,0,0,0.7); /* More pronounced shadow */
+}
+
+[data-theme="loveletter"] .btn-primary:hover {
+  background: linear-gradient(to bottom, #b91c1c, #991b1b);
+  transform: translateY(-1px);
+  border-color: var(--royal-gold);
+}
+
+/* Player List Overrides for LoveLetter */
+[data-theme="loveletter"] .player-list-fixed {
+  background: rgba(42, 10, 18, 0.95);
+  border-left: 2px solid var(--border-color);
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="loveletter"] .player-list-header {
+  border-bottom: 2px solid var(--border-color);
+  background: rgba(18, 4, 4, 0.6);
+}
+
+[data-theme="loveletter"] .player-list-header h3 {
+  color: var(--royal-gold);
+  font-family: var(--font-heading);
+}
+
+[data-theme="loveletter"] .player-item {
+  background: rgba(69, 26, 3, 0.3);
+  border: 1px solid rgba(146, 64, 14, 0.3);
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+[data-theme="loveletter"] .player-item:hover {
+  background: rgba(69, 26, 3, 0.6);
+  border-color: var(--royal-gold);
+}
+
+[data-theme="loveletter"] .player-item.is-me {
+  background: rgba(127, 29, 29, 0.3);
+  border-color: var(--royal-red);
+}
+
+[data-theme="loveletter"] .player-item.is-active {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: var(--royal-gold);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.1);
+}
+
+/* Badges overrides */
+[data-theme="loveletter"] .badge-host {
+  background: var(--royal-gold);
+  color: #451a03;
+  font-family: var(--font-heading);
+}
+
+[data-theme="loveletter"] .badge-you {
+  background: var(--royal-red);
+  color: #fef3c7;
+  font-family: var(--font-heading);
+}
+
+[data-theme="loveletter"] .badge-active {
+  background: transparent;
+  border: 1px solid var(--royal-gold);
+  color: var(--royal-gold);
+  font-family: var(--font-heading);
+}
+
+
 
 @layer base {
   html {
