@@ -10400,5 +10400,3 @@ textarea:focus {
   }
 }
   
-/* Tutorial Image Transparency */  
-.tutorial-sidebar-image, .tutorial-image { mix-blend-mode: multiply; } 
