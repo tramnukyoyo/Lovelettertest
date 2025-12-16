@@ -16,6 +16,7 @@
     "@react-three/fiber": "^9.3.0",
     "@react-three/postprocessing": "^3.0.4",
     "emoji-picker-react": "^4.13.3",
+    "framer-motion": "^12.23.26",
     "lucide-react": "^0.462.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

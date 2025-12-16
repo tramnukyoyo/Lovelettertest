@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { User, Copy, Users, Settings, Shield, Crown, Skull } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Card Image Imports
 import backImg from '../../assets/cards/back.png';
@@ -63,6 +64,16 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
   const otherPlayers = lobby.players.filter(p => p.id !== me?.id);
+  const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
+
+  // Use server state for draw phase
+  const waitingToDraw = isMyTurn && lobby.gameData?.turnPhase === 'draw';
+
+  // If waiting to draw, we rely on server not sending the 2nd card yet
+  // But strictly, we just show what we have.
+  // The server now won't send the 2nd card until we emit 'player:draw'.
+  // So 'myHand' will have 1 card during 'draw' phase.
+  const displayedHand = myHand;
 
   const handlePlayCard = () => {
     if (!selectedCard) return;
@@ -70,19 +81,37 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
     // Validation before emit
     const needsTarget = [1, 2, 3, 5, 6].includes(selectedCard);
     const needsGuess = selectedCard === 1;
+    
+    // If all opponents are protected (Immune/Eliminated):
+    // - Prince (5): Must target self.
+    // - Others: Target is null (No Effect).
+    let finalTargetId = targetId;
+    
+    if (needsTarget && allOpponentsProtected) {
+        if (selectedCard === 5) {
+            finalTargetId = me?.id || null; // Force self-target for Prince
+        } else {
+            finalTargetId = null; // No effect for others
+        }
+    }
 
-    if (needsTarget && !targetId) {
+    // Only validate target if NOT all protected (or if we failed to set self-target)
+    if (needsTarget && !finalTargetId && !allOpponentsProtected) {
       alert("Please select a target player.");
       return;
     }
-    if (needsGuess && !guessCard) {
-      alert("Please guess a card.");
-      return;
+    if (needsGuess && !guessCard && !allOpponentsProtected) {
+      // If playing against no one, do we need a guess? Server says "if (!target) return 'no effect'".
+      // So guess is irrelevant if target is null.
+      if (!allOpponentsProtected) {
+          alert("Please guess a card.");
+          return;
+      }
     }
 
     socket.emit('play:card', {
       card: selectedCard,
-      targetId: targetId,
+      targetId: finalTargetId,
       guess: guessCard
     });
 
@@ -101,8 +130,6 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   return (
     <div className="h-screen bg-[#1a0b2e] font-sans text-slate-100 flex flex-col items-center p-4 overflow-hidden">
       
-
-
       {/* Main Game Container */}
       <div className="w-full bg-[#fffbf0] rounded-xl overflow-hidden shadow-2xl flex flex-col flex-1">
         
@@ -149,26 +176,30 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                 <div className="relative">
                     {/* Hand Count representation */}
                     <div className="flex justify-center -space-x-8">
-                         {Array.from({length: Math.min(player.handCount, 3)}).map((_, i) => (
-                             <div key={i} className="w-20 h-28 rounded shadow-md transition-transform" style={{ transform: `rotate(${(i - (player.handCount-1)/2) * 5}deg)` }}>
-                                <img src={backImg} alt="Card Back" className="w-full h-full object-contain drop-shadow-md" />
-                             </div>
-                         ))}
+                         {Array.from({length: Math.min(player.handCount, 3)}).map((_, i) => {
+                             const cardToDisplay = player.hand[i]; // This will be the actual card or '0' (card back)
+                             const imgSrc = cardToDisplay !== 0 ? CARD_IMAGES[cardToDisplay] : backImg;
+                             const altText = cardToDisplay !== 0 ? CARD_NAMES[cardToDisplay] : "Card Back";
+
+                             return (
+                                 <motion.div 
+                                    key={i} 
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="w-24 h-32 rounded shadow-md" 
+                                    style={{ 
+                                        transformOrigin: "bottom center",
+                                        marginLeft: i > 0 ? "-20px" : 0,
+                                        rotate: (i - (player.handCount-1)/2) * 10
+                                    }}
+                                 >
+                                    <img src={imgSrc} alt={altText} className="w-full h-full object-contain drop-shadow-md" />
+                                 </motion.div>
+                             );
+                         })}
                     </div>
                     
-                    {/* Last Played Overlay */}
-                    {player.discarded.length > 0 && (
-                        <div className="absolute top-12 -right-12 z-10 w-12 h-16 shadow-lg rotate-12 bg-white p-0.5 rounded">
-                            <img 
-                                src={CARD_IMAGES[player.discarded[player.discarded.length-1]]} 
-                                alt="Discard" 
-                                className="w-full h-full object-cover rounded-sm"
-                            />
-                            <div className="absolute -bottom-4 left-0 right-0 text-[8px] bg-black text-white text-center rounded px-1">
-                                Last
-                            </div>
-                        </div>
-                    )}
+
                 </div>
              </div>
           ))}
@@ -181,25 +212,76 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
         {/* MIDDLE SECTION: Deck & Game Log */}
         <div className="bg-[#1e293b] p-4 flex-1 flex border-b-4 border-slate-900 relative shadow-inner gap-4 overflow-hidden">
           
-          {/* Deck Area */}
-          <div className="flex-1 flex flex-col items-center justify-center border-2 border-slate-700/50 rounded-xl bg-[#0f172a]/50 relative">
-            <h3 className="absolute top-2 text-xs font-bold text-[#e2e8f0] uppercase tracking-wider drop-shadow-md opacity-70">
-              Deck ({lobby.gameData.deckCount})
-            </h3>
+          {/* Center Area: Deck & Discard */}
+          <div className="flex-1 flex flex-row items-center justify-center gap-16 border-2 border-slate-700/50 rounded-xl bg-[#0f172a]/50 relative">
             
-            <div className="flex items-center justify-center mt-4 pl-12"> 
-              {Array.from({ length: Math.min(lobby.gameData.deckCount, 5) }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className="transition-transform"
-                  style={{ 
-                    marginLeft: '-45px', 
-                    zIndex: i 
-                  }}
-                >
-                  <img src={backImg} alt="Deck" className="w-24 h-36 object-contain drop-shadow-xl" />
+            {/* Discard Pile */}
+            <div className="flex flex-col items-center relative mt-4">
+                 <h3 className="absolute -top-6 text-xs font-bold text-[#e2e8f0] uppercase tracking-wider opacity-70">
+                  Discard
+                </h3>
+                <div className="relative w-44 h-60 border-2 border-white/5 rounded-xl bg-black/20 flex items-center justify-center">
+                    {(() => {
+                         const activeIdx = lobby.players.findIndex(p => p.id === lobby.gameData?.currentTurn);
+                         const idx = activeIdx === -1 ? 0 : activeIdx;
+                         const prevPlayer = lobby.players[(idx - 1 + lobby.players.length) % lobby.players.length];
+                         const topCard = prevPlayer?.discarded.length ? prevPlayer.discarded[prevPlayer.discarded.length-1] : null;
+                         
+                         if (!topCard) return <span className="text-white/20 text-xs">Empty</span>;
+                         
+                         return (
+                            <motion.div
+                                key={`discard-pile-${topCard}`}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="w-44 h-60 rounded-xl shadow-lg"
+                            >
+                                <img src={CARD_IMAGES[topCard]} alt="Discard" className="w-full h-full object-cover rounded-xl" />
+                            </motion.div>
+                         );
+                    })()}
                 </div>
-              ))}
+            </div>
+
+            {/* Deck */}
+            <div className="flex flex-col items-center relative mt-4">
+                <h3 className="absolute -top-6 text-xs font-bold text-[#e2e8f0] uppercase tracking-wider opacity-70">
+                  Deck ({lobby.gameData.deckCount})
+                </h3>
+                <div 
+                    className={`relative w-44 h-60 transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}`}
+                    onClick={() => waitingToDraw && socket.emit('player:draw', {})}
+                > 
+                  {Array.from({ length: Math.min(lobby.gameData.deckCount, 5) }).map((_, i) => (
+                    <div 
+                      key={i} 
+                      className="absolute inset-0 transition-transform"
+                      style={{ 
+                        transform: `translate(${i * 2}px, ${-i * 2}px)`,
+                        zIndex: i 
+                      }}
+                    >
+                      <img src={backImg} alt="Deck" className="w-44 h-60 object-contain drop-shadow-xl" />
+                    </div>
+                  ))}
+
+                  {/* The "To Be Drawn" Card (Ghost) */}
+                  {waitingToDraw && (
+                      <motion.div
+                        layoutId="drawing-card"
+                        className="absolute inset-0 z-50 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(255,255,255,0.5)] border-2 border-white/50"
+                        style={{ transform: `translate(${(Math.min(lobby.gameData.deckCount, 5) * 2)}px, ${-(Math.min(lobby.gameData.deckCount, 5) * 2)}px)` }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                          <img src={backImg} alt="Draw Me" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                              <span className="text-white font-bold text-xs uppercase animate-pulse">Draw</span>
+                          </div>
+                      </motion.div>
+                  )}
+                </div>
             </div>
 
             {/* Waiting State */}
@@ -244,40 +326,53 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                 {me?.tokens} Tokens
               </span>
               {isMyTurn && <span className="bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">YOUR TURN</span>}
+              {waitingToDraw && <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce">DRAW A CARD!</span>}
             </div>
 
             <div className="w-full flex justify-center items-end h-full pb-4 gap-8">
                {/* My Hand */}
-               {myHand.map((card, idx) => (
-                 <div 
-                    key={`${card}-${idx}`}
-                    className={`
-                       relative group cursor-pointer transition-all duration-300 ease-out h-[85%] aspect-[2/3]
-                       ${selectedCard === card ? '-translate-y-8 z-20 scale-110' : 'hover:-translate-y-4 hover:z-10'}
-                       ${!isMyTurn ? 'opacity-80' : ''}
-                    `}
-                    onClick={() => isMyTurn && setSelectedCard(card)}
-                 >
-                    <img 
-                        src={CARD_IMAGES[card]} 
-                        alt={CARD_NAMES[card]}
-                        className={`
-                            h-full w-full object-cover rounded-xl shadow-2xl border-4 
-                            ${selectedCard === card ? 'border-amber-400' : 'border-[#2d3748]'}
-                        `}
-                    />
-                    
-                    {/* Card Glow */}
-                    <div className={`
-                        absolute inset-0 bg-amber-400/20 blur-xl rounded-lg -z-10 transition-opacity
-                        ${selectedCard === card ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-                    `}></div>
-                 </div>
-               ))}
+               <AnimatePresence>
+                   {displayedHand.map((card, idx) => {
+                       // Identify if this is the "newly drawn" card (index 1) for animation
+                       // Only animate index 1 if we are in "drawn" state and it's my turn
+                       const isNewCard = idx === 1 && !waitingToDraw && isMyTurn;
+                       
+                       return (
+                         <motion.div 
+                            key={`${card}-${idx}`} // Use idx to differentiate doubles
+                            layoutId={isNewCard ? "drawing-card" : undefined}
+                            initial={isNewCard ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
+                            animate={{ opacity: 1, scale: selectedCard === card ? 1.1 : 1, y: selectedCard === card ? -30 : 0 }}
+                            exit={{ opacity: 0, y: -50, scale: 0.5 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className={`
+                               relative group cursor-pointer h-[85%] aspect-[2/3]
+                               ${!isMyTurn ? 'opacity-80' : ''}
+                            `}
+                            onClick={() => isMyTurn && !waitingToDraw && setSelectedCard(card)}
+                         >
+                            <img 
+                                src={CARD_IMAGES[card]} 
+                                alt={CARD_NAMES[card]}
+                                className={`
+                                    h-full w-full object-cover rounded-xl shadow-2xl border-4 
+                                    ${selectedCard === card ? 'border-amber-400' : 'border-[#2d3748]'}
+                                `}
+                            />
+                            
+                            {/* Card Glow */}
+                            <div className={`
+                                absolute inset-0 bg-amber-400/20 blur-xl rounded-lg -z-10 transition-opacity
+                                ${selectedCard === card ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                            `}></div>
+                         </motion.div>
+                       );
+                   })}
+               </AnimatePresence>
             </div>
 
             {/* Context Actions Menu (Floating above cards when selected) */}
-            {isMyTurn && selectedCard && (
+            {isMyTurn && selectedCard && !waitingToDraw && (
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-800/90 backdrop-blur text-white p-4 rounded-xl shadow-2xl border border-slate-600 z-30 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4">
                      <div className="flex flex-col">
                         <span className="text-xs text-slate-400 uppercase font-bold">Playing</span>
@@ -290,9 +385,29 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                      {[1, 2, 3, 5, 6].includes(selectedCard) && (
                          <div className="flex flex-col">
                             <span className="text-xs text-slate-400 uppercase font-bold">Target</span>
-                            <span className={`font-bold ${targetId ? 'text-green-400' : 'text-red-400 animate-pulse'}`}>
-                                {targetId ? lobby.players.find(p=>p.id===targetId)?.name : 'Select Player Above'}
-                            </span>
+                            {selectedCard === 5 && !allOpponentsProtected ? (
+                                <select 
+                                    className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-sm outline-none focus:border-indigo-500 text-white"
+                                    value={targetId || ''} 
+                                    onChange={(e) => setTargetId(e.target.value)}
+                                >
+                                    <option value="">Select Target...</option>
+                                    <option value={me?.id}>Self</option>
+                                    {otherPlayers.map(p => (
+                                        !p.isEliminated && !p.isImmune && (
+                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                        )
+                                    ))}
+                                </select>
+                            ) : allOpponentsProtected ? (
+                                <span className="font-bold text-yellow-400">
+                                    {selectedCard === 5 ? 'Self (Forced)' : 'None (All Protected)'}
+                                </span>
+                            ) : (
+                                <span className={`font-bold ${targetId ? 'text-green-400' : 'text-red-400 animate-pulse'}`}>
+                                    {targetId ? lobby.players.find(p=>p.id===targetId)?.name : 'Select Player Above'}
+                                </span>
+                            )}
                          </div>
                      )}
 
@@ -301,6 +416,7 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-sm outline-none focus:border-indigo-500"
                             value={guessCard || ''} 
                             onChange={(e) => setGuessCard(Number(e.target.value) as CardType)}
+                            disabled={allOpponentsProtected} // Guess irrelevant if no target
                          >
                             <option value="">Guess Card...</option>
                             <option value="2">Priest (2)</option>
@@ -315,7 +431,10 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
 
                      <button 
                         onClick={handlePlayCard}
-                        disabled={([1, 2, 3, 5, 6].includes(selectedCard) && !targetId) || (selectedCard === 1 && !guessCard)}
+                        disabled={
+                            ([1, 2, 3, 5, 6].includes(selectedCard) && !allOpponentsProtected && !targetId) || // Need target if not all protected
+                            (selectedCard === 1 && !allOpponentsProtected && !guessCard) // Need guess if not all protected
+                        }
                         className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg disabled:opacity-50 disabled:grayscale transition-all"
                      >
                         Confirm
