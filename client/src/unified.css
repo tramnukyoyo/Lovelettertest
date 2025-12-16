@@ -2955,6 +2955,14 @@ canvas {
   }
 }
 
+/* In-room app uses a 3-row shell: content (flex-1) + filmstrip (bottom). */
+.app-root.in-room {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-top: 0; /* GameHeader is in normal flow (not fixed) */
+}
+
 /* Viewport-fit layout for in-room state */
 .app-root.in-room .main-scroll-area {
   flex: 1 1 0;
@@ -2972,6 +2980,12 @@ canvas {
 .app-root.in-room .game-content-wrapper {
   height: 100%;
   max-height: 100%;
+}
+
+.app-root.has-filmstrip .right-sidebar {
+  max-height: 100%;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* ========================================
