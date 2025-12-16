@@ -3,6 +3,17 @@ import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { User, Shield, Crown, Skull } from 'lucide-react';
 
+// Card Image Imports
+import backImg from '../../assets/cards/back.png';
+import guardImg from '../../assets/cards/guard.png';
+import priestImg from '../../assets/cards/priest.png';
+import baronImg from '../../assets/cards/baron.png';
+import handmaidImg from '../../assets/cards/handmaid.png';
+import princeImg from '../../assets/cards/prince.png';
+import kingImg from '../../assets/cards/king.png';
+import countessImg from '../../assets/cards/countess.png';
+import princessImg from '../../assets/cards/princess.png';
+
 interface LoveLetterGameProps {
   lobby: Lobby;
   socket: Socket;
@@ -30,6 +41,21 @@ const CARD_DESCRIPTIONS: Record<number, string> = {
   7: "Must discard if with King/Prince.",
   8: "If discarded, you lose."
 };
+
+const CARD_IMAGES: Record<number, string> = {
+  0: backImg,
+  1: guardImg,
+  2: priestImg,
+  3: baronImg,
+  4: handmaidImg,
+  5: princeImg,
+  6: kingImg,
+  7: countessImg,
+  8: princessImg
+};
+
+// DEBUG: Check if images are resolving correctly
+console.log("LoveLetterGame: Loaded Card Images", CARD_IMAGES);
 
 const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
@@ -68,19 +94,7 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
     setGuessCard(null);
   };
 
-  const getCardStyle = (card: CardType) => {
-    switch (card) {
-      case 8: return 'bg-pink-200 border-pink-400 text-pink-900';
-      case 7: return 'bg-red-200 border-red-400 text-red-900';
-      case 6: return 'bg-yellow-200 border-yellow-400 text-yellow-900';
-      case 5: return 'bg-orange-200 border-orange-400 text-orange-900';
-      case 4: return 'bg-blue-200 border-blue-400 text-blue-900';
-      case 3: return 'bg-green-200 border-green-400 text-green-900';
-      case 2: return 'bg-purple-200 border-purple-400 text-purple-900';
-      case 1: return 'bg-gray-200 border-gray-400 text-gray-900';
-      default: return 'bg-gray-300 border-gray-500 text-gray-800';
-    }
-  };
+
 
   if (!lobby.gameData) return <div>Loading Game Data...</div>;
 
@@ -134,8 +148,22 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
               </div>
 
               {/* Discard Pile (Last played) */}
-              <div className="mt-2 text-xs text-gray-500">
-                Last: {player.discarded.length > 0 ? CARD_NAMES[player.discarded[player.discarded.length-1]] : 'None'}
+              <div className="mt-2 flex items-center gap-2 justify-center">
+                <span className="text-xs text-gray-500">Last:</span>
+                {player.discarded.length > 0 ? (
+                    <div className="relative group">
+                        <img 
+                            src={CARD_IMAGES[player.discarded[player.discarded.length-1]]} 
+                            alt={CARD_NAMES[player.discarded[player.discarded.length-1]]}
+                            className="w-8 h-12 object-cover rounded border border-gray-300 shadow-sm"
+                        />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs p-1 rounded whitespace-nowrap z-20">
+                            {CARD_NAMES[player.discarded[player.discarded.length-1]]}
+                        </div>
+                    </div>
+                ) : (
+                    <span className="text-xs text-gray-400">None</span>
+                )}
               </div>
             </div>
           ))}
@@ -199,23 +227,16 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
                     key={`${card}-${idx}`}
                     onClick={() => isMyTurn && setSelectedCard(card)}
                     className={`
-                       cursor-pointer relative w-32 h-48 rounded-lg border-2 p-3 flex flex-col justify-between shadow-sm hover:-translate-y-2 transition-transform
-                       ${getCardStyle(card)}
-                       ${selectedCard === card ? 'ring-4 ring-amber-400 shadow-xl z-10' : ''}
+                       cursor-pointer relative w-32 h-48 rounded-lg border-2 shadow-sm hover:-translate-y-2 transition-transform overflow-hidden
+                       ${selectedCard === card ? 'ring-4 ring-amber-400 shadow-xl z-10 border-amber-500' : 'border-gray-400'}
+                       bg-white
                     `}
                  >
-                    <div className="flex justify-between items-start">
-                       <span className="text-2xl font-black opacity-50">{card}</span>
-                       <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-bold">
-                          {card}
-                       </div>
-                    </div>
-                    <div className="text-center font-bold text-lg leading-tight">
-                       {CARD_NAMES[card]}
-                    </div>
-                    <div className="text-xs text-center leading-tight opacity-90 min-h-[3rem] flex items-center justify-center">
-                       {CARD_DESCRIPTIONS[card]}
-                    </div>
+                    <img 
+                        src={CARD_IMAGES[card]} 
+                        alt={CARD_NAMES[card]} 
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
                  </div>
               ))}
            </div>
