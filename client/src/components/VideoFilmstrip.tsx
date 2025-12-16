@@ -131,6 +131,7 @@ const VideoFilmstrip: React.FC = () => {
 
   const {
     isFilmstripExpanded,
+    setFilmstripExpanded,
     toggleFilmstrip
   } = useVideoUI();
 
@@ -149,6 +150,15 @@ const VideoFilmstrip: React.FC = () => {
   useEffect(() => {
     filmstripHeightRef.current = filmstripHeight;
   }, [filmstripHeight]);
+
+  // Auto-expand filmstrip when video is first enabled
+  const prevVideoEnabled = useRef(isVideoEnabled);
+  useEffect(() => {
+    if (isVideoEnabled && !prevVideoEnabled.current) {
+      setFilmstripExpanded(true);
+    }
+    prevVideoEnabled.current = isVideoEnabled;
+  }, [isVideoEnabled, setFilmstripExpanded]);
 
   // Sync resize state to layout so sidebar + filmstrip animate together
   useEffect(() => {
@@ -212,11 +222,13 @@ const VideoFilmstrip: React.FC = () => {
   // Expose current filmstrip height to the layout for safe padding (chat/sidebar)
   useEffect(() => {
     const safeSpace = isFilmstripExpanded ? filmstripHeight : COLLAPSED_SAFE_SPACE;
+    document.documentElement.classList.toggle('has-filmstrip', isVideoEnabled);
     document.documentElement.style.setProperty(
       '--filmstrip-safe-space',
       isVideoEnabled ? `${safeSpace}px` : '0px'
     );
     return () => {
+      document.documentElement.classList.remove('has-filmstrip');
       document.documentElement.style.setProperty('--filmstrip-safe-space', '0px');
     };
   }, [isFilmstripExpanded, filmstripHeight, isVideoEnabled]);
