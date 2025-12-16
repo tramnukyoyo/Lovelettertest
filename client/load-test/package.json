@@ -1,0 +1,16 @@
+{
+  "name": "gamebuddies-load-test",
+  "version": "1.0.0",
+  "description": "Socket.IO load testing script for unified-game-server",
+  "main": "socket-load-test.js",
+  "scripts": {
+    "start": "node socket-load-test.js",
+    "test": "node socket-load-test.js"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

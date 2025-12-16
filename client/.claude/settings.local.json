@@ -1,0 +1,52 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(nul)",
+      "Bash(dir:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git pull:*)",
+      "Bash(cat:*)",
+      "Bash(ffmpeg:*)",
+      "Bash(move:*)",
+      "Bash(cmd /c \"del \"\"E:\\GamebuddiesPlatform\\ThinkAlike\\client\\public\\music\\countdown.mp3\"\" && ren \"\"E:\\GamebuddiesPlatform\\ThinkAlike\\client\\public\\music\\countdown_trimmed.mp3\"\" \"\"countdown.mp3\"\"\")",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(findstr:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "mcpServers": {
+    "context-sync": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@context-sync/server"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "azure-mcp-proxy": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ],
+      "env": {
+        "ALLOWED_HOSTS": "azuremcpproxy.onrender.com",
+        "ANTHROPIC_MODEL": "glm-4.5"
+      }
+    }
+  }
+}
