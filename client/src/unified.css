@@ -10399,3 +10399,6 @@ textarea:focus {
     max-width: 100%;
   }
 }
+  
+/* Tutorial Image Transparency */  
+.tutorial-sidebar-image, .tutorial-image { mix-blend-mode: multiply; } 

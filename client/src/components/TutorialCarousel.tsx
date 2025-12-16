@@ -10,23 +10,28 @@ interface TutorialSlide {
 const slides: TutorialSlide[] = [
   {
     image: `${import.meta.env.BASE_URL}tutorial/1.webp`,
-    title: 'Welcome to ThinkAlike!',
-    description: 'Match words with your partner to win! Think in sync and share a mental connection.'
+    title: 'Welcome to Love Letter!',
+    description: 'Compete to deliver your love letter to the Princess. Bluff, deduce, and outwit your opponents to win her heart.'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/2.webp`,
-    title: 'Submit Your Word',
-    description: 'Both players independently type a word when prompted. No peeking at each other!'
+    title: 'Draw & Play',
+    description: 'On your turn, draw one card and play one card. Each card has a unique effect that can help you or sabotage others.'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/3.webp`,
-    title: 'Match to Win!',
-    description: 'If both players submit the same word, you achieve a Mind Meld and progress!'
+    title: 'Card Effects',
+    description: 'Use Guards to guess hands, Priests to peek, or the Baron to battle. But be careful—discarding the Princess eliminates you!'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/4.webp`,
-    title: 'Don\'t Run Out of Lives!',
-    description: 'Mismatches cost lives. Match before your shared lives run out to claim victory!'
+    title: 'Winning the Round',
+    description: 'Be the last player standing or hold the highest card when the deck runs out to win a Token of Affection.'
+  },
+  {
+    image: `${import.meta.env.BASE_URL}tutorial/5.webp`,
+    title: 'Winning the Game',
+    description: 'Collect enough tokens to win the game! 7 tokens for 2 players, 5 for 3 players, and 4 for 4 players.'
   }
 ];
 
