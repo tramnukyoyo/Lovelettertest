@@ -681,11 +681,7 @@
   border-color: var(--chalk-purple);
 }
 
-<<<<<<< Updated upstream
 /* HeartsGambit - Starry Night */
-=======
-/* Heart's Gambit - Starry Night */
->>>>>>> Stashed changes
 [data-theme="think"] body,
 [data-theme="think"] .app-root {
   background-color: #1a0b2e !important;
@@ -699,11 +695,7 @@
 @layer base {
   html {
     @apply h-full;
-<<<<<<< Updated upstream
     /* Match HeartsGambit: background comes from .app-root::before */
-=======
-    /* Match Heart's Gambit: background comes from .app-root::before */
->>>>>>> Stashed changes
     background: transparent !important;
     height: var(--viewport-height);
     height: 100dvh;
@@ -1231,11 +1223,7 @@ body::after {
   100% { background-position: 0 100%; }
 }
 
-<<<<<<< Updated upstream
 /* Brain wave pulse for HeartsGambit */
-=======
-/* Brain wave pulse for Heart's Gambit */
->>>>>>> Stashed changes
 @keyframes brainwavePulse {
   0%, 100% {
     opacity: 0.3;
