@@ -1,0 +1,12 @@
+services:
+  - type: static
+    name: lovelettertest
+    runtime: static
+    repo: https://github.com/tramnukyoyo/Lovelettertest
+    branch: main
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+    autoDeploy: true
