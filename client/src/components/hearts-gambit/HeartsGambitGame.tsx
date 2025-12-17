@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { User, Copy, Users, Settings, Shield, Crown, Skull } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CardTooltip from './CardTooltip';
+import Toast from './Toast';
 
 // Card Image Imports
 import backImg from '../../assets/cards/back.png';
@@ -59,12 +61,17 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
   const [guessCard, setGuessCard] = useState<CardType | null>(null);
-  
+  const [toast, setToast] = useState<{message: string; type: 'error' | 'success'} | null>(null);
+  const [playingCard, setPlayingCard] = useState<{card: CardType; image: string} | null>(null);
+  const [prevTokens, setPrevTokens] = useState(0);
+  const tokenAnimationRef = useRef(false);
+
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
   const otherPlayers = lobby.players.filter(p => p.id !== me?.id);
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
+  const amEliminated = me?.isEliminated || false;
 
   // Use server state for draw phase
   const waitingToDraw = isMyTurn && lobby.gameData?.turnPhase === 'draw';
@@ -75,18 +82,42 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
   // So 'myHand' will have 1 card during 'draw' phase.
   const displayedHand = myHand;
 
+  // Track token changes for animation
+  const currentTokens = me?.tokens || 0;
+  const tokensIncreased = currentTokens > prevTokens && prevTokens > 0;
+
+  useEffect(() => {
+    if (currentTokens !== prevTokens) {
+      if (currentTokens > prevTokens && prevTokens > 0) {
+        tokenAnimationRef.current = true;
+        setTimeout(() => { tokenAnimationRef.current = false; }, 600);
+      }
+      setPrevTokens(currentTokens);
+    }
+  }, [currentTokens, prevTokens]);
+
+  // Listen for server errors
+  useEffect(() => {
+    const handleError = (data: { message: string }) => {
+      setToast({ message: data.message, type: 'error' });
+    };
+
+    socket.on('error', handleError);
+    return () => { socket.off('error', handleError); };
+  }, [socket]);
+
   const handlePlayCard = () => {
     if (!selectedCard) return;
 
     // Validation before emit
     const needsTarget = [1, 2, 3, 5, 6].includes(selectedCard);
     const needsGuess = selectedCard === 1;
-    
+
     // If all opponents are protected (Immune/Eliminated):
     // - Prince (5): Must target self.
     // - Others: Target is null (No Effect).
     let finalTargetId = targetId;
-    
+
     if (needsTarget && allOpponentsProtected) {
         if (selectedCard === 5) {
             finalTargetId = me?.id || null; // Force self-target for Prince
@@ -97,28 +128,41 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
 
     // Only validate target if NOT all protected (or if we failed to set self-target)
     if (needsTarget && !finalTargetId && !allOpponentsProtected) {
-      alert("Please select a target player.");
+      setToast({ message: "Please select a target player.", type: 'error' });
       return;
     }
     if (needsGuess && !guessCard && !allOpponentsProtected) {
       // If playing against no one, do we need a guess? Server says "if (!target) return 'no effect'".
       // So guess is irrelevant if target is null.
       if (!allOpponentsProtected) {
-          alert("Please guess a card.");
+          setToast({ message: "Please guess a card.", type: 'error' });
           return;
       }
     }
 
-    socket.emit('play:card', {
-      card: selectedCard,
-      targetId: finalTargetId,
-      guess: guessCard
-    });
+    // Trigger card play animation
+    const cardImage = CARD_IMAGES[selectedCard];
+    setPlayingCard({ card: selectedCard, image: cardImage });
 
-    // Reset local state
+    // Capture current values before resetting state
+    const cardToPlay = selectedCard;
+    const targetToSend = finalTargetId;
+    const guessToSend = guessCard;
+
+    // Reset local state immediately for UI
     setSelectedCard(null);
     setTargetId(null);
     setGuessCard(null);
+
+    // Send to server after animation starts
+    setTimeout(() => {
+      socket.emit('play:card', {
+        card: cardToPlay,
+        targetId: targetToSend,
+        guess: guessToSend
+      });
+      setPlayingCard(null);
+    }, 400);
   };
 
   const copyRoomCode = () => {
@@ -179,22 +223,30 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                          {Array.from({length: Math.min(player.handCount, 3)}).map((_, i) => {
                              const cardToDisplay = player.hand[i]; // This will be the actual card or '0' (card back)
                              const imgSrc = cardToDisplay !== 0 ? CARD_IMAGES[cardToDisplay] : backImg;
-                             const altText = cardToDisplay !== 0 ? CARD_NAMES[cardToDisplay] : "Card Back";
+                             const cardName = cardToDisplay !== 0 ? CARD_NAMES[cardToDisplay] : "Hidden Card";
+                             const cardDesc = cardToDisplay !== 0 ? CARD_DESCRIPTIONS[cardToDisplay] : "This card is face down";
 
                              return (
-                                 <motion.div 
-                                    key={i} 
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    className="w-24 h-32 rounded shadow-md" 
-                                    style={{ 
-                                        transformOrigin: "bottom center",
-                                        marginLeft: i > 0 ? "-20px" : 0,
-                                        rotate: (i - (player.handCount-1)/2) * 10
-                                    }}
+                                 <CardTooltip
+                                    key={`opponent-${player.id}-${i}`}
+                                    card={cardToDisplay}
+                                    cardImage={imgSrc}
+                                    cardName={cardName}
+                                    cardDescription={cardDesc}
                                  >
-                                    <img src={imgSrc} alt={altText} className="w-full h-full object-contain drop-shadow-md" />
-                                 </motion.div>
+                                   <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      className="w-24 h-32 rounded shadow-md"
+                                      style={{
+                                          transformOrigin: "bottom center",
+                                          marginLeft: i > 0 ? "-20px" : 0,
+                                          rotate: (i - (player.handCount-1)/2) * 10
+                                      }}
+                                   >
+                                      <img src={imgSrc} alt={cardName} className="w-full h-full object-contain drop-shadow-md" />
+                                   </motion.div>
+                                 </CardTooltip>
                              );
                          })}
                     </div>
@@ -317,16 +369,28 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
         </div>
 
         {/* BOTTOM SECTION: Player Area */}
-        <div className="bg-[#1e293b] h-[35%] min-h-0 p-6 relative">
+        <div className={`bg-[#1e293b] h-[35%] min-h-0 p-6 relative ${amEliminated ? 'opacity-50 grayscale' : ''}`}>
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-500/20 via-amber-500/50 to-amber-500/20"></div>
-            
+
             <div className="flex items-center gap-4 mb-4 z-10 relative">
               <span className="text-xl font-bold text-white">{me?.name} (You)</span>
-              <span className="bg-rose-300 text-rose-900 text-xs font-black px-3 py-1 rounded-full uppercase">
+              <motion.span
+                className="bg-rose-300 text-rose-900 text-xs font-black px-3 py-1 rounded-full uppercase"
+                animate={tokensIncreased ? {
+                  scale: [1, 1.3, 1],
+                  boxShadow: ['0 0 0 rgba(251,191,36,0)', '0 0 20px rgba(251,191,36,0.8)', '0 0 0 rgba(251,191,36,0)']
+                } : {}}
+                transition={{ duration: 0.6 }}
+              >
                 {me?.tokens} Tokens
-              </span>
+              </motion.span>
               {isMyTurn && <span className="bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">YOUR TURN</span>}
               {waitingToDraw && <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce">DRAW A CARD!</span>}
+              {amEliminated && (
+                <span className="bg-red-700 text-white text-xs font-black px-3 py-1 rounded-full uppercase flex items-center gap-1">
+                  <Skull className="w-4 h-4" /> ELIMINATED
+                </span>
+              )}
             </div>
 
             <div className="w-full flex justify-center items-end h-full pb-4 gap-8">
@@ -336,36 +400,44 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                        // Identify if this is the "newly drawn" card (index 1) for animation
                        // Only animate index 1 if we are in "drawn" state and it's my turn
                        const isNewCard = idx === 1 && !waitingToDraw && isMyTurn;
-                       
+
                        return (
-                         <motion.div 
-                            key={`${card}-${idx}`} // Use idx to differentiate doubles
-                            layoutId={isNewCard ? "drawing-card" : undefined}
-                            initial={isNewCard ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
-                            animate={{ opacity: 1, scale: selectedCard === card ? 1.1 : 1, y: selectedCard === card ? -30 : 0 }}
-                            exit={{ opacity: 0, y: -50, scale: 0.5 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                            className={`
-                               relative group cursor-pointer h-[85%] aspect-[2/3]
-                               ${!isMyTurn ? 'opacity-80' : ''}
-                            `}
-                            onClick={() => isMyTurn && !waitingToDraw && setSelectedCard(card)}
+                         <CardTooltip
+                            key={`tooltip-${card}-${idx}`}
+                            card={card}
+                            cardImage={CARD_IMAGES[card]}
+                            cardName={CARD_NAMES[card]}
+                            cardDescription={CARD_DESCRIPTIONS[card]}
+                            disabled={amEliminated}
                          >
-                            <img 
-                                src={CARD_IMAGES[card]} 
-                                alt={CARD_NAMES[card]}
-                                className={`
-                                    h-full w-full object-cover rounded-xl shadow-2xl border-4 
-                                    ${selectedCard === card ? 'border-amber-400' : 'border-[#2d3748]'}
-                                `}
-                            />
-                            
-                            {/* Card Glow */}
-                            <div className={`
-                                absolute inset-0 bg-amber-400/20 blur-xl rounded-lg -z-10 transition-opacity
-                                ${selectedCard === card ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-                            `}></div>
-                         </motion.div>
+                           <motion.div
+                              layoutId={isNewCard ? "drawing-card" : undefined}
+                              initial={isNewCard ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
+                              animate={{ opacity: 1, scale: selectedCard === card ? 1.1 : 1, y: selectedCard === card ? -30 : 0 }}
+                              exit={{ opacity: 0, y: -50, scale: 0.5 }}
+                              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                              className={`
+                                 relative group h-[85%] aspect-[2/3]
+                                 ${!isMyTurn || amEliminated ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer'}
+                              `}
+                              onClick={() => isMyTurn && !waitingToDraw && !amEliminated && setSelectedCard(card)}
+                           >
+                              <img
+                                  src={CARD_IMAGES[card]}
+                                  alt={CARD_NAMES[card]}
+                                  className={`
+                                      h-full w-full object-cover rounded-xl shadow-2xl border-4
+                                      ${selectedCard === card ? 'border-amber-400' : 'border-[#2d3748]'}
+                                  `}
+                              />
+
+                              {/* Card Glow */}
+                              <div className={`
+                                  absolute inset-0 bg-amber-400/20 blur-xl rounded-lg -z-10 transition-opacity
+                                  ${selectedCard === card ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                              `}></div>
+                           </motion.div>
+                         </CardTooltip>
                        );
                    })}
                </AnimatePresence>
@@ -458,18 +530,18 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                <h2 className="text-4xl font-black mb-4 text-amber-500 uppercase tracking-widest drop-shadow-md">
                   {lobby.gameData.winner ? 'Victory!' : 'Round Over'}
                </h2>
-               
+
                <div className="my-8">
                   <div className="text-slate-300 mb-2 uppercase text-xs tracking-widest">Winner</div>
                   <div className="text-3xl font-bold text-white">
-                      {lobby.gameData.winner 
-                        ? lobby.players.find(p => p.id === lobby.gameData?.winner)?.name 
+                      {lobby.gameData.winner
+                        ? lobby.players.find(p => p.id === lobby.gameData?.winner)?.name
                         : lobby.players.find(p => p.id === lobby.gameData?.roundWinner)?.name}
                   </div>
                </div>
 
                {me?.isHost && (
-                  <button 
+                  <button
                      onClick={() => socket.emit('game:start', {})}
                      className="px-10 py-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-black rounded-xl text-xl shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider"
                   >
@@ -479,6 +551,40 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
             </div>
          </div>
       )}
+
+      {/* Card Play Animation */}
+      <AnimatePresence>
+        {playingCard && (
+          <motion.div
+            initial={{ scale: 1, opacity: 1 }}
+            animate={{
+              scale: 1.3,
+              opacity: 0,
+              y: -100
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
+          >
+            <img
+              src={playingCard.image}
+              alt={CARD_NAMES[playingCard.card]}
+              className="w-[150px] h-auto rounded-xl shadow-2xl border-4 border-amber-400"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
