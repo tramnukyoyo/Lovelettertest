@@ -101,7 +101,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
             />
             <div className="game-header-logo-text-container">
               <span className="game-header-logo-text">
-                Think<span className="game-header-accent">Alike</span>
+                {GAME_META.namePrefix}<span className="game-header-accent">{GAME_META.nameAccent}</span>
               </span>
               <span className="game-header-gb-branding">
                 <span className="game-header-gb-by">by </span>
