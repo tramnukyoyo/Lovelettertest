@@ -1,5 +1,5 @@
-// ThinkAlike - Client Types
-// 1v1 word synchronization game where players share 5 lives
+// Love Letter - Client Types
+// Risk, deduction, and luck. Get your letter to the Princess!
 
 // ============================================================================
 // BASE TYPES
@@ -8,13 +8,7 @@
 export type GameState =
   | 'LOBBY'
   | 'PLAYING'
-  | 'ENDED'
-  | 'LOBBY_WAITING'   // Legacy/Template
-  | 'ROUND_PREP'      // Legacy/Template
-  | 'WORD_INPUT'      // Legacy/Template
-  | 'REVEAL'          // Legacy/Template
-  | 'VICTORY'         // Legacy/Template
-  | 'GAME_OVER';      // Legacy/Template
+  | 'ENDED';
 
 export interface BasePlayer {
   socketId: string;

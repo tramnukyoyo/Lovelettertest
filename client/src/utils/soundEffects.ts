@@ -1,5 +1,5 @@
 /**
- * Sound Effects Utility for ThinkAlike
+ * Sound Effects Utility for Love Letter
  *
  * Manages audio playback for game events.
  * Sound files should be placed in: client/src/assets/sounds/

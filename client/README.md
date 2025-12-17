@@ -1,6 +1,6 @@
 # GameBuddies Game Template
 
-This is the ThinkAlike client, designed to serve as a template for creating new GameBuddies games with WebRTC video chat integration.
+This is the Love Letter client, designed to serve as a template for creating new GameBuddies games with WebRTC video chat integration.
 
 ## Quick Start
 

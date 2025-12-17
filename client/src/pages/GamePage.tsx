@@ -1,5 +1,4 @@
 import React from 'react';
-import GameComponent from '../components/GameComponent';
 import LoveLetterGame from '../components/love-letter/LoveLetterGame';
 import type { Lobby } from '../types';
 import type { Socket } from 'socket.io-client';
@@ -17,15 +16,6 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
     case 'PLAYING':
     case 'ENDED':
       return <LoveLetterGame lobby={lobby} socket={socket} />;
-
-    // ThinkAlike States (Legacy)
-    case 'ROUND_PREP':
-    case 'WORD_INPUT':
-    case 'REVEAL':
-    case 'VICTORY':
-    case 'GAME_OVER':
-    case 'LOBBY_WAITING':
-      return <GameComponent lobby={lobby} socket={socket} />;
       
     default:
       return <div>Unknown game state: {lobby.state}</div>;

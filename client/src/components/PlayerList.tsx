@@ -11,7 +11,6 @@ interface PlayerListProps {
   socket: Socket;
   currentTurnPlayerId?: string | null;
   showSkipButton?: boolean;
-  showReadyStatus?: boolean;
 }
 
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
@@ -65,7 +64,6 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
   socket,
   currentTurnPlayerId,
   showSkipButton = false,
-  showReadyStatus = true,
 }) => {
   const isHost = hostId === mySocketId;
 
@@ -123,14 +121,6 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
                     {player.premiumTier === 'monthly' && (
                       <span className="badge-premium monthly" title="Pro Member">PRO</span>
                     )}
-                    {/* Ready status - ThinkAlike specific feature */}
-                    {showReadyStatus && !isHostPlayer && (
-                      player.isReady ? (
-                        <span className="badge-ready">READY</span>
-                      ) : (
-                        <span className="badge-not-ready">NOT READY</span>
-                      )
-                    )}
                   </div>
                 </div>
 
@@ -172,8 +162,7 @@ const PlayerList = React.memo<PlayerListProps>(PlayerListComponent, (prevProps, 
     prevProps.mySocketId === nextProps.mySocketId &&
     prevProps.roomCode === nextProps.roomCode &&
     prevProps.currentTurnPlayerId === nextProps.currentTurnPlayerId &&
-    prevProps.showSkipButton === nextProps.showSkipButton &&
-    prevProps.showReadyStatus === nextProps.showReadyStatus
+    prevProps.showSkipButton === nextProps.showSkipButton
   );
 });
 

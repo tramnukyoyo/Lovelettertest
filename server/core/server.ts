@@ -25,15 +25,8 @@ import type {
 } from './types/core.js';
 
 // Game plugins
-import { SUSDGame } from '../games/susd/plugin.js';
-import { cluePlugin } from '../games/clue/plugin.js';
-import bingoPlugin from '../games/bingo/plugin.js';
-import DDFGamePlugin from '../games/ddf/plugin.js';
-import { supabaseService } from '../games/ddf/services/supabaseService.js';
-import thinkAlikePlugin from '../games/thinkalike/plugin.js';
 import loveLetterPlugin from '../games/love-letter/plugin.js';
 import templatePlugin from '../games/template/plugin.js';
-import bombermanPlugin from '../games/bomberman/plugin.js';
 
 /**
  * Global error handlers to prevent server crashes
@@ -295,61 +288,6 @@ class UnifiedGameServer {
           })),
         },
       });
-    });
-
-    // ===== DDF Admin API Routes =====
-    // Get all questions (with optional language filter)
-    this.app.get('/api/ddf/questions', async (req, res) => {
-      try {
-        const language = req.query.language as 'en' | 'de' | undefined;
-        const questions = await supabaseService.getAllQuestionsForAdmin(language);
-
-        // Convert to admin format
-        const adminQuestions = questions.map(q => ({
-          id: q.id,
-          question: q.question,
-          answer: q.answer,
-          category: q.category,
-          difficulty: q.difficulty,
-          language: (q as any).language || 'en',
-          isBad: q.is_bad,
-          badMarkCount: (q as any).badMarkCount || 0
-        }));
-
-        res.json(adminQuestions);
-      } catch (error) {
-        console.error('[DDF Admin] Error fetching questions:', error);
-        res.status(500).json({ error: 'Failed to fetch questions' });
-      }
-    });
-
-    // Get categories (with optional language filter)
-    this.app.get('/api/ddf/categories', async (req, res) => {
-      try {
-        const language = req.query.language as 'en' | 'de' | undefined;
-        const categories = await supabaseService.getCategories(language);
-        res.json(categories);
-      } catch (error) {
-        console.error('[DDF Admin] Error fetching categories:', error);
-        res.status(500).json({ error: 'Failed to fetch categories' });
-      }
-    });
-
-    // Mark question as bad
-    this.app.post('/api/ddf/questions/:id/mark-bad', async (req, res) => {
-      try {
-        const { id } = req.params;
-        const success = await supabaseService.markQuestionAsBad(id);
-
-        if (success) {
-          res.json({ success: true, message: 'Question marked as bad' });
-        } else {
-          res.status(500).json({ error: 'Failed to mark question as bad' });
-        }
-      } catch (error) {
-        console.error('[DDF Admin] Error marking question as bad:', error);
-        res.status(500).json({ error: 'Failed to mark question as bad' });
-      }
     });
 
     console.log('[Server] HTTP routes configured');
@@ -1516,47 +1454,6 @@ class UnifiedGameServer {
   async loadGamePlugins(): Promise<void> {
     console.log('[Server] Loading game plugins...');
 
-    // Register SUSD game
-    const susdRegistered = await this.registerGame(SUSDGame);
-    if (susdRegistered) {
-      console.log('[Server] ✓ SUSD game registered');
-    } else {
-      console.error('[Server] ✗ Failed to register SUSD game');
-    }
-
-    // Register ClueScale game
-    const clueRegistered = await this.registerGame(cluePlugin);
-    if (clueRegistered) {
-      console.log('[Server] ✓ ClueScale game registered');
-    } else {
-      console.error('[Server] ✗ Failed to register ClueScale game');
-    }
-
-    // Register BingoBuddies game
-    const bingoRegistered = await this.registerGame(bingoPlugin);
-    if (bingoRegistered) {
-      console.log('[Server] ✓ BingoBuddies game registered');
-    } else {
-      console.error('[Server] ✗ Failed to register BingoBuddies game');
-    }
-
-    // Register DDF game
-    const ddfPlugin = new DDFGamePlugin();
-    const ddfRegistered = await this.registerGame(ddfPlugin);
-    if (ddfRegistered) {
-      console.log('[Server] ✓ DDF game registered');
-    } else {
-      console.error('[Server] ✗ Failed to register DDF game');
-    }
-
-    // Register ThinkAlike game
-    const thinkAlikeRegistered = await this.registerGame(thinkAlikePlugin);
-    if (thinkAlikeRegistered) {
-      console.log('[Server] ✓ ThinkAlike game registered');
-    } else {
-      console.error('[Server] ✗ Failed to register ThinkAlike game');
-    }
-
     // Register Love Letter game
     const loveLetterRegistered = await this.registerGame(loveLetterPlugin);
     if (loveLetterRegistered) {
@@ -1571,14 +1468,6 @@ class UnifiedGameServer {
       console.log('[Server] ✓ Template game registered');
     } else {
       console.error('[Server] ✗ Failed to register Template game');
-    }
-
-    // Register Bomberman game
-    const bombermanRegistered = await this.registerGame(bombermanPlugin);
-    if (bombermanRegistered) {
-      console.log('[Server] ✓ Bomberman game registered');
-    } else {
-      console.error('[Server] ✗ Failed to register Bomberman game');
     }
 
     // TODO: Load games dynamically from games/ directory

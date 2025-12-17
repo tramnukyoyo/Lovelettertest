@@ -48,7 +48,7 @@ export function createGameAdapter(
       return lobby.players.map(player => ({
         id: player.socketId,
         name: player.name,
-        score: 0, // ThinkAlike doesn't use individual scores
+        score: player.tokens || 0, // Love Letter: Tokens = Score
       }));
     },
 

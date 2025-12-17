@@ -255,7 +255,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
           <div className="popup-logo">
             <img
               src={`${window.location.origin}${import.meta.env.BASE_URL}mascot.png`}
-              alt="ThinkAlike"
+              alt="Love Letter"
               className="popup-mascot"
             />
             <div className="popup-logo-text">

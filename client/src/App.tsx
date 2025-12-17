@@ -132,10 +132,6 @@ function AppContent() {
       );
     }
 
-    if (lobby.state === 'LOBBY_WAITING') {
-      return <LobbyPage lobby={lobby} socket={socket!} gameBuddiesSession={gameBuddiesSession} />;
-    }
-
     return <GamePage lobby={lobby} socket={socket!} />;
   };
 
@@ -146,14 +142,12 @@ function AppContent() {
     }
 
     const shouldPlayMusic =
-      lobby.state === 'LOBBY_WAITING' ||
-      lobby.state === 'ROUND_PREP' ||
-      lobby.state === 'WORD_INPUT' ||
-      lobby.state === 'REVEAL';
+      lobby.state === 'LOBBY' ||
+      lobby.state === 'PLAYING';
 
     if (shouldPlayMusic) {
       backgroundMusic.play();
-    } else if (lobby.state === 'VICTORY' || lobby.state === 'GAME_OVER') {
+    } else if (lobby.state === 'ENDED') {
       backgroundMusic.stop();
     }
   }, [lobby?.state, lobby]);
@@ -214,7 +208,6 @@ function AppContent() {
                         mySocketId={lobby.mySocketId}
                         roomCode={lobby.code}
                         socket={socket}
-                        showReadyStatus={lobby.state === 'LOBBY_WAITING'}
                       />
                       <ChatWindow
                         messages={messages}
@@ -270,7 +263,6 @@ function AppContent() {
                       mySocketId={lobby.mySocketId}
                       roomCode={lobby.code}
                       socket={socket}
-                      showReadyStatus={lobby.state === 'LOBBY_WAITING'}
                     />
                   )}
                   {mobileNav.drawerContent === 'video' && (

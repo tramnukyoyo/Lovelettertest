@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Love Letter - Client (card game)",
+  "description": "Love Letter - Client (GameBuddies game)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

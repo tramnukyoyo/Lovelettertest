@@ -63,12 +63,7 @@ export class GameBuddiesService {
 
     // Game-specific overrides (optional, falls back to shared key)
     const keyMappings: Record<string, string> = {
-      'bingo-buddies': process.env.BINGO_API_KEY || sharedKey,
-      'clue-scale': process.env.CLUE_API_KEY || sharedKey,
-      'ddf': process.env.DDF_API_KEY || sharedKey,
-      'susd': process.env.SUSD_API_KEY || sharedKey,
-      'school-quiz': process.env.QUIZ_API_KEY || sharedKey,
-      'thinkalike': sharedKey,
+      'love-letter': process.env.LOVELETTER_API_KEY || sharedKey,
       'template': sharedKey,
     };
 
