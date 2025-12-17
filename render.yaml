@@ -4,8 +4,8 @@ services:
     runtime: static
     repo: https://github.com/tramnukyoyo/Lovelettertest
     branch: main
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/dist
     envVars:
       - key: NODE_ENV
         value: production
