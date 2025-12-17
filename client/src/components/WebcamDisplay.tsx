@@ -62,7 +62,7 @@ interface VideoFeedProps {
 const VideoFeed: React.FC<VideoFeedProps> = ({
   stream,
   playerName,
-  lives: _lives, // Not used in ThinkAlike (no heart display)
+  lives: _lives, // Not used in HeartsGambit (no heart display)
   isSelf = false,
   isActive = true,
   isAnswering = false,
@@ -1369,7 +1369,7 @@ const VideoChatContent: React.FC<{
   const language = webcamConfig.getLanguage?.() || 'en';
 
   // Game-specific features (optional)
-  // const showLives = webcamConfig.showLives ?? false; // Not used in ThinkAlike (no lives system)
+  // const showLives = webcamConfig.showLives ?? false; // Not used in HeartsGambit (no lives system)
   const showTurnIndicators = webcamConfig.showTurnIndicators ?? false;
   const isVotingPhase = webcamConfig.isVotingPhase?.() || false;
   const answeringPlayerId = showTurnIndicators ? (webcamConfig.getCurrentTurnPlayer?.() || null) : null;
@@ -1405,7 +1405,7 @@ const VideoChatContent: React.FC<{
       id: 'self',
       stream: localStream,
       playerName: '👑 ' + gamemaster.name,
-      lives: 0, // ThinkAlike doesn't display lives
+      lives: 0, // HeartsGambit doesn't display lives
       isSelf: true,
       isActive: true,
       isAnswering: false,
@@ -1426,7 +1426,7 @@ const VideoChatContent: React.FC<{
         id: 'self',
         stream: localStream,
         playerName: webcamConfig.formatPlayerName?.(selfPlayer) || selfPlayer.name,
-        lives: 0, // ThinkAlike doesn't display lives
+        lives: 0, // HeartsGambit doesn't display lives
         isSelf: true,
         isActive: !selfPlayer.isEliminated,
         isAnswering: answeringPlayerId === selfPlayer.id,

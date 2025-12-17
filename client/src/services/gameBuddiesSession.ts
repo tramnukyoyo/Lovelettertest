@@ -305,7 +305,7 @@ export async function resolvePendingSession(): Promise<GameBuddiesSession | null
       avatarUrl: resolved.avatarUrl,
     };
 
-    console.log('💎 [PREMIUM DEBUG] ThinkAlike session resolved - premiumTier:', resolved.premiumTier, 'finalSession.premiumTier:', finalSession.premiumTier);
+    console.log('💎 [PREMIUM DEBUG] HeartsGambit session resolved - premiumTier:', resolved.premiumTier, 'finalSession.premiumTier:', finalSession.premiumTier);
 
     // Store the resolved session
     storeSession(finalSession);

@@ -88,7 +88,7 @@ src/
 - Auto-resolves GameBuddies session tokens (host vs player) and auto-joins/creates.
 - Exposes a `registerGameEvents` hook so each game can wire its own socket events without rewriting the core lifecycle.
 
-Usage example (ThinkAlike):
+Usage example (HeartsGambit):
 
 ```tsx
 const registerGameEvents = useCallback((socket, helpers) => {
@@ -174,7 +174,7 @@ games/yourgame/
 └── types.ts     # Server-side types
 ```
 
-See `games/thinkalike/plugin.ts` for reference implementation.
+See `games/heartsgambit/plugin.ts` for reference implementation.
 
 ## WebRTC Video Chat
 

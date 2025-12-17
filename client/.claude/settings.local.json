@@ -13,7 +13,7 @@
       "Bash(cat:*)",
       "Bash(ffmpeg:*)",
       "Bash(move:*)",
-      "Bash(cmd /c \"del \"\"E:\\GamebuddiesPlatform\\ThinkAlike\\client\\public\\music\\countdown.mp3\"\" && ren \"\"E:\\GamebuddiesPlatform\\ThinkAlike\\client\\public\\music\\countdown_trimmed.mp3\"\" \"\"countdown.mp3\"\"\")",
+      "Bash(cmd /c \"del \"\"E:\\GamebuddiesPlatform\\HeartsGambit\\client\\public\\music\\countdown.mp3\"\" && ren \"\"E:\\GamebuddiesPlatform\\HeartsGambit\\client\\public\\music\\countdown_trimmed.mp3\"\" \"\"countdown.mp3\"\"\")",
       "Bash(git fetch:*)",
       "Bash(git checkout:*)",
       "Bash(git stash:*)",

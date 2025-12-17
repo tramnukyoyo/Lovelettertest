@@ -1,5 +1,5 @@
 /**
- * Timing constants used throughout the ThinkAlike client
+ * Timing constants used throughout the HeartsGambit client
  * Centralizing magic numbers for maintainability and consistency
  */
 

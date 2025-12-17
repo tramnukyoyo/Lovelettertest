@@ -1,7 +1,7 @@
 /**
- * GAME-SPECIFIC: ThinkAlike - Replace this component for your game
+ * GAME-SPECIFIC: HeartsGambit - Replace this component for your game
  *
- * This component handles voice mode voting for ThinkAlike where players
+ * This component handles voice mode voting for HeartsGambit where players
  * say words aloud and vote on whether they matched.
  * For a different game, replace with your game's voice interaction
  * (e.g., voice commands, speech recognition, audio cues).
