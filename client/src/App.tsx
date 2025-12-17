@@ -159,15 +159,15 @@ function AppContent() {
   }, [lobby?.state, lobby]);
 
   useEffect(() => {
-    const savedBgMusic = localStorage.getItem('thinkalike-background-music-enabled');
+    const savedBgMusic = localStorage.getItem('loveletter-background-music-enabled');
     const bgMusicEnabled = savedBgMusic ? JSON.parse(savedBgMusic) : false;
     backgroundMusic.setEnabled(bgMusicEnabled);
 
-    const savedSfx = localStorage.getItem('thinkalike-sound-effects-enabled');
+    const savedSfx = localStorage.getItem('loveletter-sound-effects-enabled');
     const sfxEnabled = savedSfx ? JSON.parse(savedSfx) : true;
     soundEffects.setEnabled(sfxEnabled);
 
-    const savedVolume = localStorage.getItem('thinkalike-volume');
+    const savedVolume = localStorage.getItem('loveletter-volume');
     if (savedVolume) {
       const vol = parseInt(savedVolume, 10);
       soundEffects.setVolume(vol / 100);

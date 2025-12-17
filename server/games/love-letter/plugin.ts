@@ -48,13 +48,13 @@ interface LoveLetterSettings {
 // ============================================================================
 
 class LoveLetterPlugin implements GamePlugin {
-  id = 'love-letter';
+  id = 'loveletter';
   name = 'Love Letter';
   version = '1.0.0';
   description = 'Risk, deduction, and luck. Get your letter to the Princess!';
   author = 'GameBuddies';
-  namespace = '/love-letter';
-  basePath = '/love-letter';
+  namespace = '/loveletter';
+  basePath = '/loveletter';
 
   defaultSettings: RoomSettings = {
     minPlayers: 2,

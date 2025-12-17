@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useVideoUI } from '../contexts/VideoUIContext';
 
-const STORAGE_KEY = 'thinkalike-video-preferences';
+const STORAGE_KEY = 'loveletter-video-preferences';
 
 interface VideoPreferences {
   filmstripExpanded: boolean;

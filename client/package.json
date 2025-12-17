@@ -1,9 +1,9 @@
 {
-  "name": "thinkalike-client",
+  "name": "loveletter-client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "ThinkAlike - Client (1v1 word synchronization game)",
+  "description": "Love Letter - Client (card game)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
