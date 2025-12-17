@@ -30,7 +30,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   // Load saved settings from localStorage on mount
   useEffect(() => {
     // Load volume
-    const savedVolume = localStorage.getItem('loveletter-volume');
+    const savedVolume = localStorage.getItem('heartsgambit-volume');
     if (savedVolume) {
       const vol = parseInt(savedVolume, 10);
       setVolume(vol);
@@ -39,23 +39,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }
 
     // Load background music preference
-    const savedBgMusic = localStorage.getItem('loveletter-background-music-enabled');
+    const savedBgMusic = localStorage.getItem('heartsgambit-background-music-enabled');
     const bgMusicEnabled = savedBgMusic ? JSON.parse(savedBgMusic) : false;
     setBackgroundMusicEnabled(bgMusicEnabled);
     backgroundMusic.setEnabled(bgMusicEnabled);
 
     // Load sound effects preference
-    const savedSfx = localStorage.getItem('loveletter-sound-effects-enabled');
+    const savedSfx = localStorage.getItem('heartsgambit-sound-effects-enabled');
     const sfxEnabled = savedSfx ? JSON.parse(savedSfx) : true;
     setSoundEffectsEnabled(sfxEnabled);
     soundEffects.setEnabled(sfxEnabled);
 
     // Migrate old 'muted' setting if present
-    const oldMuted = localStorage.getItem('loveletter-muted');
+    const oldMuted = localStorage.getItem('heartsgambit-muted');
     if (oldMuted && !savedSfx) {
       const wasMuted = JSON.parse(oldMuted);
-      localStorage.setItem('loveletter-sound-effects-enabled', JSON.stringify(!wasMuted));
-      localStorage.removeItem('loveletter-muted');
+      localStorage.setItem('heartsgambit-sound-effects-enabled', JSON.stringify(!wasMuted));
+      localStorage.removeItem('heartsgambit-muted');
     }
   }, []);
 
@@ -66,7 +66,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const normalizedVolume = newVolume / 100;
     soundEffects.setVolume(normalizedVolume);
     backgroundMusic.setVolume(normalizedVolume);
-    localStorage.setItem('loveletter-volume', String(newVolume));
+    localStorage.setItem('heartsgambit-volume', String(newVolume));
   };
 
   // Handle background music toggle
@@ -74,7 +74,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const newEnabled = !backgroundMusicEnabled;
     setBackgroundMusicEnabled(newEnabled);
     backgroundMusic.setEnabled(newEnabled);
-    localStorage.setItem('loveletter-background-music-enabled', JSON.stringify(newEnabled));
+    localStorage.setItem('heartsgambit-background-music-enabled', JSON.stringify(newEnabled));
   };
 
   // Handle sound effects toggle
@@ -82,7 +82,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const newEnabled = !soundEffectsEnabled;
     setSoundEffectsEnabled(newEnabled);
     soundEffects.setEnabled(newEnabled);
-    localStorage.setItem('loveletter-sound-effects-enabled', JSON.stringify(newEnabled));
+    localStorage.setItem('heartsgambit-sound-effects-enabled', JSON.stringify(newEnabled));
   };
 
   // Close on backdrop click
