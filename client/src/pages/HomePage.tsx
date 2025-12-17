@@ -40,7 +40,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const joinCodeParam = urlParams.get('join');
+    const joinCodeParam = urlParams.get('join') || urlParams.get('invite');
 
     if (joinCodeParam) {
       setJoinCode(joinCodeParam.length > 10 ? joinCodeParam : joinCodeParam.toUpperCase());
@@ -185,7 +185,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                       value={joinCode}
                       onChange={(e) => setJoinCode(e.target.value)}
                       placeholder="Enter room code"
-                      maxLength={10}
+                      maxLength={40}
                       required
                       className="home-input"
                     />
