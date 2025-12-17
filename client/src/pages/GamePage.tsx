@@ -1,5 +1,5 @@
 import React from 'react';
-import LoveLetterGame from '../components/love-letter/LoveLetterGame';
+import HeartsGambitGame from '../components/hearts-gambit/HeartsGambitGame';
 import type { Lobby } from '../types';
 import type { Socket } from 'socket.io-client';
 
@@ -11,11 +11,10 @@ interface GamePageProps {
 const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
   // Internal game state routing - handles all game phases
   switch (lobby.state) {
-    // Love Letter States
     case 'LOBBY':
     case 'PLAYING':
     case 'ENDED':
-      return <LoveLetterGame lobby={lobby} socket={socket} />;
+      return <HeartsGambitGame lobby={lobby} socket={socket} />;
       
     default:
       return <div>Unknown game state: {lobby.state}</div>;

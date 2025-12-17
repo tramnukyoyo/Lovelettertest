@@ -1,9 +1,9 @@
 {
-  "name": "loveletter-client",
+  "name": "heartsgambit-client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Love Letter - Client (GameBuddies game)",
+  "description": "Hearts Gambit - Client (GameBuddies game)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

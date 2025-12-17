@@ -55,7 +55,7 @@ export interface BaseLobby<TPlayer, TSettings, TGameData> {
 
 export type CardType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; // 0 = Card Back
 
-export interface LoveLetterPlayer extends BasePlayer {
+export interface HeartsGambitPlayer extends BasePlayer {
   tokens: number;
   isEliminated: boolean;
   isImmune: boolean;
@@ -65,13 +65,13 @@ export interface LoveLetterPlayer extends BasePlayer {
   handCount: number;
 }
 
-export interface LoveLetterSettings extends BaseSettings {
+export interface HeartsGambitSettings extends BaseSettings {
   gameSpecific: {
     tokensToWin: number;
   };
 }
 
-export interface LoveLetterGameData {
+export interface HeartsGambitGameData {
   currentRound: number;
   currentTurn: string | null; // Player ID
   turnPhase: 'draw' | 'play';
@@ -81,17 +81,17 @@ export interface LoveLetterGameData {
   winner: string | null;
 }
 
-export type LoveLetterLobby = BaseLobby<LoveLetterPlayer, LoveLetterSettings, LoveLetterGameData>;
+export type HeartsGambitLobby = BaseLobby<HeartsGambitPlayer, HeartsGambitSettings, HeartsGambitGameData>;
 
 // ============================================================================
 // MAIN EXPORT
 // ============================================================================
 
 // We default to Love Letter for this client
-export type Lobby = LoveLetterLobby;
-export type Player = LoveLetterPlayer;
-export type Settings = LoveLetterSettings;
-export type GameData = LoveLetterGameData;
+export type Lobby = HeartsGambitLobby;
+export type Player = HeartsGambitPlayer;
+export type Settings = HeartsGambitSettings;
+export type GameData = HeartsGambitGameData;
 
 // ============================================================================
 // SOCKET EVENT PAYLOAD TYPES

@@ -15,7 +15,7 @@ import kingImg from '../../assets/cards/king.png';
 import countessImg from '../../assets/cards/countess.png';
 import princessImg from '../../assets/cards/princess.png';
 
-interface LoveLetterGameProps {
+interface HeartsGambitGameProps {
   lobby: Lobby;
   socket: Socket;
 }
@@ -55,7 +55,7 @@ const CARD_IMAGES: Record<number, string> = {
   8: princessImg
 };
 
-const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
+const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) => {
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
   const [guessCard, setGuessCard] = useState<CardType | null>(null);
@@ -483,4 +483,4 @@ const LoveLetterGame: React.FC<LoveLetterGameProps> = ({ lobby, socket }) => {
   );
 };
 
-export default LoveLetterGame;
+export default HeartsGambitGame;
