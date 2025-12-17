@@ -158,11 +158,7 @@
   --accent: var(--secondary);
   --accent-color-rgb: 0, 217, 255;
 
-<<<<<<< Updated upstream
   /* App surfaces (HeartsGambit baseline) */
-=======
-  /* App surfaces (Heart's Gambit baseline) */
->>>>>>> Stashed changes
   --bg-dark: transparent;
   --bg-darker: transparent;
   --bg-card: rgba(21, 27, 48, 0.35);
