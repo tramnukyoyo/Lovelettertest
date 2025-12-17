@@ -1,4 +1,4 @@
-// Love Letter - Client Types
+// Heart's Gambit - Client Types
 // Risk, deduction, and luck. Get your letter to the Princess!
 
 // ============================================================================
@@ -50,7 +50,7 @@ export interface BaseLobby<TPlayer, TSettings, TGameData> {
 }
 
 // ============================================================================
-// LOVE LETTER TYPES
+// HEART'S GAMBIT TYPES
 // ============================================================================
 
 export type CardType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; // 0 = Card Back
@@ -87,7 +87,7 @@ export type HeartsGambitLobby = BaseLobby<HeartsGambitPlayer, HeartsGambitSettin
 // MAIN EXPORT
 // ============================================================================
 
-// We default to Love Letter for this client
+// We default to Heart's Gambit for this client
 export type Lobby = HeartsGambitLobby;
 export type Player = HeartsGambitPlayer;
 export type Settings = HeartsGambitSettings;

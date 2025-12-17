@@ -1,5 +1,5 @@
 /**
- * Background Music Manager for Love Letter
+ * Background Music Manager for Heart's Gambit
  *
  * Manages looping background music playback.
  * Music plays during lobby and gameplay states and respects global volume/mute settings.

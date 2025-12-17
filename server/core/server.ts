@@ -25,7 +25,7 @@ import type {
 } from './types/core.js';
 
 // Game plugins
-import loveLetterPlugin from '../games/love-letter/plugin.js';
+import heartsGambitPlugin from '../games/hearts-gambit/plugin.js';
 import templatePlugin from '../games/template/plugin.js';
 
 /**
@@ -1454,12 +1454,12 @@ class UnifiedGameServer {
   async loadGamePlugins(): Promise<void> {
     console.log('[Server] Loading game plugins...');
 
-    // Register Love Letter game
-    const loveLetterRegistered = await this.registerGame(loveLetterPlugin);
-    if (loveLetterRegistered) {
-      console.log('[Server] ✓ Love Letter game registered');
+    // Register Heart's Gambit game
+    const heartsGambitRegistered = await this.registerGame(heartsGambitPlugin);
+    if (heartsGambitRegistered) {
+      console.log('[Server] ✓ Heart\'s Gambit game registered');
     } else {
-      console.error('[Server] ✗ Failed to register Love Letter game');
+      console.error('[Server] ✗ Failed to register Heart\'s Gambit game');
     }
 
     // Register Template game

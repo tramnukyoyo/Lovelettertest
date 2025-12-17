@@ -41,9 +41,9 @@ class SocketService {
       return this.socket;
     }
 
-    console.log('[Socket] Connecting to server:', SERVER_URL + '/heartsgambit');
+    console.log('[Socket] Connecting to server:', SERVER_URL + '/hearts-gambit');
 
-    this.socket = io(`${SERVER_URL}/heartsgambit`, {
+    this.socket = io(`${SERVER_URL}/hearts-gambit`, {
       reconnection: true,
       reconnectionAttempts: this.maxReconnectAttempts,
       reconnectionDelay: 1000,

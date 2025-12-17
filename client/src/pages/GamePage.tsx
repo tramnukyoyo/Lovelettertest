@@ -11,6 +11,7 @@ interface GamePageProps {
 const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
   // Internal game state routing - handles all game phases
   switch (lobby.state) {
+    // Heart's Gambit States
     case 'LOBBY':
     case 'PLAYING':
     case 'ENDED':

@@ -48,7 +48,7 @@ export function createGameAdapter(
       return lobby.players.map(player => ({
         id: player.socketId,
         name: player.name,
-        score: player.tokens || 0, // Love Letter: Tokens = Score
+        score: player.tokens || 0, // Heart's Gambit: Tokens = Score
       }));
     },
 
