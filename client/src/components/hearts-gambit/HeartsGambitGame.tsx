@@ -384,7 +384,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
         </div>
 
         {/* MIDDLE SECTION: Deck Area */}
-        <div className="bg-[rgba(0,0,0,0.22)] p-2 flex-[4] min-h-0 flex relative shadow-inner overflow-hidden border-y border-[rgba(var(--accent-color-rgb),0.12)]">
+        <div className="bg-[rgba(0,0,0,0.22)] p-2 flex-[4] min-h-0 flex relative shadow-inner border-y border-[rgba(var(--accent-color-rgb),0.12)]">
 
           {/* Center Area: Deck & Discard - No Border */}
           <div className="flex-1 flex flex-row items-center justify-center gap-20 relative">
