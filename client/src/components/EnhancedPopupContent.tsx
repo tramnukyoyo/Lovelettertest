@@ -28,7 +28,10 @@ const PopupVideoFeed: React.FC<PopupVideoFeedProps> = ({ feed, isLarge = false, 
   useEffect(() => {
     if (videoRef.current && feed.stream) {
       videoRef.current.srcObject = feed.stream;
-      // Rely on autoPlay attribute - no explicit play() to avoid AbortError race conditions
+      // Explicit play() for popup window context - autoplay may be blocked
+      videoRef.current.play().catch(err => {
+        console.warn('[Popup] Autoplay blocked:', err);
+      });
     }
     return () => {
       if (videoRef.current) {
@@ -51,7 +54,7 @@ const PopupVideoFeed: React.FC<PopupVideoFeedProps> = ({ feed, isLarge = false, 
           ref={videoRef}
           autoPlay
           playsInline
-          muted={feed.isSelf}
+          muted
           className="popup-video"
         />
       ) : (

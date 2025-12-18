@@ -112,7 +112,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                 className="home-mascot-anim"
               />
             </div>
-            <span className="eyebrow">Live word sync</span>
+            <span className="eyebrow">Deduction Card Game</span>
             <h1>{GAME_META.name}</h1>
             <p className="home-tagline">{GAME_META.tagline}</p>
             <div className="tutorial-mobile-trigger">
