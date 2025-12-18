@@ -8,7 +8,8 @@
 class BackgroundMusicManager {
   private audio: HTMLAudioElement | null = null;
   private enabled: boolean = true;
-  private volume: number = 0.3; // Default 30% volume for background music
+  private volume: number = 0.01; // Default 1% volume for background music
+  private unlockListenerRegistered = false;
 
   constructor() {
     this.loadMusic();
@@ -19,8 +20,9 @@ class BackgroundMusicManager {
    */
   private loadMusic() {
     try {
-      const audio = new Audio(import.meta.env.BASE_URL + 'music/background.mp3');
+      const audio = new Audio(import.meta.env.BASE_URL + 'music/background.opus');
       audio.loop = true; // Enable looping
+      audio.preload = 'auto';
       audio.volume = this.volume;
       this.audio = audio;
       console.log('[BackgroundMusic] Background music loaded');
@@ -37,8 +39,22 @@ class BackgroundMusicManager {
 
     // Only play if not already playing
     if (this.audio.paused) {
-      this.audio.play().catch(error => {
+      this.audio.play().catch((error: any) => {
         console.warn('[BackgroundMusic] Failed to play background music:', error);
+
+        // Autoplay restriction: retry on next user interaction.
+        const name = typeof error?.name === 'string' ? error.name : '';
+        if (!this.unlockListenerRegistered && (name === 'NotAllowedError' || name === 'NotSupportedError')) {
+          this.unlockListenerRegistered = true;
+          const unlock = () => {
+            this.unlockListenerRegistered = false;
+            this.audio?.play().catch(() => {
+              // If it still fails, we'll wait for the next explicit toggle / attempt.
+            });
+          };
+          window.addEventListener('pointerdown', unlock, { once: true });
+          window.addEventListener('keydown', unlock, { once: true });
+        }
       });
     }
   }
@@ -93,10 +109,7 @@ class BackgroundMusicManager {
     if (!this.audio) return;
 
     if (enabled) {
-      // Resume if music should be playing
-      if (!this.audio.paused) {
-        return; // Already playing
-      }
+      this.play();
     } else {
       // Pause if enabled is false
       this.audio.pause();

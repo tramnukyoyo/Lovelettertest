@@ -31,7 +31,7 @@ import './unified.css';
 // Note: LobbyComponent and GameComponent use direct imports for reliability
 // ========================================
 const VideoEnhancements = lazy(() => import('./components/VideoEnhancements'));
-const SettingsModal = lazy(() => import('./components/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const SettingsModal = lazy(() => import('./components/SettingsModalNoir').then(m => ({ default: m.SettingsModal })));
 
 // ========================================
 // LOADING FALLBACK COMPONENTS (Skeletons)
@@ -82,11 +82,33 @@ function AppContent() {
         console.log('[Game] No match', data);
       };
 
+      // Game log events from server
+      const handleGameLog = (data: { message: string }) => {
+        console.log('[GameLog] Received game:log event:', data);
+        helpers.patchLobby((prev) => {
+          if (!prev) return prev;
+          const newMessage = {
+            id: crypto.randomUUID(),
+            playerId: 'system',
+            playerName: 'Game',
+            message: data.message,
+            timestamp: Date.now(),
+          };
+          console.log('[GameLog] Adding message to state:', newMessage);
+          console.log('[GameLog] Previous messages count:', prev.messages?.length || 0);
+          return {
+            ...prev,
+            messages: [...(prev.messages || []), newMessage],
+          };
+        });
+      };
+
       socket.on('roomStateUpdated', handleRoomStateUpdated);
       socket.on('timer:update', handleTimerUpdate);
       socket.on('game:restarted', handleGameRestarted);
       socket.on('game:victory', handleVictory);
       socket.on('game:no-match', handleNoMatch);
+      socket.on('game:log', handleGameLog);
 
       return () => {
         socket.off('roomStateUpdated', handleRoomStateUpdated);
@@ -94,6 +116,7 @@ function AppContent() {
         socket.off('game:restarted', handleGameRestarted);
         socket.off('game:victory', handleVictory);
         socket.off('game:no-match', handleNoMatch);
+        socket.off('game:log', handleGameLog);
       };
     },
     []
@@ -154,18 +177,27 @@ function AppContent() {
 
   useEffect(() => {
     const savedBgMusic = localStorage.getItem('heartsgambit-background-music-enabled');
-    const bgMusicEnabled = savedBgMusic ? JSON.parse(savedBgMusic) : false;
+    const bgMusicEnabled = savedBgMusic ? JSON.parse(savedBgMusic) : true;
     backgroundMusic.setEnabled(bgMusicEnabled);
 
     const savedSfx = localStorage.getItem('heartsgambit-sound-effects-enabled');
     const sfxEnabled = savedSfx ? JSON.parse(savedSfx) : true;
     soundEffects.setEnabled(sfxEnabled);
 
-    const savedVolume = localStorage.getItem('heartsgambit-volume');
-    if (savedVolume) {
-      const vol = parseInt(savedVolume, 10);
+    const savedSfxVolume = localStorage.getItem('heartsgambit-volume');
+    if (savedSfxVolume) {
+      const vol = parseInt(savedSfxVolume, 10);
       soundEffects.setVolume(vol / 100);
+    } else {
+      soundEffects.setVolume(0.5);
+    }
+
+    const savedMusicVolume = localStorage.getItem('heartsgambit-music-volume');
+    if (savedMusicVolume) {
+      const vol = parseInt(savedMusicVolume, 10);
       backgroundMusic.setVolume(vol / 100);
+    } else {
+      backgroundMusic.setVolume(0.01);
     }
   }, []);
 
@@ -191,7 +223,7 @@ function AppContent() {
                 {lobby && <GameHeader lobby={lobby} gameBuddiesSession={gameBuddiesSession} />}
 
                 <div className="flex flex-col lg:flex-row flex-1 min-h-0 lg:h-full">
-                  <div className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6 overflow-y-auto main-scroll-area">
+                  <div className="flex-1 p-0 pb-20 lg:pb-0 overflow-y-auto main-scroll-area">
                     {error && (
                       <div className="error-message bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-lg" style={{ margin: '20px auto', maxWidth: '600px' }}>
                         {error}

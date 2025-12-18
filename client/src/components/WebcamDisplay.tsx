@@ -2423,7 +2423,8 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
     return () => {
       videoUI.setOnPopupRequested(null);
     };
-  }, [videoUI, handlePopout]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Listen for settings open request from header
   useEffect(() => {
@@ -2431,12 +2432,14 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
       setShowDeviceSettings(true);
       videoUI.closeSettings(); // Reset the trigger
     }
-  }, [videoUI.isSettingsOpen, showDeviceSettings, videoUI]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoUI.isSettingsOpen, showDeviceSettings]);
 
   // Sync popup state with VideoUIContext
   useEffect(() => {
     videoUI.setPopupOpen(!!popoutWindow);
-  }, [popoutWindow, videoUI]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popoutWindow]);
 
   // If video chat is not enabled and not preparing, show enable button
   if (!isVideoEnabled && !isVideoPrepairing) {

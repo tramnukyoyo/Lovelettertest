@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SettingsModal } from './SettingsModal';
+import { SettingsModal } from './SettingsModalNoir';
 
 /**
  * Settings Button - Floating Action Button (FAB)

@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/heartsgambit/',
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 5180,
     host: true,
   },
   esbuild: {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Copy, Users, Crown, ArrowLeft, Settings } from 'lucide-react';
 import type { Lobby, Player } from '../types';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
-import { SettingsModal } from './SettingsModal';
+import { SettingsModal } from './SettingsModalNoir';
 import socketService from '../services/socketService';
 
 import VideoControlCluster from './VideoControlCluster';
@@ -53,13 +53,32 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
   }, [socket]);
 
   const copyRoomLink = async () => {
-    if (socket) {
-      // Always use secure invite token flow for copy link
-      socket.emit('room:create-invite');
-      // The socket listener in useEffect will handle the copy
-    } else {
-      console.error('Socket not connected, cannot create invite link');
+    const baseUrl = window.location.origin;
+    const basePath = import.meta.env.BASE_URL || '/';
+
+    // If we're not in a GameBuddies session and room code isn't hidden, use room code directly.
+    // This yields URLs like: /heartsgambit/?invite=ROOMCODE
+    if (!gameBuddiesSession && !hideRoomCode) {
+      const joinUrl = `${baseUrl}${basePath}?invite=${lobby.code}`;
+      try {
+        await navigator.clipboard.writeText(joinUrl);
+        setCopyFeedback(true);
+        setTimeout(() => setCopyFeedback(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy link:', err);
+        alert('Failed to copy room link.');
+      }
+      return;
     }
+
+    if (!socket) {
+      console.error('Socket not connected, cannot create invite link');
+      return;
+    }
+
+    // Default: secure invite token flow (GameBuddies / streamer mode).
+    socket.emit('room:create-invite');
+    // The socket listener in useEffect will handle the copy
   };
 
   const getPhaseDisplay = (state: string) => {

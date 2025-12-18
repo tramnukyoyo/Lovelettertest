@@ -77,6 +77,14 @@ export interface HeartsGambitGameData {
   turnPhase: 'draw' | 'play';
   deckCount: number;
   faceUpCards: CardType[];
+  discardPile?: {
+    card: CardType;
+    playerId: string;
+    playerName: string;
+    timestamp: number;
+    round: number;
+    kind: 'play' | 'forced-discard';
+  }[];
   roundWinner: string | null;
   winner: string | null;
 }

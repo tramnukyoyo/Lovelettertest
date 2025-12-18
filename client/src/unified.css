@@ -485,7 +485,54 @@
   --terminal-bg: #000000;
 }
 
-/* Heart's Gambit - Psychic/Neural */
+/* Heart's Gambit - Royal Romance Theme */
+[data-theme="heartsgambit"] {
+  /* Noir / crime-dinner palette */
+  --royal-crimson: #6a1623;
+  --royal-crimson-light: #8a2233;
+  --royal-crimson-dark: #3d0c13;
+  --royal-gold: #d2b25a;
+  --royal-gold-light: #e7cc7a;
+  --royal-gold-dark: #a77e22;
+  --parchment: #f6f0e6;
+  --parchment-dark: #d9cfbe;
+  --velvet-dark: #0c0c10;
+  --velvet-darker: #07070a;
+  --wax-seal: #6a1623;
+  --ink-dark: #131318;
+
+  /* Map to standard CSS variables used by components */
+  --accent-color: var(--royal-gold);
+  --accent-color-rgb: 210, 178, 90;
+  --accent-hover: var(--royal-gold-light);
+  --accent-glow: rgba(210, 178, 90, 0.35);
+  --primary: var(--royal-crimson);
+  --primary-light: var(--royal-crimson-light);
+  --primary-rgb: 106, 22, 35;
+  --chalk-purple: var(--royal-crimson);
+  --bg-primary: var(--velvet-dark);
+  --bg-secondary: var(--velvet-darker);
+  --text-primary: var(--parchment);
+  --text-secondary: rgba(246, 240, 230, 0.75);
+
+  /* Typography */
+  --font-heading: var(--font-typewriter);
+  --font-body: ui-serif, Georgia, 'Times New Roman', Times, serif;
+  --hg-font-meta: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* Gradient for buttons */
+  --gradient-button: linear-gradient(135deg, var(--royal-crimson), #151018);
+  --gradient-button-hover: linear-gradient(135deg, var(--royal-crimson-light), var(--royal-crimson));
+
+  /* Neural vars mapped for compatibility */
+  --neural-purple: var(--royal-crimson);
+  --neural-wave: var(--royal-gold);
+  --neural-activity: rgba(139, 21, 56, 0.3);
+  --neural-monitor: var(--royal-gold-dark);
+  --neural-scan: var(--royal-gold-light);
+}
+
+/* Keep think theme for backwards compatibility */
 [data-theme="think"] {
   --neural-purple: #cd93ff;
   --neural-wave: #bd83ef;
@@ -690,6 +737,595 @@
 [data-theme="think"] .card {
   background: rgba(26, 11, 46, 0.8);
   border-color: var(--chalk-purple);
+}
+
+/* HeartsGambit - Noir Crime Dinner */
+[data-theme="heartsgambit"] body,
+[data-theme="heartsgambit"] .app-root {
+  background-color: var(--velvet-dark, #1a0f1e) !important;
+  background-image: var(--hg-bg-image, none);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+[data-theme="heartsgambit"] .app-root::before {
+  background:
+    radial-gradient(1200px at 50% 18%, rgba(246, 240, 230, 0.10), transparent 58%),
+    radial-gradient(1000px at 18% 12%, rgba(var(--accent-color-rgb), 0.12), transparent 55%),
+    radial-gradient(1200px at 82% 18%, rgba(var(--primary-rgb), 0.14), transparent 60%),
+    radial-gradient(1600px at 50% 110%, rgba(0, 0, 0, 0.70), transparent 58%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 7px
+    );
+  background-size: auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+}
+
+[data-theme="heartsgambit"] .app-root::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  animation: filmGrain 8s steps(8) infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+[data-theme="heartsgambit"] .card {
+  background: rgba(0, 0, 0, 0.38);
+  border-color: rgba(var(--accent-color-rgb), 0.35);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="heartsgambit"] h1,
+[data-theme="heartsgambit"] h2,
+[data-theme="heartsgambit"] h3 {
+  font-family: var(--font-heading);
+}
+
+[data-theme="heartsgambit"] .home-header h1 {
+  font-family: var(--font-heading);
+  text-shadow: 0 0 24px rgba(var(--accent-color-rgb), 0.35);
+  color: var(--royal-gold);
+}
+
+[data-theme="heartsgambit"] .eyebrow {
+  color: var(--royal-gold);
+  border-color: var(--royal-gold);
+}
+
+[data-theme="heartsgambit"] .primary-cta {
+  background: var(--gradient-button) !important;
+}
+
+[data-theme="heartsgambit"] .primary-cta:hover {
+  background: var(--gradient-button-hover) !important;
+}
+
+[data-theme="heartsgambit"] * {
+  scrollbar-color: var(--royal-crimson) rgba(var(--primary-rgb), 0.12);
+}
+
+/* Focus styling: brass focus ring for keyboard navigation */
+[data-theme="heartsgambit"] :where(a, button, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid rgba(var(--accent-color-rgb), 0.75);
+  outline-offset: 3px;
+}
+
+/* Noir UI building blocks */
+[data-theme="heartsgambit"] .hg-meta {
+  font-family: var(--hg-font-meta);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(246, 240, 230, 0.78);
+}
+
+[data-theme="heartsgambit"] .hg-stamp {
+  font-family: var(--font-typewriter);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.35);
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="heartsgambit"] .hg-panel {
+  position: relative;
+  background:
+    radial-gradient(900px at 30% 18%, rgba(246, 240, 230, 0.06), transparent 56%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.70), rgba(0, 0, 0, 0.38));
+  border: 1px solid rgba(var(--accent-color-rgb), 0.18);
+  box-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.65),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="heartsgambit"] .hg-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.10;
+  mix-blend-mode: overlay;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 7px
+    );
+}
+
+[data-theme="heartsgambit"] .hg-panel.hg-candlelight::before {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.22;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(900px at 25% 10%, rgba(246, 240, 230, 0.10), transparent 55%),
+    radial-gradient(700px at 80% 18%, rgba(var(--accent-color-rgb), 0.08), transparent 60%);
+  animation: hgCandleFlicker 12s ease-in-out infinite;
+}
+
+/* HeartsGambit Settings Modal (Noir) */
+[data-theme="heartsgambit"] .settings-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-settings-modal);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  padding-top: calc(var(--app-header-height, 66px) + env(safe-area-inset-top, 0px) + 2.25rem);
+  background:
+    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
+    radial-gradient(900px at 25% 14%, rgba(var(--accent-color-rgb), 0.10), transparent 60%),
+    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.75), transparent 58%),
+    rgba(0, 0, 0, 0.72);
+  pointer-events: auto;
+}
+
+[data-theme="heartsgambit"] .settings-modal-panel {
+  width: min(560px, 100%);
+  border-radius: 1.1rem;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+[data-theme="heartsgambit"] .settings-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.1rem 0.9rem;
+  border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.16);
+}
+
+[data-theme="heartsgambit"] .settings-modal-title {
+  min-width: 0;
+}
+
+[data-theme="heartsgambit"] .settings-modal-eyebrow {
+  font-family: var(--hg-font-meta);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(var(--accent-color-rgb), 0.85);
+  font-size: 0.7rem;
+}
+
+[data-theme="heartsgambit"] .settings-modal-header h2 {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-heading);
+  color: var(--parchment);
+  letter-spacing: 0.06em;
+  font-size: 1.25rem;
+}
+
+[data-theme="heartsgambit"] .settings-modal-close {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.9rem;
+  color: var(--parchment);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.22);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+[data-theme="heartsgambit"] .settings-modal-close:hover {
+  transform: translateY(-1px);
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(var(--accent-color-rgb), 0.35);
+}
+
+[data-theme="heartsgambit"] .settings-modal-content {
+  padding: 1rem 1.1rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+[data-theme="heartsgambit"] .settings-section {
+  padding: 0.9rem 0.9rem 0.85rem;
+  border-radius: 1rem;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.12);
+}
+
+[data-theme="heartsgambit"] .settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+[data-theme="heartsgambit"] .settings-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+[data-theme="heartsgambit"] .settings-row-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: rgba(246, 240, 230, 0.92);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="heartsgambit"] .settings-row-value {
+  font-family: var(--hg-font-meta);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246, 240, 230, 0.78);
+  font-size: 0.75rem;
+}
+
+[data-theme="heartsgambit"] .settings-subtext {
+  margin-top: 0.6rem;
+  color: rgba(246, 240, 230, 0.65);
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+[data-theme="heartsgambit"] .settings-slider {
+  width: 100%;
+  accent-color: var(--royal-gold);
+}
+
+[data-theme="heartsgambit"] .settings-switch {
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.22);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+[data-theme="heartsgambit"] .settings-switch.on {
+  background: rgba(var(--accent-color-rgb), 0.22);
+  border-color: rgba(var(--accent-color-rgb), 0.45);
+}
+
+[data-theme="heartsgambit"] .settings-switch-thumb {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(246, 240, 230, 0.92);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+[data-theme="heartsgambit"] .settings-switch.on .settings-switch-thumb {
+  transform: translate(22px, -50%);
+  background: var(--royal-gold);
+}
+
+[data-theme="heartsgambit"] .settings-modal-footer {
+  padding: 0.85rem 1.1rem 1rem;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.12);
+  display: flex;
+  justify-content: flex-end;
+}
+
+[data-theme="heartsgambit"] .settings-hint {
+  font-family: var(--hg-font-meta);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246, 240, 230, 0.62);
+  font-size: 0.7rem;
+}
+
+@keyframes hgCandleFlicker {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.20; }
+  33% { transform: translate3d(-6px, 4px, 0); opacity: 0.24; }
+  66% { transform: translate3d(7px, -5px, 0); opacity: 0.18; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="heartsgambit"] .hg-panel.hg-candlelight::before,
+  [data-theme="heartsgambit"] .app-root::after {
+    animation: none !important;
+  }
+}
+
+/* In-room header spacing: keep content flush to header bottom (including safe-area). */
+[data-theme="heartsgambit"] {
+  --app-header-height: 66px;
+}
+
+@media (max-width: 767px) {
+  [data-theme="heartsgambit"] {
+    --app-header-height: 52px;
+  }
+}
+
+[data-theme="heartsgambit"] .app-root.in-room {
+  padding-top: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
+}
+
+[data-theme="heartsgambit"] .app-root.in-room .game-header {
+  height: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ============================================
+   HEARTSGAMBIT - VIEWPORT SCALING
+   Ensures all content fits without scrolling
+   ============================================ */
+
+/* Root container - viewport height with flex */
+[data-theme="heartsgambit"] .app-root {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+[data-theme="heartsgambit"] .app-root.in-room {
+  overflow: hidden;
+}
+
+/* App layout - flex child that fills remaining space */
+[data-theme="heartsgambit"] .app-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: 0;
+  background: transparent;
+}
+
+/* In-room: let the game fill to header/sidebar edges */
+[data-theme="heartsgambit"] .app-root.in-room .game-content {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* In-room (App.tsx layout): remove inset padding between header and panels */
+[data-theme="heartsgambit"] .app-root.in-room .main-scroll-area {
+  padding: 0 !important;
+}
+
+@media (max-width: 1023px) {
+  [data-theme="heartsgambit"] .app-root.in-room .main-scroll-area {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* PlayerList: avoid clipped gradient text on dark/noir backgrounds */
+[data-theme="heartsgambit"] .player-list-fixed {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(var(--accent-color-rgb), 0.2);
+}
+
+[data-theme="heartsgambit"] .player-list-header {
+  background: rgba(0, 0, 0, 0.45);
+  border-bottom-color: rgba(var(--accent-color-rgb), 0.16);
+}
+
+[data-theme="heartsgambit"] .player-list-header h3 {
+  background: none;
+  -webkit-text-fill-color: var(--parchment);
+  color: var(--parchment);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* Homepage - fit to viewport minus header */
+[data-theme="heartsgambit"] .home-hero {
+  height: calc(100dvh - 66px);
+  height: calc(100vh - 66px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+[data-theme="heartsgambit"] .home-shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(0.5rem, 2vh, 2rem);
+  overflow-y: auto;
+}
+
+/* Scale mascot based on viewport */
+[data-theme="heartsgambit"] .home-mascot-container {
+  height: clamp(60px, 12vh, 150px);
+  flex-shrink: 0;
+}
+
+[data-theme="heartsgambit"] .home-mascot-container img {
+  height: 100%;
+  width: auto;
+}
+
+/* Scale title based on viewport */
+[data-theme="heartsgambit"] .home-header {
+  flex-shrink: 0;
+}
+
+[data-theme="heartsgambit"] .home-header h1 {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* Flexible card layout */
+[data-theme="heartsgambit"] .home-cards-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+[data-theme="heartsgambit"] .split-actions {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 1rem;
+}
+
+[data-theme="heartsgambit"] .split-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+[data-theme="heartsgambit"] .split-card .home-form {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-theme="heartsgambit"] .split-card .form-group {
+  flex-shrink: 0;
+}
+
+[data-theme="heartsgambit"] .split-card .primary-cta {
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+/* Game container - full height flex with radial gradient */
+[data-theme="heartsgambit"] .hearts-gambit-game {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+  background:
+    radial-gradient(900px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
+    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.55), transparent 60%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.25) 60%, rgba(0, 0, 0, 0.48) 100%);
+}
+
+/* Card sizing - all cards use same (player) size */
+[data-theme="heartsgambit"] .hg-deck-card,
+[data-theme="heartsgambit"] .hg-discard-card,
+[data-theme="heartsgambit"] .hg-hand-card,
+[data-theme="heartsgambit"] .hg-opponent-card,
+[data-theme="heartsgambit"] .hg-card {
+  height: var(--hg-card-height, 240px);
+  width: var(--hg-card-width, 160px);
+  border-radius: 0.85rem;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.18);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.18);
+  transform: translateZ(0);
+}
+
+[data-theme="heartsgambit"] .hg-deck-card,
+[data-theme="heartsgambit"] .hg-discard-card {
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  will-change: transform;
+}
+
+[data-theme="heartsgambit"] .hg-deck-card:hover,
+[data-theme="heartsgambit"] .hg-discard-card:hover {
+  transform: translateY(-2px) rotate(-0.25deg);
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="heartsgambit"] .hg-hand-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme="heartsgambit"] .hg-hand-card:hover {
+  transform: scale(1.5);
+  z-index: 50;
+}
+
+/* Filmstrip space coordination */
+[data-theme="heartsgambit"] .app-root.in-room .app-layout {
+  max-height: calc(100dvh - var(--filmstrip-safe-space, 0px));
+  max-height: calc(100vh - var(--filmstrip-safe-space, 0px));
+}
+
+/* Header height variable */
+[data-theme="heartsgambit"] {
+  --hg-header-height: 66px;
+  --hg-card-width: 160px;
+  --hg-card-height: 240px;
+}
+
+@media (max-height: 700px), (max-width: 480px) {
+  [data-theme="heartsgambit"] {
+    --hg-card-width: 140px;
+    --hg-card-height: 210px;
+  }
+}
+
+@media (max-height: 600px) {
+  [data-theme="heartsgambit"] {
+    --hg-header-height: 50px;
+    --hg-card-width: 120px;
+    --hg-card-height: 180px;
+  }
+
+  [data-theme="heartsgambit"] .home-hero {
+    height: calc(100dvh - 50px);
+    height: calc(100vh - 50px);
+  }
 }
 
 @layer base {
@@ -5115,6 +5751,33 @@ textarea:focus {
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+
+/* Player content wrapper - contains name row and score */
+.player-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Name row - horizontal alignment of name and badges */
+.player-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+/* Badge container - groups all badges with spacing */
+.player-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
 }
 
 .badge-host,

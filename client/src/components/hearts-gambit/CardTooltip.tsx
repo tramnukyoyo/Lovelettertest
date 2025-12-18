@@ -9,6 +9,7 @@ interface CardTooltipProps {
   cardDescription?: string;
   children: React.ReactNode;
   disabled?: boolean;
+  imageOnly?: boolean;
 }
 
 const CardTooltip: React.FC<CardTooltipProps> = ({
@@ -17,7 +18,8 @@ const CardTooltip: React.FC<CardTooltipProps> = ({
   cardName,
   cardDescription,
   children,
-  disabled = false
+  disabled = false,
+  imageOnly = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -106,24 +108,32 @@ const CardTooltip: React.FC<CardTooltipProps> = ({
             className="fixed z-50 pointer-events-none"
             style={getTooltipStyle()}
           >
-            <div className="bg-slate-900/95 border-2 border-amber-500/50 rounded-xl p-3 shadow-2xl backdrop-blur-sm w-[180px]">
-              {/* Card Image Preview */}
+            {imageOnly ? (
               <img
                 src={cardImage}
                 alt={cardName}
-                className="w-full h-auto rounded-lg mb-2 shadow-md"
+                className="w-[200px] h-auto rounded-xl shadow-2xl ring-1 ring-[rgba(var(--accent-color-rgb),0.25)]"
               />
-              {/* Card Info */}
-              <div className="text-center">
-                <div className="text-amber-400 font-bold text-sm">{cardName}</div>
-                {card !== 0 && (
-                  <div className="text-slate-300 text-xs mt-1 italic">Value: {card}</div>
-                )}
-                {cardDescription && (
-                  <div className="text-slate-400 text-xs mt-2 leading-tight">{cardDescription}</div>
-                )}
+            ) : (
+              <div className="hg-panel hg-candlelight rounded-xl p-3 shadow-2xl backdrop-blur-sm w-[190px]">
+                {/* Card Image Preview */}
+                <img
+                  src={cardImage}
+                  alt={cardName}
+                  className="w-full h-auto rounded-lg mb-2 shadow-md ring-1 ring-white/10"
+                />
+                {/* Card Info */}
+                <div className="text-center">
+                  <div className="text-[var(--royal-gold)] font-bold text-sm tracking-wide">{cardName}</div>
+                  {card !== 0 && (
+                    <div className="hg-meta text-xs mt-1">Value: {card}</div>
+                  )}
+                  {cardDescription && (
+                    <div className="text-[rgba(246,240,230,0.78)] text-xs mt-2 leading-tight">{cardDescription}</div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

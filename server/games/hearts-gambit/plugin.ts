@@ -2,6 +2,7 @@
  * Heart's Gambit Game Plugin
  */
 
+import crypto from 'crypto';
 import type {
   GamePlugin,
   Room,
@@ -17,12 +18,23 @@ import type { Socket } from 'socket.io';
 // ============================================================================
 
 export type CardType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type ClientCardType = 0 | CardType;
+
+export interface HeartsGambitDiscardEvent {
+  card: CardType;
+  playerId: string;
+  playerName: string;
+  timestamp: number;
+  round: number;
+  kind: 'play' | 'forced-discard';
+}
 
 export interface HeartsGambitGameState {
   currentRound: number;
   deck: CardType[];
   removedCard: CardType | null; // The one removed secretly at start
   faceUpCards: CardType[]; // For 2 player games
+  discardPile: HeartsGambitDiscardEvent[]; // Chronological (oldest -> newest), per-round
   currentTurn: string | null; // Player ID
   turnPhase: 'draw' | 'play'; // Start of turn (draw) or ready to play card
   winner: string | null; // Winner of the game (collected enough tokens)
@@ -82,6 +94,7 @@ class HeartsGambitPlugin implements GamePlugin {
       deck: [],
       removedCard: null,
       faceUpCards: [],
+      discardPile: [],
       currentTurn: null,
       turnPhase: 'draw',
       winner: null,
@@ -146,11 +159,11 @@ class HeartsGambitPlugin implements GamePlugin {
         };
         const isMe = p.socketId === socketId;
         
-        let handToSend: CardType[];
+        let handToSend: ClientCardType[];
         const actualHandLength = pd.hand.length;
 
         if (isMe || gameState.roundWinner !== null) {
-            handToSend = pd.hand;
+            handToSend = pd.hand as ClientCardType[];
         } else if (requestingPlayer && pd.seenHandSnapshots[requestingPlayer.id]) {
             const currentActualHand = pd.hand; // The target's current actual hand
             const originalSnapshot = pd.seenHandSnapshots[requestingPlayer.id]; // The snapshot taken earlier
@@ -175,7 +188,7 @@ class HeartsGambitPlugin implements GamePlugin {
             }
         }
         else {
-            handToSend = pd.hand.map(() => 0); // All card backs
+            handToSend = pd.hand.map(() => 0 as ClientCardType); // All card backs
         }
         // ...
         return {
@@ -200,11 +213,13 @@ class HeartsGambitPlugin implements GamePlugin {
         turnPhase: gameState.turnPhase,
         deckCount: gameState.deck.length,
         faceUpCards: gameState.faceUpCards, // Visible to all
+        discardPile: gameState.discardPile,
         roundWinner: gameState.roundWinner,
         winner: gameState.winner
       },
       settings: room.settings,
-      mySocketId: socketId
+      mySocketId: socketId,
+      messages: room.messages || []
     };
   }
 
@@ -234,11 +249,26 @@ class HeartsGambitPlugin implements GamePlugin {
     'player:draw': async (socket, data, room, helpers) => {
       const player = Array.from(room.players.values()).find(p => p.socketId === socket.id);
       const gameState = room.gameState.data as HeartsGambitGameState;
-      
+
       if (!player || gameState.currentTurn !== player.id || gameState.turnPhase !== 'draw') return;
-      
+
       this.drawCardForCurrentPlayer(room);
       gameState.turnPhase = 'play';
+
+      // Log draw action
+      const drawLogMsg = `${player.name} drew a card.`;
+      console.log(`[GameLog] Emitting game:log for draw: ${drawLogMsg}`);
+      // Persist to room.messages so it's included in roomStateUpdated
+      room.messages = room.messages || [];
+      room.messages.push({
+        id: crypto.randomUUID(),
+        playerId: 'system',
+        playerName: 'Game',
+        message: drawLogMsg,
+        timestamp: Date.now()
+      });
+      helpers.sendToRoom(room.code, 'game:log', { message: drawLogMsg });
+
       this.broadcastRoomState(room);
     },
 
@@ -272,7 +302,29 @@ class HeartsGambitPlugin implements GamePlugin {
       playerData.hand.splice(cardIndex, 1);
       // 2. Add to discards (visible history)
       playerData.discarded.push(cardToPlay);
-      
+      gameState.discardPile.push({
+        card: cardToPlay,
+        playerId: player.id,
+        playerName: player.name,
+        timestamp: Date.now(),
+        round: gameState.currentRound,
+        kind: 'play'
+      });
+
+      // Log play action
+      const playLogMsg = `${player.name} played ${this.getCardName(cardToPlay)}.`;
+      console.log(`[GameLog] Emitting game:log for play: ${playLogMsg}`);
+      // Persist to room.messages so it's included in roomStateUpdated
+      room.messages = room.messages || [];
+      room.messages.push({
+        id: crypto.randomUUID(),
+        playerId: 'system',
+        playerName: 'Game',
+        message: playLogMsg,
+        timestamp: Date.now()
+      });
+      helpers.sendToRoom(room.code, 'game:log', { message: playLogMsg });
+
       // 3. Resolve Effect
       await this.resolveCardEffect(room, player, cardToPlay, data.targetId, data.guess, helpers);
       
@@ -309,6 +361,7 @@ class HeartsGambitPlugin implements GamePlugin {
     gameState.deck = this.createDeck();
     gameState.faceUpCards = [];
     gameState.removedCard = null;
+    gameState.discardPile = [];
 
     // Reset player round state
     room.players.forEach(p => {
@@ -457,6 +510,14 @@ class HeartsGambitPlugin implements GamePlugin {
                const discardedCard = tpd.hand.pop();
                if (discardedCard) {
                    tpd.discarded.push(discardedCard);
+                   gameState.discardPile.push({
+                     card: discardedCard,
+                     playerId: target.id,
+                     playerName: target.name,
+                     timestamp: Date.now(),
+                     round: gameState.currentRound,
+                     kind: 'forced-discard'
+                   });
                    helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} forced ${target.name} to discard a card.` });
                    
                    // If Princess discarded, eliminated

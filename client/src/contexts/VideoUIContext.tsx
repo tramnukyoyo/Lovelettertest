@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 
 interface VideoUIContextState {
@@ -72,7 +72,7 @@ export const VideoUIProvider: React.FC<VideoUIProviderProps> = ({ children }) =>
     setPopupOpen(false);
   }, []);
 
-  const contextValue: VideoUIContextState = {
+  const contextValue = useMemo<VideoUIContextState>(() => ({
     isFilmstripExpanded,
     setFilmstripExpanded,
     toggleFilmstrip,
@@ -85,7 +85,17 @@ export const VideoUIProvider: React.FC<VideoUIProviderProps> = ({ children }) =>
     setPopupOpen,
     onPopupRequested,
     setOnPopupRequested
-  };
+  }), [
+    isFilmstripExpanded,
+    toggleFilmstrip,
+    isSettingsOpen,
+    openSettings,
+    closeSettings,
+    isPopupOpen,
+    requestPopup,
+    closePopup,
+    onPopupRequested
+  ]);
 
   return (
     <VideoUIContext.Provider value={contextValue}>
