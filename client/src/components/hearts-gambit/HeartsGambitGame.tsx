@@ -53,7 +53,7 @@ type ZoomContext = {
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
 
 const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) => {
-  const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
+  const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
   const [guessCard, setGuessCard] = useState<CardType | null>(null);
   const [toast, setToast] = useState<{message: string; type: 'error' | 'success'} | null>(null);
@@ -73,9 +73,10 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
   const amEliminated = me?.isEliminated || false;
   const discardEvents: DiscardEvent[] | null = lobby.gameData?.discardPile?.length ? (lobby.gameData.discardPile as DiscardEvent[]) : null;
-  const totalDiscardedCount = discardEvents
+  const faceUpCards = lobby.gameData?.faceUpCards || [];
+  const totalDiscardedCount = (discardEvents
     ? discardEvents.length
-    : lobby.players.reduce((sum, p) => sum + (p.discarded?.length || 0), 0);
+    : lobby.players.reduce((sum, p) => sum + (p.discarded?.length || 0), 0)) + faceUpCards.length;
   const lastDiscardEvent = discardEvents ? discardEvents[discardEvents.length - 1] : null;
   const lastDiscardOrder = discardEvents ? discardEvents.length : null;
   const discardTimeline: DiscardEventWithOrder[] | null = discardEvents ? discardEvents.map((evt, i) => ({ ...evt, order: i + 1 })) : null;
@@ -110,11 +111,17 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
   // Use server state for draw phase
   const waitingToDraw = isMyTurn && lobby.gameData?.turnPhase === 'draw';
 
+  // Check if player must play Accomplice (has 7 with 5 or 6)
+  const mustPlayAccomplice = myHand.includes(7) && (myHand.includes(5) || myHand.includes(6));
+
   // If waiting to draw, we rely on server not sending the 2nd card yet
   // But strictly, we just show what we have.
   // The server now won't send the 2nd card until we emit 'player:draw'.
   // So 'myHand' will have 1 card during 'draw' phase.
   const displayedHand = myHand;
+
+  // Derive selectedCard from index (fixes bug where two same cards both highlight)
+  const selectedCard = selectedCardIndex !== null ? displayedHand[selectedCardIndex] : null;
 
   // Track token changes for animation
   const currentTokens = me?.tokens || 0;
@@ -202,7 +209,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
     const guessToSend = guessCard;
 
     // Reset local state immediately for UI
-    setSelectedCard(null);
+    setSelectedCardIndex(null);
     setTargetId(null);
     setGuessCard(null);
 
@@ -286,12 +293,18 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
              <div
                 key={player.id}
                 className={`
-                    relative flex flex-col items-center transition-all cursor-pointer p-2 rounded-xl
+                    relative flex flex-col items-center transition-all p-2 rounded-xl
+                    ${player.isEliminated ? 'opacity-50 grayscale cursor-not-allowed' : player.isImmune && selectedCard !== 1 ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
                     ${targetId === player.id ? 'bg-[rgba(var(--accent-color-rgb),0.2)] ring-4 ring-[var(--royal-gold)] scale-105' : ''}
                     ${lobby.gameData?.currentTurn === player.id ? 'ring-2 ring-[var(--royal-crimson)] bg-[rgba(var(--primary-rgb),0.10)]' : ''}
-                    ${player.isEliminated ? 'opacity-50 grayscale' : ''}
+                    ${player.isImmune && selectedCard === 1 ? 'ring-2 ring-yellow-500/50' : ''}
                 `}
-                onClick={() => !player.isEliminated && player.isImmune === false && player.id ? setTargetId(player.id) : null}
+                onClick={() => {
+                  if (player.isEliminated || !player.id) return;
+                  // Allow selecting immune players for Inspector (card 1) - server handles "no effect"
+                  if (player.isImmune && selectedCard !== 1) return;
+                  setTargetId(player.id);
+                }}
              >
                 {/* Player Info - Dark Theme */}
                 <div className="hg-panel hg-candlelight flex items-center gap-3 p-2 rounded-xl w-48 mb-2 relative backdrop-blur-sm">
@@ -450,6 +463,17 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                          const topCard = prevPlayer?.discarded.length ? prevPlayer.discarded[prevPlayer.discarded.length-1] : null;
 
                          if (!topCard) {
+                           // Show face-up cards if available (2-player games)
+                           if (faceUpCards.length > 0) {
+                             return (
+                               <div className="relative z-10">
+                                 <DynamicCard
+                                   cardType={faceUpCards[faceUpCards.length - 1]}
+                                   className="hg-discard-pile-card"
+                                 />
+                               </div>
+                             );
+                           }
                            return (
                                <span className="hg-meta text-xs text-[rgba(var(--accent-color-rgb),0.65)]">No evidence</span>
                            );
@@ -591,6 +615,11 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
               </motion.span>
               {isMyTurn && <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-3 py-1 rounded-full text-xs font-bold animate-pulse">YOUR TURN</span>}
               {waitingToDraw && <span className="bg-[var(--royal-crimson-light)] text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce">DRAW A CARD!</span>}
+              {mustPlayAccomplice && !waitingToDraw && (
+                <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                  Must Play Accomplice!
+                </span>
+              )}
               {amEliminated && (
                 <span className="bg-red-700 text-white text-xs font-black px-3 py-1 rounded-full uppercase flex items-center gap-1">
                   <Skull className="w-4 h-4" /> ELIMINATED
@@ -611,18 +640,18 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                               key={`card-${card}-${idx}`}
                               layoutId={isNewCard ? "drawing-card" : undefined}
                               initial={isNewCard ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
-                              animate={{ opacity: 1, scale: selectedCard === card ? 1.1 : 1, y: selectedCard === card ? -15 : 0 }}
+                              animate={{ opacity: 1, scale: selectedCardIndex === idx ? 1.1 : 1, y: selectedCardIndex === idx ? -15 : 0 }}
                               exit={{ opacity: 0, y: -50, scale: 0.5 }}
                               transition={{ type: "spring", stiffness: 300, damping: 25 }}
                               className={`
                                  relative group
                                  ${!isMyTurn || amEliminated ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer'}
                               `}
-                              onClick={() => isMyTurn && !waitingToDraw && !amEliminated && setSelectedCard(card)}
+                              onClick={() => isMyTurn && !waitingToDraw && !amEliminated && setSelectedCardIndex(idx)}
                            >
                               <DynamicCard
                                   cardType={card}
-                                  selected={selectedCard === card}
+                                  selected={selectedCardIndex === idx}
                                   className="hg-hand-card"
                               />
                            </motion.div>
@@ -707,7 +736,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                     </button>
                     <button
                       onClick={() => {
-                        setSelectedCard(null);
+                        setSelectedCardIndex(null);
                         setTargetId(null);
                         setGuessCard(null);
                       }}
@@ -761,7 +790,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedCard(null);
+                      setSelectedCardIndex(null);
                       setTargetId(null);
                       setGuessCard(null);
                     }}
@@ -896,6 +925,27 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                   <div className="text-[rgba(246,240,230,0.6)] italic text-center py-10">No evidence logged yet.</div>
                 ) : (
                   <div className="space-y-6">
+                    {/* Face-up cards (2-player) */}
+                    {faceUpCards.length > 0 && (
+                      <div className="border-b border-[rgba(var(--accent-color-rgb),0.2)] pb-4">
+                        <div className="text-center text-sm text-[rgba(246,240,230,0.8)] mb-3">
+                          <span className="text-[var(--royal-gold)] font-bold">Removed at Start</span>
+                          <span className="text-[rgba(246,240,230,0.5)]"> (out of play)</span>
+                        </div>
+                        <div className="flex flex-wrap gap-3 justify-center">
+                          {faceUpCards.map((card, idx) => (
+                            <div key={`faceup-${idx}`} className="flex flex-col items-center gap-1">
+                              <DynamicCard
+                                cardType={card}
+                                className="hg-evidence-card opacity-75"
+                              />
+                              <span className="text-[10px] text-[var(--parchment-dark)]">{CARD_NAMES[card]}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {discardTimelineDisplay ? (
                       <>
                         {lastDiscardEvent && (
