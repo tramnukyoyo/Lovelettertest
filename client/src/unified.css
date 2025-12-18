@@ -2078,26 +2078,27 @@
 [data-theme="primesuspect"] {
   --hg-header-height: 66px;
   /* Dynamic card sizing using vh for responsive scaling */
-  --hg-card-height: clamp(100px, 22vh, 240px);
-  --hg-card-width: clamp(67px, 14.7vh, 160px);
+  /* Lowered minimums to allow cards to shrink when filmstrip is maximized */
+  --hg-card-height: clamp(70px, 22vh, 240px);
+  --hg-card-width: clamp(47px, 14.7vh, 160px);
 }
 
-/* When filmstrip is active, scale cards more aggressively */
+/* When filmstrip is active, scale cards much more aggressively */
 html.has-filmstrip [data-theme="primesuspect"] {
-  --hg-card-height: clamp(90px, 18vh, 200px);
-  --hg-card-width: clamp(60px, 12vh, 133px);
+  --hg-card-height: clamp(60px, 15vh, 180px);
+  --hg-card-width: clamp(40px, 10vh, 120px);
 }
 
 /* Small viewports */
 @media (max-height: 700px), (max-width: 480px) {
   [data-theme="primesuspect"] {
-    --hg-card-height: clamp(90px, 20vh, 210px);
-    --hg-card-width: clamp(60px, 13.3vh, 140px);
+    --hg-card-height: clamp(65px, 20vh, 210px);
+    --hg-card-width: clamp(43px, 13.3vh, 140px);
   }
 
   html.has-filmstrip [data-theme="primesuspect"] {
-    --hg-card-height: clamp(80px, 16vh, 160px);
-    --hg-card-width: clamp(53px, 10.7vh, 107px);
+    --hg-card-height: clamp(50px, 12vh, 140px);
+    --hg-card-width: clamp(33px, 8vh, 93px);
   }
 }
 
@@ -2105,19 +2106,41 @@ html.has-filmstrip [data-theme="primesuspect"] {
 @media (max-height: 600px) {
   [data-theme="primesuspect"] {
     --hg-header-height: 50px;
-    --hg-card-height: clamp(80px, 18vh, 180px);
-    --hg-card-width: clamp(53px, 12vh, 120px);
+    --hg-card-height: clamp(60px, 18vh, 180px);
+    --hg-card-width: clamp(40px, 12vh, 120px);
   }
 
   html.has-filmstrip [data-theme="primesuspect"] {
-    --hg-card-height: clamp(70px, 14vh, 140px);
-    --hg-card-width: clamp(47px, 9.3vh, 93px);
+    --hg-card-height: clamp(45px, 10vh, 120px);
+    --hg-card-width: clamp(30px, 6.7vh, 80px);
   }
 
   [data-theme="primesuspect"] .home-hero {
     height: calc(100dvh - 50px);
     height: calc(100vh - 50px);
   }
+}
+
+/* Compress game UI when filmstrip is active to maximize card space */
+html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game {
+  /* Reduce section padding */
+  --hg-section-padding: 0.5rem;
+}
+
+html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:first-child {
+  /* Reduce top section padding */
+  padding: 0.5rem;
+}
+
+html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:last-child {
+  /* Reduce bottom section (player area) padding */
+  padding: 0.5rem;
+}
+
+/* Compress player info header when filmstrip active */
+html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:last-child > div:first-child {
+  margin-bottom: 0.25rem;
+  gap: 0.5rem;
 }
 
 /* ============================================
