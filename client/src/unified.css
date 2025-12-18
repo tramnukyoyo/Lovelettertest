@@ -1668,6 +1668,101 @@
   font-family: 'Courier Prime', monospace !important;
 }
 
+/* ===== CARD LEGEND MODAL - NOIR THEME ===== */
+[data-theme="primesuspect"] .card-legend-panel {
+  max-width: 700px;
+  width: 95vw;
+  max-height: 85vh;
+}
+
+[data-theme="primesuspect"] .card-legend-content {
+  overflow-y: auto;
+  max-height: calc(85vh - 140px);
+}
+
+[data-theme="primesuspect"] .card-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+[data-theme="primesuspect"] .card-legend-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(74, 63, 53, 0.1);
+  border: 1px solid rgba(74, 63, 53, 0.2);
+  border-radius: 4px;
+}
+
+[data-theme="primesuspect"] .card-legend-image-wrapper {
+  flex-shrink: 0;
+  width: 80px;
+}
+
+[data-theme="primesuspect"] .card-legend-image {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="primesuspect"] .card-legend-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+[data-theme="primesuspect"] .card-legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+[data-theme="primesuspect"] .card-legend-name {
+  font-family: var(--hg-font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--tobacco-brown);
+}
+
+[data-theme="primesuspect"] .card-legend-value {
+  font-family: var(--hg-font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: var(--tobacco-brown);
+  color: var(--parchment-cream);
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+[data-theme="primesuspect"] .card-legend-description {
+  font-family: var(--hg-font-body);
+  font-size: 0.8rem;
+  color: #4a3f35;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Responsive: Stack cards on mobile */
+@media (max-width: 600px) {
+  [data-theme="primesuspect"] .card-legend-grid {
+    grid-template-columns: 1fr;
+  }
+
+  [data-theme="primesuspect"] .card-legend-panel {
+    max-height: 90vh;
+  }
+
+  [data-theme="primesuspect"] .card-legend-content {
+    max-height: calc(90vh - 140px);
+  }
+}
+
 /* ===== DEVICE SETTINGS MODAL (Video/Audio) - NOIR OVERRIDES ===== */
 /* Overrides Tailwind classes used in WebcamDisplay.tsx DeviceSettingsModal */
 [data-theme="primesuspect"] .device-settings-modal {

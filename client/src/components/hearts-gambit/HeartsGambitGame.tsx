@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
-import { User, Settings, Shield, Crown, Skull } from 'lucide-react';
+import { User, Settings, Shield, Crown, Skull, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CardTooltip from './CardTooltip';
 import Toast from './Toast';
@@ -15,6 +15,7 @@ import {
   CARD_BACK_IMAGE
 } from './cardDatabase';
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
+import { CardLegendModal } from '../CardLegendModal';
 
 interface HeartsGambitGameProps {
   lobby: Lobby;
@@ -63,6 +64,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
   const [discardViewerOrder, setDiscardViewerOrder] = useState<'newest' | 'oldest'>('newest');
   const [zoomContext, setZoomContext] = useState<ZoomContext | null>(null);
   const [prevTokens, setPrevTokens] = useState(0);
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
   const tokenAnimationRef = useRef(false);
   const prevEliminatedRef = useRef<Set<string>>(new Set());
 
@@ -602,7 +604,6 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
             <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[rgba(var(--accent-color-rgb),0.18)] via-[rgba(var(--accent-color-rgb),0.45)] to-[rgba(var(--accent-color-rgb),0.18)] ${isMyTurn ? 'animate-pulse' : ''}`}></div>
 
             <div className="flex items-center gap-4 mb-4 z-10 relative">
-              <span className="text-xl font-bold text-white">{me?.name} (You)</span>
               <motion.span
                 className="bg-[var(--royal-crimson)] text-[var(--parchment)] text-xs font-black px-3 py-1 rounded-full uppercase"
                 animate={tokensIncreased ? {
@@ -625,6 +626,16 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                   <Skull className="w-4 h-4" /> ELIMINATED
                 </span>
               )}
+
+              {/* Card Legend Button */}
+              <button
+                onClick={() => setIsLegendOpen(true)}
+                className="ml-auto flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
+                title="View all cards"
+              >
+                <BookOpen className="w-4 h-4" />
+                Card Legend
+              </button>
             </div>
 
             <div className="w-full flex justify-center items-end flex-1 min-h-0 pb-2 gap-4">
@@ -1256,6 +1267,9 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
           />
         )}
       </AnimatePresence>
+
+      {/* Card Legend Modal */}
+      {isLegendOpen && <CardLegendModal onClose={() => setIsLegendOpen(false)} />}
     </div>
   );
 };
