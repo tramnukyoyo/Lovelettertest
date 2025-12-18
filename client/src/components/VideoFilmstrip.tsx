@@ -268,6 +268,11 @@ const VideoFilmstrip: React.FC = () => {
     });
   });
 
+  // Hide filmstrip when popup window is open (video is shown there instead)
+  if (isPopupOpen) {
+    return null;
+  }
+
   return (
     <div
       className={`filmstrip-container ${isFilmstripExpanded ? 'expanded' : 'collapsed'} ${isResizing ? 'resizing' : ''}`}

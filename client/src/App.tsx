@@ -233,7 +233,7 @@ function AppContent() {
                   </div>
 
                   {lobby && socket && (
-                    <div className="hidden lg:flex w-full lg:w-96 h-80 lg:h-full flex-col right-sidebar">
+                    <div className="hidden lg:flex flex-col right-sidebar">
                       <PlayerList
                         players={lobby.players}
                         hostId={lobby.hostId}

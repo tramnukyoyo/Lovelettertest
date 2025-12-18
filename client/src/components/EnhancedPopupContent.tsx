@@ -135,18 +135,20 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
     });
   }
 
-  // Add remote streams
-  remoteStreams.forEach((stream, oderId) => {
-    const player = players.find(p => p.id === oderId);
-    videoFeeds.push({
-      id: oderId,
-      stream,
-      name: player?.name || 'Player',
-      isSelf: false,
-      isMuted: false,
-      isWebcamOff: !stream.getVideoTracks().some(t => t.enabled),
-      ballColor: getBallColor(oderId)
-    });
+  // Add remote streams - iterate over players and look up by socketId
+  players.filter(p => !p.isMe).forEach((player) => {
+    const stream = remoteStreams.get(player.socketId) || remoteStreams.get(player.id);
+    if (stream) {
+      videoFeeds.push({
+        id: player.socketId || player.id,
+        stream,
+        name: player.name || 'Player',
+        isSelf: false,
+        isMuted: false,
+        isWebcamOff: !stream.getVideoTracks().some(t => t.enabled),
+        ballColor: getBallColor(player.id)
+      });
+    }
   });
 
   const connectedCount = videoFeeds.length;
