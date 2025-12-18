@@ -254,8 +254,8 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
         <div className="popup-header-left">
           <div className="popup-logo">
             <img
-              src={`${window.location.origin}${import.meta.env.BASE_URL}mascot.png`}
-              alt="Heart's Gambit"
+              src={`${window.location.origin}${import.meta.env.BASE_URL}mascot.webp`}
+              alt="Prime Suspect"
               className="popup-mascot"
             />
             <div className="popup-logo-text">
@@ -341,7 +341,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
       <div className="popup-footer">
         <div className="popup-branding">
           <img
-            src={`${window.location.origin}${import.meta.env.BASE_URL}mascot.png`}
+            src={`${window.location.origin}${import.meta.env.BASE_URL}mascot.webp`}
             alt=""
             className="popup-branding-mascot"
           />

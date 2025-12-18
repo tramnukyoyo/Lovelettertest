@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Settings } from 'lucide-react';
 
 import { GAME_META } from '../config/gameMeta';
+import { SettingsModal } from './SettingsModalNoir';
 
 const Header: React.FC = () => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
-    <header className="header">
+    <>
+      <header className="header">
       <a href="/" className="logo">
         <img
-          src={`${import.meta.env.BASE_URL}mascot.png`}
+          src={`${import.meta.env.BASE_URL}mascot.webp`}
           alt={GAME_META.mascotAlt}
           className="logo-icon"
         />
@@ -24,7 +29,20 @@ const Header: React.FC = () => {
           </span>
         </div>
       </a>
+
+      <div className="header-right">
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="game-header-settings-btn"
+          title="Settings"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
+      </div>
     </header>
+
+    {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+    </>
   );
 };
 

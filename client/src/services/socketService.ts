@@ -31,9 +31,9 @@ class SocketService {
 
   // Storage keys for reconnection data
   private static readonly STORAGE_KEYS = {
-    sessionToken: 'heartsgambit_session_token',
-    roomCode: 'heartsgambit_room_code',
-    playerName: 'heartsgambit_player_name',
+    sessionToken: 'primesuspect_session_token',
+    roomCode: 'primesuspect_room_code',
+    playerName: 'primesuspect_player_name',
   };
 
   connect(): Socket {
@@ -41,9 +41,9 @@ class SocketService {
       return this.socket;
     }
 
-    console.log('[Socket] Connecting to server:', SERVER_URL + '/heartsgambit');
+    console.log('[Socket] Connecting to server:', SERVER_URL + '/primesuspect');
 
-    this.socket = io(`${SERVER_URL}/heartsgambit`, {
+    this.socket = io(`${SERVER_URL}/primesuspect`, {
       reconnection: true,
       reconnectionAttempts: this.maxReconnectAttempts,
       reconnectionDelay: 1000,

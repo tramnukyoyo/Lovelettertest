@@ -10,28 +10,28 @@ interface TutorialSlide {
 const slides: TutorialSlide[] = [
   {
     image: `${import.meta.env.BASE_URL}tutorial/1.webp`,
-    title: 'Welcome to Love Letter!',
-    description: 'Compete to deliver your love letter to the Princess. Bluff, deduce, and outwit your opponents to win her heart.'
+    title: 'Welcome to Hearts Gambit!',
+    description: 'A murder mystery card game - The host was murdered in a locked mansion. Unmask the killer through risk, deduction, and luck!'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/2.webp`,
     title: 'Draw & Play',
-    description: 'On your turn, draw one card and play one card. Each card has a unique effect that can help you or sabotage others.'
+    description: 'On your turn, draw one card and play one card. Each card has a unique effect that can help you or eliminate others.'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/3.webp`,
     title: 'Card Effects',
-    description: 'Use Guards to guess hands, Priests to peek, or the Baron to battle. But be careful—discarding the Princess eliminates you!'
+    description: 'Use Inspectors to accuse, Butlers to peek, or the Witness to confront. But be careful—discarding The Murderer eliminates you!'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/4.webp`,
     title: 'Winning the Round',
-    description: 'Be the last player standing or hold the highest card when the deck runs out to win a Token of Affection.'
+    description: 'Be the last player standing or hold the highest card when the deck runs out to win a Clue Token.'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/5.webp`,
-    title: 'Winning the Game',
-    description: 'Collect enough tokens to win the game! 7 tokens for 2 players, 5 for 3 players, and 4 for 4 players.'
+    title: 'Solving the Case',
+    description: 'Collect enough clue tokens to solve the case! 7 tokens for 2 players, 5 for 3 players, and 4 for 4 players.'
   }
 ];
 

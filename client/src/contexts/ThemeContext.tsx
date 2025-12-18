@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect } from 'react';
 
-export type Theme = 'heartsgambit';
+export type Theme = 'primesuspect';
 
 interface ThemeContextType {
   theme: Theme;
@@ -11,8 +11,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Royal Romance theme for Hearts Gambit
-  const theme: Theme = 'heartsgambit';
+  // Murder mystery theme for Prime Suspect
+  const theme: Theme = 'primesuspect';
 
   useEffect(() => {
     // Update root element data attribute for CSS

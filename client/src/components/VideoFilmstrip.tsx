@@ -131,7 +131,8 @@ const VideoFilmstrip: React.FC = () => {
 
   const {
     isFilmstripExpanded,
-    toggleFilmstrip
+    toggleFilmstrip,
+    isPopupOpen
   } = useVideoUI();
 
   const config = useWebcamConfig();
@@ -212,14 +213,18 @@ const VideoFilmstrip: React.FC = () => {
   // Expose current filmstrip height to the layout for safe padding (chat/sidebar)
   useEffect(() => {
     const safeSpace = isFilmstripExpanded ? filmstripHeight : COLLAPSED_SAFE_SPACE;
+    const showFilmstrip = isVideoEnabled && !isPopupOpen;
+
+    document.documentElement.classList.toggle('has-filmstrip', showFilmstrip);
     document.documentElement.style.setProperty(
       '--filmstrip-safe-space',
-      isVideoEnabled ? `${safeSpace}px` : '0px'
+      showFilmstrip ? `${safeSpace}px` : '0px'
     );
     return () => {
+      document.documentElement.classList.remove('has-filmstrip');
       document.documentElement.style.setProperty('--filmstrip-safe-space', '0px');
     };
-  }, [isFilmstripExpanded, filmstripHeight, isVideoEnabled]);
+  }, [isFilmstripExpanded, filmstripHeight, isVideoEnabled, isPopupOpen]);
 
   // Hide filmstrip completely until video is active
   // Header has the "Join Video" button - no need for duplicate here

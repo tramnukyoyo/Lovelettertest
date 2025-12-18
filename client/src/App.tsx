@@ -176,15 +176,15 @@ function AppContent() {
   }, [lobby?.state, lobby]);
 
   useEffect(() => {
-    const savedBgMusic = localStorage.getItem('heartsgambit-background-music-enabled');
+    const savedBgMusic = localStorage.getItem('primesuspect-background-music-enabled');
     const bgMusicEnabled = savedBgMusic ? JSON.parse(savedBgMusic) : true;
     backgroundMusic.setEnabled(bgMusicEnabled);
 
-    const savedSfx = localStorage.getItem('heartsgambit-sound-effects-enabled');
+    const savedSfx = localStorage.getItem('primesuspect-sound-effects-enabled');
     const sfxEnabled = savedSfx ? JSON.parse(savedSfx) : true;
     soundEffects.setEnabled(sfxEnabled);
 
-    const savedSfxVolume = localStorage.getItem('heartsgambit-volume');
+    const savedSfxVolume = localStorage.getItem('primesuspect-volume');
     if (savedSfxVolume) {
       const vol = parseInt(savedSfxVolume, 10);
       soundEffects.setVolume(vol / 100);
@@ -192,7 +192,7 @@ function AppContent() {
       soundEffects.setVolume(0.5);
     }
 
-    const savedMusicVolume = localStorage.getItem('heartsgambit-music-volume');
+    const savedMusicVolume = localStorage.getItem('primesuspect-music-volume');
     if (savedMusicVolume) {
       const vol = parseInt(savedMusicVolume, 10);
       backgroundMusic.setVolume(vol / 100);

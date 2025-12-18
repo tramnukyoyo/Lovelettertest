@@ -10,9 +10,35 @@ interface SettingsModalProps {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const [musicVolume, setMusicVolume] = useState(1);
-  const [backgroundMusicEnabled, setBackgroundMusicEnabled] = useState(true);
-  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true);
+
+  // Lazy initialization from localStorage
+  const [musicVolume, setMusicVolume] = useState(() => {
+    const saved = localStorage.getItem('primesuspect-music-volume');
+    if (saved) {
+      const val = parseInt(saved, 10);
+      return Number.isFinite(val) ? Math.max(0, Math.min(100, val)) : 50;
+    }
+    return 50;
+  });
+
+  const [sfxVolume, setSfxVolume] = useState(() => {
+    const saved = localStorage.getItem('primesuspect-volume');
+    if (saved) {
+      const val = parseInt(saved, 10);
+      return Number.isFinite(val) ? Math.max(0, Math.min(100, val)) : 50;
+    }
+    return 50;
+  });
+
+  const [backgroundMusicEnabled, setBackgroundMusicEnabled] = useState(() => {
+    const saved = localStorage.getItem('primesuspect-background-music-enabled');
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(() => {
+    const saved = localStorage.getItem('primesuspect-sound-effects-enabled');
+    return saved ? JSON.parse(saved) : true;
+  });
 
   const normalizedMusicVolume = useMemo(() => Math.max(0, Math.min(1, musicVolume / 100)), [musicVolume]);
 
@@ -28,49 +54,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // Apply initial settings on mount
   useEffect(() => {
-    const savedMusicVolume = localStorage.getItem('heartsgambit-music-volume');
-    const musicVol = savedMusicVolume ? parseInt(savedMusicVolume, 10) : 1;
-    const safeMusicVolume = Number.isFinite(musicVol) ? Math.max(0, Math.min(100, musicVol)) : 1;
-    setMusicVolume(safeMusicVolume);
-
-    const savedBgMusic = localStorage.getItem('heartsgambit-background-music-enabled');
-    const bgMusicEnabled = savedBgMusic ? JSON.parse(savedBgMusic) : true;
-    setBackgroundMusicEnabled(!!bgMusicEnabled);
-
-    const savedSfx = localStorage.getItem('heartsgambit-sound-effects-enabled');
-    const sfxEnabled = savedSfx ? JSON.parse(savedSfx) : true;
-    setSoundEffectsEnabled(!!sfxEnabled);
-
-    soundEffects.setEnabled(!!sfxEnabled);
-    backgroundMusic.setEnabled(!!bgMusicEnabled);
-    backgroundMusic.setVolume(safeMusicVolume / 100);
-
-    const oldMuted = localStorage.getItem('heartsgambit-muted');
-    if (oldMuted && !savedSfx) {
-      const wasMuted = JSON.parse(oldMuted);
-      localStorage.setItem('heartsgambit-sound-effects-enabled', JSON.stringify(!wasMuted));
-      localStorage.removeItem('heartsgambit-muted');
-    }
+    soundEffects.setEnabled(soundEffectsEnabled);
+    soundEffects.setVolume(sfxVolume / 100);
+    backgroundMusic.setEnabled(backgroundMusicEnabled);
+    backgroundMusic.setVolume(musicVolume / 100);
   }, []);
 
+  // Save and apply music volume changes
   useEffect(() => {
     backgroundMusic.setVolume(normalizedMusicVolume);
-    localStorage.setItem('heartsgambit-music-volume', String(musicVolume));
+    localStorage.setItem('primesuspect-music-volume', String(musicVolume));
   }, [normalizedMusicVolume, musicVolume]);
+
+  // Save and apply sfx volume changes
+  useEffect(() => {
+    soundEffects.setVolume(sfxVolume / 100);
+    localStorage.setItem('primesuspect-volume', String(sfxVolume));
+  }, [sfxVolume]);
 
   const toggleBackgroundMusic = () => {
     const next = !backgroundMusicEnabled;
     setBackgroundMusicEnabled(next);
     backgroundMusic.setEnabled(next);
-    localStorage.setItem('heartsgambit-background-music-enabled', JSON.stringify(next));
+    localStorage.setItem('primesuspect-background-music-enabled', JSON.stringify(next));
   };
 
   const toggleSoundEffects = () => {
     const next = !soundEffectsEnabled;
     setSoundEffectsEnabled(next);
     soundEffects.setEnabled(next);
-    localStorage.setItem('heartsgambit-sound-effects-enabled', JSON.stringify(next));
+    localStorage.setItem('primesuspect-sound-effects-enabled', JSON.stringify(next));
   };
 
   return createPortal(
@@ -163,6 +178,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   </button>
                 </div>
               </div>
+              <div className="settings-row" style={{ marginBottom: 0 }}>
+                <div className="settings-row-label">
+                  <Volume2 className="w-4 h-4" />
+                  <span>Effects Volume</span>
+                </div>
+                <div className="settings-row-value">{sfxVolume}%</div>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={sfxVolume}
+                onChange={(e) => setSfxVolume(parseInt(e.target.value, 10))}
+                className="settings-slider"
+                aria-label="Sound effects volume"
+              />
             </section>
           </div>
 

@@ -1,9 +1,9 @@
 {
-  "name": "heartsgambit-client",
+  "name": "primesuspect-client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Hearts Gambit - Client (GameBuddies game)",
+  "description": "Prime Suspect - Client (GameBuddies game)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

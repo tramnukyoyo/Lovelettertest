@@ -64,7 +64,7 @@ class HeartsGambitPlugin implements GamePlugin {
   id = 'hearts-gambit';
   name = "Heart's Gambit";
   version = '1.0.0';
-  description = 'Risk, deduction, and luck. Get your letter to the Princess!';
+  description = 'Risk, deduction, and luck. Solve the murder mystery!';
   author = 'GameBuddies';
   namespace = '/hearts-gambit';
   basePath = '/hearts-gambit';
@@ -286,12 +286,12 @@ class HeartsGambitPlugin implements GamePlugin {
       const cardIndex = playerData.hand.indexOf(cardToPlay);
       if (cardIndex === -1) return; // Cheating?
 
-      // Validate: Countess Check
-      // If holding King(6) or Prince(5) AND Countess(7), MUST play Countess
+      // Validate: Accomplice Check
+      // If holding Double Agent(6) or Blackmailer(5) AND Accomplice(7), MUST play Accomplice
       if (playerData.hand.includes(7)) {
         if (playerData.hand.includes(5) || playerData.hand.includes(6)) {
           if (cardToPlay !== 7) {
-             socket.emit('error', { message: 'You must play the Countess!' });
+             socket.emit('error', { message: 'You must play the Accomplice!' });
              return;
           }
         }
@@ -484,15 +484,15 @@ class HeartsGambitPlugin implements GamePlugin {
           return t;
       };
 
-      // 8: Princess - If played/discarded, YOU die.
+      // 8: The Murderer - If played/discarded, YOU are eliminated.
       if (card === 8) {
           pd.isEliminated = true;
-          helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} discarded the Princess and was eliminated!` });
+          helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} discarded The Murderer and was eliminated!` });
           return;
       }
 
-      // 5: Prince - Target discards hand and draws new.
-      // Note: If you have Prince and Countess, you must play Countess. So Prince is only played if you don't have Countess.
+      // 5: Blackmailer - Target discards hand and draws new.
+      // Note: If you have Blackmailer and Accomplice, you must play Accomplice. So Blackmailer is only played if you don't have Accomplice.
       if (card === 5) {
           // Can target self.
           let target = getTarget();
@@ -520,10 +520,10 @@ class HeartsGambitPlugin implements GamePlugin {
                    });
                    helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} forced ${target.name} to discard a card.` });
                    
-                   // If Princess discarded, eliminated
+                   // If The Murderer discarded, eliminated
                    if (discardedCard === 8) {
                        tpd.isEliminated = true;
-                       helpers.sendToRoom(room.code, 'game:log', { message: `${target.name} discarded the Princess and was eliminated!` });
+                       helpers.sendToRoom(room.code, 'game:log', { message: `${target.name} discarded The Murderer and was eliminated!` });
                    } else {
                        // Draw new
                        const newCard = gameState.deck.pop();
@@ -542,13 +542,13 @@ class HeartsGambitPlugin implements GamePlugin {
           return;
       }
 
-      // 7: Countess - No effect when played, just discarded.
+      // 7: Accomplice - No effect when played, just discarded.
       if (card === 7) {
-          helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} played the Countess.` });
+          helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} played the Accomplice.` });
           return;
       }
 
-      // 4: Handmaid - Immunity
+      // 4: Lawyer - Immunity
       if (card === 4) {
           pd.isImmune = true;
           helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} is immune until next turn.` });
@@ -581,23 +581,23 @@ class HeartsGambitPlugin implements GamePlugin {
           helpers.sendToRoom(room.code, 'game:log', { message: `${player.name} looked at ${target.name}'s hand.` });
       }
 
-      // 3: Baron - Compare hands
+      // 3: Witness - Compare hands (Confrontation)
       if (card === 3) {
           const myCard = pd.hand[0]; // Remaining card
           const theirCard = tpd.hand[0];
-          
+
           if (myCard > theirCard) {
               tpd.isEliminated = true;
-              helpers.sendToRoom(room.code, 'game:log', { message: `Baron Battle! ${player.name} (${myCard}) defeats ${target.name} (${theirCard}).` });
+              helpers.sendToRoom(room.code, 'game:log', { message: `Witness Confrontation! ${player.name} (${myCard}) defeats ${target.name} (${theirCard}).` });
           } else if (theirCard > myCard) {
               pd.isEliminated = true;
-              helpers.sendToRoom(room.code, 'game:log', { message: `Baron Battle! ${target.name} (${theirCard}) defeats ${player.name} (${myCard}).` });
+              helpers.sendToRoom(room.code, 'game:log', { message: `Witness Confrontation! ${target.name} (${theirCard}) defeats ${player.name} (${myCard}).` });
           } else {
-              helpers.sendToRoom(room.code, 'game:log', { message: `Baron Battle! It's a tie.` });
+              helpers.sendToRoom(room.code, 'game:log', { message: `Witness Confrontation! It's a tie.` });
           }
       }
 
-      // 6: King - Trade hands
+      // 6: Double Agent - Trade hands
       if (card === 6) {
           const myHand = [...pd.hand];
           const theirHand = [...tpd.hand];
@@ -662,7 +662,7 @@ class HeartsGambitPlugin implements GamePlugin {
           const required = this.getTokensToWin(room.players.size);
           if (pd.tokens >= required) {
               gameState.winner = winnerId;
-              this.endGame(room, `${winner.name} won the heart of the Princess!`);
+              this.endGame(room, `${winner.name} solved the case!`);
               return;
           }
       }
@@ -694,7 +694,7 @@ class HeartsGambitPlugin implements GamePlugin {
   }
 
   private getCardName(card: number): string {
-      const names = ["?", "Guard", "Priest", "Baron", "Handmaid", "Prince", "King", "Countess", "Princess"];
+      const names = ["?", "Inspector", "Butler", "Witness", "Lawyer", "Blackmailer", "Double Agent", "Accomplice", "The Murderer"];
       return names[card] || "Unknown";
   }
 

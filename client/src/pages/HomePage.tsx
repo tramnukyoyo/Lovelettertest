@@ -4,6 +4,8 @@ import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import Header from '../components/Header';
 import TutorialCarousel, { TutorialButton } from '../components/TutorialCarousel';
 import { GAME_META } from '../config/gameMeta';
+import { playEliminatedSound } from '../utils/soundEffects';
+import { useTypewriterSound } from '../hooks/useTypewriterSound';
 
 interface HomePageProps {
   onCreateRoom: (playerName: string, session: GameBuddiesSession | null, streamerMode: boolean) => void;
@@ -18,6 +20,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
   const [streamerMode, setStreamerMode] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const { onKeyDown: typewriterKeyDown } = useTypewriterSound();
 
   // Update tutorial position to align with cards
   useEffect(() => {
@@ -71,6 +74,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
     }
 
     console.log('[Home] Creating room with session:', gameBuddiesSession);
+    playEliminatedSound();
     onCreateRoom(createName, gameBuddiesSession, streamerMode);
   };
 
@@ -91,6 +95,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
     // Invite tokens (UUIDs) are case-sensitive and longer
     const codeToSend = joinCode.length > 10 ? joinCode : joinCode.toUpperCase();
     console.log('[Home] Joining room with session:', gameBuddiesSession);
+    playEliminatedSound();
     onJoinRoom(codeToSend, joinName, gameBuddiesSession);
   };
 
@@ -102,7 +107,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
           <div className="home-header">
             <div className="home-mascot-container">
               <img
-                src={`${import.meta.env.BASE_URL}mascot.png`}
+                src={`${import.meta.env.BASE_URL}mascot.webp`}
                 alt={GAME_META.mascotAlt}
                 className="home-mascot-anim"
               />
@@ -140,6 +145,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                       type="text"
                       value={createName}
                       onChange={(e) => setCreateName(e.target.value)}
+                      onKeyDown={typewriterKeyDown}
                       placeholder="Enter your name"
                       maxLength={20}
                       required
@@ -172,6 +178,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                       type="text"
                       value={joinName}
                       onChange={(e) => setJoinName(e.target.value)}
+                      onKeyDown={typewriterKeyDown}
                       placeholder="Enter your name"
                       maxLength={20}
                       required
@@ -184,6 +191,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                       type="text"
                       value={joinCode}
                       onChange={(e) => setJoinCode(e.target.value)}
+                      onKeyDown={typewriterKeyDown}
                       placeholder="Enter room code"
                       maxLength={40}
                       required

@@ -704,11 +704,11 @@ const DeviceSettingsModal: React.FC<{
       />
       
       {/* Settings Modal */}
-      <div 
-        className={isMobile 
-          ? "fixed inset-0 bg-slate-900 flex flex-col" 
+      <div
+        className={`device-settings-modal ${isMobile
+          ? "fixed inset-0 bg-slate-900 flex flex-col"
           : "fixed top-[5%] left-1/2 transform -translate-x-1/2 bg-slate-800/95 backdrop-blur-sm border border-slate-600/50 rounded-xl w-[90vw] max-w-[600px] max-h-[85vh] shadow-2xl flex flex-col"
-        }
+        }`}
         style={isMobile ? {
           zIndex: 2147483647,
           position: 'fixed',
@@ -1762,7 +1762,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
       // Write the initial HTML structure
       newWindow.document.write(`
         <!DOCTYPE html>
-        <html>
+        <html data-theme="heartsgambit">
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2332,6 +2332,180 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
             .h-4 { height: 1rem; }
             .w-5 { width: 1.25rem; }
             .h-5 { height: 1.25rem; }
+
+            /* ===== HEARTSGAMBIT NOIR THEME FOR POPUP ===== */
+            html[data-theme="heartsgambit"] {
+              --tobacco-brown: #4a3f35;
+              --royal-gold: #d2b25a;
+              --aged-newspaper: #f4e8c1;
+              --rust: #b8572a;
+            }
+
+            html[data-theme="heartsgambit"] body {
+              background: linear-gradient(135deg, #2a2420 0%, #3d3530 50%, #2a2420 100%) !important;
+            }
+
+            html[data-theme="heartsgambit"] .enhanced-popup {
+              background: linear-gradient(135deg, #2a2420 0%, #3d3530 50%, #2a2420 100%) !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-header {
+              background: #4a3f35 !important;
+              border-bottom: 2px solid #2a2420 !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-video-feed {
+              background: #c9b8a0 !important;
+              border: 3px solid #4a3f35 !important;
+              border-radius: 0 !important;
+              box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3) !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-video-feed.self {
+              border-color: #d2b25a !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-name {
+              background: linear-gradient(transparent, rgba(42, 36, 32, 0.9)) !important;
+              font-family: 'Courier Prime', monospace !important;
+              color: #f4e8c1 !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-close-btn {
+              background: #b8572a !important;
+              border: 2px solid #4a3f35 !important;
+              color: #f4e8c1 !important;
+              border-radius: 0 !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-close-btn:hover {
+              background: #8b3a3a !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-avatar {
+              background: linear-gradient(135deg, #4a3f35 0%, #5d5045 100%) !important;
+              color: #f4e8c1 !important;
+              font-family: 'Courier Prime', monospace !important;
+            }
+
+            html[data-theme="heartsgambit"] .layout-btn.active {
+              background: rgba(210, 178, 90, 0.2) !important;
+              color: #d2b25a !important;
+            }
+
+            html[data-theme="heartsgambit"] .room-code {
+              background: rgba(74, 63, 53, 0.3) !important;
+              border: 1px solid #4a3f35 !important;
+              color: #d2b25a !important;
+            }
+
+            html[data-theme="heartsgambit"] .connected-count {
+              color: #c9b8a0 !important;
+            }
+
+            html[data-theme="heartsgambit"] .layout-selector,
+            html[data-theme="heartsgambit"] .header-video-controls {
+              background: rgba(74, 63, 53, 0.5) !important;
+              border-radius: 0 !important;
+            }
+
+            html[data-theme="heartsgambit"] .layout-btn,
+            html[data-theme="heartsgambit"] .header-video-btn {
+              border-radius: 0 !important;
+              color: #c9b8a0 !important;
+            }
+
+            html[data-theme="heartsgambit"] .layout-btn:hover,
+            html[data-theme="heartsgambit"] .header-video-btn:hover {
+              background: rgba(74, 63, 53, 0.7) !important;
+              color: #f4e8c1 !important;
+            }
+
+            html[data-theme="heartsgambit"] .header-video-btn.muted,
+            html[data-theme="heartsgambit"] .header-video-btn.off {
+              background: rgba(184, 87, 42, 0.3) !important;
+              color: #e8a87c !important;
+            }
+
+            html[data-theme="heartsgambit"] .header-video-btn.leave {
+              background: rgba(184, 87, 42, 0.3) !important;
+              color: #e8a87c !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-logo-text {
+              font-family: 'Courier Prime', monospace !important;
+            }
+
+            html[data-theme="heartsgambit"] .logo-alike {
+              color: #d2b25a !important;
+              text-shadow: none !important;
+            }
+
+            html[data-theme="heartsgambit"] .logo-gamebuddies {
+              color: #d2b25a !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-grid {
+              background: linear-gradient(135deg, #2a2420 0%, #3d3530 50%, #2a2420 100%) !important;
+            }
+
+            html[data-theme="heartsgambit"] .you-badge {
+              background: #4a3f35 !important;
+              color: #f4e8c1 !important;
+              font-family: 'Courier Prime', monospace !important;
+              border-radius: 0 !important;
+            }
+
+            /* Footer noir styling */
+            html[data-theme="heartsgambit"] .popup-footer {
+              background: #4a3f35 !important;
+              border-top: 2px solid #2a2420 !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-branding {
+              font-family: 'Courier Prime', monospace !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-branding .by,
+            html[data-theme="heartsgambit"] .popup-branding .brand-think {
+              color: #c9b8a0 !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-branding .game,
+            html[data-theme="heartsgambit"] .popup-branding .brand-alike {
+              color: #d2b25a !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-branding .buddies {
+              color: #d2b25a !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-branding .io {
+              color: #f4e8c1 !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-control-btn {
+              background: rgba(74, 63, 53, 0.5) !important;
+              border: 1px solid #2a2420 !important;
+              border-radius: 0 !important;
+              color: #f4e8c1 !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-control-btn:hover {
+              background: rgba(74, 63, 53, 0.8) !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-control-btn.off,
+            html[data-theme="heartsgambit"] .popup-control-btn.leave {
+              background: rgba(184, 87, 42, 0.3) !important;
+              border-color: #b8572a !important;
+              color: #e8a87c !important;
+            }
+
+            html[data-theme="heartsgambit"] .popup-control-btn.off:hover,
+            html[data-theme="heartsgambit"] .popup-control-btn.leave:hover {
+              background: rgba(184, 87, 42, 0.5) !important;
+            }
           </style>
         </head>
         <body>

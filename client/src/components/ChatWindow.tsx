@@ -3,6 +3,7 @@ import { Send } from 'lucide-react';
 import EmojiPicker, { type EmojiClickData, Theme } from 'emoji-picker-react';
 import type { Socket } from 'socket.io-client';
 import type { ChatMessage, Lobby } from '../types';
+import { useTypewriterSound } from '../hooks/useTypewriterSound';
 
 interface ChatWindowProps {
   socket: Socket;
@@ -20,6 +21,7 @@ const ChatWindowComponent: React.FC<ChatWindowProps> = ({ socket, messages = [],
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { onKeyDown: typewriterKeyDown } = useTypewriterSound();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -132,6 +134,7 @@ const ChatWindowComponent: React.FC<ChatWindowProps> = ({ socket, messages = [],
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
+            onKeyDown={typewriterKeyDown}
             placeholder="Type a message..."
             maxLength={500}
             className="chat-input"

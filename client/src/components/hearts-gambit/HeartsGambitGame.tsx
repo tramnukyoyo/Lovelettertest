@@ -5,17 +5,16 @@ import { User, Settings, Shield, Crown, Skull } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CardTooltip from './CardTooltip';
 import Toast from './Toast';
-
-// Card Image Imports
-import backImg from '../../assets/cards/back.png';
-import guardImg from '../../assets/cards/guard.png';
-import priestImg from '../../assets/cards/priest.png';
-import baronImg from '../../assets/cards/baron.png';
-import handmaidImg from '../../assets/cards/handmaid.png';
-import princeImg from '../../assets/cards/prince.png';
-import kingImg from '../../assets/cards/king.png';
-import countessImg from '../../assets/cards/countess.png';
-import princessImg from '../../assets/cards/princess.png';
+import DynamicCard, { CardBackOnly } from './DynamicCard';
+import {
+  CARD_NAMES,
+  CARD_DESCRIPTIONS,
+  CARD_IMAGES,
+  getCardData,
+  getCardImage,
+  CARD_BACK_IMAGE
+} from './cardDatabase';
+import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
 
 interface HeartsGambitGameProps {
   lobby: Lobby;
@@ -49,40 +48,7 @@ type ZoomContext = {
   index: number;
 };
 
-const CARD_NAMES: Record<number, string> = {
-  0: "Card Back",
-  1: "Guard",
-  2: "Priest",
-  3: "Baron",
-  4: "Handmaid",
-  5: "Prince",
-  6: "King",
-  7: "Countess",
-  8: "Princess"
-};
-
-const CARD_DESCRIPTIONS: Record<number, string> = {
-  1: "Guess a player's hand (non-Guard).",
-  2: "Look at a player's hand.",
-  3: "Compare hands; lower value is out.",
-  4: "Immune until next turn.",
-  5: "One player discards hand.",
-  6: "Trade hands.",
-  7: "Must discard if with King/Prince.",
-  8: "If discarded, you lose."
-};
-
-const CARD_IMAGES: Record<number, string> = {
-  0: backImg,
-  1: guardImg,
-  2: priestImg,
-  3: baronImg,
-  4: handmaidImg,
-  5: princeImg,
-  6: kingImg,
-  7: countessImg,
-  8: princessImg
-};
+// CARD_NAMES, CARD_DESCRIPTIONS, and CARD_IMAGES are now imported from cardDatabase.ts
 
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
 
@@ -98,6 +64,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
   const [zoomContext, setZoomContext] = useState<ZoomContext | null>(null);
   const [prevTokens, setPrevTokens] = useState(0);
   const tokenAnimationRef = useRef(false);
+  const prevEliminatedRef = useRef<Set<string>>(new Set());
 
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
@@ -163,6 +130,23 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
     }
   }, [currentTokens, prevTokens]);
 
+  // Track player elimination and play gunshot sound
+  useEffect(() => {
+    const currentEliminated = new Set(
+      lobby.players.filter(p => p.isEliminated).map(p => p.id)
+    );
+    const prevEliminated = prevEliminatedRef.current;
+
+    // Check if any new player was eliminated
+    currentEliminated.forEach(id => {
+      if (!prevEliminated.has(id)) {
+        playEliminatedSound();
+      }
+    });
+
+    prevEliminatedRef.current = currentEliminated;
+  }, [lobby.players]);
+
   // Listen for server errors
   useEffect(() => {
     const handleError = (data: { message: string }) => {
@@ -181,13 +165,13 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
     const needsGuess = selectedCard === 1;
 
     // If all opponents are protected (Immune/Eliminated):
-    // - Prince (5): Must target self.
+    // - Blackmailer (5): Must target self.
     // - Others: Target is null (No Effect).
     let finalTargetId = targetId;
 
     if (needsTarget && allOpponentsProtected) {
         if (selectedCard === 5) {
-            finalTargetId = me?.id || null; // Force self-target for Prince
+            finalTargetId = me?.id || null; // Force self-target for Blackmailer
         } else {
             finalTargetId = null; // No effect for others
         }
@@ -207,9 +191,10 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
       }
     }
 
-    // Trigger card play animation
+    // Trigger card play animation and sound
     const cardImage = CARD_IMAGES[selectedCard];
     setPlayingCard({ card: selectedCard, image: cardImage });
+    playDropSound();
 
     // Capture current values before resetting state
     const cardToPlay = selectedCard;
@@ -354,7 +339,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                     <div className="flex justify-center -space-x-8">
                          {Array.from({length: Math.min(player.handCount, 3)}).map((_, i) => {
                              const cardToDisplay = player.hand[i]; // This will be the actual card or '0' (card back)
-                             const imgSrc = cardToDisplay !== 0 ? CARD_IMAGES[cardToDisplay] : backImg;
+                             const imgSrc = cardToDisplay !== 0 ? CARD_IMAGES[cardToDisplay] : CARD_BACK_IMAGE;
                              const cardName = cardToDisplay !== 0 ? CARD_NAMES[cardToDisplay] : "Hidden Card";
                              const cardDesc = cardToDisplay !== 0 ? CARD_DESCRIPTIONS[cardToDisplay] : "This card is face down";
 
@@ -365,7 +350,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                     cardImage={imgSrc}
                                     cardName={cardName}
                                     cardDescription={cardDesc}
-                                    imageOnly={true}
+                                    useDynamicCard={true}
                                  >
                                    <motion.div
                                       initial={{ scale: 0 }}
@@ -377,7 +362,11 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                           rotate: (i - (player.handCount-1)/2) * 8
                                       }}
                                    >
-                                      <img src={imgSrc} alt={cardName} className="w-full h-full object-cover rounded-xl shadow-2xl" />
+                                      <DynamicCard
+                                          cardType={cardToDisplay}
+                                          showFace={cardToDisplay !== 0}
+                                          className="hg-opponent-card"
+                                      />
                                    </motion.div>
                                  </CardTooltip>
                              );
@@ -425,7 +414,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                           {Array.from({ length: stackDepth }).map((_, i) => (
                             <img
                               key={`discard-stack-${i}`}
-                              src={backImg}
+                              src={CARD_BACK_IMAGE}
                               alt="Evidence stack"
                               className="absolute inset-0 w-full h-full object-cover rounded-xl shadow-2xl opacity-30"
                               style={{
@@ -445,12 +434,11 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                key={`discard-pile-${lastDiscardEvent.playerId}-${lastDiscardEvent.timestamp}-${lastDiscardEvent.card}`}
                                initial={{ opacity: 0, scale: 0.9 }}
                                animate={{ opacity: 1, scale: 1 }}
-                               className="w-full h-full relative z-10"
+                               className="relative z-10"
                              >
-                               <img
-                                 src={CARD_IMAGES[lastDiscardEvent.card]}
-                                 alt="Evidence"
-                                 className="w-full h-full object-cover rounded-xl shadow-2xl"
+                               <DynamicCard
+                                 cardType={lastDiscardEvent.card}
+                                 className="hg-discard-pile-card"
                                />
                              </motion.div>
                            );
@@ -472,9 +460,12 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                 key={`discard-pile-${topCard}`}
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="w-full h-full relative z-10"
+                                className="relative z-10"
                             >
-                                <img src={CARD_IMAGES[topCard]} alt="Evidence" className="w-full h-full object-cover rounded-xl shadow-2xl" />
+                                <DynamicCard
+                                  cardType={topCard}
+                                  className="hg-discard-pile-card"
+                                />
                             </motion.div>
                          );
                     })()}
@@ -503,7 +494,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                 </h3>
                 <div
                     className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}`}
-                    onClick={() => waitingToDraw && socket.emit('player:draw', {})}
+                    onClick={() => { if (waitingToDraw) { playDrawSound(); socket.emit('player:draw', {}); } }}
                 >
                   {Array.from({ length: Math.min(lobby.gameData.deckCount, 5) }).map((_, i) => (
                     <div
@@ -514,7 +505,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                         zIndex: i
                       }}
                     >
-                      <img src={backImg} alt="Case File" className="w-full h-full object-cover rounded-xl shadow-2xl" />
+                      <img src={CARD_BACK_IMAGE} alt="Case File" className="w-full h-full object-cover rounded-xl shadow-2xl" />
                     </div>
                   ))}
 
@@ -528,7 +519,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                       >
-                          <img src={backImg} alt="Draw" className="w-full h-full object-cover rounded-xl shadow-2xl" />
+                          <img src={CARD_BACK_IMAGE} alt="Draw" className="w-full h-full object-cover rounded-xl shadow-2xl" />
                       </motion.div>
                   )}
                   {/* Draw indicator */}
@@ -549,7 +540,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                     <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">Waiting for Players</h2>
                      {me?.isHost && (
                         <button
-                            onClick={() => socket.emit('game:start', {})}
+                            onClick={() => { playEliminatedSound(); socket.emit('game:start', {}); }}
                             disabled={lobby.players.length < 2}
                             className="bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white px-6 py-2 rounded-full font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -624,15 +615,15 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                               exit={{ opacity: 0, y: -50, scale: 0.5 }}
                               transition={{ type: "spring", stiffness: 300, damping: 25 }}
                               className={`
-                                 relative group hg-hand-card
+                                 relative group
                                  ${!isMyTurn || amEliminated ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer'}
                               `}
                               onClick={() => isMyTurn && !waitingToDraw && !amEliminated && setSelectedCard(card)}
                            >
-                              <img
-                                  src={CARD_IMAGES[card]}
-                                  alt={CARD_NAMES[card]}
-                                  className="h-full w-full object-cover rounded-xl shadow-2xl"
+                              <DynamicCard
+                                  cardType={card}
+                                  selected={selectedCard === card}
+                                  className="hg-hand-card"
                               />
                            </motion.div>
                        );
@@ -704,7 +695,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                   </div>
                 )}
 
-                {/* Confirm/Cancel for non-Guard cards */}
+                {/* Confirm/Cancel for non-Inspector cards */}
                 {selectedCard !== 1 && (
                   <>
                     <button
@@ -728,7 +719,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                 )}
               </div>
 
-              {/* Row 2: Guard card selection grid */}
+              {/* Row 2: Inspector card selection grid */}
               {selectedCard === 1 && (
                 <div className="flex flex-col gap-2">
                   <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">Guess Card</span>
@@ -738,19 +729,19 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                         key={cardNum}
                         onClick={() => !allOpponentsProtected && setGuessCard(cardNum as CardType)}
                         className={`
-                          w-[120px] h-[180px] rounded-lg cursor-pointer transition-all overflow-hidden
+                          cursor-pointer transition-all
                           ${
                             guessCard === cardNum
-                              ? 'scale-110 shadow-[0_0_20px_rgba(var(--accent-color-rgb),0.6)] z-10 ring-2 ring-[var(--royal-gold)]'
+                              ? 'scale-110 shadow-[0_0_20px_rgba(var(--accent-color-rgb),0.6)] z-10'
                               : 'hover:scale-105 opacity-80 hover:opacity-100'
                           }
                           ${allOpponentsProtected ? 'opacity-50 cursor-not-allowed' : ''}
                         `}
                       >
-                        <img
-                          src={CARD_IMAGES[cardNum]}
-                          alt={CARD_NAMES[cardNum]}
-                          className="w-full h-full object-cover rounded-lg"
+                        <DynamicCard
+                          cardType={cardNum as CardType}
+                          selected={guessCard === cardNum}
+                          className="hg-guard-select-card"
                         />
                       </div>
                     ))}
@@ -758,7 +749,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                 </div>
               )}
 
-              {/* Row 3: Guard Confirm/Cancel buttons */}
+              {/* Row 3: Inspector Confirm/Cancel buttons */}
               {selectedCard === 1 && (
                 <div className="flex items-center justify-center gap-4 pt-2 border-t border-[rgba(var(--accent-color-rgb),0.18)]">
                   <button
@@ -933,26 +924,25 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                     cardImage={CARD_IMAGES[evt.card]}
                                     cardName={CARD_NAMES[evt.card]}
                                     cardDescription={CARD_DESCRIPTIONS[evt.card]}
-                                    imageOnly={true}
+                                    useDynamicCard={true}
                                   >
                                     <button
                                       type="button"
                                       onClick={() => openZoom({ title: 'Evidence - Chronology', cards: buildZoomCardsFromTimeline(discardTimelineDisplay), index: idx })}
-                                      className={`hg-card relative rounded-xl overflow-hidden bg-black/20 ring-1 transition-all cursor-zoom-in ${
-                                        isMostRecent ? 'ring-[var(--royal-gold)]' : 'ring-white/10'
+                                      className={`relative transition-all cursor-zoom-in ${
+                                        isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''
                                       }`}
                                       aria-label={`Inspect ${CARD_NAMES[evt.card]}`}
                                     >
-                                      <img
-                                        src={CARD_IMAGES[evt.card]}
-                                        alt={CARD_NAMES[evt.card]}
-                                        className="w-full h-full object-cover rounded-xl shadow-2xl"
+                                      <DynamicCard
+                                        cardType={evt.card}
+                                        className="hg-evidence-card"
                                       />
-                                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-black px-2 py-1 rounded-full border border-white/10">
+                                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-black px-2 py-1 rounded-full border border-white/10 z-20">
                                         #{evt.order}
                                       </div>
                                     {isMostRecent && (
-                                      <div className="hg-stamp absolute top-2 left-2 text-[10px] font-black px-2 py-1 rounded-full">
+                                      <div className="hg-stamp absolute top-2 left-2 text-[10px] font-black px-2 py-1 rounded-full z-20">
                                         LATEST
                                       </div>
                                     )}
@@ -1001,24 +991,23 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                               cardImage={CARD_IMAGES[evt.card]}
                                               cardName={CARD_NAMES[evt.card]}
                                               cardDescription={CARD_DESCRIPTIONS[evt.card]}
-                                              imageOnly={true}
+                                              useDynamicCard={true}
                                             >
                                               <button
                                                 type="button"
                                                 onClick={() => openZoom({ title: `Evidence - ${entry.playerName}`, cards: buildZoomCardsFromTimeline(events as DiscardEventWithOrder[]), index: eventIdx })}
-                                                className={`hg-card relative rounded-xl overflow-hidden bg-black/20 ring-1 transition-all cursor-zoom-in ${isMostRecent ? 'ring-[var(--royal-gold)]' : 'ring-white/10'}`}
+                                                className={`relative transition-all cursor-zoom-in ${isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''}`}
                                                 aria-label={`Inspect ${CARD_NAMES[evt.card]}`}
                                               >
-                                                <img
-                                                  src={CARD_IMAGES[evt.card]}
-                                                  alt={CARD_NAMES[evt.card]}
-                                                  className="w-full h-full object-cover rounded-xl shadow-2xl"
+                                                <DynamicCard
+                                                  cardType={evt.card}
+                                                  className="hg-evidence-card"
                                                 />
-                                                <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-black px-2 py-1 rounded-full border border-white/10">
+                                                <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-black px-2 py-1 rounded-full border border-white/10 z-20">
                                                   #{evt.order}
                                                 </div>
                       {isMostRecent && (
-                        <div className="hg-stamp absolute top-2 left-2 text-[10px] font-black px-2 py-1 rounded-full">
+                        <div className="hg-stamp absolute top-2 left-2 text-[10px] font-black px-2 py-1 rounded-full z-20">
                           LATEST
                         </div>
                       )}
@@ -1052,7 +1041,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                     cardImage={CARD_IMAGES[card]}
                                     cardName={CARD_NAMES[card]}
                                     cardDescription={CARD_DESCRIPTIONS[card]}
-                                    imageOnly={true}
+                                    useDynamicCard={true}
                                   >
                                     <button
                                       type="button"
@@ -1066,13 +1055,12 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                                         }));
                                         openZoom({ title: `Evidence - ${p.name}`, cards, index: idx });
                                       }}
-                                      className="hg-card rounded-xl overflow-hidden bg-black/20 ring-1 ring-white/5 hover:ring-[rgba(var(--accent-color-rgb),0.35)] transition-all cursor-zoom-in"
+                                      className="relative transition-all cursor-zoom-in hover:ring-2 hover:ring-[rgba(var(--accent-color-rgb),0.35)]"
                                       aria-label={`Inspect ${CARD_NAMES[card]}`}
                                     >
-                                      <img
-                                        src={CARD_IMAGES[card]}
-                                        alt={CARD_NAMES[card]}
-                                        className="w-full h-full object-cover rounded-xl shadow-2xl"
+                                      <DynamicCard
+                                        cardType={card}
+                                        className="hg-evidence-card"
                                       />
                                     </button>
                                   </CardTooltip>
@@ -1165,14 +1153,13 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
 
                           <div className="relative">
                             {active.stamp && (
-                              <div className="hg-stamp absolute top-3 left-3 text-[10px] font-black px-3 py-1 rounded-full z-10">
+                              <div className="hg-stamp absolute top-3 left-3 text-[10px] font-black px-3 py-1 rounded-full z-20">
                                 {active.stamp}
                               </div>
                             )}
-                            <img
-                              src={active.image}
-                              alt={active.caption}
-                              className="max-h-[70vh] w-auto rounded-2xl shadow-2xl ring-1 ring-[rgba(var(--accent-color-rgb),0.25)]"
+                            <DynamicCard
+                              cardType={active.card}
+                              className="hg-inspector-card"
                             />
                           </div>
                         </div>

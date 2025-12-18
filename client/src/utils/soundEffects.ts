@@ -1,11 +1,11 @@
 /**
- * Sound Effects Utility for Heart's Gambit
+ * Sound Effects Utility for Prime Suspect
  *
  * Manages audio playback for game events.
- * Sound files should be placed in: client/src/assets/sounds/
+ * Sound files should be placed in: client/public/music/ or client/public/sounds/
  */
 
-type SoundType = 'match' | 'lose-life' | 'timer-tick' | 'victory' | 'countdown' | 'win' | 'lose';
+type SoundType = 'match' | 'lose-life' | 'timer-tick' | 'victory' | 'countdown' | 'win' | 'lose' | 'draw' | 'drop' | 'eliminated' | 'type1' | 'type2' | 'type3' | 'type4' | 'type5' | 'type6';
 
 class SoundEffectsManager {
   private sounds: Map<SoundType, HTMLAudioElement> = new Map();
@@ -27,7 +27,16 @@ class SoundEffectsManager {
       'victory': '/sounds/victory.mp3',
       'countdown': '/music/countdown.mp3',
       'win': '/music/win.mp3',
-      'lose': '/music/lose.mp3'
+      'lose': '/music/lose.mp3',
+      'draw': '/music/draw.wav',
+      'drop': '/music/drop.wav',
+      'eliminated': '/music/gunshot.mp3',
+      'type1': '/music/type1.wav',
+      'type2': '/music/type2.wav',
+      'type3': '/music/type3.wav',
+      'type4': '/music/type4.wav',
+      'type5': '/music/type5.wav',
+      'type6': '/music/type6.wav'
     };
 
     Object.entries(soundFiles).forEach(([key, path]) => {
@@ -101,3 +110,12 @@ export const playVictorySound = () => soundEffects.play('victory');
 export const playCountdownSound = () => soundEffects.play('countdown');
 export const playWinSound = () => soundEffects.play('win');
 export const playLoseSound = () => soundEffects.play('lose');
+export const playDrawSound = () => soundEffects.play('draw');
+export const playDropSound = () => soundEffects.play('drop');
+export const playEliminatedSound = () => soundEffects.play('eliminated');
+
+// Play a random typewriter key sound
+export const playTypewriterSound = () => {
+  const num = Math.floor(Math.random() * 6) + 1;
+  soundEffects.play(`type${num}` as SoundType);
+};

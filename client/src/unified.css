@@ -15,14 +15,14 @@
  * Game-specific styles should go in separate override files:
  *   - ClueScale: Keep webcam import in local copy only
  *   - SUSD: susd-overrides.css
- *   - HeartsGambit: think-overrides.css (if needed)
+ *   - PrimeSuspect: think-overrides.css (if needed)
  */
 
 /* ============================================
    SECTION 1: CSS RESET & TAILWIND BASE
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Gloria+Hallelujah&family=Permanent+Marker&family=VT323&family=Special+Elite&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Gloria+Hallelujah&family=Permanent+Marker&family=VT323&family=Special+Elite&family=Courier+Prime&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -158,7 +158,7 @@
   --accent: var(--secondary);
   --accent-color-rgb: 0, 217, 255;
 
-  /* App surfaces (HeartsGambit baseline) */
+  /* App surfaces (PrimeSuspect baseline) */
   --bg-dark: transparent;
   --bg-darker: transparent;
   --bg-card: rgba(21, 27, 48, 0.35);
@@ -205,7 +205,7 @@
   --chalk-blue: #7afcff;      /* ClueScale */
   --chalk-green: #7bff8d;     /* DDF */
   --chalk-red: #ff6b6b;       /* SUSD/Bad Actor */
-  --chalk-purple: #cd93ff;    /* HeartsGambit */
+  --chalk-purple: #cd93ff;    /* PrimeSuspect */
 
   /* Border colors (Hand-Drawn) */
   --border-default: rgba(255, 255, 255, 0.2);
@@ -406,7 +406,7 @@
 }
 
 /* Heart's Gambit Theme - Purple Dreamy */
-[data-theme="hearts-gambit"] {
+[data-theme="prime-suspect"] {
   --accent-color: var(--chalk-purple);
   --accent-hover: #bd83ef;
   --accent-glow: rgba(205, 147, 255, 0.4);
@@ -486,7 +486,7 @@
 }
 
 /* Heart's Gambit - Royal Romance Theme */
-[data-theme="heartsgambit"] {
+[data-theme="primesuspect"] {
   /* Noir / crime-dinner palette */
   --royal-crimson: #6a1623;
   --royal-crimson-light: #8a2233;
@@ -500,6 +500,20 @@
   --velvet-darker: #07070a;
   --wax-seal: #6a1623;
   --ink-dark: #131318;
+
+  /* 70s Noir Palette - Physical Objects */
+  --mustard-yellow: #d4a574;
+  --olive-green: #6b7c3d;
+  --avocado-green: #8a9a5b;
+  --burnt-orange: #c66b3d;
+  --rust: #b8572a;
+  --tobacco-brown: #4a3f35;
+  --detective-brown: #6b5d52;
+  --aged-newspaper: #f4e8c1;
+  --parchment-old: #d4c5a9;
+  --cream: #f9f6f0;
+  --smoke-gray: #8a8a8a;
+  --amber-glow: #c99154;
 
   /* Map to standard CSS variables used by components */
   --accent-color: var(--royal-gold);
@@ -515,14 +529,14 @@
   --text-primary: var(--parchment);
   --text-secondary: rgba(246, 240, 230, 0.75);
 
-  /* Typography */
-  --font-heading: var(--font-typewriter);
-  --font-body: ui-serif, Georgia, 'Times New Roman', Times, serif;
-  --hg-font-meta: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  /* Typography - 70s Noir Typewriter */
+  --font-heading: 'Special Elite', 'Courier Prime', monospace;
+  --font-body: 'Courier Prime', 'Courier New', monospace;
+  --hg-font-meta: 'Courier Prime', monospace;
 
-  /* Gradient for buttons */
-  --gradient-button: linear-gradient(135deg, var(--royal-crimson), #151018);
-  --gradient-button-hover: linear-gradient(135deg, var(--royal-crimson-light), var(--royal-crimson));
+  /* Solid colors for stamps/buttons (70s style) */
+  --gradient-button: var(--rust);
+  --gradient-button-hover: var(--burnt-orange);
 
   /* Neural vars mapped for compatibility */
   --neural-purple: var(--royal-crimson);
@@ -728,7 +742,7 @@
   border-color: var(--chalk-purple);
 }
 
-/* HeartsGambit - Starry Night */
+/* PrimeSuspect - Starry Night */
 [data-theme="think"] body,
 [data-theme="think"] .app-root {
   background-color: #1a0b2e !important;
@@ -739,9 +753,9 @@
   border-color: var(--chalk-purple);
 }
 
-/* HeartsGambit - Noir Crime Dinner */
-[data-theme="heartsgambit"] body,
-[data-theme="heartsgambit"] .app-root {
+/* PrimeSuspect - Noir Crime Dinner */
+[data-theme="primesuspect"] body,
+[data-theme="primesuspect"] .app-root {
   background-color: var(--velvet-dark, #1a0f1e) !important;
   background-image: var(--hg-bg-image, none);
   background-position: center;
@@ -750,7 +764,7 @@
   background-attachment: fixed;
 }
 
-[data-theme="heartsgambit"] .app-root::before {
+[data-theme="primesuspect"] .app-root::before {
   background:
     radial-gradient(1200px at 50% 18%, rgba(246, 240, 230, 0.10), transparent 58%),
     radial-gradient(1000px at 18% 12%, rgba(var(--accent-color-rgb), 0.12), transparent 55%),
@@ -769,7 +783,7 @@
   background-attachment: scroll;
 }
 
-[data-theme="heartsgambit"] .app-root::after {
+[data-theme="primesuspect"] .app-root::after {
   content: '';
   position: fixed;
   inset: 0;
@@ -784,7 +798,7 @@
   transform: translateZ(0);
 }
 
-[data-theme="heartsgambit"] .card {
+[data-theme="primesuspect"] .card {
   background: rgba(0, 0, 0, 0.38);
   border-color: rgba(var(--accent-color-rgb), 0.35);
   box-shadow:
@@ -792,50 +806,522 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-[data-theme="heartsgambit"] h1,
-[data-theme="heartsgambit"] h2,
-[data-theme="heartsgambit"] h3 {
+[data-theme="primesuspect"] h1,
+[data-theme="primesuspect"] h2,
+[data-theme="primesuspect"] h3 {
   font-family: var(--font-heading);
 }
 
-[data-theme="heartsgambit"] .home-header h1 {
+[data-theme="primesuspect"] .home-header h1 {
   font-family: var(--font-heading);
-  text-shadow: 0 0 24px rgba(var(--accent-color-rgb), 0.35);
-  color: var(--royal-gold);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.2);
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  background: none !important;
 }
 
-[data-theme="heartsgambit"] .eyebrow {
+[data-theme="primesuspect"] .eyebrow {
   color: var(--royal-gold);
   border-color: var(--royal-gold);
 }
 
-[data-theme="heartsgambit"] .primary-cta {
+/* Header branding - improve readability on dark background */
+[data-theme="primesuspect"] .gb-by {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme="primesuspect"] .gb-game {
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .gb-buddies {
+  color: var(--royal-gold) !important;
+}
+
+[data-theme="primesuspect"] .gb-io {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Game header branding - same fixes as homepage header */
+[data-theme="primesuspect"] .game-header-gb-by {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme="primesuspect"] .game-header-gb-game {
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .game-header-gb-buddies {
+  color: var(--royal-gold) !important;
+}
+
+[data-theme="primesuspect"] .game-header-gb-io {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Tagline - brighter for better readability */
+[data-theme="primesuspect"] .home-tagline {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme="primesuspect"] .primary-cta {
   background: var(--gradient-button) !important;
+  border: 3px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.3),
+    4px 4px 0 var(--tobacco-brown) !important;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  transform: rotate(-2deg);
+  transition: transform 0.1s, box-shadow 0.1s !important;
 }
 
-[data-theme="heartsgambit"] .primary-cta:hover {
+[data-theme="primesuspect"] .primary-cta:hover {
   background: var(--gradient-button-hover) !important;
+  transform: rotate(-2deg) scale(1.02);
 }
 
-[data-theme="heartsgambit"] * {
+[data-theme="primesuspect"] .primary-cta:active {
+  transform: rotate(-2deg) scale(0.98) translateY(2px);
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.5),
+    2px 2px 0 var(--tobacco-brown) !important;
+}
+
+/* Buttons in cards - push to bottom so they align across cards */
+[data-theme="primesuspect"] .split-card .primary-cta,
+[data-theme="primesuspect"] .split-card .create-cta,
+[data-theme="primesuspect"] .split-card .join-cta {
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Card headers - keep compact */
+[data-theme="primesuspect"] .split-card .card-head {
+  margin-bottom: 0.5rem !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Phase 5: Login/Menu Cards → Restaurant Menu / Case File */
+[data-theme="primesuspect"] .split-card,
+[data-theme="primesuspect"] .home-cards-wrapper .card {
+  background: #c9b8a0 !important;
+  background-image:
+    url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Cfilter id="noise"%3E%3CfeTurbulence baseFrequency="0.9" numOctaves="4"/%3E%3CfeColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)"/%3E%3C/svg%3E'),
+    repeating-linear-gradient(
+      transparent,
+      transparent 1.5rem,
+      rgba(0, 0, 0, 0.1) 1.5rem,
+      rgba(0, 0, 0, 0.1) calc(1.5rem + 1px)
+    ) !important;
+  background-size: auto, auto !important;
+  background-attachment: scroll !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow:
+    12px 12px 0 rgba(0, 0, 0, 0.4),
+    0 0 0 3px var(--tobacco-brown) !important;
+  color: #2a2420 !important;
+  height: auto !important;
+  min-height: unset !important;
+  max-height: unset !important;
+  gap: 0.25rem !important;
+  padding: 0.6rem 0.6rem 1.1rem 0.6rem !important;
+}
+
+/* Cards match each other's height but are compact */
+[data-theme="primesuspect"] .split-actions {
+  align-items: stretch !important;
+}
+
+/* Compact form layout - pack items at top, prevent spreading */
+[data-theme="primesuspect"] .split-card .home-form {
+  height: auto !important;
+  gap: 0.8rem !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+}
+
+/* Remove flex-grow from form children to prevent spreading */
+[data-theme="primesuspect"] .split-card .home-form > * {
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Remove extra margins from form groups */
+[data-theme="primesuspect"] .split-card .form-group {
+  margin: 0 !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Streamer toggle should not have extra spacing */
+[data-theme="primesuspect"] .split-card .streamer-toggle {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Card description text - make it dark and readable, keep compact */
+[data-theme="primesuspect"] .split-card .card-head h3 {
+  color: #2a2420 !important;
+  font-size: 1.1rem !important;
+  margin-bottom: 0.15rem !important;
+  margin-top: 0 !important;
+}
+
+[data-theme="primesuspect"] .split-card .card-head p {
+  color: #3d3a35 !important;
+  font-size: 0.85rem !important;
+  line-height: 1.3 !important;
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Input fields → Form fill-in lines */
+[data-theme="primesuspect"] .home-input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid #2a2420 !important;
+  border-radius: 0 !important;
+  font-family: 'Courier Prime', monospace !important;
+  color: #2a2420 !important;
+  padding: 0.5rem 0 !important;
+}
+
+[data-theme="primesuspect"] .home-input::placeholder {
+  color: rgba(42, 36, 32, 0.6) !important;
+}
+
+/* Ensure ALL text in split cards is dark and readable */
+[data-theme="primesuspect"] .split-card * {
+  color: #2a2420 !important;
+}
+
+/* Specific text elements */
+[data-theme="primesuspect"] .split-card .card-head h3,
+[data-theme="primesuspect"] .split-card .card-head p,
+[data-theme="primesuspect"] .split-card h3,
+[data-theme="primesuspect"] .split-card p {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .split-card label {
+  color: #2a2420 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="primesuspect"] .split-card .form-group label {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .split-card .streamer-toggle label {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .split-card .home-form-note {
+  color: #3d3a35 !important;
+}
+
+[data-theme="primesuspect"] .split-card input[type="text"],
+[data-theme="primesuspect"] .split-card input[type="email"] {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .split-card input::placeholder {
+  color: rgba(42, 36, 32, 0.5) !important;
+}
+
+/* Game header room code and labels - readable on dark background */
+[data-theme="primesuspect"] .game-header-room-label {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="primesuspect"] .game-header-room-value {
+  color: var(--mustard-yellow) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="primesuspect"] .game-header-streamer-badge {
+  background: rgba(184, 87, 42, 0.4) !important;
+  border: 1px solid rgba(184, 87, 42, 0.8) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .game-header-streamer-badge-text {
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .game-header-copy-btn {
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .game-header-copy-btn:hover {
+  background: rgba(184, 87, 42, 0.3) !important;
+  color: var(--mustard-yellow) !important;
+}
+
+/* Player count and player info - enhance for dark background */
+[data-theme="primesuspect"] .game-header-player-count {
+  background: rgba(74, 63, 53, 0.6) !important;
+  border: 1px solid rgba(184, 87, 42, 0.4) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .game-header-player-info {
+  background: rgba(74, 63, 53, 0.6) !important;
+  border: 1px solid rgba(184, 87, 42, 0.4) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .game-header-player-info.host {
+  background: rgba(212, 165, 116, 0.3) !important;
+  border-color: rgba(212, 165, 116, 0.6) !important;
+  color: var(--mustard-yellow) !important;
+}
+
+[data-theme="primesuspect"] .game-header-host-badge {
+  background: rgba(212, 165, 116, 0.3) !important;
+  color: var(--mustard-yellow) !important;
+}
+
+/* Phase 6: Sidebar → Reporter's Notebook */
+[data-theme="primesuspect"] .chat-window {
+  background: var(--aged-newspaper) !important;
+  background-image:
+    repeating-linear-gradient(
+      transparent,
+      transparent 1.5rem,
+      rgba(139, 69, 19, 0.3) 1.5rem,
+      rgba(139, 69, 19, 0.3) calc(1.5rem + 1px)
+    ) !important;
+  border: 2px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .chat-message {
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 0.9rem !important;
+  color: #2a2420 !important;
+  background: transparent !important;
+  margin-bottom: 1rem !important;
+  line-height: 1.5rem !important;
+}
+
+[data-theme="primesuspect"] .chat-message * {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .chat-messages {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .chat-window .message-content {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .chat-window .system-message {
+  color: #6b5d52 !important;
+  font-style: italic !important;
+}
+
+/* Player List - Suspect Dossier / Case File Style */
+[data-theme="primesuspect"] .player-list-fixed {
+  background: #c9b8a0 !important;
+  background-image:
+    url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Cfilter id="noise"%3E%3CfeTurbulence baseFrequency="0.9" numOctaves="4"/%3E%3CfeColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)"/%3E%3C/svg%3E') !important;
+  border: 3px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    8px 8px 0 rgba(0, 0, 0, 0.35),
+    inset 0 0 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="primesuspect"] .player-list-header {
+  background: var(--tobacco-brown) !important;
+  border-bottom: 2px solid #2a2420 !important;
+  position: relative;
+}
+
+[data-theme="primesuspect"] .player-list-header h3 {
+  color: var(--aged-newspaper) !important;
+  -webkit-text-fill-color: var(--aged-newspaper) !important;
+  font-family: 'Courier Prime', monospace !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+}
+
+[data-theme="primesuspect"] .player-list-header h3::before {
+  content: "📁 " !important;
+}
+
+[data-theme="primesuspect"] .player-item {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  margin: 0.5rem !important;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="primesuspect"] .player-item .player-name {
+  color: #2a2420 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+}
+
+[data-theme="primesuspect"] .player-item .player-score {
+  color: #4a3f35 !important;
+  font-family: 'Courier Prime', monospace !important;
+}
+
+[data-theme="primesuspect"] .player-badge,
+[data-theme="primesuspect"] .player-badge.host,
+[data-theme="primesuspect"] .player-badge.you,
+[data-theme="primesuspect"] .player-badge.active,
+[data-theme="primesuspect"] .badge-host,
+[data-theme="primesuspect"] .badge-you,
+[data-theme="primesuspect"] .player-badges [class*="badge"] {
+  background: var(--tobacco-brown) !important;
+  color: var(--aged-newspaper) !important;
+  border: 1px solid #2a2420 !important;
+  border-radius: 0 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  padding: 0.15rem 0.4rem !important;
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3) !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+/* Phase 7: Remove all rounded corners globally for PrimeSuspect */
+[data-theme="primesuspect"] * {
+  border-radius: 0 !important;
   scrollbar-color: var(--royal-crimson) rgba(var(--primary-rgb), 0.12);
 }
 
+/* Octagonal clip for avatars (photo corners) */
+[data-theme="primesuspect"] .player-avatar,
+[data-theme="primesuspect"] .avatar {
+  clip-path: polygon(
+    5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%
+  ) !important;
+}
+
+/* Phase 8: Texture utility classes */
+.hg-texture-paper {
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Cfilter id="noise"%3E%3CfeTurbulence baseFrequency="0.9" numOctaves="4"/%3E%3CfeColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)"/%3E%3C/svg%3E') !important;
+  background-size: 200px 200px !important;
+}
+
+.hg-texture-cardstock {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.03) 1px,
+      rgba(0, 0, 0, 0.03) 2px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.03) 1px,
+      rgba(0, 0, 0, 0.03) 2px
+    ) !important;
+}
+
+.hg-texture-stain::after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(
+    circle,
+    rgba(101, 67, 33, 0.2),
+    transparent 70%
+  );
+  border-radius: 50%;
+  top: 20%;
+  right: 10%;
+  pointer-events: none;
+}
+
+/* Phase 9: Custom Cursor - Crosshair with white outline for visibility on any background */
+[data-theme="primesuspect"],
+[data-theme="primesuspect"] *,
+[data-theme="primesuspect"] *::before,
+[data-theme="primesuspect"] *::after {
+  cursor: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3C!-- White outline layer --%3E%3Ccircle cx="12" cy="12" r="10" fill="none" stroke="%23ffffff" stroke-width="4"/%3E%3Ccircle cx="12" cy="12" r="2.5" fill="%23ffffff"/%3E%3Cline x1="12" y1="0" x2="12" y2="8" stroke="%23ffffff" stroke-width="4"/%3E%3Cline x1="12" y1="16" x2="12" y2="24" stroke="%23ffffff" stroke-width="4"/%3E%3Cline x1="0" y1="12" x2="8" y2="12" stroke="%23ffffff" stroke-width="4"/%3E%3Cline x1="16" y1="12" x2="24" y2="12" stroke="%23ffffff" stroke-width="4"/%3E%3C!-- Dark inner layer --%3E%3Ccircle cx="12" cy="12" r="10" fill="none" stroke="%232a2420" stroke-width="2"/%3E%3Ccircle cx="12" cy="12" r="2" fill="%232a2420"/%3E%3Cline x1="12" y1="0" x2="12" y2="8" stroke="%232a2420" stroke-width="2"/%3E%3Cline x1="12" y1="16" x2="12" y2="24" stroke="%232a2420" stroke-width="2"/%3E%3Cline x1="0" y1="12" x2="8" y2="12" stroke="%232a2420" stroke-width="2"/%3E%3Cline x1="16" y1="12" x2="24" y2="12" stroke="%232a2420" stroke-width="2"/%3E%3C/svg%3E') 12 12, crosshair !important;
+}
+
+/* Pointer cursor for interactive elements - with white outline for visibility */
+[data-theme="primesuspect"] button,
+[data-theme="primesuspect"] a,
+[data-theme="primesuspect"] [role="button"],
+[data-theme="primesuspect"] input[type="submit"],
+[data-theme="primesuspect"] input[type="button"],
+[data-theme="primesuspect"] label[for],
+[data-theme="primesuspect"] .clickable {
+  cursor: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 20 24"%3E%3Cpath d="M4,22 L4,2 L16,12 L10,12 L14,22 L10,22 L6,14 L4,16 Z" fill="%23ffffff" stroke="%23ffffff" stroke-width="3"/%3E%3Cpath d="M4,22 L4,2 L16,12 L10,12 L14,22 L10,22 L6,14 L4,16 Z" fill="%232a2420" stroke="%232a2420" stroke-width="1"/%3E%3C/svg%3E') 4 2, pointer !important;
+}
+
+/* Text cursor for text inputs */
+[data-theme="primesuspect"] input[type="text"],
+[data-theme="primesuspect"] input[type="email"],
+[data-theme="primesuspect"] input[type="password"],
+[data-theme="primesuspect"] textarea {
+  cursor: text !important;
+}
+
+/* Phase 10: Settings Modal Redesign */
+[data-theme="primesuspect"] .settings-modal-panel {
+  background: var(--parchment-old) !important;
+  backdrop-filter: none !important;
+  border: 4px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    16px 16px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 40px rgba(139, 69, 19, 0.1) !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-eyebrow {
+  background: var(--rust) !important;
+  color: var(--cream) !important;
+  font-family: 'VT323', monospace !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.15em !important;
+  padding: 0.3rem 0.8rem !important;
+  border: 2px solid var(--tobacco-brown) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5) !important;
+  transform: rotate(-1deg) !important;
+}
+
 /* Focus styling: brass focus ring for keyboard navigation */
-[data-theme="heartsgambit"] :where(a, button, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+[data-theme="primesuspect"] :where(a, button, input, select, textarea, [role="button"], [tabindex]):focus-visible {
   outline: 2px solid rgba(var(--accent-color-rgb), 0.75);
   outline-offset: 3px;
 }
 
 /* Noir UI building blocks */
-[data-theme="heartsgambit"] .hg-meta {
+[data-theme="primesuspect"] .hg-meta {
   font-family: var(--hg-font-meta);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(246, 240, 230, 0.78);
 }
 
-[data-theme="heartsgambit"] .hg-stamp {
+[data-theme="primesuspect"] .hg-stamp {
   font-family: var(--font-typewriter);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -846,7 +1332,7 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-[data-theme="heartsgambit"] .hg-panel {
+[data-theme="primesuspect"] .hg-panel {
   position: relative;
   background:
     radial-gradient(900px at 30% 18%, rgba(246, 240, 230, 0.06), transparent 56%),
@@ -857,7 +1343,7 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
-[data-theme="heartsgambit"] .hg-panel::after {
+[data-theme="primesuspect"] .hg-panel::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -875,7 +1361,7 @@
     );
 }
 
-[data-theme="heartsgambit"] .hg-panel.hg-candlelight::before {
+[data-theme="primesuspect"] .hg-panel.hg-candlelight::before {
   content: '';
   position: absolute;
   inset: -40px;
@@ -889,8 +1375,8 @@
   animation: hgCandleFlicker 12s ease-in-out infinite;
 }
 
-/* HeartsGambit Settings Modal (Noir) */
-[data-theme="heartsgambit"] .settings-modal {
+/* PrimeSuspect Settings Modal (Noir) */
+[data-theme="primesuspect"] .settings-modal {
   position: fixed;
   inset: 0;
   z-index: var(--z-settings-modal);
@@ -907,14 +1393,14 @@
   pointer-events: auto;
 }
 
-[data-theme="heartsgambit"] .settings-modal-panel {
+[data-theme="primesuspect"] .settings-modal-panel {
   width: min(560px, 100%);
   border-radius: 1.1rem;
   overflow: hidden;
   pointer-events: auto;
 }
 
-[data-theme="heartsgambit"] .settings-modal-header {
+[data-theme="primesuspect"] .settings-modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -923,11 +1409,11 @@
   border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.16);
 }
 
-[data-theme="heartsgambit"] .settings-modal-title {
+[data-theme="primesuspect"] .settings-modal-title {
   min-width: 0;
 }
 
-[data-theme="heartsgambit"] .settings-modal-eyebrow {
+[data-theme="primesuspect"] .settings-modal-eyebrow {
   font-family: var(--hg-font-meta);
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -935,7 +1421,7 @@
   font-size: 0.7rem;
 }
 
-[data-theme="heartsgambit"] .settings-modal-header h2 {
+[data-theme="primesuspect"] .settings-modal-header h2 {
   margin: 0.25rem 0 0;
   font-family: var(--font-heading);
   color: var(--parchment);
@@ -943,7 +1429,7 @@
   font-size: 1.25rem;
 }
 
-[data-theme="heartsgambit"] .settings-modal-close {
+[data-theme="primesuspect"] .settings-modal-close {
   width: 2.5rem;
   height: 2.5rem;
   display: inline-flex;
@@ -956,27 +1442,27 @@
   transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
-[data-theme="heartsgambit"] .settings-modal-close:hover {
+[data-theme="primesuspect"] .settings-modal-close:hover {
   transform: translateY(-1px);
   background: rgba(0, 0, 0, 0.5);
   border-color: rgba(var(--accent-color-rgb), 0.35);
 }
 
-[data-theme="heartsgambit"] .settings-modal-content {
+[data-theme="primesuspect"] .settings-modal-content {
   padding: 1rem 1.1rem 0.6rem;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
 }
 
-[data-theme="heartsgambit"] .settings-section {
+[data-theme="primesuspect"] .settings-section {
   padding: 0.9rem 0.9rem 0.85rem;
   border-radius: 1rem;
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(var(--accent-color-rgb), 0.12);
 }
 
-[data-theme="heartsgambit"] .settings-row {
+[data-theme="primesuspect"] .settings-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -984,13 +1470,13 @@
   margin-bottom: 0.65rem;
 }
 
-[data-theme="heartsgambit"] .settings-row-actions {
+[data-theme="primesuspect"] .settings-row-actions {
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
 }
 
-[data-theme="heartsgambit"] .settings-row-label {
+[data-theme="primesuspect"] .settings-row-label {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -999,7 +1485,7 @@
   letter-spacing: 0.02em;
 }
 
-[data-theme="heartsgambit"] .settings-row-value {
+[data-theme="primesuspect"] .settings-row-value {
   font-family: var(--hg-font-meta);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1007,19 +1493,19 @@
   font-size: 0.75rem;
 }
 
-[data-theme="heartsgambit"] .settings-subtext {
+[data-theme="primesuspect"] .settings-subtext {
   margin-top: 0.6rem;
   color: rgba(246, 240, 230, 0.65);
   font-size: 0.8rem;
   line-height: 1.3;
 }
 
-[data-theme="heartsgambit"] .settings-slider {
+[data-theme="primesuspect"] .settings-slider {
   width: 100%;
   accent-color: var(--royal-gold);
 }
 
-[data-theme="heartsgambit"] .settings-switch {
+[data-theme="primesuspect"] .settings-switch {
   width: 52px;
   height: 30px;
   border-radius: 999px;
@@ -1029,12 +1515,12 @@
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-[data-theme="heartsgambit"] .settings-switch.on {
+[data-theme="primesuspect"] .settings-switch.on {
   background: rgba(var(--accent-color-rgb), 0.22);
   border-color: rgba(var(--accent-color-rgb), 0.45);
 }
 
-[data-theme="heartsgambit"] .settings-switch-thumb {
+[data-theme="primesuspect"] .settings-switch-thumb {
   position: absolute;
   top: 50%;
   left: 4px;
@@ -1047,24 +1533,303 @@
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
-[data-theme="heartsgambit"] .settings-switch.on .settings-switch-thumb {
+[data-theme="primesuspect"] .settings-switch.on .settings-switch-thumb {
   transform: translate(22px, -50%);
   background: var(--royal-gold);
 }
 
-[data-theme="heartsgambit"] .settings-modal-footer {
+[data-theme="primesuspect"] .settings-modal-footer {
   padding: 0.85rem 1.1rem 1rem;
   border-top: 1px solid rgba(var(--accent-color-rgb), 0.12);
   display: flex;
   justify-content: flex-end;
 }
 
-[data-theme="heartsgambit"] .settings-hint {
+[data-theme="primesuspect"] .settings-hint {
   font-family: var(--hg-font-meta);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(246, 240, 230, 0.62);
   font-size: 0.7rem;
+}
+
+/* ===== SETTINGS MODAL - NOIR PARCHMENT OVERRIDES ===== */
+/* Override dark glass look with aged paper aesthetic */
+[data-theme="primesuspect"] .settings-modal-panel {
+  background: #c9b8a0 !important;
+  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.08"/%3E%3C/svg%3E') !important;
+  border: 4px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="primesuspect"] .settings-modal {
+  background: rgba(42, 36, 32, 0.85) !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-header {
+  background: var(--tobacco-brown) !important;
+  border-bottom: 2px solid #2a2420 !important;
+  padding: 0.8rem 1rem !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-header h2 {
+  color: var(--aged-newspaper) !important;
+  font-family: 'Courier Prime', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-eyebrow {
+  color: var(--aged-newspaper) !important;
+  opacity: 0.8 !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-close {
+  background: var(--rust) !important;
+  border: 2px solid #2a2420 !important;
+  border-radius: 0 !important;
+  color: var(--aged-newspaper) !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-close:hover {
+  background: #8b3a3a !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-content {
+  padding: 1rem !important;
+}
+
+[data-theme="primesuspect"] .settings-section {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  padding: 0.8rem !important;
+}
+
+[data-theme="primesuspect"] .settings-row-label {
+  color: #2a2420 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="primesuspect"] .settings-row-label svg,
+[data-theme="primesuspect"] .settings-row-label .icon {
+  color: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .settings-row-value {
+  color: #4a3f35 !important;
+  font-family: 'Courier Prime', monospace !important;
+}
+
+[data-theme="primesuspect"] .settings-subtext {
+  color: #5a4f45 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-style: italic !important;
+}
+
+[data-theme="primesuspect"] .settings-switch {
+  background: var(--tobacco-brown) !important;
+  border: 2px solid #2a2420 !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="primesuspect"] .settings-switch.on {
+  background: var(--royal-gold) !important;
+  border-color: #8b7355 !important;
+}
+
+[data-theme="primesuspect"] .settings-switch-thumb {
+  background: var(--aged-newspaper) !important;
+  border-radius: 2px !important;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .settings-slider {
+  accent-color: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .settings-slider::-webkit-slider-thumb {
+  background: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .settings-slider::-webkit-slider-runnable-track {
+  background: rgba(74, 63, 53, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-footer {
+  background: rgba(74, 63, 53, 0.15) !important;
+  border-top: 2px solid var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .settings-hint {
+  color: #4a3f35 !important;
+  font-family: 'Courier Prime', monospace !important;
+}
+
+/* ===== DEVICE SETTINGS MODAL (Video/Audio) - NOIR OVERRIDES ===== */
+/* Overrides Tailwind classes used in WebcamDisplay.tsx DeviceSettingsModal */
+[data-theme="primesuspect"] .device-settings-modal {
+  background: #c9b8a0 !important;
+  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.08"/%3E%3C/svg%3E') !important;
+  border: 4px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal h3,
+[data-theme="primesuspect"] .device-settings-modal h4 {
+  color: #2a2420 !important;
+  font-family: 'Courier Prime', monospace !important;
+}
+
+/* Override Tailwind text colors */
+[data-theme="primesuspect"] .device-settings-modal .text-slate-100,
+[data-theme="primesuspect"] .device-settings-modal .text-slate-200,
+[data-theme="primesuspect"] .device-settings-modal .text-slate-300,
+[data-theme="primesuspect"] .device-settings-modal .text-slate-400 {
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .text-cyan-400,
+[data-theme="primesuspect"] .device-settings-modal .text-cyan-200 {
+  color: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .text-green-200,
+[data-theme="primesuspect"] .device-settings-modal .text-amber-200 {
+  color: #4a3f35 !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .text-purple-400 {
+  color: var(--rust) !important;
+}
+
+/* Override Tailwind backgrounds */
+[data-theme="primesuspect"] .device-settings-modal .bg-slate-700,
+[data-theme="primesuspect"] .device-settings-modal .bg-slate-700\/50,
+[data-theme="primesuspect"] .device-settings-modal .bg-slate-800,
+[data-theme="primesuspect"] .device-settings-modal .bg-slate-800\/60,
+[data-theme="primesuspect"] .device-settings-modal .bg-slate-800\/80,
+[data-theme="primesuspect"] .device-settings-modal .bg-slate-900 {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Info boxes */
+[data-theme="primesuspect"] .device-settings-modal .bg-green-900\/30 {
+  background: rgba(74, 63, 53, 0.2) !important;
+  border-color: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .bg-gradient-to-r {
+  background: rgba(74, 63, 53, 0.15) !important;
+  border-color: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .border-green-400\/50,
+[data-theme="primesuspect"] .device-settings-modal .border-amber-400\/50 {
+  border-color: var(--tobacco-brown) !important;
+}
+
+/* Override borders */
+[data-theme="primesuspect"] .device-settings-modal .border-slate-600,
+[data-theme="primesuspect"] .device-settings-modal .border-slate-600\/50 {
+  border-color: var(--tobacco-brown) !important;
+}
+
+/* Tab styling - active tab */
+[data-theme="primesuspect"] .device-settings-modal button.border-cyan-400 {
+  border-color: var(--royal-gold) !important;
+}
+
+/* Select dropdowns */
+[data-theme="primesuspect"] .device-settings-modal select {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: #2a2420 !important;
+  border: 2px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal select option {
+  background: #c9b8a0 !important;
+  color: #2a2420 !important;
+}
+
+/* Preview box border */
+[data-theme="primesuspect"] .device-settings-modal .border-cyan-500\/50 {
+  border-color: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .shadow-cyan-500\/10 {
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Preview label */
+[data-theme="primesuspect"] .device-settings-modal .bg-blue-600\/80 {
+  background: var(--tobacco-brown) !important;
+}
+
+/* Enable/Disable buttons */
+[data-theme="primesuspect"] .device-settings-modal .bg-green-600 {
+  background: var(--royal-gold) !important;
+  color: #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .bg-red-600 {
+  background: var(--rust) !important;
+  color: var(--aged-newspaper) !important;
+}
+
+/* Virtual background grid items */
+[data-theme="primesuspect"] .device-settings-modal .border-blue-500 {
+  border-color: var(--royal-gold) !important;
+}
+
+[data-theme="primesuspect"] .device-settings-modal .bg-blue-500\/20 {
+  background: rgba(210, 178, 90, 0.2) !important;
+}
+
+/* Close button */
+[data-theme="primesuspect"] .device-settings-modal .hover\:bg-slate-700\/50:hover {
+  background: rgba(74, 63, 53, 0.3) !important;
+}
+
+/* Rounded elements - make sharp */
+[data-theme="primesuspect"] .device-settings-modal .rounded-lg,
+[data-theme="primesuspect"] .device-settings-modal .rounded-xl {
+  border-radius: 0 !important;
+}
+
+/* Remove frosted glass effects - replace with solid colors and textures */
+[data-theme="primesuspect"] .card,
+[data-theme="primesuspect"] .sketch-box {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="primesuspect"] .header {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .game-header {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="primesuspect"] .split-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 @keyframes hgCandleFlicker {
@@ -1074,28 +1839,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-theme="heartsgambit"] .hg-panel.hg-candlelight::before,
-  [data-theme="heartsgambit"] .app-root::after {
+  [data-theme="primesuspect"] .hg-panel.hg-candlelight::before,
+  [data-theme="primesuspect"] .app-root::after {
     animation: none !important;
   }
 }
 
 /* In-room header spacing: keep content flush to header bottom (including safe-area). */
-[data-theme="heartsgambit"] {
+[data-theme="primesuspect"] {
   --app-header-height: 66px;
 }
 
 @media (max-width: 767px) {
-  [data-theme="heartsgambit"] {
+  [data-theme="primesuspect"] {
     --app-header-height: 52px;
   }
 }
 
-[data-theme="heartsgambit"] .app-root.in-room {
+[data-theme="primesuspect"] .app-root.in-room {
   padding-top: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
 }
 
-[data-theme="heartsgambit"] .app-root.in-room .game-header {
+[data-theme="primesuspect"] .app-root.in-room .game-header {
   height: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
   padding-top: env(safe-area-inset-top, 0px);
 }
@@ -1106,7 +1871,7 @@
    ============================================ */
 
 /* Root container - viewport height with flex */
-[data-theme="heartsgambit"] .app-root {
+[data-theme="primesuspect"] .app-root {
   height: 100vh;
   height: 100dvh;
   display: flex;
@@ -1114,12 +1879,12 @@
   overflow: hidden;
 }
 
-[data-theme="heartsgambit"] .app-root.in-room {
+[data-theme="primesuspect"] .app-root.in-room {
   overflow: hidden;
 }
 
 /* App layout - flex child that fills remaining space */
-[data-theme="heartsgambit"] .app-layout {
+[data-theme="primesuspect"] .app-layout {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -1130,34 +1895,34 @@
 }
 
 /* In-room: let the game fill to header/sidebar edges */
-[data-theme="heartsgambit"] .app-root.in-room .game-content {
+[data-theme="primesuspect"] .app-root.in-room .game-content {
   padding: 0;
   overflow: hidden;
 }
 
 /* In-room (App.tsx layout): remove inset padding between header and panels */
-[data-theme="heartsgambit"] .app-root.in-room .main-scroll-area {
+[data-theme="primesuspect"] .app-root.in-room .main-scroll-area {
   padding: 0 !important;
 }
 
 @media (max-width: 1023px) {
-  [data-theme="heartsgambit"] .app-root.in-room .main-scroll-area {
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+  [data-theme="primesuspect"] .app-root.in-room .main-scroll-area {
+    padding-bottom: calc(var(--filmstrip-safe-space, 0px) + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
 /* PlayerList: avoid clipped gradient text on dark/noir backgrounds */
-[data-theme="heartsgambit"] .player-list-fixed {
+[data-theme="primesuspect"] .player-list-fixed {
   background: rgba(0, 0, 0, 0.35);
   border-color: rgba(var(--accent-color-rgb), 0.2);
 }
 
-[data-theme="heartsgambit"] .player-list-header {
+[data-theme="primesuspect"] .player-list-header {
   background: rgba(0, 0, 0, 0.45);
   border-bottom-color: rgba(var(--accent-color-rgb), 0.16);
 }
 
-[data-theme="heartsgambit"] .player-list-header h3 {
+[data-theme="primesuspect"] .player-list-header h3 {
   background: none;
   -webkit-text-fill-color: var(--parchment);
   color: var(--parchment);
@@ -1165,7 +1930,7 @@
 }
 
 /* Homepage - fit to viewport minus header */
-[data-theme="heartsgambit"] .home-hero {
+[data-theme="primesuspect"] .home-hero {
   height: calc(100dvh - 66px);
   height: calc(100vh - 66px);
   display: flex;
@@ -1173,7 +1938,7 @@
   overflow: hidden;
 }
 
-[data-theme="heartsgambit"] .home-shell {
+[data-theme="primesuspect"] .home-shell {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -1183,66 +1948,67 @@
 }
 
 /* Scale mascot based on viewport */
-[data-theme="heartsgambit"] .home-mascot-container {
+[data-theme="primesuspect"] .home-mascot-container {
   height: clamp(60px, 12vh, 150px);
   flex-shrink: 0;
 }
 
-[data-theme="heartsgambit"] .home-mascot-container img {
+[data-theme="primesuspect"] .home-mascot-container img {
   height: 100%;
   width: auto;
 }
 
 /* Scale title based on viewport */
-[data-theme="heartsgambit"] .home-header {
+[data-theme="primesuspect"] .home-header {
   flex-shrink: 0;
 }
 
-[data-theme="heartsgambit"] .home-header h1 {
+[data-theme="primesuspect"] .home-header h1 {
   font-size: clamp(1.5rem, 4vw, 3rem);
 }
 
-/* Flexible card layout */
-[data-theme="heartsgambit"] .home-cards-wrapper {
-  flex: 1;
+/* Flexible card layout - compact, only take needed height */
+[data-theme="primesuspect"] .home-cards-wrapper {
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   align-items: stretch;
 }
 
-[data-theme="heartsgambit"] .split-actions {
-  flex: 1;
+[data-theme="primesuspect"] .split-actions {
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   gap: 1rem;
+  align-items: stretch;
 }
 
-[data-theme="heartsgambit"] .split-card {
-  flex: 1;
+[data-theme="primesuspect"] .split-card {
+  flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
-[data-theme="heartsgambit"] .split-card .home-form {
-  flex: 1;
+[data-theme="primesuspect"] .split-card .home-form {
+  flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-[data-theme="heartsgambit"] .split-card .form-group {
+[data-theme="primesuspect"] .split-card .form-group {
   flex-shrink: 0;
 }
 
-[data-theme="heartsgambit"] .split-card .primary-cta {
+[data-theme="primesuspect"] .split-card .primary-cta {
   margin-top: auto;
   flex-shrink: 0;
 }
 
 /* Game container - full height flex with radial gradient */
-[data-theme="heartsgambit"] .hearts-gambit-game {
+[data-theme="primesuspect"] .prime-suspect-game {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -1256,11 +2022,11 @@
 }
 
 /* Card sizing - all cards use same (player) size */
-[data-theme="heartsgambit"] .hg-deck-card,
-[data-theme="heartsgambit"] .hg-discard-card,
-[data-theme="heartsgambit"] .hg-hand-card,
-[data-theme="heartsgambit"] .hg-opponent-card,
-[data-theme="heartsgambit"] .hg-card {
+[data-theme="primesuspect"] .hg-deck-card,
+[data-theme="primesuspect"] .hg-discard-card,
+[data-theme="primesuspect"] .hg-hand-card,
+[data-theme="primesuspect"] .hg-opponent-card,
+[data-theme="primesuspect"] .hg-card {
   height: var(--hg-card-height, 240px);
   width: var(--hg-card-width, 160px);
   border-radius: 0.85rem;
@@ -1272,66 +2038,299 @@
   transform: translateZ(0);
 }
 
-[data-theme="heartsgambit"] .hg-deck-card,
-[data-theme="heartsgambit"] .hg-discard-card {
+[data-theme="primesuspect"] .hg-deck-card,
+[data-theme="primesuspect"] .hg-discard-card {
   transition: transform 0.28s ease, box-shadow 0.28s ease;
   will-change: transform;
 }
 
-[data-theme="heartsgambit"] .hg-deck-card:hover,
-[data-theme="heartsgambit"] .hg-discard-card:hover {
+[data-theme="primesuspect"] .hg-deck-card:hover,
+[data-theme="primesuspect"] .hg-discard-card:hover {
   transform: translateY(-2px) rotate(-0.25deg);
   box-shadow:
     0 22px 60px rgba(0, 0, 0, 0.7),
     inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
-[data-theme="heartsgambit"] .hg-hand-card {
+[data-theme="primesuspect"] .hg-hand-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-[data-theme="heartsgambit"] .hg-hand-card:hover {
+[data-theme="primesuspect"] .hg-hand-card:hover {
   transform: scale(1.5);
   z-index: 50;
 }
 
 /* Filmstrip space coordination */
-[data-theme="heartsgambit"] .app-root.in-room .app-layout {
+[data-theme="primesuspect"] .app-root.in-room .app-layout {
   max-height: calc(100dvh - var(--filmstrip-safe-space, 0px));
   max-height: calc(100vh - var(--filmstrip-safe-space, 0px));
 }
 
 /* Header height variable */
-[data-theme="heartsgambit"] {
+[data-theme="primesuspect"] {
   --hg-header-height: 66px;
   --hg-card-width: 160px;
   --hg-card-height: 240px;
 }
 
 @media (max-height: 700px), (max-width: 480px) {
-  [data-theme="heartsgambit"] {
+  [data-theme="primesuspect"] {
     --hg-card-width: 140px;
     --hg-card-height: 210px;
   }
 }
 
 @media (max-height: 600px) {
-  [data-theme="heartsgambit"] {
+  [data-theme="primesuspect"] {
     --hg-header-height: 50px;
     --hg-card-width: 120px;
     --hg-card-height: 180px;
   }
 
-  [data-theme="heartsgambit"] .home-hero {
+  [data-theme="primesuspect"] .home-hero {
     height: calc(100dvh - 50px);
     height: calc(100vh - 50px);
   }
 }
 
+/* ============================================
+   Dynamic Card System
+   ============================================ */
+
+/* Base dynamic card structure */
+[data-theme="primesuspect"] .hg-dynamic-card {
+  width: var(--hg-card-width, 160px);
+  height: var(--hg-card-height, 240px);
+  background-color: #f4e4bc;
+  border: 4px solid white;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  color: #2c2c2c;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.selected {
+  transform: scale(1.05) translateY(-10px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.7),
+    0 0 0 4px var(--royal-gold, #d2b25a);
+}
+
+/* Card back styling */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-card-back {
+  background: transparent;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card .card-back-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 9px;
+}
+
+/* Header overlay - Value and Name */
+[data-theme="primesuspect"] .hg-dynamic-card .card-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  z-index: 10;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card .card-value {
+  font-family: 'Courier Prime', 'Press Start 2P', monospace;
+  font-size: clamp(16px, 4vw, 22px);
+  font-weight: bold;
+  color: #000;
+  text-shadow: 1px 1px 0px #fff;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card .card-title {
+  font-family: 'Courier Prime', monospace;
+  font-size: clamp(5px, 1.5vw, 7px);
+  text-transform: uppercase;
+  color: #333;
+  background: white;
+  padding: 2px 3px;
+  border-radius: 2px;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.2px;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  white-space: nowrap;
+}
+
+/* Art section - Character image */
+[data-theme="primesuspect"] .hg-dynamic-card .card-art {
+  width: 100%;
+  height: 62%;
+  background-color: #f4e4bc;
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-bottom: 2px solid #ddd;
+}
+
+/* Body section - Type and Description */
+[data-theme="primesuspect"] .hg-dynamic-card .card-body {
+  padding: 4px 4px;
+  height: 38%;
+  background-color: #f4e4bc;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  font-family: 'VT323', 'Courier Prime', monospace;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card .effect-tag {
+  font-family: 'Courier Prime', monospace;
+  color: #d32f2f;
+  font-size: clamp(6px, 1.5vw, 9px);
+  font-weight: bold;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card .card-description {
+  font-family: 'Courier Prime', monospace;
+  font-size: clamp(8px, 2.2vw, 12px);
+  line-height: 1.15;
+  color: #4a3b2a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  flex: 1;
+}
+
+/* Responsive adjustments for dynamic cards */
+@media (max-height: 700px), (max-width: 480px) {
+  [data-theme="primesuspect"] .hg-dynamic-card .card-header {
+    padding: 4px 6px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card .card-body {
+    padding: 6px 4px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card .card-description {
+    -webkit-line-clamp: 3;
+  }
+}
+
+@media (max-height: 600px) {
+  [data-theme="primesuspect"] .hg-dynamic-card .card-header {
+    padding: 3px 5px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card .card-body {
+    padding: 4px 3px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card .effect-tag {
+    margin-bottom: 2px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card .card-description {
+    -webkit-line-clamp: 2;
+  }
+}
+
+/* Tooltip card size */
+[data-theme="primesuspect"] .hg-tooltip-card {
+  --hg-card-width: 180px;
+  --hg-card-height: 252px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+/* Evidence locker card size (same as player cards) */
+[data-theme="primesuspect"] .hg-evidence-card {
+  --hg-card-width: 160px;
+  --hg-card-height: 240px;
+}
+
+/* Opponent card size (same as player cards) */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-opponent-card {
+  --hg-card-width: 160px;
+  --hg-card-height: 240px;
+}
+
+/* Remove white border from opponent card backs */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-card-back.hg-opponent-card {
+  border: none;
+  background: transparent;
+}
+
+/* Discard pile card size (on game board - same as player cards) */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-discard-pile-card {
+  --hg-card-width: 160px;
+  --hg-card-height: 240px;
+}
+
+/* Guard card selection size (larger to show full text) */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-guard-select-card {
+  --hg-card-width: 140px;
+  --hg-card-height: 210px;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-guard-select-card .card-description {
+  -webkit-line-clamp: 4;
+  font-size: 8px;
+}
+
+/* Inspector popup card size (large for full text visibility) */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card {
+  --hg-card-width: 280px;
+  --hg-card-height: 420px;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-value {
+  font-size: 32px;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-title {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .effect-tag {
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-description {
+  font-size: 14px;
+  -webkit-line-clamp: 5;
+}
+
 @layer base {
   html {
     @apply h-full;
-    /* Match HeartsGambit: background comes from .app-root::before */
+    /* Match PrimeSuspect: background comes from .app-root::before */
     background: transparent !important;
     height: var(--viewport-height);
     height: 100dvh;
@@ -1859,7 +2858,7 @@ body::after {
   100% { background-position: 0 100%; }
 }
 
-/* Brain wave pulse for HeartsGambit */
+/* Brain wave pulse for PrimeSuspect */
 @keyframes brainwavePulse {
   0%, 100% {
     opacity: 0.3;
@@ -7581,10 +8580,9 @@ textarea:focus {
 /* Video Filmstrip - Bottom horizontal video strip */
 
 .filmstrip-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
+  flex-shrink: 0 !important;
   z-index: var(--z-filmstrip);
   background: rgba(13, 15, 26, 0.95);
   border-top: 1px solid rgba(0, 217, 255, 0.3);
@@ -7888,11 +8886,17 @@ textarea:focus {
   pointer-events: auto;
 }
 
-@media (max-width: 768px) {
+/* Mobile/tablet: Switch to fixed positioning */
+@media (max-width: 63.9375rem) {
   .filmstrip-container {
-    bottom: 60px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--bottom-tab-bar-height, 0px) + env(safe-area-inset-bottom, 0px));
   }
+}
 
+@media (max-width: 768px) {
   .filmstrip-container.expanded {
     height: 100px;
   }
@@ -8130,6 +9134,70 @@ textarea:focus {
 
 [data-theme="susd"] .filmstrip-scroll::-webkit-scrollbar-track {
   background: rgba(139, 115, 85, 0.2);
+}
+
+/* ========================================
+   HEARTSGAMBIT NOIR FILMSTRIP
+   ======================================== */
+
+[data-theme="primesuspect"] .filmstrip-container {
+  background: rgba(42, 36, 32, 0.95) !important;
+  border-top: 2px solid var(--tobacco-brown) !important;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-thumbnail {
+  background: #c9b8a0 !important;
+  border: 2px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-thumbnail:hover {
+  border-color: var(--royal-gold) !important;
+  transform: translateY(-2px) !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-thumbnail.self {
+  border-color: var(--royal-gold) !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(210, 178, 90, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-expand-btn {
+  background: var(--tobacco-brown) !important;
+  border: 1px solid #2a2420 !important;
+  color: var(--aged-newspaper) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-expand-btn:hover {
+  background: var(--rust) !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-name {
+  background: linear-gradient(transparent, rgba(42, 36, 32, 0.9)) !important;
+  font-family: 'Courier Prime', monospace !important;
+  color: var(--aged-newspaper) !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-status {
+  background: rgba(42, 36, 32, 0.8) !important;
+  border: 1px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-avatar {
+  background: var(--tobacco-brown) !important;
+  color: var(--aged-newspaper) !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-scroll::-webkit-scrollbar-thumb {
+  background: var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="primesuspect"] .filmstrip-scroll::-webkit-scrollbar-track {
+  background: rgba(42, 36, 32, 0.5) !important;
 }
 
 /* ========================================
@@ -9035,6 +10103,89 @@ textarea:focus {
 .popup-branding .buddies { color: #e94560; font-weight: 700; }
 .popup-branding .io { color: #00d9ff; font-weight: 700; }
 
+/* ========================================
+   HEARTSGAMBIT NOIR VIDEO POPUP
+   ======================================== */
+
+[data-theme="primesuspect"] .enhanced-popup {
+  background: linear-gradient(135deg, #2a2420 0%, #3d3530 50%, #2a2420 100%) !important;
+}
+
+[data-theme="primesuspect"] .popup-header {
+  background: var(--tobacco-brown) !important;
+  border-bottom: 2px solid #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .popup-header button {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid var(--tobacco-brown) !important;
+  color: var(--aged-newspaper) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="primesuspect"] .popup-header button:hover {
+  background: var(--rust) !important;
+}
+
+[data-theme="primesuspect"] .popup-video-feed {
+  background: #c9b8a0 !important;
+  border: 3px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .popup-video-feed:hover {
+  border-color: var(--royal-gold) !important;
+}
+
+[data-theme="primesuspect"] .popup-video-feed.self {
+  border-color: var(--royal-gold) !important;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3), 0 0 15px rgba(210, 178, 90, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .popup-name {
+  background: linear-gradient(transparent, rgba(42, 36, 32, 0.9)) !important;
+  font-family: 'Courier Prime', monospace !important;
+  color: var(--aged-newspaper) !important;
+}
+
+[data-theme="primesuspect"] .popup-status {
+  background: rgba(42, 36, 32, 0.8) !important;
+  border: 1px solid var(--tobacco-brown) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="primesuspect"] .popup-close-btn {
+  background: var(--rust) !important;
+  border: 2px solid var(--tobacco-brown) !important;
+  color: var(--aged-newspaper) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="primesuspect"] .popup-close-btn:hover {
+  background: var(--burnt-orange) !important;
+}
+
+[data-theme="primesuspect"] .popup-avatar {
+  background: var(--tobacco-brown) !important;
+  color: var(--aged-newspaper) !important;
+}
+
+[data-theme="primesuspect"] .popup-branding .by {
+  color: rgba(246, 240, 230, 0.6) !important;
+}
+
+[data-theme="primesuspect"] .popup-branding .game {
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .popup-branding .buddies {
+  color: var(--royal-gold) !important;
+}
+
+[data-theme="primesuspect"] .popup-branding .io {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
 
 /* ============================================
    TimerDisplay Component
@@ -9511,7 +10662,7 @@ textarea:focus {
   height: 18px;
 }
 
-/* Session/Waiting State Styles (HeartsGambit-specific) */
+/* Session/Waiting State Styles (PrimeSuspect-specific) */
 .home-status-grid {
   list-style: none;
   display: grid;
@@ -11015,7 +12166,7 @@ textarea:focus {
   height: 18px;
 }
 
-/* Session/Waiting State Styles (HeartsGambit-specific) */
+/* Session/Waiting State Styles (PrimeSuspect-specific) */
 .home-status-grid {
   list-style: none;
   display: grid;

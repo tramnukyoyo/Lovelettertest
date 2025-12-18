@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CardType } from '../../types';
+import DynamicCard from './DynamicCard';
 
 interface CardTooltipProps {
   card: CardType;
@@ -10,6 +11,7 @@ interface CardTooltipProps {
   children: React.ReactNode;
   disabled?: boolean;
   imageOnly?: boolean;
+  useDynamicCard?: boolean;  // Use DynamicCard component for preview
 }
 
 const CardTooltip: React.FC<CardTooltipProps> = ({
@@ -19,7 +21,8 @@ const CardTooltip: React.FC<CardTooltipProps> = ({
   cardDescription,
   children,
   disabled = false,
-  imageOnly = false
+  imageOnly = false,
+  useDynamicCard = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -108,7 +111,13 @@ const CardTooltip: React.FC<CardTooltipProps> = ({
             className="fixed z-50 pointer-events-none"
             style={getTooltipStyle()}
           >
-            {imageOnly ? (
+            {useDynamicCard ? (
+              <DynamicCard
+                cardType={card}
+                showFace={card !== 0}
+                className="hg-tooltip-card"
+              />
+            ) : imageOnly ? (
               <img
                 src={cardImage}
                 alt={cardName}

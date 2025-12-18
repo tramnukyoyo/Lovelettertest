@@ -1,5 +1,5 @@
 // Heart's Gambit - Client Types
-// Risk, deduction, and luck. Get your letter to the Princess!
+// Risk, deduction, and luck. Solve the murder mystery!
 
 // ============================================================================
 // BASE TYPES
@@ -50,12 +50,12 @@ export interface BaseLobby<TPlayer, TSettings, TGameData> {
 }
 
 // ============================================================================
-// HEART'S GAMBIT TYPES
+// PRIME SUSPECT TYPES
 // ============================================================================
 
 export type CardType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; // 0 = Card Back
 
-export interface HeartsGambitPlayer extends BasePlayer {
+export interface PrimeSuspectPlayer extends BasePlayer {
   tokens: number;
   isEliminated: boolean;
   isImmune: boolean;
@@ -65,13 +65,13 @@ export interface HeartsGambitPlayer extends BasePlayer {
   handCount: number;
 }
 
-export interface HeartsGambitSettings extends BaseSettings {
+export interface PrimeSuspectSettings extends BaseSettings {
   gameSpecific: {
     tokensToWin: number;
   };
 }
 
-export interface HeartsGambitGameData {
+export interface PrimeSuspectGameData {
   currentRound: number;
   currentTurn: string | null; // Player ID
   turnPhase: 'draw' | 'play';
@@ -89,17 +89,17 @@ export interface HeartsGambitGameData {
   winner: string | null;
 }
 
-export type HeartsGambitLobby = BaseLobby<HeartsGambitPlayer, HeartsGambitSettings, HeartsGambitGameData>;
+export type PrimeSuspectLobby = BaseLobby<PrimeSuspectPlayer, PrimeSuspectSettings, PrimeSuspectGameData>;
 
 // ============================================================================
 // MAIN EXPORT
 // ============================================================================
 
-// We default to Heart's Gambit for this client
-export type Lobby = HeartsGambitLobby;
-export type Player = HeartsGambitPlayer;
-export type Settings = HeartsGambitSettings;
-export type GameData = HeartsGambitGameData;
+// We default to Prime Suspect for this client
+export type Lobby = PrimeSuspectLobby;
+export type Player = PrimeSuspectPlayer;
+export type Settings = PrimeSuspectSettings;
+export type GameData = PrimeSuspectGameData;
 
 // ============================================================================
 // SOCKET EVENT PAYLOAD TYPES
