@@ -178,30 +178,30 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
                 onClick={() => setIsOpen(false)}
               />
 
-              {/* Menu panel */}
+              {/* Menu panel - compact size */}
               <motion.div
                 initial={{ opacity: 0, y: -20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                className="fixed top-2 right-2 z-[100000] w-[min(280px,calc(100vw-1rem))] bg-[#1a0f1e] border border-[rgba(212,175,55,0.4)] rounded-2xl shadow-2xl overflow-hidden"
+                className="fixed top-2 right-2 z-[100000] w-[min(200px,calc(100vw-1rem))] bg-[#1a0f1e] border border-[rgba(212,175,55,0.4)] rounded-xl shadow-2xl overflow-hidden"
               >
               {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(var(--accent-color-rgb),0.2)]">
-                <span className="text-sm font-bold text-[var(--royal-gold)] uppercase tracking-wider">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-[rgba(var(--accent-color-rgb),0.2)]">
+                <span className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider">
                   Menu
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="hg-icon-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[rgba(var(--accent-color-rgb),0.2)] transition-colors"
+                  className="hg-icon-btn w-6 h-6 flex items-center justify-center rounded-md hover:bg-[rgba(var(--accent-color-rgb),0.2)] transition-colors"
                   aria-label="Close menu"
                 >
-                  <X className="hg-icon-btn-sm w-4 h-4 text-[#f6f0e6]" />
+                  <X className="hg-icon-btn-sm w-3.5 h-3.5 text-[#f6f0e6]" />
                 </button>
               </div>
 
-              {/* Menu items */}
-              <div className="py-2">
+              {/* Menu items - compact */}
+              <div className="py-1">
                 {menuItems.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -210,18 +210,18 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
                       onClick={item.action}
                       disabled={!item.action}
                       className={`
-                        w-full flex items-center gap-3 px-4 py-3
+                        w-full flex items-center gap-2 px-3 py-1.5
                         hover:bg-[rgba(var(--accent-color-rgb),0.15)]
                         active:bg-[rgba(var(--accent-color-rgb),0.25)]
                         transition-colors text-left
-                        min-h-[48px]
+                        min-h-[32px]
                         ${item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-[var(--parchment)]'}
                         ${item.highlight ? 'bg-[rgba(var(--accent-color-rgb),0.1)]' : ''}
                         ${!item.action ? 'opacity-50 cursor-not-allowed' : ''}
                       `}
                     >
                       <div className={`
-                        w-8 h-8 flex items-center justify-center rounded-lg
+                        w-5 h-5 flex items-center justify-center rounded
                         ${item.danger
                           ? 'bg-red-500/20'
                           : item.highlight
@@ -229,19 +229,19 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
                             : 'bg-[rgba(var(--accent-color-rgb),0.15)]'
                         }
                       `}>
-                        <Icon className={`w-4 h-4 ${item.danger ? 'text-red-400' : item.highlight ? 'text-[#d4af37]' : 'text-[#f6f0e6]'}`} />
+                        <Icon className={`w-3 h-3 ${item.danger ? 'text-red-400' : item.highlight ? 'text-[#d4af37]' : 'text-[#f6f0e6]'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium truncate">{item.label}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium truncate">{item.label}</span>
                           {item.badge && (
-                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[var(--royal-crimson)] text-white rounded-full min-w-[18px] text-center">
-                              {item.badge > 99 ? '99+' : item.badge}
+                            <span className="px-1 py-0 text-[9px] font-bold bg-[var(--royal-crimson)] text-white rounded-full min-w-[14px] text-center">
+                              {item.badge > 9 ? '9+' : item.badge}
                             </span>
                           )}
                         </div>
                         {item.sublabel && (
-                          <div className="text-xs text-[var(--parchment-dark)] truncate">
+                          <div className="text-[10px] text-[var(--parchment-dark)] truncate">
                             {item.sublabel}
                           </div>
                         )}
