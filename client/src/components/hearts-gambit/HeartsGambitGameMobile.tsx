@@ -871,6 +871,32 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         )}
       </AnimatePresence>
 
+      {/* Selected card preview - shows enlarged card when selected */}
+      <AnimatePresence>
+        {playStep === 'SELECTED' && selectedCard !== null && isMyTurn && !waitingToDraw && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+            style={{ bottom: 'calc(env(safe-area-inset-bottom, 4px) + 90px)' }}
+          >
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <div className="absolute -inset-2 rounded-lg bg-[var(--royal-gold)]/30 blur-md" />
+                <DynamicCard
+                  cardType={selectedCard}
+                  className="hg-selected-preview-card relative z-10"
+                />
+              </div>
+              <div className="mt-1.5 px-2 py-0.5 bg-black/80 rounded text-[10px] text-[var(--royal-gold)] font-bold uppercase tracking-wide">
+                {CARD_NAMES[selectedCard]}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Long-press card preview - right of deck */}
       <AnimatePresence>
         {previewCard !== null && (
