@@ -3025,21 +3025,10 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   -webkit-line-clamp: 3;
 }
 
-/* Preview card - responsive long-press preview */
+/* Preview card - responsive long-press/selected preview */
 .hg-preview-card {
   --hg-card-width: clamp(80px, 25vw, 120px);
   --hg-card-height: clamp(120px, 37.5vw, 180px);
-}
-
-/* Selected card preview - shows above hand when card is selected */
-.hg-selected-preview-card {
-  --hg-card-width: clamp(70px, 20vw, 100px);
-  --hg-card-height: clamp(105px, 30vw, 150px);
-}
-
-.hg-selected-preview-card .card-description {
-  font-size: clamp(6px, 1.8vw, 9px);
-  -webkit-line-clamp: 3;
 }
 
 /* Scrollbar hide utility for horizontal scroll areas */
