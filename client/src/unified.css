@@ -3045,68 +3045,135 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
    Mobile-Specific HeartsGambit Styles
    =========================================== */
 
+/* ===========================================
+   Design-Based Responsive Positioning
+   Source: 2784x1536 canvas, center origin
+   =========================================== */
+
+/* Container must be position:relative for absolute children */
+[data-theme="primesuspect"] .hg-mobile-layout {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Header: x=-920, y=-726, w=2784, h=125 */
+[data-theme="primesuspect"] .hg-mobile-header-area {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 8.14%;
+  z-index: 10;
+}
+
+/* Opponent area: x=-920, y=-330, w=448, h=550 */
+[data-theme="primesuspect"] .hg-mobile-opponent-area {
+  position: absolute;
+  left: 2%;
+  top: 28.52%;
+  width: 22%;
+  height: 60%;
+  z-index: 5;
+}
+
+/* Deck/Evidence area: x=3, y=-31, w=511, h=329 */
+[data-theme="primesuspect"] .hg-mobile-deck-area {
+  position: absolute;
+  left: 42%;
+  top: 39%;
+  width: 18.35%;
+  height: 21.42%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+/* Player hand: x=-472, y=402, w=1473, h=408 */
+[data-theme="primesuspect"] .hg-mobile-player-area {
+  position: absolute;
+  left: 16%;
+  top: 75.17%;
+  width: 52.91%;
+  height: 26.56%;
+  z-index: 30;
+}
+
+/* Case notes: x=1416, y=-330, w=448, h=550 (right side) */
+[data-theme="primesuspect"] .hg-mobile-notes-area {
+  position: absolute;
+  right: 0;
+  top: 28.52%;
+  width: 16.09%;
+  height: 35.81%;
+  z-index: 10;
+}
+
 /* Mobile hand row at very bottom of screen */
 [data-theme="primesuspect"] .hg-mobile-hand-row {
   bottom: env(safe-area-inset-bottom, 4px) !important;
 }
 
-/* Mobile hand card size - compact cards */
+/* Mobile hand card size - hybrid: min px for readability + vw for scaling */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card {
-  --hg-card-width: clamp(42px, 11vw, 60px);
-  --hg-card-height: clamp(63px, 16.5vw, 90px);
-  width: clamp(42px, 11vw, 60px) !important;
-  height: clamp(63px, 16.5vw, 90px) !important;
-  min-width: 42px !important;
-  min-height: 63px !important;
+  --hg-card-width: clamp(56px, 5.5vw, 7vw);
+  --hg-card-height: clamp(84px, 8.5vw, 11vw);
+  width: clamp(56px, 5.5vw, 7vw) !important;
+  height: clamp(84px, 8.5vw, 11vw) !important;
   flex-shrink: 0 !important;
 }
 
-/* Mobile hand card - hide header, show name and hint */
+/* Mobile hand card - smaller fonts and minimal info */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-header {
-  display: none;
+  padding: 2px 3px !important;
 }
 
-/* Mobile hand card body */
-[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
-  padding: 2px 3px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-name {
+  font-size: 8px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-/* Show card name centered */
-[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
-  font-size: 7px;
-  text-transform: uppercase;
-  font-weight: bold;
-  color: #8b0000;
-  margin-bottom: 2px;
-  background: transparent;
-  padding: 0;
-  width: 100%;
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .hold-badge {
+  font-size: 5px !important;
+  padding: 1px 2px !important;
 }
 
-/* Hide actual description, show hint instead */
+/* Hide description, show tap hint instead */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
-  visibility: hidden;
-  height: 0;
-  margin: 0;
-  padding: 0;
-  position: relative;
+  display: none !important;
 }
 
-[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description::after {
-  content: "👆 Hold";
-  visibility: visible;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 6px;
-  color: #555;
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
+  font-size: 5px !important;
+  padding: 1px 2px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Card body - compact for mobile */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
+  padding: 2px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Add magnifying glass hint for hover */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body::after {
+  content: "🔍effect";
+  font-size: 8px;
+  color: rgba(139, 90, 43, 0.7);
   font-style: italic;
+  margin-top: 3px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   white-space: nowrap;
 }
 
@@ -3127,7 +3194,7 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 }
 
 /* Remove inherited yellow background from hand card buttons (not Play button) */
-[data-theme="primesuspect"] .hg-mobile-hand-row button:not(.hg-play-btn) {
+[data-theme="primesuspect"] .hg-mobile-player-area button:not(.hg-play-btn) {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
@@ -3135,10 +3202,10 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   box-shadow: none !important;
 }
 
-/* Mobile opponent card size (smaller for strip) */
+/* Mobile opponent card size - hybrid: min px for readability + vw for scaling */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-opponent-card {
-  --hg-card-width: clamp(50px, 14vw, 70px);
-  --hg-card-height: clamp(75px, 21vw, 105px);
+  --hg-card-width: clamp(60px, 6.5vw, 8vw);
+  --hg-card-height: clamp(90px, 10vw, 12vw);
   background-color: transparent !important;
   background: transparent !important;
   border: none !important;
@@ -3146,21 +3213,19 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 }
 
 [data-theme="primesuspect"] .hg-mobile-opponent-card {
-  width: clamp(50px, 14vw, 70px);
-  height: clamp(75px, 21vw, 105px);
+  width: clamp(60px, 6.5vw, 8vw);
+  height: clamp(90px, 10vw, 12vw);
   background-color: transparent !important;
   background: transparent !important;
   border: none !important;
 }
 
-/* Mobile deck/discard card size - image only, no text */
+/* Mobile deck/discard card size - hybrid: min px for readability + vw for scaling */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card {
-  --hg-card-width: clamp(35px, 10vw, 55px);
-  --hg-card-height: clamp(52px, 15vw, 82px);
-  width: clamp(35px, 10vw, 55px) !important;
-  height: clamp(52px, 15vw, 82px) !important;
-  min-width: 35px !important;
-  min-height: 52px !important;
+  --hg-card-width: clamp(48px, 5.5vw, 7vw);
+  --hg-card-height: clamp(72px, 8.5vw, 11vw);
+  width: clamp(48px, 5.5vw, 7vw) !important;
+  height: clamp(72px, 8.5vw, 11vw) !important;
   flex-shrink: 0 !important;
   background: transparent !important;
   border: none !important;
@@ -3178,19 +3243,17 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 }
 
 [data-theme="primesuspect"] .hg-mobile-discard-card {
-  width: clamp(36px, 9vw, 50px);
-  height: clamp(54px, 13.5vw, 75px);
+  width: clamp(48px, 5.5vw, 7vw);
+  height: clamp(72px, 8.5vw, 11vw);
   overflow: visible !important;
 }
 
-/* Mobile evidence card - slightly smaller than hand cards */
+/* Mobile evidence card - hybrid: min px for readability + vw for scaling */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card {
-  --hg-card-width: clamp(36px, 9vw, 50px);
-  --hg-card-height: clamp(54px, 13.5vw, 75px);
-  width: clamp(36px, 9vw, 50px) !important;
-  height: clamp(54px, 13.5vw, 75px) !important;
-  min-width: 36px !important;
-  min-height: 54px !important;
+  --hg-card-width: clamp(48px, 5.5vw, 7vw);
+  --hg-card-height: clamp(72px, 8.5vw, 11vw);
+  width: clamp(48px, 5.5vw, 7vw) !important;
+  height: clamp(72px, 8.5vw, 11vw) !important;
   flex-shrink: 0 !important;
 }
 
@@ -3199,7 +3262,7 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 }
 
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card .card-body {
-  padding: 1px 2px;
+  padding: 0.3% 0.5%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3208,11 +3271,11 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 }
 
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card .effect-tag {
-  font-size: 5px;
+  font-size: clamp(4px, 1vw, 6px);
   text-transform: uppercase;
   font-weight: bold;
   color: #8b0000;
-  margin-bottom: 1px;
+  margin-bottom: 0.3%;
   background: transparent;
   padding: 0;
   width: 100%;
@@ -3222,15 +3285,13 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   display: none !important;
 }
 
-/* Remove yellow background from deck/discard buttons */
+/* Remove yellow background from deck/discard buttons - hybrid sizing */
 [data-theme="primesuspect"] button.hg-mobile-deck-card {
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
-  width: clamp(35px, 10vw, 55px) !important;
-  height: clamp(52px, 15vw, 82px) !important;
-  min-width: 35px !important;
-  min-height: 52px !important;
+  width: clamp(48px, 5.5vw, 7vw) !important;
+  height: clamp(72px, 8.5vw, 11vw) !important;
   position: relative !important;
   overflow: visible !important;
 }
@@ -3239,10 +3300,8 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
-  width: clamp(36px, 9vw, 50px) !important;
-  height: clamp(54px, 13.5vw, 75px) !important;
-  min-width: 36px !important;
-  min-height: 54px !important;
+  width: clamp(48px, 5.5vw, 7vw) !important;
+  height: clamp(72px, 8.5vw, 11vw) !important;
   position: relative !important;
   overflow: visible !important;
 }
@@ -3308,6 +3367,35 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   .hg-confirmation-card {
     --hg-card-width: 60px !important;
     --hg-card-height: 90px !important;
+  }
+}
+
+/* iPhone SE landscape (375px height) and smaller - keep cards small */
+@media (max-height: 380px) and (orientation: landscape) {
+  /* Evidence card - shift right and up */
+  [data-theme="primesuspect"] button.hg-mobile-discard-card {
+    transform: translateX(5vw) translateY(-3px);
+  }
+
+  /* Case file card - shift left and up */
+  [data-theme="primesuspect"] button.hg-mobile-deck-card {
+    transform: translateX(-2vw) translateY(-3px);
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card,
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card,
+  [data-theme="primesuspect"] button.hg-mobile-deck-card {
+    --hg-card-width: 42px !important;
+    --hg-card-height: 63px !important;
+    width: 42px !important;
+    height: 63px !important;
+  }
+}
+
+/* Larger landscape viewports (above iPhone SE) - reduce gap between cards */
+@media (min-height: 381px) and (orientation: landscape) {
+  [data-theme="primesuspect"] .hg-mobile-deck-area {
+    gap: 8px !important;
   }
 }
 

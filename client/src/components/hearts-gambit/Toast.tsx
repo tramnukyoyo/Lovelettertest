@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, CheckCircle, X } from 'lucide-react';
 
@@ -20,12 +21,12 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = 3000 }
     ? { bar: 'bg-[rgba(var(--primary-rgb),0.9)]', icon: 'text-[var(--royal-crimson-light)]' }
     : { bar: 'bg-[rgba(var(--accent-color-rgb),0.9)]', icon: 'text-[var(--royal-gold)]' };
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0, y: -50, x: '-50%' }}
       animate={{ opacity: 1, y: 0, x: '-50%' }}
       exit={{ opacity: 0, y: -50, x: '-50%' }}
-      className="hg-panel hg-candlelight fixed top-4 left-1/2 -translate-x-1/2 text-[var(--parchment)] px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-3 min-w-[260px] max-w-[420px] overflow-hidden"
+      className="hg-panel hg-candlelight fixed top-4 left-1/2 -translate-x-1/2 text-[var(--parchment)] px-4 py-3 rounded-xl shadow-2xl z-[100001] flex items-center gap-3 min-w-[260px] max-w-[420px] overflow-hidden pointer-events-auto"
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${tone.bar}`} />
       <Icon className={`w-5 h-5 flex-shrink-0 ${tone.icon}`} />
@@ -36,7 +37,8 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = 3000 }
       >
         <X className="w-4 h-4" />
       </button>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 };
 

@@ -181,7 +181,11 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
   // Listen for server errors
   useEffect(() => {
     const handleError = (data: { message: string }) => {
-      setToast({ message: data.message, type: 'error' });
+      // Don't reset timer if same message already showing
+      setToast(prev => {
+        if (prev?.message === data.message) return prev;
+        return { message: data.message, type: 'error' };
+      });
     };
 
     socket.on('error', handleError);

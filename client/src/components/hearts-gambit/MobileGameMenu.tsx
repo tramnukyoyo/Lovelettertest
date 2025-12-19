@@ -142,17 +142,17 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
           className={`
             hg-hamburger-btn
             flex items-center justify-center
-            w-11 h-11 min-w-[44px] min-h-[44px]
+            w-8 h-8 min-w-[32px] min-h-[32px]
             bg-[rgba(var(--accent-color-rgb),0.4)]
             hover:bg-[rgba(var(--accent-color-rgb),0.5)]
             border border-[rgba(var(--accent-color-rgb),0.5)]
-            rounded-xl transition-colors
+            rounded-lg transition-colors
             ${className}
           `}
           aria-label="Open menu"
           aria-expanded={isOpen}
         >
-          <Menu className="w-5 h-5 text-[#f6f0e6]" />
+          <Menu className="w-4 h-4 text-[#f6f0e6]" />
         </button>
         {/* Unread chat badge */}
         {unreadCount > 0 && (

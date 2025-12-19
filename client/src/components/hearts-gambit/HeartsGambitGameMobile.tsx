@@ -150,7 +150,11 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   // Socket error handling
   useEffect(() => {
     const handleError = (data: { message: string }) => {
-      setToast({ message: data.message, type: 'error' });
+      // Don't reset timer if same message already showing
+      setToast(prev => {
+        if (prev?.message === data.message) return prev;
+        return { message: data.message, type: 'error' };
+      });
     };
 
     socket.on('error', handleError);
@@ -386,12 +390,12 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   }
 
   return (
-    <div className="hearts-gambit-game h-full text-[var(--parchment)] flex flex-col overflow-hidden relative">
+    <div className="hearts-gambit-game hg-mobile-layout h-full text-[var(--parchment)] overflow-hidden">
       {/* Orientation prompt */}
       <OrientationPrompt />
 
       {/* HUD Layer - Minimal Top bar with hamburger menu */}
-      <div className="z-10 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm px-3 py-2 flex items-center justify-between safe-top border-b border-[rgba(var(--accent-color-rgb),0.15)]">
+      <div className="hg-mobile-header-area bg-[rgba(0,0,0,0.6)] backdrop-blur-sm px-3 py-2 flex items-center justify-between safe-top border-b border-[rgba(var(--accent-color-rgb),0.15)]">
         <div className="flex items-center gap-2">
           <motion.span
             className="bg-[var(--royal-crimson)] text-[var(--parchment)] text-xs font-black px-2 py-1 rounded-full"
@@ -432,9 +436,9 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       </div>
 
       {/* Board Layer - Main content */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="absolute inset-0">
         {/* Opponents strip */}
-        <div className="bg-[rgba(0,0,0,0.15)] border-b border-[rgba(var(--accent-color-rgb),0.1)]">
+        <div className="hg-mobile-opponent-area overflow-hidden">
           <MobileOpponentStrip
             players={otherPlayers}
             currentTurnId={lobby.gameData?.currentTurn}
@@ -446,17 +450,16 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           />
         </div>
 
-        {/* Center area - Deck & Discard - slightly left of center */}
-        <div className="absolute inset-0 flex items-center justify-center -translate-x-12 gap-8 pointer-events-none z-0">
-          <div className="flex items-center justify-center gap-4 pointer-events-auto">
+        {/* Center area - Deck & Discard */}
+        <div className="hg-mobile-deck-area flex items-center justify-center gap-[clamp(16px,4vw,32px)] pointer-events-auto">
           {/* Discard Pile */}
-          <div className="flex flex-col items-center translate-y-2.5">
-            <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-6" style={{ fontSize: '12px' }}>
+          <div className="flex flex-col items-center translate-y-[5vh]">
+            <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[3vw]" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
               Evidence
             </span>
             <button
               onClick={openDiscardInspector}
-              className="relative hg-mobile-discard-card flex items-center justify-center overflow-visible translate-x-6"
+              className="relative hg-mobile-discard-card flex items-center justify-center overflow-visible translate-x-[3vw]"
               aria-label="Open evidence locker"
             >
               {/* Top card - no stack effect on mobile */}
@@ -484,8 +487,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           </div>
 
           {/* Case File (Deck) */}
-          <div className="flex flex-col items-center translate-y-[13px]">
-            <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-3" style={{ fontSize: '12px' }}>
+          <div className="flex flex-col items-center translate-y-[5vh]">
+            <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[1.5vw] whitespace-nowrap" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
               Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
             </span>
             <button
@@ -520,36 +523,35 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
               {/* Draw indicator */}
               {waitingToDraw && (
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-20">
-                  <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap">
+                <div className="absolute -bottom-[8%] left-1/2 -translate-x-1/2 z-20">
+                  <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-[1vw] py-[0.5vh] rounded-full text-xs font-bold whitespace-nowrap">
                     TAP TO DRAW
                   </span>
                 </div>
               )}
             </button>
           </div>
-          </div>
-
-          {/* Case Notes - Right Side Panel (Landscape) */}
-          {lobby.state !== 'LOBBY' && (
-            <div className="absolute right-2 top-16 bottom-20 w-32 bg-[rgba(0,0,0,0.7)] backdrop-blur-sm rounded-xl p-2 z-10 overflow-hidden flex flex-col">
-              <div className="text-[8px] font-bold text-[var(--royal-gold)] mb-1 flex items-center gap-1 uppercase tracking-wider">
-                <FileText size={10} /> Notes ({lobby.messages?.length || 0})
-              </div>
-              <div className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
-                {lobby.messages?.slice(-8).map(msg => (
-                  <div key={msg.id} className="text-[9px] text-[rgba(246,240,230,0.75)] leading-tight">
-                    {msg.message}
-                  </div>
-                ))}
-                {(!lobby.messages || lobby.messages.length === 0) && (
-                  <div className="text-[9px] text-[rgba(246,240,230,0.4)] italic">No events yet...</div>
-                )}
-              </div>
-            </div>
-          )}
-
         </div>
+
+        {/* Case Notes - Right Side Panel */}
+        {lobby.state !== 'LOBBY' && (
+          <div className="hg-mobile-notes-area bg-[rgba(0,0,0,0.7)] backdrop-blur-sm rounded-xl p-2 overflow-hidden flex flex-col">
+            <div className="text-[8px] font-bold text-[var(--royal-gold)] mb-1 flex items-center gap-1 uppercase tracking-wider">
+              <FileText size={10} /> Notes ({lobby.messages?.length || 0})
+            </div>
+            <div className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+              {lobby.messages?.slice(-8).map(msg => (
+                <div key={msg.id} className="text-[9px] text-[rgba(246,240,230,0.75)] leading-tight">
+                  {msg.message}
+                </div>
+              ))}
+              {(!lobby.messages || lobby.messages.length === 0) && (
+                <div className="text-[9px] text-[rgba(246,240,230,0.4)] italic">No events yet...</div>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Waiting overlay - FIXED to cover full screen */}
@@ -608,9 +610,9 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         </div>
       )}
 
-      {/* Player's Hand - floating at bottom (only show when game has started) */}
+      {/* Player's Hand - design-based positioning (only show when game has started) */}
       {lobby.state !== 'LOBBY' && (
-        <div className="fixed hg-mobile-hand-row left-0 right-0 z-30 flex items-center justify-center -translate-x-8 gap-3 pointer-events-none">
+        <div className="hg-mobile-player-area flex items-center justify-center gap-3 pointer-events-none">
           {myHand.map((card, idx) => (
             <button
               key={`hand-${card}-${idx}`}
@@ -645,8 +647,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{ position: 'fixed', bottom: '4px', right: '4px', zIndex: 100 }}
-            className="flex gap-0.5"
+            style={{ position: 'fixed', bottom: '1%', right: '1%', zIndex: 100 }}
+            className="flex gap-[0.5vw]"
           >
             <button
               onClick={handleConfirmSelection}
