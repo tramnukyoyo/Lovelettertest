@@ -806,12 +806,12 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="hg-noir-modal p-4 w-[min(260px,88vw)]"
+              className="hg-noir-modal p-3 w-[min(220px,85vw)]"
             >
               {/* Card preview with noir glow - show guessed card for Inspector */}
-              <div className="flex justify-center mb-3">
+              <div className="flex justify-center mb-2">
                 <div className="relative">
-                  <div className="absolute -inset-2 rounded bg-[var(--royal-gold)]/20 blur-md" />
+                  <div className="absolute -inset-1.5 rounded bg-[var(--royal-gold)]/20 blur-sm" />
                   <DynamicCard
                     cardType={guessCard || selectedCard}
                     className="hg-confirmation-card relative z-10"
@@ -819,27 +819,27 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 </div>
               </div>
 
-              {/* Selection summary */}
-              <div className="text-center mb-3 space-y-0.5">
+              {/* Selection summary - compact */}
+              <div className="text-center mb-2 space-y-0">
                 {/* For Inspector: show "Guessing [card]" as title */}
                 {guessCard ? (
                   <>
-                    <div className="text-[10px] text-[var(--parchment-dark)] uppercase tracking-wide">
+                    <div className="text-[9px] text-[var(--parchment-dark)] uppercase tracking-wide">
                       Playing Inspector
                     </div>
-                    <div className="text-base font-bold text-[var(--royal-gold)] uppercase tracking-wider"
+                    <div className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider"
                          style={{ fontFamily: 'var(--font-typewriter)' }}>
                       Guessing: {CARD_NAMES[guessCard]}
                     </div>
                   </>
                 ) : (
-                  <div className="text-base font-bold text-[var(--royal-gold)] uppercase tracking-wider"
+                  <div className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider"
                        style={{ fontFamily: 'var(--font-typewriter)' }}>
                     {CARD_NAMES[selectedCard]}
                   </div>
                 )}
                 {targetId && (
-                  <div className="text-xs text-[var(--parchment)]">
+                  <div className="text-[10px] text-[var(--parchment)]">
                     Target: <span className="font-bold">
                       {targetId === me?.id
                         ? 'Yourself'
@@ -849,21 +849,21 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 )}
               </div>
 
-              {/* Action buttons - noir styled */}
-              <div className="flex gap-2">
+              {/* Action buttons - compact noir styled */}
+              <div className="flex gap-1.5">
                 <button
                   onClick={handleBack}
-                  className="hg-modal-btn hg-noir-cancel-btn flex-1 flex items-center justify-center"
+                  className="hg-modal-btn hg-noir-cancel-btn flex-1 flex items-center justify-center text-[10px] py-1.5"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleFinalPlay}
-                  className="hg-modal-btn flex-1 py-2.5 bg-green-700 hover:bg-green-600 text-white font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1.5"
+                  className="hg-modal-btn flex-1 py-1.5 bg-green-700 hover:bg-green-600 text-white font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-1"
                   style={{ fontFamily: 'var(--font-typewriter)', borderRadius: '4px' }}
                 >
-                  <Play className="w-3.5 h-3.5" />
-                  Play Card
+                  <Play className="w-3 h-3" />
+                  Play
                 </button>
               </div>
             </motion.div>

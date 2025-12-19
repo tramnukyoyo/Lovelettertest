@@ -3014,15 +3014,15 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   display: none !important;
 }
 
-/* Confirmation card - responsive preview in play confirmation modal */
+/* Confirmation card - compact preview in play confirmation modal */
 .hg-confirmation-card {
-  --hg-card-width: clamp(100px, 30vw, 140px);
-  --hg-card-height: clamp(150px, 45vw, 210px);
+  --hg-card-width: clamp(65px, 18vw, 90px);
+  --hg-card-height: clamp(97px, 27vw, 135px);
 }
 
 .hg-confirmation-card .card-description {
-  font-size: clamp(7px, 2vw, 10px);
-  -webkit-line-clamp: 4;
+  font-size: clamp(6px, 1.5vw, 8px);
+  -webkit-line-clamp: 3;
 }
 
 /* Preview card - responsive long-press preview */
@@ -3306,8 +3306,8 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   }
 
   .hg-confirmation-card {
-    --hg-card-width: 90px !important;
-    --hg-card-height: 135px !important;
+    --hg-card-width: 60px !important;
+    --hg-card-height: 90px !important;
   }
 }
 
@@ -3324,8 +3324,8 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   }
 
   .hg-confirmation-card {
-    --hg-card-width: 130px !important;
-    --hg-card-height: 195px !important;
+    --hg-card-width: 80px !important;
+    --hg-card-height: 120px !important;
   }
 
   .hg-noir-avatar {
@@ -3342,8 +3342,8 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   }
 
   .hg-confirmation-card {
-    --hg-card-width: 160px !important;
-    --hg-card-height: 240px !important;
+    --hg-card-width: 100px !important;
+    --hg-card-height: 150px !important;
   }
 
   .hg-guess-card-modal {
