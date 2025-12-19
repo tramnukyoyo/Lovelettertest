@@ -1748,6 +1748,16 @@
   margin: 0;
 }
 
+[data-theme="primesuspect"] .card-legend-copies {
+  font-family: var(--hg-font-body);
+  font-size: 0.7rem;
+  color: var(--rust-red);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
 /* Responsive: Stack cards on mobile */
 @media (max-width: 600px) {
   [data-theme="primesuspect"] .card-legend-grid {
@@ -1920,6 +1930,228 @@
 [data-theme="primesuspect"] .tutorial-sidebar {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  background: #c9b8a0 !important;
+  background-image:
+    url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Cfilter id="noise"%3E%3CfeTurbulence baseFrequency="0.9" numOctaves="4"/%3E%3CfeColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)"/%3E%3C/svg%3E') !important;
+  border: 3px solid var(--tobacco-brown) !important;
+  box-shadow:
+    8px 8px 0 rgba(0, 0, 0, 0.35),
+    inset 0 0 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-header {
+  color: var(--tobacco-brown) !important;
+  font-family: 'Courier Prime', monospace !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  border-bottom: 2px solid var(--tobacco-brown) !important;
+  padding-bottom: 0.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+[data-theme="primesuspect"] .tutorial-progress {
+  background: rgba(74, 63, 53, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-progress-bar {
+  background: linear-gradient(90deg, var(--royal-crimson), var(--royal-crimson-light)) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-title {
+  color: #2a2420 !important;
+  font-family: 'Courier Prime', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  min-height: 1.5rem;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-description {
+  color: #3d3a35 !important;
+  font-family: 'Courier Prime', monospace !important;
+  line-height: 1.6 !important;
+  min-height: 100px;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-content {
+  height: 420px;
+  border-bottom: 1px solid rgba(74, 63, 53, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-image {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 2px solid var(--tobacco-brown);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-dots {
+  border-top: none !important;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-dots button.tutorial-dot-wrapper .tutorial-dot {
+  background: rgba(74, 63, 53, 0.4) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-dots button.tutorial-dot-wrapper:hover .tutorial-dot {
+  background: rgba(74, 63, 53, 0.7) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-sidebar-dots button.tutorial-dot-wrapper.active .tutorial-dot {
+  background: var(--royal-crimson) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-dot-progress {
+  filter: drop-shadow(0 0 4px rgba(106, 22, 35, 0.8)) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-dot-progress-ring {
+  stroke: var(--royal-crimson) !important;
+}
+
+/* Tutorial Modal - Noir Theme */
+[data-theme="primesuspect"] .tutorial-overlay {
+  background: rgba(7, 7, 10, 0.92) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-modal {
+  background: #c9b8a0 !important;
+  background-image:
+    url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Cfilter id="noise"%3E%3CfeTurbulence baseFrequency="0.9" numOctaves="4"/%3E%3CfeColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)"/%3E%3C/svg%3E') !important;
+  border: 3px solid var(--tobacco-brown) !important;
+  box-shadow:
+    12px 12px 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-close {
+  background: var(--tobacco-brown) !important;
+  color: var(--aged-newspaper) !important;
+  border: 1px solid #2a2420 !important;
+}
+
+[data-theme="primesuspect"] .tutorial-close:hover {
+  background: var(--royal-crimson) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="primesuspect"] .tutorial-content {
+  height: 420px;
+}
+
+[data-theme="primesuspect"] .tutorial-image {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 2px solid var(--tobacco-brown);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="primesuspect"] .tutorial-title {
+  color: #2a2420 !important;
+  font-family: 'Courier Prime', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  min-height: 2rem;
+}
+
+[data-theme="primesuspect"] .tutorial-description {
+  color: #3d3a35 !important;
+  font-family: 'Courier Prime', monospace !important;
+  min-height: 80px;
+}
+
+[data-theme="primesuspect"] .tutorial-navigation {
+  border-top: 2px solid var(--tobacco-brown) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-nav-btn {
+  background: var(--tobacco-brown) !important;
+  border: 1px solid #2a2420 !important;
+  color: var(--aged-newspaper) !important;
+  font-family: 'Courier Prime', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-nav-btn:hover:not(:disabled) {
+  background: var(--royal-crimson) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-nav-btn:disabled {
+  background: rgba(74, 63, 53, 0.4) !important;
+  color: rgba(42, 36, 32, 0.5) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="primesuspect"] .tutorial-dots .tutorial-dot {
+  background: rgba(74, 63, 53, 0.4) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-dots .tutorial-dot:hover {
+  background: rgba(74, 63, 53, 0.7) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-dots .tutorial-dot.active {
+  background: var(--royal-crimson) !important;
+  box-shadow: 0 0 8px rgba(106, 22, 35, 0.6) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-trigger-btn {
+  background: var(--tobacco-brown) !important;
+  border: 1px solid #2a2420 !important;
+  color: var(--aged-newspaper) !important;
+  font-family: 'Courier Prime', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .tutorial-trigger-btn:hover {
+  background: var(--royal-crimson) !important;
+  color: #ffffff !important;
+}
+
+/* Loading States - Noir Theme */
+[data-theme="primesuspect"] .mobile-loading {
+  background: var(--velvet-dark) !important;
+}
+
+[data-theme="primesuspect"] .mobile-loading-spinner {
+  border-color: var(--tobacco-brown) !important;
+  border-top-color: var(--royal-crimson) !important;
+}
+
+[data-theme="primesuspect"] .mobile-loading-text {
+  color: var(--aged-newspaper) !important;
+  font-family: 'Courier Prime', monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+}
+
+/* General loading spinner override */
+[data-theme="primesuspect"] .loading-spinner,
+[data-theme="primesuspect"] .spinner,
+[data-theme="primesuspect"] [class*="spinner"] {
+  border-color: var(--tobacco-brown) !important;
+  border-top-color: var(--royal-crimson) !important;
+}
+
+/* Loading overlay */
+[data-theme="primesuspect"] .loading-overlay,
+[data-theme="primesuspect"] .loading-state {
+  background: rgba(7, 7, 10, 0.9) !important;
+}
+
+[data-theme="primesuspect"] .loading-text,
+[data-theme="primesuspect"] .loading-message {
+  color: var(--aged-newspaper) !important;
+  font-family: 'Courier Prime', monospace !important;
 }
 
 [data-theme="primesuspect"] .split-card {
@@ -8128,11 +8360,20 @@ textarea:focus {
 /* Content */
 .tutorial-content {
   text-align: center;
-  min-height: 180px;
+  height: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+/* Tutorial Image - Fixed size container */
+.tutorial-image {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  border-radius: 12px;
 }
 
 .tutorial-icon {
@@ -8147,6 +8388,7 @@ textarea:focus {
   font-weight: 700;
   color: #fff;
   margin: 0 0 0.75rem 0;
+  min-height: 2rem;
 }
 
 .tutorial-description {
@@ -8155,6 +8397,7 @@ textarea:focus {
   line-height: 1.6;
   margin: 0;
   max-width: 340px;
+  min-height: 80px;
 }
 
 /* Navigation */
@@ -8311,9 +8554,18 @@ textarea:focus {
 /* Sidebar content - fixed height so dots don't move */
 .tutorial-sidebar-content {
   text-align: center;
-  min-height: 280px;
+  height: 420px;
   display: flex;
   flex-direction: column;
+}
+
+.tutorial-sidebar-image {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .tutorial-sidebar-icon {
@@ -8329,6 +8581,7 @@ textarea:focus {
   color: #fff;
   margin: 0 0 0.5rem 0;
   flex-shrink: 0;
+  min-height: 1.5rem;
 }
 
 .tutorial-sidebar-description {
@@ -8337,6 +8590,7 @@ textarea:focus {
   line-height: 1.5;
   margin: 0;
   flex: 1;
+  min-height: 100px;
 }
 
 /* Sidebar dots - Scaling Neon Dot design */

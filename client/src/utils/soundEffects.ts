@@ -10,7 +10,7 @@ type SoundType = 'match' | 'lose-life' | 'timer-tick' | 'victory' | 'countdown' 
 class SoundEffectsManager {
   private sounds: Map<SoundType, HTMLAudioElement> = new Map();
   private enabled: boolean = true;
-  private volume: number = 0.5;
+  private volume: number = 0.1; // Default 10% volume for sound effects
 
   constructor() {
     this.loadSounds();

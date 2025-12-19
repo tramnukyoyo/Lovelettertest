@@ -68,6 +68,9 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
                     <span className="card-legend-name">{card.name}</span>
                     <span className="card-legend-value">{card.value}</span>
                   </div>
+                  <span className="card-legend-copies">
+                    {card.copies === 1 ? '1 copy in deck' : `${card.copies} copies in deck`}
+                  </span>
                   <p className="card-legend-description">{card.description}</p>
                 </div>
               </div>
@@ -76,7 +79,7 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
         </div>
 
         <div className="settings-modal-footer">
-          <div className="settings-hint">Higher value wins in comparisons</div>
+          <div className="settings-hint">16 cards total • Higher value wins in comparisons</div>
         </div>
       </div>
     </div>,

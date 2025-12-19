@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
-import { User, Settings, Shield, Crown, Skull, BookOpen } from 'lucide-react';
+import { User, Settings, Shield, Crown, Skull, BookOpen, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CardTooltip from './CardTooltip';
 import Toast from './Toast';
@@ -16,6 +16,7 @@ import {
 } from './cardDatabase';
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
 import { CardLegendModal } from '../CardLegendModal';
+import TutorialCarousel from '../TutorialCarousel';
 
 interface HeartsGambitGameProps {
   lobby: Lobby;
@@ -65,6 +66,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
   const [zoomContext, setZoomContext] = useState<ZoomContext | null>(null);
   const [prevTokens, setPrevTokens] = useState(0);
   const [isLegendOpen, setIsLegendOpen] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const tokenAnimationRef = useRef(false);
   const prevEliminatedRef = useRef<Set<string>>(new Set());
 
@@ -627,15 +629,25 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
                 </span>
               )}
 
-              {/* Card Legend Button */}
-              <button
-                onClick={() => setIsLegendOpen(true)}
-                className="ml-auto flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
-                title="View all cards"
-              >
-                <BookOpen className="w-4 h-4" />
-                Card Legend
-              </button>
+              {/* Card Legend & How to Play Buttons */}
+              <div className="ml-auto flex items-center gap-2">
+                <button
+                  onClick={() => setIsLegendOpen(true)}
+                  className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
+                  title="View all cards"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Card Legend
+                </button>
+                <button
+                  onClick={() => setIsTutorialOpen(true)}
+                  className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
+                  title="How to play"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  How to Play
+                </button>
+              </div>
             </div>
 
             <div className="w-full flex justify-center items-end flex-1 min-h-0 pb-2 gap-4">
@@ -1270,6 +1282,13 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
 
       {/* Card Legend Modal */}
       {isLegendOpen && <CardLegendModal onClose={() => setIsLegendOpen(false)} />}
+
+      {/* Tutorial Modal */}
+      <TutorialCarousel
+        variant="modal"
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+      />
     </div>
   );
 };

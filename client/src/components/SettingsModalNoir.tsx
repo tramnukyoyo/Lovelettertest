@@ -16,18 +16,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const saved = localStorage.getItem('primesuspect-music-volume');
     if (saved) {
       const val = parseInt(saved, 10);
-      return Number.isFinite(val) ? Math.max(0, Math.min(100, val)) : 50;
+      return Number.isFinite(val) ? Math.max(0, Math.min(100, val)) : 1;
     }
-    return 50;
+    return 1;
   });
 
   const [sfxVolume, setSfxVolume] = useState(() => {
     const saved = localStorage.getItem('primesuspect-volume');
     if (saved) {
       const val = parseInt(saved, 10);
-      return Number.isFinite(val) ? Math.max(0, Math.min(100, val)) : 50;
+      return Number.isFinite(val) ? Math.max(0, Math.min(100, val)) : 10;
     }
-    return 50;
+    return 10;
   });
 
   const [backgroundMusicEnabled, setBackgroundMusicEnabled] = useState(() => {

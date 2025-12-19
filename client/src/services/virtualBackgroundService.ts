@@ -42,14 +42,22 @@ export interface VirtualBackgroundConfig {
   backgroundImageUrl?: string;
   blurAmount?: number;
   useBlur?: boolean;
-  edgeSmoothing?: number; // Edge smoothing amount (0-20)
-  temporalSmoothing?: number; // Temporal smoothing factor (0-1)
-  maskBlur?: number; // Mask blur amount (0-10)
-  erosionSize?: number; // Erosion for removing noise (0-5)
-  dilationSize?: number; // Dilation for filling gaps (0-5)
-  adaptiveThreshold?: boolean; // Use adaptive thresholding
-  hairRefinement?: boolean; // Special processing for hair edges
-  minContourArea?: number; // Minimum area for person detection
+  edgeSmoothing?: number;
+  temporalSmoothing?: number;
+  maskBlur?: number;
+  erosionSize?: number;
+  dilationSize?: number;
+  adaptiveThreshold?: boolean;
+  hairRefinement?: boolean;
+  minContourArea?: number;
+  useGuidedFilter?: boolean;
+  guidedFilterRadius?: number;
+  guidedFilterEpsilon?: number;
+  useLaplacianBlending?: boolean;
+  laplacianLevels?: number;
+  useTrimapRefinement?: boolean;
+  useSpillRemoval?: boolean;
+  useAdaptiveKernels?: boolean;
 }
 
 export const DEFAULT_BACKGROUNDS = [
@@ -66,170 +74,100 @@ export class VirtualBackgroundService {
   private trackGenerator: MediaStreamTrackGenerator<VideoFrame> | null = null;
   private processingController: AbortController | null = null;
   private trackWriter: WritableStreamDefaultWriter<VideoFrame> | null = null;
-  
-  // MediaPipe components
   private imageSegmenter: ImageSegmenter | null = null;
   private isInitialized = false;
-  
-  // Canvas elements for processing
   private tempCanvas: OffscreenCanvas | null = null;
   private tempCtx: OffscreenCanvasRenderingContext2D | null = null;
   private outputCanvas: OffscreenCanvas | null = null;
   private outputCtx: OffscreenCanvasRenderingContext2D | null = null;
   private backgroundImage: ImageBitmap | null = null;
-  
-  // Processing state
   private isProcessing = false;
-  
-  // Edge improvement
   private previousMask: ImageData | null = null;
   private maskCanvas: OffscreenCanvas | null = null;
   private maskCtx: OffscreenCanvasRenderingContext2D | null = null;
+  private smoothedBuffer: Uint8ClampedArray | null = null;
+  private previousMaskBuffer: Uint8ClampedArray | null = null;
 
   constructor(config: VirtualBackgroundConfig) {
     this.config = config;
   }
 
   public async initialize(): Promise<void> {
-    console.log('[Service] ========== INITIALIZING VIRTUAL BACKGROUND SERVICE ==========');
-    console.log('[Service] Step 1: Initializing MediaPipe...');
-    
+    console.log('[Service] Initializing virtual background...');
     try {
-      // Initialize MediaPipe FilesetResolver
-      console.log('[Service] Creating FilesetResolver...');
       const vision = await FilesetResolver.forVisionTasks(import.meta.env.BASE_URL + 'wasm');
-      console.log('[Service] FilesetResolver created successfully');
-
-      // Create ImageSegmenter
-      console.log('[Service] Creating ImageSegmenter...');
       this.imageSegmenter = await ImageSegmenter.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath: import.meta.env.BASE_URL + 'models/selfie_segmenter.tflite',
-          delegate: 'GPU' // Use GPU acceleration if available
+          delegate: 'GPU'
         },
         runningMode: 'IMAGE',
         outputCategoryMask: true,
-        outputConfidenceMasks: true // Enable confidence masks for better edge quality
+        outputConfidenceMasks: true
       });
-      
-      console.log('[Service] ImageSegmenter created successfully');
-      
-      // Load background image if specified
       if (this.config.backgroundImageUrl) {
         await this.loadBackgroundImage(this.config.backgroundImageUrl);
       }
-      
       this.isInitialized = true;
-      console.log('[Service] ========== INITIALIZATION COMPLETE ==========');
-      
+      console.log('[Service] Initialization complete');
     } catch (error) {
-      console.error('[Service] ========== INITIALIZATION FAILED ==========');
-      console.error('[Service] Error:', error);
+      console.error('[Service] Initialization failed:', error);
       throw error;
     }
   }
 
   public async setupAndStart(inputStream: MediaStream): Promise<MediaStream> {
-    console.log('[Service] Setting up virtual background...');
-    
-    if (!this.isInitialized || !this.imageSegmenter) {
-      throw new Error('Service not initialized');
-    }
-
-    // Check for MediaStreamTrackProcessor support
+    if (!this.isInitialized || !this.imageSegmenter) throw new Error('Service not initialized');
     if (!('MediaStreamTrackProcessor' in window) || !('MediaStreamTrackGenerator' in window)) {
-      console.warn('[Service] MediaStreamTrackProcessor not supported');
-      throw new Error('Browser does not support required APIs for virtual background');
+      throw new Error('Browser does not support required APIs');
     }
-
-    // Get video track
     const videoTrack = inputStream.getVideoTracks()[0];
-    if (!videoTrack) {
-      throw new Error('No video track found');
-    }
-
-    // Create processor and generator
+    if (!videoTrack) throw new Error('No video track found');
     this.trackProcessor = new MediaStreamTrackProcessor({ track: videoTrack });
     this.trackGenerator = new MediaStreamTrackGenerator({ kind: 'video' });
-    
-    // Get writer for the generator
     this.trackWriter = this.trackGenerator.writable.getWriter();
-    
-    // Start processing
     this.isActive = true;
     this.startStreamProcessing();
-    
-    // Create output stream with processed video and original audio
     const audioTracks = inputStream.getAudioTracks();
-    const outputStream = new MediaStream([this.trackGenerator, ...audioTracks]);
-    
-    console.log('[Service] Virtual background setup complete');
-    return outputStream;
+    return new MediaStream([this.trackGenerator, ...audioTracks]);
   }
 
   private async startStreamProcessing(): Promise<void> {
     if (!this.trackProcessor) return;
-
     this.processingController = new AbortController();
     const reader = this.trackProcessor.readable.getReader();
-
     try {
       while (this.isActive && !this.processingController.signal.aborted) {
         const { done, value: videoFrame } = await reader.read();
-        
         if (done) break;
-        
-        // Process frame directly
         await this.processVideoFrame(videoFrame);
       }
     } catch (error) {
-      if (!this.processingController.signal.aborted) {
-        console.error('[Service] Stream processing error:', error);
-      }
+      if (!this.processingController.signal.aborted) console.error('[Service] Stream error:', error);
     } finally {
       reader.releaseLock();
     }
   }
 
   private preprocessFrame(ctx: OffscreenCanvasRenderingContext2D, width: number, height: number): void {
-    try {
-      // Get image data
-      const imageData = ctx.getImageData(0, 0, width, height);
-      const data = imageData.data;
-      
-      // Apply slight contrast enhancement to improve segmentation
-      const contrast = 1.1; // Slight contrast boost
-      const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
-      
-      for (let i = 0; i < data.length; i += 4) {
-        // Apply contrast to RGB channels
-        data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));     // R
-        data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128)); // G
-        data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128)); // B
-      }
-      
-      // Put the processed data back
-      ctx.putImageData(imageData, 0, 0);
-      
-    } catch (error) {
-      console.error('[Service] Error preprocessing frame:', error);
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const contrast = 1.1;
+    const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));
+      data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128));
+      data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128));
     }
+    ctx.putImageData(imageData, 0, 0);
   }
 
   private async processVideoFrame(videoFrame: VideoFrame): Promise<void> {
-    if (!this.imageSegmenter || this.isProcessing) {
-      videoFrame.close();
-      return;
-    }
-
+    if (!this.imageSegmenter || this.isProcessing) { videoFrame.close(); return; }
     try {
       this.isProcessing = true;
-
-      // Use higher resolution for better quality (up to 1280x720)
-      // codedWidth/codedHeight is the actual encoded resolution, often higher than displayWidth/displayHeight
       const width = Math.min(videoFrame.codedWidth || videoFrame.displayWidth, 1280);
       const height = Math.min(videoFrame.codedHeight || videoFrame.displayHeight, 720);
-
       if (!this.tempCanvas || this.tempCanvas.width !== width || this.tempCanvas.height !== height) {
         this.tempCanvas = new OffscreenCanvas(width, height);
         this.tempCtx = this.tempCanvas.getContext('2d');
@@ -238,38 +176,16 @@ export class VirtualBackgroundService {
         this.maskCanvas = new OffscreenCanvas(width, height);
         this.maskCtx = this.maskCanvas.getContext('2d');
       }
-
-      if (!this.tempCtx || !this.outputCtx) {
-        throw new Error('Failed to get 2D context');
-      }
-
-      // Draw video frame to temporary canvas
+      if (!this.tempCtx || !this.outputCtx) throw new Error('Failed to get 2D context');
       this.tempCtx.drawImage(videoFrame, 0, 0, width, height);
-
-      // Pre-process the frame for better segmentation
       this.preprocessFrame(this.tempCtx, width, height);
-
-      // Run segmentation
       const result = this.imageSegmenter.segment(this.tempCanvas);
-      
-      // Process the results
       this.processSegmentationResults(result, width, height);
-
-      // Create VideoFrame from the processed canvas
-      if (!this.outputCanvas) {
-        throw new Error('Output canvas not available');
-      }
-      
-      const processedFrame = new VideoFrame(this.outputCanvas, {
-        timestamp: videoFrame.timestamp,
-        alpha: 'discard'
-      });
-
-      // Send the processed frame
+      if (!this.outputCanvas) throw new Error('Output canvas not available');
+      const processedFrame = new VideoFrame(this.outputCanvas, { timestamp: videoFrame.timestamp, alpha: 'discard' });
       await this.handleProcessedFrame(processedFrame);
-
     } catch (error) {
-      console.error('[Service] Error processing video frame:', error);
+      console.error('[Service] Error processing frame:', error);
     } finally {
       this.isProcessing = false;
       videoFrame.close();
@@ -277,504 +193,440 @@ export class VirtualBackgroundService {
   }
 
   private processSegmentationResults(result: any, width: number, height: number): void {
-    if (!this.outputCtx || !this.tempCanvas || !this.maskCtx || !this.maskCanvas) {
-      console.error('[Service] Missing required resources for processing results');
-      return;
-    }
-
-    try {
-      // Clear canvases
-      this.outputCtx.clearRect(0, 0, width, height);
-      this.maskCtx.clearRect(0, 0, width, height);
-
-      // Create enhanced mask using both category and confidence masks
-      const enhancedMask = this.createEnhancedMask(result, width, height);
-      if (!enhancedMask) return;
-
-      // Apply temporal smoothing to reduce flickering
-      const smoothedMask = this.applyTemporalSmoothing(enhancedMask, width, height);
-
-      // Apply the smoothed mask to create the final composite
-      this.applyMaskComposite(smoothedMask, width, height);
-
-    } catch (error) {
-      console.error('[Service] Error processing segmentation results:', error);
-    }
+    if (!this.outputCtx || !this.tempCanvas || !this.maskCtx || !this.maskCanvas) return;
+    this.outputCtx.clearRect(0, 0, width, height);
+    this.maskCtx.clearRect(0, 0, width, height);
+    const enhancedMask = this.createEnhancedMask(result, width, height);
+    if (!enhancedMask) return;
+    const smoothedMask = this.applyTemporalSmoothing(enhancedMask, width, height);
+    this.applyMaskComposite(smoothedMask, width, height);
   }
 
   private createEnhancedMask(result: any, width: number, height: number): ImageData | null {
     if (!this.maskCtx || !this.maskCanvas) return null;
-
-    try {
-      // Get masks from MediaPipe
-      const categoryMask = result.categoryMask;
-      const confidenceMasks = result.confidenceMasks;
-
-      if (!categoryMask) {
-        console.error('[Service] No category mask in results');
-        return null;
-      }
-
-      // Create base mask from category data
-      const categoryData = categoryMask.getAsUint8Array();
-      const maskImageData = this.maskCtx.createImageData(width, height);
-
-      // Use adaptive thresholding if enabled
-      const useAdaptive = this.config.adaptiveThreshold ?? true;
-      const baseThreshold = this.config.segmentationThreshold || 0.6;
-
-      // Use confidence mask if available for better edge quality
-      if (confidenceMasks && confidenceMasks.length > 0) {
-        const confidenceData = confidenceMasks[0].getAsFloat32Array();
-        
-        // Calculate adaptive threshold based on confidence distribution
-        let avgConfidence = 0;
-        let personPixelCount = 0;
-        
-        if (useAdaptive) {
-          for (let i = 0; i < categoryData.length; i++) {
-            if (categoryData[i] === 0) { // Person pixel
-              avgConfidence += confidenceData[i];
-              personPixelCount++;
-            }
-          }
-          avgConfidence = personPixelCount > 0 ? avgConfidence / personPixelCount : baseThreshold;
-        }
-        
-        const adaptiveThreshold = useAdaptive ? avgConfidence * 0.7 : baseThreshold;
-        
+    const categoryMask = result.categoryMask;
+    const confidenceMasks = result.confidenceMasks;
+    if (!categoryMask) return null;
+    const categoryData = categoryMask.getAsUint8Array();
+    const maskImageData = this.maskCtx.createImageData(width, height);
+    const useAdaptive = this.config.adaptiveThreshold ?? true;
+    const baseThreshold = this.config.segmentationThreshold ?? 0.55;
+    if (confidenceMasks && confidenceMasks.length > 0) {
+      const confidenceData = confidenceMasks[0].getAsFloat32Array();
+      let avgConfidence = 0, personPixelCount = 0;
+      if (useAdaptive) {
         for (let i = 0; i < categoryData.length; i++) {
-          const isPerson = categoryData[i] === 0; // 0 = person, >0 = background
-          const confidence = confidenceData[i] || 0;
-          const pixelIndex = i * 4;
-          
-          // Enhanced alpha calculation with adaptive thresholding
-          let alpha = 0;
-          if (isPerson) {
-            if (confidence > adaptiveThreshold) {
-              // Strong person pixel
-              alpha = 255;
-            } else if (confidence > adaptiveThreshold * 0.5) {
-              // Edge pixel - use smooth transition
-              const normalizedConf = (confidence - adaptiveThreshold * 0.5) / (adaptiveThreshold * 0.5);
-              alpha = Math.round(normalizedConf * 255);
-            }
-            // else alpha remains 0 (background)
+          if (categoryData[i] === 0) { avgConfidence += confidenceData[i]; personPixelCount++; }
+        }
+        avgConfidence = personPixelCount > 0 ? avgConfidence / personPixelCount : baseThreshold;
+      }
+      const adaptiveThreshold = useAdaptive ? avgConfidence * 0.7 : baseThreshold;
+      for (let i = 0; i < categoryData.length; i++) {
+        const isPerson = categoryData[i] === 0;
+        const confidence = confidenceData[i] || 0;
+        const pixelIndex = i * 4;
+        let alpha = 0;
+        if (isPerson) {
+          if (confidence > adaptiveThreshold) alpha = 255;
+          else if (confidence > adaptiveThreshold * 0.5) {
+            const normalizedConf = (confidence - adaptiveThreshold * 0.5) / (adaptiveThreshold * 0.5);
+            const sigmoid = 1 / (1 + Math.exp(-6 * (normalizedConf - 0.5)));
+            alpha = Math.round(sigmoid * 255);
           }
-          
-          maskImageData.data[pixelIndex] = 255;     // R
-          maskImageData.data[pixelIndex + 1] = 255; // G  
-          maskImageData.data[pixelIndex + 2] = 255; // B
-          maskImageData.data[pixelIndex + 3] = alpha; // A
         }
-      } else {
-        // Fallback to category mask only
-        for (let i = 0; i < categoryData.length; i++) {
-          const isPerson = categoryData[i] === 0;
-          const pixelIndex = i * 4;
-          
-          maskImageData.data[pixelIndex] = 255;     // R
-          maskImageData.data[pixelIndex + 1] = 255; // G
-          maskImageData.data[pixelIndex + 2] = 255; // B
-          maskImageData.data[pixelIndex + 3] = isPerson ? 255 : 0; // A
-        }
+        maskImageData.data[pixelIndex] = 255;
+        maskImageData.data[pixelIndex + 1] = 255;
+        maskImageData.data[pixelIndex + 2] = 255;
+        maskImageData.data[pixelIndex + 3] = alpha;
       }
-
-      // Put the initial mask on the mask canvas
-      this.maskCtx.putImageData(maskImageData, 0, 0);
-
-      // Apply morphological operations for better segmentation
-      this.applyMorphologicalOperations(width, height);
-
-      // Apply hair refinement if enabled
-      if (this.config.hairRefinement ?? true) {
-        this.refineHairEdges(width, height);
+    } else {
+      for (let i = 0; i < categoryData.length; i++) {
+        const isPerson = categoryData[i] === 0;
+        const pixelIndex = i * 4;
+        maskImageData.data[pixelIndex] = 255;
+        maskImageData.data[pixelIndex + 1] = 255;
+        maskImageData.data[pixelIndex + 2] = 255;
+        maskImageData.data[pixelIndex + 3] = isPerson ? 255 : 0;
       }
-
-      // Apply edge smoothing if configured
-      const edgeSmoothing = this.config.edgeSmoothing || 2;
-      const maskBlur = this.config.maskBlur || 1.5; // Slightly increased for better quality
-
-      if (edgeSmoothing > 0 || maskBlur > 0) {
-        // Use canvas filter for performance (GPU-accelerated)
-        this.maskCtx.filter = `blur(${maskBlur}px)`;
-        this.maskCtx.drawImage(this.maskCanvas, 0, 0);
-        this.maskCtx.filter = 'none';
-      }
-
-      return this.maskCtx.getImageData(0, 0, width, height);
-
-    } catch (error) {
-      console.error('[Service] Error creating enhanced mask:', error);
-      return null;
     }
+    this.maskCtx.putImageData(maskImageData, 0, 0);
+    if (this.config.useAdaptiveKernels) {
+      const edgeMap = this.computeEdgeStrengthMap(width, height);
+      this.applyAdaptiveMorphology(width, height, edgeMap);
+    } else {
+      this.applyMorphologicalOperations(width, height);
+    }
+    if (this.config.hairRefinement ?? true) this.refineHairEdges(width, height);
+    if (this.config.useTrimapRefinement) this.applyTrimapRefinement(width, height);
+    if (this.config.useGuidedFilter) this.applyGuidedFilter(width, height);
+    if (this.config.useLaplacianBlending) this.applyLaplacianBlending(width, height);
+    if (this.config.useSpillRemoval) this.applySpillRemoval(width, height);
+    const maskBlur = this.config.maskBlur ?? 1.5;
+    if (maskBlur > 0) {
+      this.maskCtx.filter = `blur(${maskBlur}px)`;
+      this.maskCtx.drawImage(this.maskCanvas, 0, 0);
+      this.maskCtx.filter = 'none';
+    }
+    return this.maskCtx.getImageData(0, 0, width, height);
   }
 
   private applyMorphologicalOperations(width: number, height: number): void {
     if (!this.maskCtx || !this.maskCanvas) return;
-
     const erosionSize = this.config.erosionSize || 1;
     const dilationSize = this.config.dilationSize || 1;
-
-    // Get current mask data
     const imageData = this.maskCtx.getImageData(0, 0, width, height);
     const data = imageData.data;
-
-    // Apply erosion to remove noise
+    const tempBuffer = new Uint8ClampedArray(width * height);
+    const alphaBuffer = new Uint8ClampedArray(width * height);
+    for (let i = 0; i < width * height; i++) alphaBuffer[i] = data[i * 4 + 3];
     if (erosionSize > 0) {
-      const erodedData = new Uint8ClampedArray(data);
-      
-      for (let y = erosionSize; y < height - erosionSize; y++) {
-        for (let x = erosionSize; x < width - erosionSize; x++) {
-          const idx = (y * width + x) * 4 + 3; // Alpha channel
-          
-          // Check if any neighbor is background
-          let hasBackgroundNeighbor = false;
-          for (let dy = -erosionSize; dy <= erosionSize; dy++) {
-            for (let dx = -erosionSize; dx <= erosionSize; dx++) {
-              const neighborIdx = ((y + dy) * width + (x + dx)) * 4 + 3;
-              if (data[neighborIdx] < 128) {
-                hasBackgroundNeighbor = true;
-                break;
-              }
-            }
-            if (hasBackgroundNeighbor) break;
-          }
-          
-          if (hasBackgroundNeighbor) {
-            erodedData[idx] = 0;
-          }
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let minVal = 255;
+          for (let kx = Math.max(0, x - erosionSize); kx <= Math.min(width - 1, x + erosionSize); kx++) minVal = Math.min(minVal, alphaBuffer[y * width + kx]);
+          tempBuffer[y * width + x] = minVal;
         }
       }
-      
-      // Copy eroded data back
-      for (let i = 3; i < data.length; i += 4) {
-        data[i] = erodedData[i];
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let minVal = 255;
+          for (let ky = Math.max(0, y - erosionSize); ky <= Math.min(height - 1, y + erosionSize); ky++) minVal = Math.min(minVal, tempBuffer[ky * width + x]);
+          alphaBuffer[y * width + x] = minVal;
+        }
       }
     }
-
-    // Apply dilation to fill gaps
     if (dilationSize > 0) {
-      const dilatedData = new Uint8ClampedArray(data);
-      
-      for (let y = dilationSize; y < height - dilationSize; y++) {
-        for (let x = dilationSize; x < width - dilationSize; x++) {
-          const idx = (y * width + x) * 4 + 3; // Alpha channel
-          
-          // Check if any neighbor is person
-          let hasPersonNeighbor = false;
-          for (let dy = -dilationSize; dy <= dilationSize; dy++) {
-            for (let dx = -dilationSize; dx <= dilationSize; dx++) {
-              const neighborIdx = ((y + dy) * width + (x + dx)) * 4 + 3;
-              if (data[neighborIdx] > 128) {
-                hasPersonNeighbor = true;
-                break;
-              }
-            }
-            if (hasPersonNeighbor) break;
-          }
-          
-          if (hasPersonNeighbor) {
-            dilatedData[idx] = 255;
-          }
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let maxVal = 0;
+          for (let kx = Math.max(0, x - dilationSize); kx <= Math.min(width - 1, x + dilationSize); kx++) maxVal = Math.max(maxVal, alphaBuffer[y * width + kx]);
+          tempBuffer[y * width + x] = maxVal;
         }
       }
-      
-      // Copy dilated data back
-      for (let i = 3; i < data.length; i += 4) {
-        data[i] = dilatedData[i];
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let maxVal = 0;
+          for (let ky = Math.max(0, y - dilationSize); ky <= Math.min(height - 1, y + dilationSize); ky++) maxVal = Math.max(maxVal, tempBuffer[ky * width + x]);
+          alphaBuffer[y * width + x] = maxVal;
+        }
       }
     }
-
-    // Put the processed data back
+    for (let i = 0; i < width * height; i++) data[i * 4 + 3] = alphaBuffer[i];
     this.maskCtx.putImageData(imageData, 0, 0);
   }
 
   private refineHairEdges(width: number, height: number): void {
     if (!this.maskCtx || !this.maskCanvas || !this.tempCtx) return;
-
-    try {
-      // Get mask and original image data
-      const maskData = this.maskCtx.getImageData(0, 0, width, height);
-      const originalData = this.tempCtx.getImageData(0, 0, width, height);
-
-      // Optimized single-pass edge detection
-      for (let y = 2; y < height - 2; y++) {
-        for (let x = 2; x < width - 2; x++) {
-          const idx = (y * width + x) * 4;
-          const alphaIdx = idx + 3;
-
-          // Only process edge pixels
-          if (maskData.data[alphaIdx] > 50 && maskData.data[alphaIdx] < 200) {
-            // Get pixel color
-            const r = originalData.data[idx];
-            const g = originalData.data[idx + 1];
-            const b = originalData.data[idx + 2];
-
-            // Fast hair color detection
-            const isDarkHair = r < 80 && g < 80 && b < 80;
-            const isLightHair = r > 150 && g > 130 && b > 100 && Math.abs(r - g) < 30;
-
-            // Quick variance check in 2x2 neighborhood (much faster)
-            let colorVariance = 0;
-            let avgR = 0, avgG = 0, avgB = 0;
-
-            // Only check immediate neighbors for speed
-            for (let dy = -1; dy <= 1; dy++) {
-              for (let dx = -1; dx <= 1; dx++) {
-                const neighborIdx = ((y + dy) * width + (x + dx)) * 4;
-                avgR += originalData.data[neighborIdx];
-                avgG += originalData.data[neighborIdx + 1];
-                avgB += originalData.data[neighborIdx + 2];
-              }
+    const maskData = this.maskCtx.getImageData(0, 0, width, height);
+    const originalData = this.tempCtx.getImageData(0, 0, width, height);
+    for (let y = 2; y < height - 2; y++) {
+      for (let x = 2; x < width - 2; x++) {
+        const idx = (y * width + x) * 4;
+        const alphaIdx = idx + 3;
+        if (maskData.data[alphaIdx] > 50 && maskData.data[alphaIdx] < 200) {
+          const r = originalData.data[idx], g = originalData.data[idx + 1], b = originalData.data[idx + 2];
+          const isDarkHair = r < 80 && g < 80 && b < 80;
+          const isLightHair = r > 150 && g > 130 && b > 100 && Math.abs(r - g) < 30;
+          let countR = 0, meanR = 0, m2R = 0, countG = 0, meanG = 0, m2G = 0, countB = 0, meanB = 0, m2B = 0;
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const nIdx = ((y + dy) * width + (x + dx)) * 4;
+              const nR = originalData.data[nIdx], nG = originalData.data[nIdx + 1], nB = originalData.data[nIdx + 2];
+              countR++; const deltaR = nR - meanR; meanR += deltaR / countR; m2R += deltaR * (nR - meanR);
+              countG++; const deltaG = nG - meanG; meanG += deltaG / countG; m2G += deltaG * (nG - meanG);
+              countB++; const deltaB = nB - meanB; meanB += deltaB / countB; m2B += deltaB * (nB - meanB);
             }
-
-            avgR /= 9;
-            avgG /= 9;
-            avgB /= 9;
-
-            // Calculate variance
-            for (let dy = -1; dy <= 1; dy++) {
-              for (let dx = -1; dx <= 1; dx++) {
-                const neighborIdx = ((y + dy) * width + (x + dx)) * 4;
-                const dr = originalData.data[neighborIdx] - avgR;
-                const dg = originalData.data[neighborIdx + 1] - avgG;
-                const db = originalData.data[neighborIdx + 2] - avgB;
-                colorVariance += dr * dr + dg * dg + db * db;
-              }
-            }
-
-            colorVariance /= 9;
-
-            // Adaptive threshold based on hair color
-            const varianceThreshold = (isDarkHair || isLightHair) ? 400 : 600;
-
-            // High variance suggests hair or fine details
-            if (colorVariance > varianceThreshold) {
-              // Enhance alpha for hair-like regions
-              const enhancementFactor = isDarkHair ? 1.3 : 1.2;
-              maskData.data[alphaIdx] = Math.min(255, maskData.data[alphaIdx] * enhancementFactor);
-            }
+          }
+          const colorVariance = m2R / countR + m2G / countG + m2B / countB;
+          const varianceThreshold = (isDarkHair || isLightHair) ? 400 : 600;
+          if (colorVariance > varianceThreshold) {
+            const enhancementFactor = isDarkHair ? 1.3 : 1.2;
+            maskData.data[alphaIdx] = Math.min(255, Math.round(maskData.data[alphaIdx] * enhancementFactor));
           }
         }
       }
-
-      // Put refined mask back
-      this.maskCtx.putImageData(maskData, 0, 0);
-
-    } catch (error) {
-      console.error('[Service] Error refining hair edges:', error);
     }
+    this.maskCtx.putImageData(maskData, 0, 0);
+  }
+
+  private applyGuidedFilter(width: number, height: number): void {
+    if (!this.maskCtx || !this.maskCanvas || !this.tempCtx) return;
+    const radius = this.config.guidedFilterRadius ?? 4;
+    const epsilon = this.config.guidedFilterEpsilon ?? 0.01;
+    const maskData = this.maskCtx.getImageData(0, 0, width, height);
+    const guideData = this.tempCtx.getImageData(0, 0, width, height);
+    const maskFloat = new Float32Array(width * height);
+    const guideFloat = new Float32Array(width * height);
+    for (let i = 0; i < width * height; i++) {
+      maskFloat[i] = maskData.data[i * 4 + 3] / 255;
+      guideFloat[i] = (0.299 * guideData.data[i * 4] + 0.587 * guideData.data[i * 4 + 1] + 0.114 * guideData.data[i * 4 + 2]) / 255;
+    }
+    const boxFilter = (input: Float32Array, output: Float32Array, r: number) => {
+      const integral = new Float64Array((width + 1) * (height + 1));
+      for (let y = 0; y < height; y++) {
+        let rowSum = 0;
+        for (let x = 0; x < width; x++) { rowSum += input[y * width + x]; integral[(y + 1) * (width + 1) + (x + 1)] = integral[y * (width + 1) + (x + 1)] + rowSum; }
+      }
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const x1 = Math.max(0, x - r), y1 = Math.max(0, y - r), x2 = Math.min(width - 1, x + r), y2 = Math.min(height - 1, y + r);
+          const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+          const sum = integral[(y2 + 1) * (width + 1) + (x2 + 1)] - integral[y1 * (width + 1) + (x2 + 1)] - integral[(y2 + 1) * (width + 1) + x1] + integral[y1 * (width + 1) + x1];
+          output[y * width + x] = sum / count;
+        }
+      }
+    };
+    const meanI = new Float32Array(width * height), meanP = new Float32Array(width * height);
+    const meanIP = new Float32Array(width * height), meanII = new Float32Array(width * height);
+    const IP = new Float32Array(width * height), II = new Float32Array(width * height);
+    for (let i = 0; i < width * height; i++) { IP[i] = guideFloat[i] * maskFloat[i]; II[i] = guideFloat[i] * guideFloat[i]; }
+    boxFilter(guideFloat, meanI, radius); boxFilter(maskFloat, meanP, radius); boxFilter(IP, meanIP, radius); boxFilter(II, meanII, radius);
+    const a = new Float32Array(width * height), b = new Float32Array(width * height);
+    for (let i = 0; i < width * height; i++) { const varI = meanII[i] - meanI[i] * meanI[i]; const covIP = meanIP[i] - meanI[i] * meanP[i]; a[i] = covIP / (varI + epsilon); b[i] = meanP[i] - a[i] * meanI[i]; }
+    const meanA = new Float32Array(width * height), meanB = new Float32Array(width * height);
+    boxFilter(a, meanA, radius); boxFilter(b, meanB, radius);
+    for (let i = 0; i < width * height; i++) { const filtered = meanA[i] * guideFloat[i] + meanB[i]; maskData.data[i * 4 + 3] = Math.round(Math.max(0, Math.min(1, filtered)) * 255); }
+    this.maskCtx.putImageData(maskData, 0, 0);
+  }
+
+  private applyLaplacianBlending(width: number, height: number): void {
+    if (!this.maskCtx || !this.maskCanvas) return;
+    const levels = this.config.laplacianLevels ?? 3;
+    const maskData = this.maskCtx.getImageData(0, 0, width, height);
+    const alpha = new Float32Array(width * height);
+    for (let i = 0; i < width * height; i++) alpha[i] = maskData.data[i * 4 + 3] / 255;
+    const gaussianPyramid: Float32Array[] = [alpha];
+    let currentWidth = width, currentHeight = height;
+    for (let level = 1; level < levels; level++) {
+      const prevLevel = gaussianPyramid[level - 1];
+      const newWidth = Math.floor(currentWidth / 2), newHeight = Math.floor(currentHeight / 2);
+      if (newWidth < 4 || newHeight < 4) break;
+      const downsampled = new Float32Array(newWidth * newHeight);
+      for (let y = 0; y < newHeight; y++) {
+        for (let x = 0; x < newWidth; x++) {
+          let sum = 0, count = 0;
+          for (let dy = 0; dy < 2; dy++) for (let dx = 0; dx < 2; dx++) { const srcX = x * 2 + dx, srcY = y * 2 + dy; if (srcX < currentWidth && srcY < currentHeight) { sum += prevLevel[srcY * currentWidth + srcX]; count++; } }
+          downsampled[y * newWidth + x] = sum / count;
+        }
+      }
+      gaussianPyramid.push(downsampled);
+      currentWidth = newWidth; currentHeight = newHeight;
+    }
+    const laplacianPyramid: Float32Array[] = [];
+    currentWidth = width; currentHeight = height;
+    for (let level = 0; level < gaussianPyramid.length - 1; level++) {
+      const current = gaussianPyramid[level], nextLevel = gaussianPyramid[level + 1];
+      const nextWidth = Math.floor(currentWidth / 2), nextHeight = Math.floor(currentHeight / 2);
+      const upsampled = new Float32Array(currentWidth * currentHeight);
+      for (let y = 0; y < currentHeight; y++) for (let x = 0; x < currentWidth; x++) { const srcX = Math.min(Math.floor(x / 2), nextWidth - 1), srcY = Math.min(Math.floor(y / 2), nextHeight - 1); upsampled[y * currentWidth + x] = nextLevel[srcY * nextWidth + srcX]; }
+      const laplacian = new Float32Array(currentWidth * currentHeight);
+      for (let i = 0; i < currentWidth * currentHeight; i++) laplacian[i] = current[i] - upsampled[i];
+      laplacianPyramid.push(laplacian);
+      currentWidth = nextWidth; currentHeight = nextHeight;
+    }
+    laplacianPyramid.push(gaussianPyramid[gaussianPyramid.length - 1]);
+    for (let level = 0; level < laplacianPyramid.length - 1; level++) { const lap = laplacianPyramid[level]; const smoothFactor = 0.5 + level * 0.15; for (let i = 0; i < lap.length; i++) lap[i] *= smoothFactor; }
+    let reconstructed = laplacianPyramid[laplacianPyramid.length - 1];
+    currentWidth = Math.floor(width / Math.pow(2, laplacianPyramid.length - 1));
+    currentHeight = Math.floor(height / Math.pow(2, laplacianPyramid.length - 1));
+    for (let level = laplacianPyramid.length - 2; level >= 0; level--) {
+      const targetWidth = Math.floor(width / Math.pow(2, level)), targetHeight = Math.floor(height / Math.pow(2, level));
+      const upsampled = new Float32Array(targetWidth * targetHeight);
+      for (let y = 0; y < targetHeight; y++) for (let x = 0; x < targetWidth; x++) { const srcX = Math.min(Math.floor(x / 2), currentWidth - 1), srcY = Math.min(Math.floor(y / 2), currentHeight - 1); upsampled[y * targetWidth + x] = reconstructed[srcY * currentWidth + srcX]; }
+      const laplacian = laplacianPyramid[level];
+      reconstructed = new Float32Array(targetWidth * targetHeight);
+      for (let i = 0; i < targetWidth * targetHeight; i++) reconstructed[i] = Math.max(0, Math.min(1, upsampled[i] + laplacian[i]));
+      currentWidth = targetWidth; currentHeight = targetHeight;
+    }
+    for (let i = 0; i < width * height; i++) maskData.data[i * 4 + 3] = Math.round(reconstructed[i] * 255);
+    this.maskCtx.putImageData(maskData, 0, 0);
+  }
+
+  private applyTrimapRefinement(width: number, height: number): void {
+    if (!this.maskCtx || !this.maskCanvas || !this.tempCtx) return;
+    const maskData = this.maskCtx.getImageData(0, 0, width, height);
+    const originalData = this.tempCtx.getImageData(0, 0, width, height);
+    const FG_THRESHOLD = 230, BG_THRESHOLD = 25;
+    for (let y = 2; y < height - 2; y++) {
+      for (let x = 2; x < width - 2; x++) {
+        const idx = (y * width + x) * 4;
+        const alpha = maskData.data[idx + 3];
+        if (alpha > BG_THRESHOLD && alpha < FG_THRESHOLD) {
+          let fgR = 0, fgG = 0, fgB = 0, fgCount = 0, bgR = 0, bgG = 0, bgB = 0, bgCount = 0;
+          const neighborRadius = 3;
+          for (let dy = -neighborRadius; dy <= neighborRadius; dy++) {
+            for (let dx = -neighborRadius; dx <= neighborRadius; dx++) {
+              const nx = x + dx, ny = y + dy;
+              if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+              const nIdx = (ny * width + nx) * 4, nAlpha = maskData.data[nIdx + 3];
+              if (nAlpha >= FG_THRESHOLD) { fgR += originalData.data[nIdx]; fgG += originalData.data[nIdx + 1]; fgB += originalData.data[nIdx + 2]; fgCount++; }
+              else if (nAlpha <= BG_THRESHOLD) { bgR += originalData.data[nIdx]; bgG += originalData.data[nIdx + 1]; bgB += originalData.data[nIdx + 2]; bgCount++; }
+            }
+          }
+          if (fgCount > 0 && bgCount > 0) {
+            fgR /= fgCount; fgG /= fgCount; fgB /= fgCount; bgR /= bgCount; bgG /= bgCount; bgB /= bgCount;
+            const pixelR = originalData.data[idx], pixelG = originalData.data[idx + 1], pixelB = originalData.data[idx + 2];
+            const distFG = Math.sqrt((pixelR - fgR) ** 2 + (pixelG - fgG) ** 2 + (pixelB - fgB) ** 2);
+            const distBG = Math.sqrt((pixelR - bgR) ** 2 + (pixelG - bgG) ** 2 + (pixelB - bgB) ** 2);
+            const totalDist = distFG + distBG;
+            if (totalDist > 0) { const refinedAlpha = distBG / totalDist; const blendWeight = 0.6; const newAlpha = alpha / 255 * (1 - blendWeight) + refinedAlpha * blendWeight; maskData.data[idx + 3] = Math.round(Math.max(0, Math.min(1, newAlpha)) * 255); }
+          }
+        }
+      }
+    }
+    this.maskCtx.putImageData(maskData, 0, 0);
+  }
+
+  private applySpillRemoval(width: number, height: number): void {
+    if (!this.maskCtx || !this.maskCanvas || !this.tempCtx || !this.outputCtx) return;
+    const maskData = this.maskCtx.getImageData(0, 0, width, height);
+    const originalData = this.tempCtx.getImageData(0, 0, width, height);
+    let bgR = 0, bgG = 0, bgB = 0, bgCount = 0;
+    for (let i = 0; i < width * height; i++) { const alpha = maskData.data[i * 4 + 3]; if (alpha < 20) { bgR += originalData.data[i * 4]; bgG += originalData.data[i * 4 + 1]; bgB += originalData.data[i * 4 + 2]; bgCount++; } }
+    if (bgCount < 100) return;
+    bgR /= bgCount; bgG /= bgCount; bgB /= bgCount;
+    const avgBrightness = (bgR + bgG + bgB) / 3;
+    const colorCastR = bgR - avgBrightness, colorCastG = bgG - avgBrightness, colorCastB = bgB - avgBrightness;
+    const castStrength = Math.sqrt(colorCastR ** 2 + colorCastG ** 2 + colorCastB ** 2);
+    if (castStrength < 15) return;
+    for (let i = 0; i < width * height; i++) {
+      const alpha = maskData.data[i * 4 + 3];
+      if (alpha > 20 && alpha < 240) {
+        const idx = i * 4, spillStrength = (255 - alpha) / 255, removeAmount = spillStrength * 0.7;
+        originalData.data[idx] = Math.max(0, Math.min(255, originalData.data[idx] - colorCastR * removeAmount));
+        originalData.data[idx + 1] = Math.max(0, Math.min(255, originalData.data[idx + 1] - colorCastG * removeAmount));
+        originalData.data[idx + 2] = Math.max(0, Math.min(255, originalData.data[idx + 2] - colorCastB * removeAmount));
+      }
+    }
+    this.tempCtx.putImageData(originalData, 0, 0);
+  }
+
+  private computeEdgeStrengthMap(width: number, height: number): Float32Array {
+    if (!this.tempCtx) return new Float32Array(width * height);
+    const originalData = this.tempCtx.getImageData(0, 0, width, height);
+    const edgeStrength = new Float32Array(width * height);
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        const getLum = (px: number, py: number) => { const idx = (py * width + px) * 4; return 0.299 * originalData.data[idx] + 0.587 * originalData.data[idx + 1] + 0.114 * originalData.data[idx + 2]; };
+        const gx = (-1 * getLum(x - 1, y - 1) + 1 * getLum(x + 1, y - 1) + -2 * getLum(x - 1, y) + 2 * getLum(x + 1, y) + -1 * getLum(x - 1, y + 1) + 1 * getLum(x + 1, y + 1)) / 4;
+        const gy = (-1 * getLum(x - 1, y - 1) - 2 * getLum(x, y - 1) - 1 * getLum(x + 1, y - 1) + 1 * getLum(x - 1, y + 1) + 2 * getLum(x, y + 1) + 1 * getLum(x + 1, y + 1)) / 4;
+        edgeStrength[y * width + x] = Math.min(1, Math.sqrt(gx * gx + gy * gy) / 128);
+      }
+    }
+    return edgeStrength;
+  }
+
+  private applyAdaptiveMorphology(width: number, height: number, edgeMap: Float32Array): void {
+    if (!this.maskCtx || !this.maskCanvas) return;
+    const baseErosion = this.config.erosionSize ?? 1, baseDilation = this.config.dilationSize ?? 1;
+    const imageData = this.maskCtx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const alpha = new Uint8ClampedArray(width * height);
+    for (let i = 0; i < width * height; i++) alpha[i] = data[i * 4 + 3];
+    const result = new Uint8ClampedArray(alpha);
+    for (let y = 2; y < height - 2; y++) {
+      for (let x = 2; x < width - 2; x++) {
+        const idx = y * width + x, edge = edgeMap[idx], kernelScale = 1 - edge * 0.7, erosionRadius = Math.round(baseErosion * kernelScale);
+        if (erosionRadius > 0) { let minVal = 255; for (let dy = -erosionRadius; dy <= erosionRadius; dy++) for (let dx = -erosionRadius; dx <= erosionRadius; dx++) { const nx = x + dx, ny = y + dy; if (nx >= 0 && nx < width && ny >= 0 && ny < height) minVal = Math.min(minVal, alpha[ny * width + nx]); } result[idx] = minVal; }
+      }
+    }
+    for (let i = 0; i < width * height; i++) alpha[i] = result[i];
+    for (let y = 2; y < height - 2; y++) {
+      for (let x = 2; x < width - 2; x++) {
+        const idx = y * width + x, edge = edgeMap[idx], kernelScale = 1 - edge * 0.7, dilationRadius = Math.round(baseDilation * kernelScale);
+        if (dilationRadius > 0) { let maxVal = 0; for (let dy = -dilationRadius; dy <= dilationRadius; dy++) for (let dx = -dilationRadius; dx <= dilationRadius; dx++) { const nx = x + dx, ny = y + dy; if (nx >= 0 && nx < width && ny >= 0 && ny < height) maxVal = Math.max(maxVal, alpha[ny * width + nx]); } result[idx] = maxVal; }
+      }
+    }
+    for (let i = 0; i < width * height; i++) data[i * 4 + 3] = result[i];
+    this.maskCtx.putImageData(imageData, 0, 0);
   }
 
   private applyTemporalSmoothing(currentMask: ImageData, width: number, height: number): ImageData {
-    const temporalSmoothing = this.config.temporalSmoothing || 0.4; // Reduced from 0.7 to 0.4 for less motion blur
-
-    if (!this.previousMask || temporalSmoothing === 0) {
-      this.previousMask = new ImageData(
-        new Uint8ClampedArray(currentMask.data),
-        width,
-        height
-      );
+    const temporalSmoothing = this.config.temporalSmoothing ?? 0.5;
+    const bufferSize = currentMask.data.length;
+    if (!this.smoothedBuffer || this.smoothedBuffer.length !== bufferSize) {
+      this.smoothedBuffer = new Uint8ClampedArray(bufferSize);
+      this.previousMaskBuffer = new Uint8ClampedArray(bufferSize);
+      this.previousMaskBuffer.set(currentMask.data);
       return currentMask;
     }
-
-    // Motion-adaptive temporal smoothing - detect movement and reduce smoothing during motion
-    const smoothedData = new Uint8ClampedArray(currentMask.data.length);
-
-    // Calculate overall motion (difference between frames)
-    let totalDiff = 0;
-    let pixelCount = 0;
-
-    for (let i = 3; i < currentMask.data.length; i += 4) {
-      const currentAlpha = currentMask.data[i];
-      const previousAlpha = this.previousMask.data[i];
-      totalDiff += Math.abs(currentAlpha - previousAlpha);
-      pixelCount++;
+    if (temporalSmoothing === 0) return currentMask;
+    const regionCols = 8, regionRows = 8;
+    const regionWidth = Math.floor(width / regionCols), regionHeight = Math.floor(height / regionRows);
+    const regionMotion = new Float32Array(regionCols * regionRows);
+    for (let ry = 0; ry < regionRows; ry++) {
+      for (let rx = 0; rx < regionCols; rx++) {
+        let regionDiff = 0, regionPixels = 0;
+        const startX = rx * regionWidth, startY = ry * regionHeight, endX = Math.min(startX + regionWidth, width), endY = Math.min(startY + regionHeight, height);
+        for (let y = startY; y < endY; y++) for (let x = startX; x < endX; x++) { const idx = (y * width + x) * 4 + 3; regionDiff += Math.abs(currentMask.data[idx] - this.previousMaskBuffer![idx]); regionPixels++; }
+        regionMotion[ry * regionCols + rx] = regionPixels > 0 ? regionDiff / regionPixels : 0;
+      }
     }
-
-    const avgDiff = totalDiff / pixelCount;
-
-    // Reduce smoothing during motion (higher diff = more motion = less smoothing)
-    // Motion threshold: if avgDiff > 10, we're moving significantly
-    const motionFactor = Math.min(1, avgDiff / 20); // 0-1 scale
-    const adaptiveSmoothing = temporalSmoothing * (1 - motionFactor * 0.6); // Reduce up to 60% during motion
-
-    for (let i = 0; i < currentMask.data.length; i += 4) {
-      // Only smooth the alpha channel (mask data)
-      smoothedData[i] = currentMask.data[i];         // R
-      smoothedData[i + 1] = currentMask.data[i + 1]; // G
-      smoothedData[i + 2] = currentMask.data[i + 2]; // B
-
-      // Temporal smoothing on alpha channel with motion adaptation
-      const currentAlpha = currentMask.data[i + 3];
-      const previousAlpha = this.previousMask.data[i + 3];
-      smoothedData[i + 3] = Math.round(
-        previousAlpha * adaptiveSmoothing + currentAlpha * (1 - adaptiveSmoothing)
-      );
+    for (let y = 0; y < height; y++) {
+      const ry = Math.min(Math.floor(y / regionHeight), regionRows - 1);
+      for (let x = 0; x < width; x++) {
+        const rx = Math.min(Math.floor(x / regionWidth), regionCols - 1), regionIdx = ry * regionCols + rx, motion = regionMotion[regionIdx];
+        const normalizedMotion = Math.min(motion / 30, 1), motionFactor = 1 / (1 + Math.exp(-8 * (normalizedMotion - 0.4))), adaptiveSmoothing = temporalSmoothing * (1 - motionFactor * 0.7);
+        const i = (y * width + x) * 4;
+        this.smoothedBuffer![i] = currentMask.data[i]; this.smoothedBuffer![i + 1] = currentMask.data[i + 1]; this.smoothedBuffer![i + 2] = currentMask.data[i + 2];
+        this.smoothedBuffer![i + 3] = Math.round(this.previousMaskBuffer![i + 3] * adaptiveSmoothing + currentMask.data[i + 3] * (1 - adaptiveSmoothing));
+      }
     }
-
-    const smoothedMask = new ImageData(smoothedData, width, height);
-
-    // Update previous mask for next frame
-    this.previousMask = new ImageData(
-      new Uint8ClampedArray(smoothedMask.data),
-      width,
-      height
-    );
-
-    return smoothedMask;
+    this.previousMaskBuffer!.set(this.smoothedBuffer!);
+    return new ImageData(new Uint8ClampedArray(this.smoothedBuffer!), width, height);
   }
 
   private applyMaskComposite(mask: ImageData, width: number, height: number): void {
     if (!this.outputCtx || !this.tempCanvas) return;
-
-    try {
-      // Put the smoothed mask on output canvas
-      this.outputCtx.putImageData(mask, 0, 0);
-
-      // Apply person layer with mask
-      this.outputCtx.globalCompositeOperation = 'source-in';
-      this.outputCtx.drawImage(this.tempCanvas, 0, 0, width, height);
-
-      // Apply background layer
-      this.outputCtx.globalCompositeOperation = 'destination-over';
-
-      if (this.config.useBlur && this.tempCanvas) {
-        // Apply blur effect to background
-        this.outputCtx.filter = `blur(${this.config.blurAmount || 10}px)`;
-        this.outputCtx.drawImage(this.tempCanvas, 0, 0, width, height);
-        this.outputCtx.filter = 'none';
-      } else if (this.backgroundImage) {
-        // Use custom background image
-        this.outputCtx.drawImage(this.backgroundImage, 0, 0, width, height);
-      } else {
-        // Use solid color background
-        this.outputCtx.fillStyle = '#1a1a1a';
-        this.outputCtx.fillRect(0, 0, width, height);
-      }
-
-      // Reset composite operation
-      this.outputCtx.globalCompositeOperation = 'source-over';
-
-    } catch (error) {
-      console.error('[Service] Error applying mask composite:', error);
-    }
+    this.outputCtx.putImageData(mask, 0, 0);
+    this.outputCtx.globalCompositeOperation = 'source-in';
+    this.outputCtx.drawImage(this.tempCanvas, 0, 0, width, height);
+    this.outputCtx.globalCompositeOperation = 'destination-over';
+    if (this.config.useBlur && this.tempCanvas) { this.outputCtx.filter = `blur(${this.config.blurAmount || 10}px)`; this.outputCtx.drawImage(this.tempCanvas, 0, 0, width, height); this.outputCtx.filter = 'none'; }
+    else if (this.backgroundImage) this.outputCtx.drawImage(this.backgroundImage, 0, 0, width, height);
+    else { this.outputCtx.fillStyle = '#1a1a1a'; this.outputCtx.fillRect(0, 0, width, height); }
+    this.outputCtx.globalCompositeOperation = 'source-over';
   }
 
   private async loadBackgroundImage(url: string): Promise<void> {
     try {
-      console.log('[Service] Loading background image:', url);
-      
       let blob: Blob;
-      if (url.startsWith('data:image/')) {
-        // Handle data URL
-        const response = await fetch(url);
-        blob = await response.blob();
-      } else {
-        // Handle regular URL
-        const response = await fetch(url, { mode: 'cors' });
-        if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
-        blob = await response.blob();
-      }
-      
+      if (url.startsWith('data:image/')) { const response = await fetch(url); blob = await response.blob(); }
+      else { const response = await fetch(url, { mode: 'cors' }); if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`); blob = await response.blob(); }
       this.backgroundImage = await createImageBitmap(blob);
-      console.log('[Service] Background image loaded successfully');
-    } catch (error) {
-      console.error('[Service] Failed to load background image:', error);
-      this.backgroundImage = null;
-    }
+    } catch (error) { console.error('[Service] Failed to load background:', error); this.backgroundImage = null; }
   }
 
   private async handleProcessedFrame(videoFrame: VideoFrame): Promise<void> {
-    if (this.trackWriter && this.isActive) {
-      try {
-        await this.trackWriter.write(videoFrame);
-      } catch (error) {
-        console.error('[Service] Error writing frame:', error);
-        videoFrame.close();
-      }
-    } else {
-      videoFrame.close();
-    }
+    if (this.trackWriter && this.isActive) { try { await this.trackWriter.write(videoFrame); } catch (error) { console.error('[Service] Error writing frame:', error); videoFrame.close(); } }
+    else videoFrame.close();
   }
 
   public async updateConfig(newConfig: Partial<VirtualBackgroundConfig>): Promise<void> {
     this.config = { ...this.config, ...newConfig };
-    
-    // Load new background image if URL changed
     if (newConfig.backgroundImageUrl !== undefined) {
-      if (newConfig.backgroundImageUrl) {
-        await this.loadBackgroundImage(newConfig.backgroundImageUrl);
-      } else {
-        this.backgroundImage = null;
-      }
+      if (newConfig.backgroundImageUrl) await this.loadBackgroundImage(newConfig.backgroundImageUrl);
+      else this.backgroundImage = null;
     }
   }
 
   public dispose(): void {
-    console.log('[Service] Disposing virtual background service...');
-    
     this.isActive = false;
-    
-    if (this.processingController) {
-      this.processingController.abort();
-      this.processingController = null;
-    }
-    
-    if (this.trackWriter) {
-      try {
-        this.trackWriter.releaseLock();
-      } catch (error) {
-        console.warn('[Service] Error releasing track writer:', error);
-      }
-      this.trackWriter = null;
-    }
-    
-    this.trackProcessor = null;
-    this.trackGenerator = null;
-    
-    // Clean up MediaPipe resources
-    if (this.imageSegmenter) {
-      this.imageSegmenter.close();
-      this.imageSegmenter = null;
-    }
-    
-    // Clean up background image
-    if (this.backgroundImage) {
-      this.backgroundImage.close();
-      this.backgroundImage = null;
-    }
-    
-    // Clean up edge improvement resources
-    this.previousMask = null;
-    this.maskCanvas = null;
-    this.maskCtx = null;
-    
+    if (this.processingController) { this.processingController.abort(); this.processingController = null; }
+    if (this.trackWriter) { try { this.trackWriter.releaseLock(); } catch (e) {} this.trackWriter = null; }
+    this.trackProcessor = null; this.trackGenerator = null;
+    if (this.imageSegmenter) { this.imageSegmenter.close(); this.imageSegmenter = null; }
+    if (this.backgroundImage) { this.backgroundImage.close(); this.backgroundImage = null; }
+    this.previousMask = null; this.maskCanvas = null; this.maskCtx = null;
+    this.smoothedBuffer = null; this.previousMaskBuffer = null;
     this.isInitialized = false;
   }
 
-  public isServiceInitialized(): boolean {
-    return this.isInitialized;
-  }
+  public isServiceInitialized(): boolean { return this.isInitialized; }
 
   public stopVirtualBackground(): void {
-    console.log('[Service] Stopping virtual background...');
-    
     this.isActive = false;
-    
-    if (this.processingController) {
-      this.processingController.abort();
-      this.processingController = null;
-    }
-    
-    if (this.trackWriter) {
-      try {
-        this.trackWriter.releaseLock();
-      } catch (error) {
-        console.warn('[Service] Error releasing track writer:', error);
-      }
-      this.trackWriter = null;
-    }
+    if (this.processingController) { this.processingController.abort(); this.processingController = null; }
+    if (this.trackWriter) { try { this.trackWriter.releaseLock(); } catch (e) {} this.trackWriter = null; }
   }
 }
