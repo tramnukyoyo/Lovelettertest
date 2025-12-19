@@ -2192,6 +2192,22 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+/* Mobile: Hide GameHeader completely - mobile game has its own header */
+@media (max-width: 768px) {
+  [data-theme="primesuspect"] .app-root.in-room .game-header {
+    display: none !important;
+  }
+
+  [data-theme="primesuspect"] .app-root.in-room {
+    padding-top: 0;
+  }
+
+  /* Hide bottom tab bar on mobile - mobile game handles navigation */
+  [data-theme="primesuspect"] .app-root.in-room .bottom-tab-bar {
+    display: none !important;
+  }
+}
+
 /* ============================================
    HEARTSGAMBIT - VIEWPORT SCALING
    Ensures all content fits without scrolling
@@ -2388,6 +2404,24 @@
   z-index: 50;
 }
 
+/* Touch devices: avoid sticky :hover states; selection/animations handle emphasis. */
+@media (hover: none) and (pointer: coarse) {
+  [data-theme="primesuspect"] .hg-deck-card:hover,
+  [data-theme="primesuspect"] .hg-discard-card:hover,
+  [data-theme="primesuspect"] .hg-hand-card:hover,
+  [data-theme="primesuspect"] .hg-dynamic-card:hover {
+    transform: none !important;
+  }
+
+  [data-theme="primesuspect"] .hg-hand-card:hover {
+    z-index: auto;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.selected {
+    transform: none !important;
+  }
+}
+
 /* Filmstrip space coordination */
 [data-theme="primesuspect"] .app-root.in-room .app-layout {
   min-height: 0; /* Override base min-height: 100vh to allow shrinking */
@@ -2476,11 +2510,16 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 
 /* Base dynamic card structure */
 [data-theme="primesuspect"] .hg-dynamic-card {
+  /* Scale card chrome proportionally so mobile matches desktop styling */
+  --hg-card-border-width: clamp(1px, calc(var(--hg-card-width, 160px) * 0.025), 4px);
+  --hg-card-radius: clamp(8px, calc(var(--hg-card-width, 160px) * 0.075), 12px);
+  --hg-card-outline-width: clamp(1px, calc(var(--hg-card-width, 160px) * 0.025), 4px);
+
   width: var(--hg-card-width, 160px);
   height: var(--hg-card-height, 240px);
   background-color: #f4e4bc;
-  border: 4px solid white;
-  border-radius: 12px;
+  border: var(--hg-card-border-width) solid white;
+  border-radius: var(--hg-card-radius);
   position: relative;
   overflow: hidden;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
@@ -2498,7 +2537,7 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   transform: scale(1.05) translateY(-10px);
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.7),
-    0 0 0 4px var(--royal-gold, #d2b25a);
+    0 0 0 var(--hg-card-outline-width, 4px) var(--royal-gold, #d2b25a);
 }
 
 /* Card back styling */
@@ -2510,7 +2549,7 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 9px;
+  border-radius: calc(var(--hg-card-radius, 12px) - var(--hg-card-border-width, 4px));
 }
 
 /* Header overlay - Value and Name */
@@ -2606,15 +2645,11 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 /* Responsive adjustments for dynamic cards */
 @media (max-height: 700px), (max-width: 480px) {
   [data-theme="primesuspect"] .hg-dynamic-card .card-header {
-    padding: 4px 6px;
+    padding: 3px 5px;
   }
 
   [data-theme="primesuspect"] .hg-dynamic-card .card-body {
-    padding: 6px 4px;
-  }
-
-  [data-theme="primesuspect"] .hg-dynamic-card .card-description {
-    -webkit-line-clamp: 3;
+    padding: 4px 3px;
   }
 }
 
@@ -2624,15 +2659,11 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   }
 
   [data-theme="primesuspect"] .hg-dynamic-card .card-body {
-    padding: 4px 3px;
+    padding: 3px 3px;
   }
 
   [data-theme="primesuspect"] .hg-dynamic-card .effect-tag {
     margin-bottom: 2px;
-  }
-
-  [data-theme="primesuspect"] .hg-dynamic-card .card-description {
-    -webkit-line-clamp: 2;
   }
 }
 
@@ -2692,6 +2723,579 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-description {
   font-size: 14px;
   -webkit-line-clamp: 5;
+}
+
+/* Mobile landscape - Inspector Modal Layout */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Smaller inspector card */
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card {
+    --hg-card-width: 160px;
+    --hg-card-height: 240px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-value {
+    font-size: 22px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-title {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .effect-tag {
+    font-size: 8px;
+    margin-bottom: 4px;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-description {
+    font-size: 10px;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Inspector modal - compact header */
+  .hg-inspector-modal .hg-inspector-header {
+    padding: 8px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-title {
+    font-size: 10px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-counter {
+    font-size: 11px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-close {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-close svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* Content area - reduced padding */
+  .hg-inspector-modal .hg-inspector-content {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* Card area - horizontal layout, shifted up */
+  .hg-inspector-modal .hg-inspector-card-area {
+    flex-direction: row !important;
+    gap: 24px !important;
+    transform: translateY(-10px) !important;
+  }
+
+  /* Card info - beside the card */
+  .hg-inspector-modal .hg-inspector-info {
+    margin-top: 0 !important;
+    text-align: left !important;
+    max-width: 200px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-info h3 {
+    font-size: 14px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-info p {
+    font-size: 11px !important;
+    -webkit-line-clamp: 4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .hg-inspector-modal .hg-inspector-info div {
+    font-size: 10px !important;
+  }
+
+  /* Navigation buttons - visible with solid background */
+  .hg-inspector-modal .hg-inspector-nav {
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(212, 175, 55, 0.5) !important;
+    border: 1px solid rgba(212, 175, 55, 0.7) !important;
+    transform: translateY(-60%) !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-nav svg {
+    width: 20px !important;
+    height: 20px !important;
+    color: #f6f0e6 !important;
+  }
+
+  /* Pagination dots - compact */
+  .hg-inspector-modal .hg-inspector-dots {
+    bottom: 8px !important;
+    gap: 4px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-dots button {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  .hg-inspector-modal .hg-inspector-dots button.active {
+    width: 12px !important;
+  }
+
+  /* Swipe hint - smaller */
+  .hg-inspector-modal .hg-inspector-hint {
+    bottom: 20px !important;
+    font-size: 9px !important;
+  }
+}
+
+/* Reset global button styles for icon-only buttons */
+.hg-hamburger-btn,
+.hg-icon-btn {
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.hg-hamburger-btn svg,
+.hg-icon-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Smaller icon buttons */
+.hg-icon-btn-sm svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Compact guess cards for inspector modal */
+.hg-guess-card {
+  --hg-card-width: 45px;
+  --hg-card-height: 67px;
+}
+
+.hg-guess-card .card-value {
+  font-size: 14px !important;
+}
+
+.hg-guess-card .card-title {
+  display: none !important;
+}
+
+.hg-guess-card .card-description {
+  display: none !important;
+}
+
+/* Tiny button reset - overrides global button styles */
+.hg-btn-tiny {
+  font-size: 10px !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  min-height: unset !important;
+  min-width: unset !important;
+  font-weight: 500 !important;
+}
+
+/* Modal button reset - removes global button borders and styling */
+.hg-modal-btn {
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  min-height: unset !important;
+  min-width: unset !important;
+  background: transparent !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-size: inherit !important;
+}
+
+/* Noir modal panel - matches HeartsGambit detective theme */
+.hg-noir-modal {
+  background:
+    radial-gradient(600px at 30% 15%, rgba(246, 240, 230, 0.04), transparent 50%),
+    linear-gradient(135deg, rgba(10, 8, 12, 0.95), rgba(26, 15, 30, 0.92));
+  border: 2px solid var(--tobacco-brown, #4a3f35);
+  border-radius: 4px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+/* Noir player button - target selection */
+.hg-noir-player-btn {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.25) !important;
+  border-radius: 4px !important;
+  padding: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.hg-noir-player-btn:hover {
+  background: rgba(var(--accent-color-rgb), 0.15) !important;
+  border-color: rgba(var(--accent-color-rgb), 0.4) !important;
+}
+
+.hg-noir-player-btn.selected {
+  background: rgba(var(--accent-color-rgb), 0.2) !important;
+  border-color: var(--royal-gold) !important;
+  box-shadow: 0 0 15px rgba(210, 178, 90, 0.25) !important;
+}
+
+/* Noir card button - guess selection */
+.hg-noir-card-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 4px !important;
+  border-radius: 4px !important;
+}
+
+.hg-noir-card-btn:hover {
+  background: rgba(var(--accent-color-rgb), 0.1) !important;
+}
+
+.hg-noir-card-btn.selected {
+  background: rgba(var(--accent-color-rgb), 0.15) !important;
+  box-shadow: 0 0 12px rgba(210, 178, 90, 0.3) !important;
+}
+
+/* Noir avatar frame - octagonal style */
+.hg-noir-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--tobacco-brown, #4a3f35) 0%, #2d2416 100%);
+  padding: 2px;
+  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+}
+
+.hg-noir-avatar-inner {
+  width: 100%;
+  height: 100%;
+  background: #1a0f1e;
+  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Noir cancel button */
+.hg-noir-cancel-btn {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid var(--tobacco-brown, #4a3f35) !important;
+  border-radius: 4px !important;
+  padding: 10px 14px !important;
+  font-family: var(--font-typewriter) !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  color: var(--parchment) !important;
+  min-height: unset !important;
+}
+
+.hg-noir-cancel-btn:hover {
+  background: rgba(var(--accent-color-rgb), 0.15) !important;
+}
+
+/* Guess card modal - cards for 4-column grid in guess selection */
+.hg-guess-card-modal {
+  --hg-card-width: 54px;
+  --hg-card-height: 81px;
+}
+
+.hg-guess-card-modal .card-title {
+  font-size: 5px !important;
+}
+
+.hg-guess-card-modal .card-description {
+  display: none !important;
+}
+
+/* Confirmation card - preview in play confirmation modal */
+.hg-confirmation-card {
+  --hg-card-width: 120px;
+  --hg-card-height: 180px;
+}
+
+.hg-confirmation-card .card-description {
+  font-size: 9px;
+  -webkit-line-clamp: 4;
+}
+
+/* Scrollbar hide utility for horizontal scroll areas */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ===========================================
+   Mobile-Specific HeartsGambit Styles
+   =========================================== */
+
+/* Mobile hand row at very bottom of screen */
+[data-theme="primesuspect"] .hg-mobile-hand-row {
+  bottom: env(safe-area-inset-bottom, 4px) !important;
+}
+
+/* Mobile hand card size - compact cards */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card {
+  --hg-card-width: clamp(42px, 11vw, 60px);
+  --hg-card-height: clamp(63px, 16.5vw, 90px);
+  width: clamp(42px, 11vw, 60px) !important;
+  height: clamp(63px, 16.5vw, 90px) !important;
+  min-width: 42px !important;
+  min-height: 63px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Mobile hand card - hide header, show name and hint */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-header {
+  display: none;
+}
+
+/* Mobile hand card body */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
+  padding: 2px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Show card name centered */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
+  font-size: 7px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #8b0000;
+  margin-bottom: 2px;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+}
+
+/* Hide actual description, show hint instead */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
+  visibility: hidden;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description::after {
+  content: "👆 Hold";
+  visibility: visible;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 6px;
+  color: #555;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* Mobile long-press preview card - medium size */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-preview-card {
+  --hg-card-width: 100px;
+  --hg-card-height: 150px;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-preview-card .card-description {
+  font-size: 8px;
+  line-height: 1.15;
+  -webkit-line-clamp: 5;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-preview-card .effect-tag {
+  font-size: 7px;
+}
+
+/* Remove inherited yellow background from hand card buttons (not Play button) */
+[data-theme="primesuspect"] .hg-mobile-hand-row button:not(.hg-play-btn) {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Mobile opponent card size (smaller for strip) */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-opponent-card {
+  --hg-card-width: clamp(50px, 14vw, 70px);
+  --hg-card-height: clamp(75px, 21vw, 105px);
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="primesuspect"] .hg-mobile-opponent-card {
+  width: clamp(50px, 14vw, 70px);
+  height: clamp(75px, 21vw, 105px);
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Mobile deck/discard card size - image only, no text */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card {
+  --hg-card-width: clamp(35px, 10vw, 55px);
+  --hg-card-height: clamp(52px, 15vw, 82px);
+  width: clamp(35px, 10vw, 55px) !important;
+  height: clamp(52px, 15vw, 82px) !important;
+  min-width: 35px !important;
+  min-height: 52px !important;
+  flex-shrink: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card .card-header,
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card .card-body {
+  display: none !important;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card .card-art {
+  height: 100% !important;
+  border-radius: 8px;
+}
+
+[data-theme="primesuspect"] .hg-mobile-discard-card {
+  width: clamp(36px, 9vw, 50px);
+  height: clamp(54px, 13.5vw, 75px);
+  overflow: visible !important;
+}
+
+/* Mobile evidence card - slightly smaller than hand cards */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card {
+  --hg-card-width: clamp(36px, 9vw, 50px);
+  --hg-card-height: clamp(54px, 13.5vw, 75px);
+  width: clamp(36px, 9vw, 50px) !important;
+  height: clamp(54px, 13.5vw, 75px) !important;
+  min-width: 36px !important;
+  min-height: 54px !important;
+  flex-shrink: 0 !important;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card .card-header {
+  display: none !important;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card .card-body {
+  padding: 1px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card .effect-tag {
+  font-size: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #8b0000;
+  margin-bottom: 1px;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+}
+
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card .card-description {
+  display: none !important;
+}
+
+/* Remove yellow background from deck/discard buttons */
+[data-theme="primesuspect"] button.hg-mobile-deck-card {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  width: clamp(35px, 10vw, 55px) !important;
+  height: clamp(52px, 15vw, 82px) !important;
+  min-width: 35px !important;
+  min-height: 52px !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+[data-theme="primesuspect"] button.hg-mobile-discard-card {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  width: clamp(36px, 9vw, 50px) !important;
+  height: clamp(54px, 13.5vw, 75px) !important;
+  min-width: 36px !important;
+  min-height: 54px !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Ensure deck card back images are visible */
+[data-theme="primesuspect"] button.hg-mobile-deck-card img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 8px;
+}
+
+/* Mobile background-attachment fix for performance */
+@media (max-width: 768px) {
+  [data-theme="primesuspect"] body,
+  [data-theme="primesuspect"] .app-root {
+    background-attachment: scroll !important;
+  }
+
+  [data-theme="clue"] body,
+  [data-theme="clue"] .app-root {
+    background-attachment: scroll !important;
+  }
+
+  /* Mobile: Remove film grain texture overlay for better performance and clarity */
+  [data-theme="primesuspect"] .app-root::after {
+    display: none !important;
+  }
+
+  /* Mobile: Simplify gradient backgrounds for better readability */
+  [data-theme="primesuspect"] .app-root::before {
+    background:
+      radial-gradient(800px at 50% 20%, rgba(var(--accent-color-rgb), 0.08), transparent 60%),
+      radial-gradient(600px at 50% 100%, rgba(0, 0, 0, 0.5), transparent 50%) !important;
+  }
+}
+
+/* Scrollbar hide utility for mobile */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area utilities */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-right {
+  padding-right: env(safe-area-inset-right);
 }
 
 @layer base {
@@ -12574,4 +13178,227 @@ textarea:focus {
     max-width: 100%;
   }
 }
-  
+
+/* ============================================
+   iPhone 13 / Mobile Optimization (max-width: 414px)
+   Covers iPhone 13 (390px), 13 Mini (375px), 13 Pro Max (428px)
+
+   TAB-BASED LAYOUT:
+   - Shows ONE form at a time (Create OR Join)
+   - Hides mascot, eyebrow, tagline to save space
+   - No scrolling required - everything fits in 844px
+   ============================================ */
+
+/* Mobile Tab Switcher - Hidden on desktop */
+.mobile-tab-switcher {
+  display: none;
+}
+
+@media (max-width: 414px) {
+  /* === MOBILE TAB SWITCHER === */
+  .mobile-tab-switcher {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .mobile-tab-switcher button {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 48px;
+  }
+
+  .mobile-tab-switcher button.active {
+    background: var(--primary, #3b82f6);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobile-tab-switcher button:not(.active):hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* === HIDE INACTIVE TAB CARD === */
+  .split-card.mobile-hidden {
+    display: none !important;
+  }
+
+  /* === HIDE DESKTOP-ONLY ELEMENTS === */
+  .home-mascot-container {
+    display: none !important;
+  }
+
+  .home-header .eyebrow {
+    display: none !important;
+  }
+
+  .home-tagline {
+    display: none !important;
+  }
+
+  /* Hide card descriptions on mobile */
+  .card-head p {
+    display: none !important;
+  }
+
+  /* Hide sidebar tutorial on mobile (using modal instead) */
+  .tutorial-carousel.sidebar-variant {
+    display: none !important;
+  }
+
+  /* === COMPACT LAYOUT === */
+  .home-hero {
+    min-height: 100dvh;
+    padding-top: 0;
+  }
+
+  .home-shell {
+    padding: 0.75rem 1rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .home-header {
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .home-header h1 {
+    font-size: 1.75rem !important;
+    margin: 0 !important;
+  }
+
+  /* Tutorial button - compact icon style */
+  .tutorial-mobile-trigger {
+    margin: 0.5rem 0;
+  }
+
+  .tutorial-trigger-btn {
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+  }
+
+  /* === SINGLE COLUMN CARDS === */
+  .home-cards-wrapper {
+    margin-top: 0;
+  }
+
+  .split-actions {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .split-card {
+    padding: 1.25rem 1rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .card-head {
+    margin-bottom: 0.75rem;
+  }
+
+  .card-head h3 {
+    font-size: 1.1rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* === FORM STYLING === */
+  .home-form {
+    gap: 0.875rem;
+  }
+
+  .form-group {
+    margin-bottom: 0;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .home-input {
+    min-height: 48px;
+    padding: 0.875rem 1rem;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  /* Streamer toggle - touch-friendly */
+  .streamer-toggle {
+    min-height: 44px;
+    padding: 0.5rem 0;
+    margin: 0.25rem 0 0.5rem 0;
+  }
+
+  .streamer-toggle input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    cursor: pointer;
+  }
+
+  .streamer-toggle span {
+    font-size: 0.9rem;
+  }
+
+  /* Primary CTA button - full width and prominent */
+  .home-hero button.primary-cta {
+    min-height: 52px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+
+  /* === TIP BANNERS === */
+  .home-tip-banner {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Hide the bottom tip banner on mobile to save space */
+  .home-shell > .home-tip-banner:last-child {
+    display: none;
+  }
+
+  /* GameBuddies session banner - keep visible but compact */
+  .home-shell > .home-tip-banner:first-of-type {
+    display: flex;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Primesuspect theme mobile overrides */
+@media (max-width: 414px) {
+  [data-theme="primesuspect"] .home-header h1 {
+    font-size: clamp(1.5rem, 7vw, 1.75rem) !important;
+  }
+
+  [data-theme="primesuspect"] .mobile-tab-switcher button.active {
+    background: var(--royal-crimson-light, #8a2233);
+  }
+
+  [data-theme="primesuspect"] .split-card .streamer-toggle {
+    min-height: 44px;
+    padding: 0.5rem 0;
+  }
+
+  [data-theme="primesuspect"] .split-card .streamer-toggle span {
+    font-size: 0.85rem;
+  }
+}
+

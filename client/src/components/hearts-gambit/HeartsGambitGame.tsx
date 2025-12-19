@@ -17,6 +17,8 @@ import {
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
 import { CardLegendModal } from '../CardLegendModal';
 import TutorialCarousel from '../TutorialCarousel';
+import { useIsMobile } from '../../hooks/useIsMobile';
+import HeartsGambitGameMobile from './HeartsGambitGameMobile';
 
 interface HeartsGambitGameProps {
   lobby: Lobby;
@@ -54,7 +56,25 @@ type ZoomContext = {
 
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
 
-const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) => {
+/**
+ * Router component that selects between mobile and desktop implementations.
+ * This wrapper ensures hooks aren't called conditionally.
+ */
+const HeartsGambitGame: React.FC<HeartsGambitGameProps> = (props) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return <HeartsGambitGameMobile {...props} />;
+  }
+
+  return <HeartsGambitGameDesktop {...props} />;
+};
+
+/**
+ * Desktop version of the HeartsGambit game.
+ * This is the original full-featured implementation.
+ */
+const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) => {
   const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
   const [guessCard, setGuessCard] = useState<CardType | null>(null);
@@ -408,7 +428,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
             <div className="flex flex-row items-center justify-center gap-20 translate-x-[132px] translate-y-10">
               {/* Discard Pile */}
               <div className="flex flex-col items-center relative">
-                 <h3 className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
+                 <h3 className="text-sm font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
                   Evidence
                 </h3>
                 <div
@@ -517,7 +537,7 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) =>
 
               {/* Deck */}
               <div className="flex flex-col items-center relative">
-                <h3 className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
+                <h3 className="text-sm font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
                   Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
                 </h3>
                 <div

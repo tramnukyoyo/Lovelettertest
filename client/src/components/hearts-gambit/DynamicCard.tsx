@@ -55,10 +55,9 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
       onClick={onClick}
       style={style}
     >
-      {/* Header overlay - Value and Name */}
+      {/* Header overlay - Value only */}
       <div className="card-header">
         <span className="card-value">{cardData.value}</span>
-        <span className="card-title">{cardData.name}</span>
       </div>
 
       {/* Art section - Character image */}
@@ -67,9 +66,9 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
         style={{ backgroundImage: `url(${cardData.image})` }}
       />
 
-      {/* Body section - Type and Description */}
+      {/* Body section - Name and Description */}
       <div className="card-body">
-        <div className="effect-tag">{cardData.type}</div>
+        <div className="effect-tag">{cardData.name}</div>
         <div className="card-description">{cardData.description}</div>
       </div>
     </div>

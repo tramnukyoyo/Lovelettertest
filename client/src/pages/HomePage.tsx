@@ -19,6 +19,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
   const [joinCode, setJoinCode] = useState('');
   const [streamerMode, setStreamerMode] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
   const cardsRef = useRef<HTMLDivElement>(null);
   const { onKeyDown: typewriterKeyDown } = useTypewriterSound();
 
@@ -131,9 +132,27 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
             </div>
           )}
 
+          {/* Mobile tab switcher - only visible on mobile via CSS */}
+          <div className="mobile-tab-switcher">
+            <button
+              type="button"
+              className={activeTab === 'create' ? 'active' : ''}
+              onClick={() => setActiveTab('create')}
+            >
+              Create Room
+            </button>
+            <button
+              type="button"
+              className={activeTab === 'join' ? 'active' : ''}
+              onClick={() => setActiveTab('join')}
+            >
+              Join Game
+            </button>
+          </div>
+
           <div className="home-cards-wrapper">
             <div className="split-actions" ref={cardsRef}>
-              <div className="split-card">
+              <div className={`split-card ${activeTab !== 'create' ? 'mobile-hidden' : ''}`}>
                 <div className="card-head">
                   <h3>Create Room</h3>
                   <p>Start a private room and invite your players to join the sync.</p>
@@ -166,7 +185,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                 </form>
               </div>
 
-              <div className="split-card">
+              <div className={`split-card ${activeTab !== 'join' ? 'mobile-hidden' : ''}`}>
                 <div className="card-head">
                   <h3>Join Game</h3>
                   <p>Enter the room code from your host to jump into the live round.</p>
