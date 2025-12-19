@@ -12,7 +12,8 @@ import {
   VideoOff,
   Settings,
   Check,
-  Users
+  Users,
+  MessageCircle
 } from 'lucide-react';
 
 interface MobileGameMenuProps {
@@ -28,6 +29,10 @@ interface MobileGameMenuProps {
   onHowToPlay: () => void;
   /** Callback to open Card Legend */
   onCardLegend: () => void;
+  /** Callback to open Chat */
+  onChat?: () => void;
+  /** Number of unread chat messages */
+  unreadCount?: number;
   /** Is video currently enabled */
   isVideoEnabled?: boolean;
   /** Callback to toggle video */
@@ -51,6 +56,8 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   onLeave,
   onHowToPlay,
   onCardLegend,
+  onChat,
+  unreadCount = 0,
   isVideoEnabled = false,
   onToggleVideo,
   onSettings,
@@ -94,6 +101,15 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
       action: () => handleMenuItemClick(onCardLegend),
     },
     {
+      id: 'chat',
+      icon: MessageCircle,
+      label: 'Chat',
+      sublabel: unreadCount > 0 ? `${unreadCount} new message${unreadCount > 1 ? 's' : ''}` : 'Open chat',
+      action: onChat ? () => handleMenuItemClick(onChat) : undefined,
+      show: !!onChat,
+      badge: unreadCount > 0 ? unreadCount : undefined,
+    },
+    {
       id: 'video',
       icon: isVideoEnabled ? Video : VideoOff,
       label: isVideoEnabled ? 'Video On' : 'Video Off',
@@ -120,23 +136,31 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   return (
     <>
       {/* Hamburger trigger button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`
-          hg-hamburger-btn
-          flex items-center justify-center
-          w-11 h-11 min-w-[44px] min-h-[44px]
-          bg-[rgba(var(--accent-color-rgb),0.4)]
-          hover:bg-[rgba(var(--accent-color-rgb),0.5)]
-          border border-[rgba(var(--accent-color-rgb),0.5)]
-          rounded-xl transition-colors
-          ${className}
-        `}
-        aria-label="Open menu"
-        aria-expanded={isOpen}
-      >
-        <Menu className="w-5 h-5 text-[#f6f0e6]" />
-      </button>
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(true)}
+          className={`
+            hg-hamburger-btn
+            flex items-center justify-center
+            w-11 h-11 min-w-[44px] min-h-[44px]
+            bg-[rgba(var(--accent-color-rgb),0.4)]
+            hover:bg-[rgba(var(--accent-color-rgb),0.5)]
+            border border-[rgba(var(--accent-color-rgb),0.5)]
+            rounded-xl transition-colors
+            ${className}
+          `}
+          aria-label="Open menu"
+          aria-expanded={isOpen}
+        >
+          <Menu className="w-5 h-5 text-[#f6f0e6]" />
+        </button>
+        {/* Unread chat badge */}
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold bg-[var(--royal-crimson)] text-white rounded-full shadow-lg animate-pulse">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </div>
 
       {/* Menu overlay - rendered via portal to escape stacking contexts */}
       {createPortal(
@@ -208,7 +232,14 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
                         <Icon className={`w-4 h-4 ${item.danger ? 'text-red-400' : item.highlight ? 'text-[#d4af37]' : 'text-[#f6f0e6]'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate">{item.label}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium truncate">{item.label}</span>
+                          {item.badge && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[var(--royal-crimson)] text-white rounded-full min-w-[18px] text-center">
+                              {item.badge > 99 ? '99+' : item.badge}
+                            </span>
+                          )}
+                        </div>
                         {item.sublabel && (
                           <div className="text-xs text-[var(--parchment-dark)] truncate">
                             {item.sublabel}

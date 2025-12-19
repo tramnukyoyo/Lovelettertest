@@ -18,6 +18,7 @@ import OrientationPrompt from './OrientationPrompt';
 import MobileOpponentStrip from './MobileOpponentStrip';
 import CardInspectorModal, { type InspectorCard } from './CardInspectorModal';
 import MobileGameMenu from './MobileGameMenu';
+import MobileChatDrawer from './MobileChatDrawer';
 
 interface HeartsGambitGameMobileProps {
   lobby: Lobby;
@@ -60,6 +61,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   // UI state
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
   const [inspectorCards, setInspectorCards] = useState<InspectorCard[]>([]);
   const [inspectorIndex, setInspectorIndex] = useState(0);
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
@@ -67,6 +70,17 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [previewCard, setPreviewCard] = useState<CardType | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Chat: Calculate unread count
+  const chatMessages = lobby.messages || [];
+  const unreadChatCount = Math.max(0, chatMessages.length - lastSeenMessageCount);
+
+  // Mark messages as read when chat opens
+  useEffect(() => {
+    if (isChatOpen) {
+      setLastSeenMessageCount(chatMessages.length);
+    }
+  }, [isChatOpen, chatMessages.length]);
 
   // Copy room link (same as desktop GameHeader)
   const copyRoomLink = useCallback(async () => {
@@ -411,6 +425,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           }}
           onHowToPlay={() => setIsTutorialOpen(true)}
           onCardLegend={() => setIsLegendOpen(true)}
+          onChat={() => setIsChatOpen(true)}
+          unreadCount={unreadChatCount}
           playerCount={`${lobby.players.length}/${lobby.maxPlayers || 4}`}
         />
       </div>
@@ -953,6 +969,15 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         variant="modal"
         isOpen={isTutorialOpen}
         onClose={() => setIsTutorialOpen(false)}
+      />
+
+      {/* Chat Drawer */}
+      <MobileChatDrawer
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        messages={chatMessages}
+        socket={socket}
+        mySocketId={lobby.mySocketId}
       />
 
     </div>
