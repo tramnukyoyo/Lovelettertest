@@ -2192,8 +2192,8 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Mobile: Hide GameHeader completely - mobile game has its own header */
-@media (max-width: 768px) {
+/* Mobile/Tablet: Hide GameHeader completely - mobile game has its own header */
+@media (max-width: 1024px) {
   [data-theme="primesuspect"] .app-root.in-room .game-header {
     display: none !important;
   }
@@ -2202,7 +2202,7 @@
     padding-top: 0;
   }
 
-  /* Hide bottom tab bar on mobile - mobile game handles navigation */
+  /* Hide bottom tab bar on mobile/tablet - mobile game handles navigation */
   [data-theme="primesuspect"] .app-root.in-room .bottom-tab-bar {
     display: none !important;
   }
@@ -3255,8 +3255,8 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   border-radius: 8px;
 }
 
-/* Mobile background-attachment fix for performance */
-@media (max-width: 768px) {
+/* Mobile/Tablet background-attachment fix for performance */
+@media (max-width: 1024px) {
   [data-theme="primesuspect"] body,
   [data-theme="primesuspect"] .app-root {
     background-attachment: scroll !important;
@@ -3267,12 +3267,12 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     background-attachment: scroll !important;
   }
 
-  /* Mobile: Remove film grain texture overlay for better performance and clarity */
+  /* Mobile/Tablet: Remove film grain texture overlay for better performance and clarity */
   [data-theme="primesuspect"] .app-root::after {
     display: none !important;
   }
 
-  /* Mobile: Simplify gradient backgrounds for better readability */
+  /* Mobile/Tablet: Simplify gradient backgrounds for better readability */
   [data-theme="primesuspect"] .app-root::before {
     background:
       radial-gradient(800px at 50% 20%, rgba(var(--accent-color-rgb), 0.08), transparent 60%),
@@ -3334,8 +3334,8 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   }
 }
 
-/* Tablets portrait (768px-1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
+/* Tablets portrait (768px-1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
   .hg-mobile-hand-card {
     --hg-card-width: 70px !important;
     --hg-card-height: 105px !important;

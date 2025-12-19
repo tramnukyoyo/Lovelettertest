@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook to detect if the current device is mobile based on viewport width.
- * Mobile is defined as viewport width <= 768px.
+ * Mobile is defined as viewport width <= 1024px (includes tablets).
  * Updates on window resize.
  */
 export const useIsMobile = () => {
@@ -10,7 +10,7 @@ export const useIsMobile = () => {
 
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      setIsMobile(window.innerWidth <= 1024);
     };
 
     // Initial check
