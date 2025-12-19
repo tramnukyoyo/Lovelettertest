@@ -2920,14 +2920,17 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.7),
     inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  /* Safe area support for notched devices */
+  max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px);
+  overflow-y: auto;
 }
 
-/* Noir player button - target selection */
+/* Noir player button - target selection (responsive) */
 .hg-noir-player-btn {
   background: rgba(0, 0, 0, 0.4) !important;
   border: 1px solid rgba(var(--accent-color-rgb), 0.25) !important;
   border-radius: 4px !important;
-  padding: 8px !important;
+  padding: clamp(6px, 1.5vw, 10px) !important;
   transition: all 0.2s ease !important;
 }
 
@@ -2959,10 +2962,10 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   box-shadow: 0 0 12px rgba(210, 178, 90, 0.3) !important;
 }
 
-/* Noir avatar frame - octagonal style */
+/* Noir avatar frame - octagonal style (responsive) */
 .hg-noir-avatar {
-  width: 44px;
-  height: 44px;
+  width: clamp(36px, 10vw, 48px);
+  height: clamp(36px, 10vw, 48px);
   background: linear-gradient(135deg, var(--tobacco-brown, #4a3f35) 0%, #2d2416 100%);
   padding: 2px;
   clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
@@ -2979,16 +2982,16 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   overflow: hidden;
 }
 
-/* Noir cancel button */
+/* Noir cancel button (responsive) */
 .hg-noir-cancel-btn {
   background: rgba(0, 0, 0, 0.5) !important;
   border: 1px solid var(--tobacco-brown, #4a3f35) !important;
   border-radius: 4px !important;
-  padding: 10px 14px !important;
+  padding: clamp(8px, 2vw, 12px) clamp(10px, 3vw, 16px) !important;
   font-family: var(--font-typewriter) !important;
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
-  font-size: 11px !important;
+  font-size: clamp(10px, 2.5vw, 12px) !important;
   color: var(--parchment) !important;
   min-height: unset !important;
 }
@@ -2997,29 +3000,35 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   background: rgba(var(--accent-color-rgb), 0.15) !important;
 }
 
-/* Guess card modal - cards for 4-column grid in guess selection */
+/* Guess card modal - responsive cards for 4-column grid */
 .hg-guess-card-modal {
-  --hg-card-width: 54px;
-  --hg-card-height: 81px;
+  --hg-card-width: clamp(45px, 12vw, 60px);
+  --hg-card-height: clamp(67px, 18vw, 90px);
 }
 
 .hg-guess-card-modal .card-title {
-  font-size: 5px !important;
+  font-size: clamp(4px, 1.2vw, 6px) !important;
 }
 
 .hg-guess-card-modal .card-description {
   display: none !important;
 }
 
-/* Confirmation card - preview in play confirmation modal */
+/* Confirmation card - responsive preview in play confirmation modal */
 .hg-confirmation-card {
-  --hg-card-width: 120px;
-  --hg-card-height: 180px;
+  --hg-card-width: clamp(100px, 30vw, 140px);
+  --hg-card-height: clamp(150px, 45vw, 210px);
 }
 
 .hg-confirmation-card .card-description {
-  font-size: 9px;
+  font-size: clamp(7px, 2vw, 10px);
   -webkit-line-clamp: 4;
+}
+
+/* Preview card - responsive long-press preview */
+.hg-preview-card {
+  --hg-card-width: clamp(80px, 25vw, 120px);
+  --hg-card-height: clamp(120px, 37.5vw, 180px);
 }
 
 /* Scrollbar hide utility for horizontal scroll areas */
@@ -3268,6 +3277,87 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     background:
       radial-gradient(800px at 50% 20%, rgba(var(--accent-color-rgb), 0.08), transparent 60%),
       radial-gradient(600px at 50% 100%, rgba(0, 0, 0, 0.5), transparent 50%) !important;
+  }
+}
+
+/* ===========================================
+   Viewport-Specific Responsive Adjustments
+   =========================================== */
+
+/* Small phones (320px-374px) - iPhone 5/SE 1st gen */
+@media (max-width: 374px) {
+  .hg-mobile-hand-card {
+    --hg-card-width: clamp(36px, 11vw, 48px) !important;
+    --hg-card-height: clamp(54px, 16.5vw, 72px) !important;
+  }
+
+  .hg-noir-modal {
+    padding: 10px !important;
+  }
+
+  .hg-noir-avatar {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .hg-guess-card-modal {
+    --hg-card-width: 40px !important;
+    --hg-card-height: 60px !important;
+  }
+
+  .hg-confirmation-card {
+    --hg-card-width: 90px !important;
+    --hg-card-height: 135px !important;
+  }
+}
+
+/* Large phones (428px+) - iPhone Pro Max, Galaxy */
+@media (min-width: 428px) and (max-width: 767px) {
+  .hg-mobile-hand-card {
+    --hg-card-width: clamp(48px, 11vw, 65px) !important;
+    --hg-card-height: clamp(72px, 16.5vw, 97px) !important;
+  }
+
+  .hg-guess-card-modal {
+    --hg-card-width: 58px !important;
+    --hg-card-height: 87px !important;
+  }
+
+  .hg-confirmation-card {
+    --hg-card-width: 130px !important;
+    --hg-card-height: 195px !important;
+  }
+
+  .hg-noir-avatar {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+/* Tablets portrait (768px-1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hg-mobile-hand-card {
+    --hg-card-width: 70px !important;
+    --hg-card-height: 105px !important;
+  }
+
+  .hg-confirmation-card {
+    --hg-card-width: 160px !important;
+    --hg-card-height: 240px !important;
+  }
+
+  .hg-guess-card-modal {
+    --hg-card-width: 65px !important;
+    --hg-card-height: 97px !important;
+  }
+
+  .hg-noir-avatar {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .hg-noir-modal {
+    padding: 20px !important;
   }
 }
 

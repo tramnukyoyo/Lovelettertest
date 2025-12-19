@@ -661,7 +661,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="hg-noir-modal p-4 max-w-[280px] w-full"
+              className="hg-noir-modal p-4 w-[min(280px,90vw)]"
             >
               <h3 className="text-center text-base font-bold text-[var(--royal-gold)] mb-3 uppercase tracking-wider"
                   style={{ fontFamily: 'var(--font-typewriter)' }}>
@@ -740,7 +740,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="hg-noir-modal p-4 max-w-[300px] w-full"
+              className="hg-noir-modal p-4 w-[min(300px,92vw)]"
             >
               <h3 className="text-center text-base font-bold text-[var(--royal-gold)] mb-3 uppercase tracking-wider"
                   style={{ fontFamily: 'var(--font-typewriter)' }}>
@@ -790,7 +790,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="hg-noir-modal p-4 max-w-[260px] w-full"
+              className="hg-noir-modal p-4 w-[min(260px,88vw)]"
             >
               {/* Card preview with noir glow - show guessed card for Inspector */}
               <div className="flex justify-center mb-3">

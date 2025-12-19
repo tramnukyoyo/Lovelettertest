@@ -44,7 +44,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
   return (
     <div className="relative w-full overflow-hidden">
       {/* Scroll container with snap */}
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 py-2 scrollbar-hide">
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 scrollbar-hide">
         {players.map((player) => {
           const isCurrentTurn = currentTurnId === player.id;
           const isTargeted = targetId === player.id;
@@ -57,8 +57,8 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
             <motion.div
               key={player.id}
               className={`
-                snap-center flex-shrink-0 flex flex-col items-center p-2 rounded-xl transition-all
-                min-w-[100px] max-w-[120px]
+                snap-center flex-shrink-0 flex flex-col items-center p-1.5 sm:p-2 rounded-xl transition-all
+                min-w-[80px] sm:min-w-[100px] max-w-[100px] sm:max-w-[120px]
                 ${isEliminated ? 'opacity-50 grayscale' : ''}
                 ${!canTarget && !isEliminated ? 'opacity-70' : ''}
                 ${isTargeted ? 'bg-[rgba(var(--accent-color-rgb),0.2)] ring-2 ring-[var(--royal-gold)] scale-105' : ''}
@@ -74,8 +74,8 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
               whileTap={canTarget ? { scale: 0.95 } : undefined}
             >
               {/* Avatar with status indicators */}
-              <div className="relative mb-2">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden">
+              <div className="relative mb-1 sm:mb-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden">
                   <div className="w-full h-full rounded-full bg-[var(--velvet-dark)] overflow-hidden">
                     <img
                       src={player.avatarUrl || FALLBACK_AVATAR_URL}
@@ -119,7 +119,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
 
               {/* Card count / preview */}
               <div
-                className="mt-2 relative"
+                className="mt-1 sm:mt-2 relative"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (onInspectOpponent) {
