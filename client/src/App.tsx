@@ -21,6 +21,7 @@ import { VideoDrawerContent } from './components/VideoDrawerContent';
 import { backgroundMusic } from './utils/backgroundMusic';
 import { soundEffects } from './utils/soundEffects';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
+import InstallPrompt from './components/InstallPrompt';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
 import './unified.css';
@@ -345,6 +346,7 @@ function App() {
   return (
     <ThemeProvider>
       <AppContent />
+      <InstallPrompt />
     </ThemeProvider>
   );
 }
