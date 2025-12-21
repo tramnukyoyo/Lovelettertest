@@ -1,0 +1,22 @@
+{
+  "name": "Prime Suspect",
+  "short_name": "Prime Suspect",
+  "description": "A deduction card game by GameBuddies.io",
+  "start_url": "/primesuspect/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "/primesuspect/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/primesuspect/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
