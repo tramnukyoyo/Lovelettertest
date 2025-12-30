@@ -3060,12 +3060,12 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 
 /* Header: x=-920, y=-726, w=2784, h=125 */
 [data-theme="primesuspect"] .hg-mobile-header-area {
-  position: absolute;
+  position: fixed;
   left: 0;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   width: 100%;
   height: 8.14%;
-  z-index: 10;
+  z-index: var(--z-mobile-nav);
 }
 
 /* Opponent area: x=-920, y=-330, w=448, h=550 */
