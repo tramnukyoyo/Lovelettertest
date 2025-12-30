@@ -6,7 +6,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1a1a2e",
-  "theme_color": "#1a1a2e",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "/primesuspect/icon-192.png",
