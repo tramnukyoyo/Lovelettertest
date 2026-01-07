@@ -18,6 +18,27 @@ export type GameBuddiesSession = {
 const SESSION_KEY = 'gamebuddies:session';
 
 /**
+ * Security: Clear sensitive URL parameters to prevent leakage via referrer headers and browser history
+ */
+function cleanSensitiveUrlParams(): void {
+  const cleanUrl = new URL(window.location.href);
+  const sensitiveParams = ['session', 'token', 'sessionToken'];
+  let hasChanges = false;
+
+  for (const param of sensitiveParams) {
+    if (cleanUrl.searchParams.has(param)) {
+      cleanUrl.searchParams.delete(param);
+      hasChanges = true;
+    }
+  }
+
+  if (hasChanges) {
+    window.history.replaceState({}, '', cleanUrl.toString());
+    console.log('[GameBuddies] Cleared sensitive params from URL');
+  }
+}
+
+/**
  * Parse GameBuddies session from URL parameters
  */
 export function parseGameBuddiesSession(): GameBuddiesSession | null {
@@ -63,6 +84,10 @@ export function parseGameBuddiesSession(): GameBuddiesSession | null {
 
     // Store the pending session for async resolution
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(pendingSession));
+
+    // Security: Clear sensitive params from URL immediately to prevent leakage via referrer headers
+    cleanSensitiveUrlParams();
+
     return null; // Return null to trigger async resolution
   }
 
