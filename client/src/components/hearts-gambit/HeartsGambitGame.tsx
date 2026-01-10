@@ -366,7 +366,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                             {player.isHost && <Crown className="w-3 h-3 text-[var(--royal-gold)]" />}
                         </div>
                         <div className="hg-meta flex items-center gap-2 text-[10px]">
-                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[var(--royal-crimson)]"></span> {player.tokens} Tokens</span>
+                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[var(--royal-crimson)]"></span> {t('game.tokens').replace('{count}', String(player.tokens))}</span>
                         </div>
                     </div>
                     {/* Eliminated Overlay */}
@@ -436,7 +436,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               {/* Discard Pile */}
               <div className="flex flex-col items-center relative">
                  <h3 className="text-sm font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
-                  Evidence
+                  {t('evidence.title')}
                 </h3>
                 <div
                   className="relative hg-discard-card flex items-center justify-center overflow-visible cursor-pointer"
@@ -506,7 +506,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                              );
                            }
                            return (
-                               <span className="hg-meta text-xs text-[rgba(var(--accent-color-rgb),0.65)]">No evidence</span>
+                               <span className="hg-meta text-xs text-[rgba(var(--accent-color-rgb),0.65)]">{t('evidence.noEvidence')}</span>
                            );
                          }
 
@@ -545,7 +545,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               {/* Deck */}
               <div className="flex flex-col items-center relative">
                 <h3 className="text-sm font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
-                  Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
+                  {t('caseFile.title')} <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
                 </h3>
                 <div
                     className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}`}
@@ -592,14 +592,14 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
             {/* Waiting State */}
             {lobby.state === 'LOBBY' && (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center flex-col gap-4 z-20 backdrop-blur-sm rounded-xl">
-                    <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">Waiting for Players</h2>
+                    <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">{t('game.waitingForPlayers')}</h2>
                      {me?.isHost && (
                         <button
                             onClick={() => { playEliminatedSound(); socket.emit('game:start', {}); }}
                             disabled={lobby.players.length < 2}
                             className="bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white px-6 py-2 rounded-full font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Start Game
+                            {t('game.startGame')}
                         </button>
                     )}
                 </div>
@@ -609,7 +609,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
           {/* Case Notes - Corner Overlay */}
           <div className="hg-panel hg-candlelight absolute bottom-4 left-4 w-64 max-h-48 backdrop-blur-sm rounded-xl p-3 z-20 overflow-hidden">
              <div className="hg-meta text-[10px] font-bold text-[rgba(var(--accent-color-rgb),0.78)] mb-2 flex items-center gap-2">
-                <Settings size={10} /> Case Notes ({lobby.messages?.length || 0})
+                <Settings size={10} /> {t('caseNotes.title')} ({lobby.messages?.length || 0})
              </div>
              <div className="space-y-1 overflow-y-auto max-h-32 custom-scrollbar">
                 {lobby.messages?.slice(-5).map(msg => (
@@ -641,7 +641,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                 } : {}}
                 transition={{ duration: 0.6 }}
               >
-                {me?.tokens} Tokens
+                {t('game.tokens').replace('{count}', String(me?.tokens || 0))}
               </motion.span>
               {isMyTurn && <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-3 py-1 rounded-full text-xs font-bold animate-pulse">YOUR TURN</span>}
               {waitingToDraw && <span className="bg-[var(--royal-crimson-light)] text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce">DRAW A CARD!</span>}
@@ -661,18 +661,18 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                 <button
                   onClick={() => setIsLegendOpen(true)}
                   className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
-                  title="View all cards"
+                  title={t('cardLegend.title')}
                 >
                   <BookOpen className="w-4 h-4" />
-                  Card Legend
+                  {t('cardLegend.title')}
                 </button>
                 <button
                   onClick={() => setIsTutorialOpen(true)}
                   className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
-                  title="How to play"
+                  title={t('tutorial.howToPlay')}
                 >
                   <HelpCircle className="w-4 h-4" />
-                  How to Play
+                  {t('tutorial.howToPlay')}
                 </button>
               </div>
             </div>
@@ -909,7 +909,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(var(--accent-color-rgb),0.18)]">
                 <div>
-                  <div className="hg-meta text-xs tracking-widest text-[rgba(var(--accent-color-rgb),0.85)] font-bold">Evidence Locker</div>
+                  <div className="hg-meta text-xs tracking-widest text-[rgba(var(--accent-color-rgb),0.85)] font-bold">{t('evidence.locker')}</div>
                   <div className="text-sm text-[rgba(246,240,230,0.75)]">{totalDiscardedCount} items logged</div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -972,7 +972,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
               <div className="p-5 max-h-[70vh] overflow-y-auto">
                 {totalDiscardedCount === 0 ? (
-                  <div className="text-[rgba(246,240,230,0.6)] italic text-center py-10">No evidence logged yet.</div>
+                  <div className="text-[rgba(246,240,230,0.6)] italic text-center py-10">{t('evidence.noEvidenceLogged')}</div>
                 ) : (
                   <div className="space-y-6">
                     {/* Face-up cards (2-player) */}
@@ -1028,7 +1028,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                   >
                                     <button
                                       type="button"
-                                      onClick={() => openZoom({ title: 'Evidence - Chronology', cards: buildZoomCardsFromTimeline(discardTimelineDisplay), index: idx })}
+                                      onClick={() => openZoom({ title: t('evidence.chronology'), cards: buildZoomCardsFromTimeline(discardTimelineDisplay), index: idx })}
                                       className={`relative transition-all cursor-zoom-in ${
                                         isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''
                                       }`}
@@ -1095,7 +1095,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                             >
                                               <button
                                                 type="button"
-                                                onClick={() => openZoom({ title: `Evidence - ${entry.playerName}`, cards: buildZoomCardsFromTimeline(events as DiscardEventWithOrder[]), index: eventIdx })}
+                                                onClick={() => openZoom({ title: t('evidence.playerEvidence').replace('{playerName}', entry.playerName), cards: buildZoomCardsFromTimeline(events as DiscardEventWithOrder[]), index: eventIdx })}
                                                 className={`relative transition-all cursor-zoom-in ${isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''}`}
                                                 aria-label={`Inspect ${CARD_NAMES[evt.card]}`}
                                               >
@@ -1153,7 +1153,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                           caption: CARD_NAMES[c],
                                           meta: `#${i + 1} - ${p.name}`
                                         }));
-                                        openZoom({ title: `Evidence - ${p.name}`, cards, index: idx });
+                                        openZoom({ title: t('evidence.playerEvidence').replace('{playerName}', p.name), cards, index: idx });
                                       }}
                                       className="relative transition-all cursor-zoom-in hover:ring-2 hover:ring-[rgba(var(--accent-color-rgb),0.35)]"
                                       aria-label={`Inspect ${CARD_NAMES[card]}`}
@@ -1199,7 +1199,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                   >
                     <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(var(--accent-color-rgb),0.18)]">
                       <div className="min-w-0">
-                        <div className="hg-meta text-xs font-bold text-[rgba(var(--accent-color-rgb),0.85)]">Evidence Inspector</div>
+                        <div className="hg-meta text-xs font-bold text-[rgba(var(--accent-color-rgb),0.85)]">{t('evidence.inspector')}</div>
                         <div className="text-sm text-[rgba(246,240,230,0.75)] truncate">{zoomContext.title}</div>
                       </div>
                       <div className="flex items-center gap-2">

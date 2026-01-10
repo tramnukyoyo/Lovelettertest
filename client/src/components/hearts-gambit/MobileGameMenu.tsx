@@ -15,6 +15,7 @@ import {
   Users,
   MessageCircle
 } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface MobileGameMenuProps {
   /** Room code to display */
@@ -66,6 +67,10 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Translation helper
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
+
   const handleMenuItemClick = useCallback((action: () => void) => {
     action();
     setIsOpen(false);
@@ -91,13 +96,13 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
     {
       id: 'how-to-play',
       icon: HelpCircle,
-      label: 'How to Play',
+      label: t('tutorial.howToPlay'),
       action: () => handleMenuItemClick(onHowToPlay),
     },
     {
       id: 'card-legend',
       icon: BookOpen,
-      label: 'Card Legend',
+      label: t('cardLegend.title'),
       action: () => handleMenuItemClick(onCardLegend),
     },
     {

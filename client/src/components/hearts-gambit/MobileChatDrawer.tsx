@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Smile } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import type { ChatMessage } from '../../types';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface MobileChatDrawerProps {
   isOpen: boolean;
@@ -28,6 +29,10 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
   const [showEmojis, setShowEmojis] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Translation helper
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   // Common emojis for quick access
   const quickEmojis = ['😀', '😂', '🤔', '😎', '👍', '👎', '❤️', '🔥', '🎉', '💀', '🕵️', '🃏'];
@@ -105,7 +110,7 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
                   </div>
                   <div>
                     <h2 className="text-[var(--royal-gold)] font-bold text-sm uppercase tracking-wider">
-                      Case File Chat
+                      {t('caseNotes.chat')}
                     </h2>
                     <p className="text-[var(--parchment-dark)] text-xs">
                       {messages.length} message{messages.length !== 1 ? 's' : ''}

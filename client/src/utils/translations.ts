@@ -632,6 +632,25 @@ export const translations = {
     'caseFile.confirm': 'Confirm',
     'caseFile.cancel': 'Cancel',
 
+    // Evidence Panel
+    'evidence.title': 'Evidence',
+    'evidence.locker': 'Evidence Locker',
+    'evidence.inspector': 'Evidence Inspector',
+    'evidence.chronology': 'Evidence - Chronology',
+    'evidence.playerEvidence': 'Evidence - {playerName}',
+    'evidence.noEvidence': 'No evidence',
+    'evidence.noEvidenceYet': 'No evidence yet',
+    'evidence.noEvidenceLogged': 'No evidence logged yet.',
+
+    // Case Notes
+    'caseNotes.title': 'Case Notes',
+    'caseNotes.chat': 'Case File Chat',
+
+    // Game UI
+    'game.waitingForPlayers': 'Waiting for Players',
+    'game.startGame': 'Start Game',
+    'game.tokens': '{count} Tokens',
+
   },
   de: {
     // App
@@ -1264,6 +1283,25 @@ export const translations = {
     'caseFile.guessCard': 'Karte raten:',
     'caseFile.confirm': 'Bestätigen',
     'caseFile.cancel': 'Abbrechen',
+
+    // Evidence Panel
+    'evidence.title': 'Beweismittel',
+    'evidence.locker': 'Beweismittelkammer',
+    'evidence.inspector': 'Beweismittelprüfer',
+    'evidence.chronology': 'Beweismittel - Chronologie',
+    'evidence.playerEvidence': 'Beweismittel - {playerName}',
+    'evidence.noEvidence': 'Keine Beweismittel',
+    'evidence.noEvidenceYet': 'Noch keine Beweismittel',
+    'evidence.noEvidenceLogged': 'Noch keine Beweismittel erfasst.',
+
+    // Case Notes
+    'caseNotes.title': 'Fallnotizen',
+    'caseNotes.chat': 'Fallakte Chat',
+
+    // Game UI
+    'game.waitingForPlayers': 'Warte auf Spieler',
+    'game.startGame': 'Spiel starten',
+    'game.tokens': '{count} Token',
 
   }
 };

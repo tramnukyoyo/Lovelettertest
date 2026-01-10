@@ -19,6 +19,7 @@ import MobileOpponentStrip from './MobileOpponentStrip';
 import CardInspectorModal, { type InspectorCard } from './CardInspectorModal';
 import MobileGameMenu from './MobileGameMenu';
 import MobileChatDrawer from './MobileChatDrawer';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface HeartsGambitGameMobileProps {
   lobby: Lobby;
@@ -101,6 +102,10 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   // Refs for animations/tracking
   const [prevTokens, setPrevTokens] = useState(0);
   const prevEliminatedRef = useRef<Set<string>>(new Set());
+
+  // Translation helper
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   // Derived game state
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
@@ -365,13 +370,13 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     }
 
     if (cards.length === 0) {
-      setToast({ message: 'No evidence yet', type: 'error' });
+      setToast({ message: t('evidence.noEvidenceYet'), type: 'error' });
       return;
     }
 
     setInspectorCards(cards);
     setInspectorIndex(cards.length - 1); // Start at newest
-    setInspectorTitle('Evidence Locker');
+    setInspectorTitle(t('evidence.locker'));
     setIsInspectorOpen(true);
   }, [faceUpCards, discardEvents, lobby.players]);
 
@@ -400,7 +405,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           <motion.span
             className="bg-[var(--royal-crimson)] text-[var(--parchment)] text-xs font-black px-2 py-1 rounded-full"
           >
-            {me?.tokens} Tokens
+            {t('game.tokens').replace('{count}', String(me?.tokens || 0))}
           </motion.span>
 
           {isMyTurn && !amEliminated && (
@@ -455,7 +460,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           {/* Discard Pile */}
           <div className="flex flex-col items-center translate-y-[5vh]">
             <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[3vw]" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
-              Evidence
+              {t('evidence.title')}
             </span>
             <button
               onClick={openDiscardInspector}
@@ -489,7 +494,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           {/* Case File (Deck) */}
           <div className="flex flex-col items-center translate-y-[5vh]">
             <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[1.5vw] whitespace-nowrap" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
-              Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
+              {t('caseFile.title')} <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
             </span>
             <button
               onClick={() => {
@@ -557,7 +562,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       {/* Waiting overlay - FIXED to cover full screen */}
       {lobby.state === 'LOBBY' && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-4 z-[100] backdrop-blur-sm">
-          <h2 className="text-xl font-bold text-[var(--parchment)]">Waiting for Players</h2>
+          <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
           <p className="text-sm text-[var(--parchment-dark)]">
             {lobby.players.length}/{lobby.maxPlayers || 4} players joined
           </p>
@@ -591,7 +596,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               disabled={lobby.players.length < 2}
               className="hg-icon-btn bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white px-6 py-3 rounded-full text-base font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] min-w-[140px] transition-all active:scale-95"
             >
-              Start Game
+              {t('game.startGame')}
             </button>
           ) : (
             <p className="text-sm text-[var(--parchment-dark)] italic">

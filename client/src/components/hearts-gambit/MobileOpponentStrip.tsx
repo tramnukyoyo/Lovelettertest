@@ -4,6 +4,7 @@ import { Shield, Crown, Skull } from 'lucide-react';
 import type { CardType, Player } from '../../types';
 import DynamicCard from './DynamicCard';
 import { CARD_BACK_IMAGE } from './cardDatabase';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
 
@@ -33,6 +34,10 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
   onInspectOpponent,
   onPreviewCard,
 }) => {
+  // Translation helper
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
+
   if (players.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-[var(--parchment-dark)] italic text-sm">
@@ -114,7 +119,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
               {/* Tokens */}
               <div className="text-xs text-[var(--parchment-dark)] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--royal-crimson)]" />
-                {player.tokens} Tokens
+                {t('game.tokens').replace('{count}', String(player.tokens))}
               </div>
 
               {/* Card count / preview */}
