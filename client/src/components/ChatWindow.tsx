@@ -4,6 +4,7 @@ import EmojiPicker, { type EmojiClickData, Theme } from 'emoji-picker-react';
 import type { Socket } from 'socket.io-client';
 import type { ChatMessage, Lobby } from '../types';
 import { useTypewriterSound } from '../hooks/useTypewriterSound';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface ChatWindowProps {
   socket: Socket;
@@ -22,6 +23,8 @@ const ChatWindowComponent: React.FC<ChatWindowProps> = ({ socket, messages = [],
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { onKeyDown: typewriterKeyDown } = useTypewriterSound();
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -69,23 +72,23 @@ const ChatWindowComponent: React.FC<ChatWindowProps> = ({ socket, messages = [],
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
 
-    if (seconds < 60) return 'just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
+    if (seconds < 60) return t('chat.justNow');
+    if (minutes < 60) return t('chat.minutesAgo').replace('{minutes}', String(minutes));
+    if (hours < 24) return t('chat.hoursAgo').replace('{hours}', String(hours));
     return new Date(timestamp).toLocaleDateString();
   };
 
   return (
     <div className="chat-window flex-1 min-h-0 flex flex-col">
       <div className="chat-header">
-        <h3>Chat</h3>
+        <h3>{t('chat.title')}</h3>
       </div>
 
       <div className="chat-messages">
         {messages.length === 0 ? (
           <div className="chat-message system-message">
             <div className="message-content">
-              No messages yet. Start chatting with your teammate!
+              {t('chat.noMessages')}
             </div>
           </div>
         ) : (
@@ -124,7 +127,7 @@ const ChatWindowComponent: React.FC<ChatWindowProps> = ({ socket, messages = [],
             className="emoji-button"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             type="button"
-            title="Add emoji"
+            title={t('chat.addEmoji')}
           >
             😀
           </button>
@@ -135,7 +138,7 @@ const ChatWindowComponent: React.FC<ChatWindowProps> = ({ socket, messages = [],
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             onKeyDown={typewriterKeyDown}
-            placeholder="Type a message..."
+            placeholder={t('chat.placeholder')}
             maxLength={500}
             className="chat-input"
           />
@@ -143,7 +146,7 @@ const ChatWindowComponent: React.FC<ChatWindowProps> = ({ socket, messages = [],
             className="send-button"
             onClick={handleSendMessage}
             disabled={!message.trim()}
-            title="Send"
+            title={t('chat.send')}
             type="button"
           >
             <Send className="w-5 h-5" />

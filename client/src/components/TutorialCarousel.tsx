@@ -1,37 +1,38 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface TutorialSlide {
   image: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
 }
 
-const slides: TutorialSlide[] = [
+const slideData: TutorialSlide[] = [
   {
     image: `${import.meta.env.BASE_URL}tutorial/1.webp`,
-    title: 'Welcome to Hearts Gambit!',
-    description: 'A murder mystery card game - The host was murdered in a locked mansion. Unmask the killer through risk, deduction, and luck!'
+    titleKey: 'tutorial.slide1Title',
+    descriptionKey: 'tutorial.slide1Description'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/2.webp`,
-    title: 'Draw & Play',
-    description: 'On your turn, draw one card and play one card. Each card has a unique effect that can help you or eliminate others.'
+    titleKey: 'tutorial.slide2Title',
+    descriptionKey: 'tutorial.slide2Description'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/3.webp`,
-    title: 'Card Effects',
-    description: 'Use Inspectors to accuse, Butlers to peek, or the Witness to confront. But be careful—discarding The Murderer eliminates you!'
+    titleKey: 'tutorial.slide3Title',
+    descriptionKey: 'tutorial.slide3Description'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/4.webp`,
-    title: 'Winning the Round',
-    description: 'Be the last player standing or hold the highest card when the deck runs out to win a Clue Token.'
+    titleKey: 'tutorial.slide4Title',
+    descriptionKey: 'tutorial.slide4Description'
   },
   {
     image: `${import.meta.env.BASE_URL}tutorial/5.webp`,
-    title: 'Solving the Case',
-    description: 'Collect enough clue tokens to solve the case! 7 tokens for 2 players, 5 for 3 players, and 4 for 4 players.'
+    titleKey: 'tutorial.slide5Title',
+    descriptionKey: 'tutorial.slide5Description'
   }
 ];
 
@@ -51,13 +52,22 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
   autoPlayInterval = 5000
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
+
+  // Memoize slides with translated content
+  const slides = useMemo(() => slideData.map(s => ({
+    image: s.image,
+    title: t(s.titleKey),
+    description: t(s.descriptionKey)
+  })), [language]);
 
   // Auto-play logic for sidebar variant
   useEffect(() => {
     if (variant !== 'sidebar' || !autoPlay) return;
 
     const timer = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % slides.length);
+      setCurrentSlide(prev => (prev + 1) % slideData.length);
     }, autoPlayInterval);
 
     return () => clearInterval(timer);
@@ -65,7 +75,7 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
 
   // Preload images on mount
   useEffect(() => {
-    slides.forEach(s => {
+    slideData.forEach(s => {
       const img = new Image();
       img.src = s.image;
     });
@@ -109,7 +119,7 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
   if (variant === 'sidebar') {
     return (
       <div className="tutorial-sidebar">
-        <div className="tutorial-sidebar-header">How to Play</div>
+        <div className="tutorial-sidebar-header">{t('tutorial.howToPlay')}</div>
 
         <div className="tutorial-progress">
           <div
@@ -139,7 +149,7 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
               key={index}
               className={`tutorial-dot-wrapper ${index === currentSlide ? 'active' : ''}`}
               onClick={() => setCurrentSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={t('tutorial.goToSlide').replace('{number}', String(index + 1))}
               aria-current={index === currentSlide ? 'true' : 'false'}
             >
               <span className="tutorial-dot" />
@@ -176,7 +186,7 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
         aria-modal="true"
         aria-labelledby="tutorial-title"
       >
-        <button className="tutorial-close" onClick={handleClose} aria-label="Close tutorial">
+        <button className="tutorial-close" onClick={handleClose} aria-label={t('tutorial.closeTutorial')}>
           ✕
         </button>
 
@@ -200,7 +210,7 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
             className="tutorial-nav-btn"
             onClick={() => setCurrentSlide(prev => prev - 1)}
             disabled={isFirst}
-            aria-label="Previous slide"
+            aria-label={t('tutorial.previousSlide')}
           >
             <ChevronLeft size={20} />
           </button>
@@ -211,7 +221,7 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
                 key={index}
                 className={`tutorial-dot ${index === currentSlide ? 'active' : ''}`}
                 onClick={() => setCurrentSlide(index)}
-                aria-label={`Go to slide ${index + 1}`}
+                aria-label={t('tutorial.goToSlide').replace('{number}', String(index + 1))}
                 aria-current={index === currentSlide ? 'true' : 'false'}
               />
             ))}
@@ -226,9 +236,9 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
                 setCurrentSlide(prev => prev + 1);
               }
             }}
-            aria-label={isLast ? 'Close tutorial' : 'Next slide'}
+            aria-label={isLast ? t('tutorial.closeTutorial') : t('tutorial.nextSlide')}
           >
-            {isLast ? 'Done' : <ChevronRight size={20} />}
+            {isLast ? t('tutorial.done') : <ChevronRight size={20} />}
           </button>
         </div>
       </div>
@@ -238,17 +248,20 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
 
 // Button for mobile - triggers modal
 export const TutorialButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
+
   useEffect(() => {
-    slides.forEach(s => {
+    slideData.forEach(s => {
       const img = new Image();
       img.src = s.image;
     });
   }, []);
 
   return (
-    <button className="tutorial-trigger-btn" onClick={onClick} aria-label="How to play">
+    <button className="tutorial-trigger-btn" onClick={onClick} aria-label={t('tutorial.howToPlay')}>
       <HelpCircle size={18} />
-      <span>How to Play</span>
+      <span>{t('tutorial.howToPlay')}</span>
     </button>
   );
 };

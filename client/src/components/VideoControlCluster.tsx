@@ -1,6 +1,7 @@
 import React from 'react';
 import { Video, VideoOff, Mic, MicOff, Camera, CameraOff, ExternalLink, Settings } from 'lucide-react';
 import { useWebRTC } from '../contexts/WebRTCContext';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface VideoControlClusterProps {
   onOpenSettings?: () => void;
@@ -27,6 +28,9 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
     toggleWebcam
   } = useWebRTC();
 
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
+
   // Count connected peers
   const connectedCount = remoteStreams.size + (isVideoEnabled ? 1 : 0); // +1 for self
 
@@ -37,10 +41,10 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={prepareVideoChat}
           className="video-join-btn"
-          title="Join Video Chat"
+          title={t('video.joinVideoChat')}
         >
           <Video className="w-4 h-4" />
-          <span className="video-join-text">Join Video</span>
+          <span className="video-join-text">{t('video.joinVideo')}</span>
         </button>
       </div>
     );
@@ -52,7 +56,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
       <div className="video-control-cluster">
         <div className="video-preparing-badge">
           <Video className="w-4 h-4" />
-          <span>Setting up...</span>
+          <span>{t('video.settingUp')}</span>
         </div>
       </div>
     );
@@ -65,7 +69,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
       <button
         onClick={onToggleFilmstrip}
         className={`video-badge-btn ${isFilmstripExpanded ? 'expanded' : ''}`}
-        title={isFilmstripExpanded ? 'Collapse video strip' : 'Expand video strip'}
+        title={isFilmstripExpanded ? t('video.collapseVideoStrip') : t('video.expandVideoStrip')}
       >
         <Video className="w-4 h-4" />
         <span className="video-badge-count">{connectedCount}</span>
@@ -75,7 +79,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
       <button
         onClick={toggleMicrophone}
         className={`video-control-btn ${isMicrophoneMuted ? 'muted' : ''}`}
-        title={isMicrophoneMuted ? 'Unmute microphone' : 'Mute microphone'}
+        title={isMicrophoneMuted ? t('video.unmuteMicrophone') : t('video.muteMicrophone')}
       >
         {isMicrophoneMuted ? (
           <MicOff className="w-4 h-4" />
@@ -88,7 +92,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
       <button
         onClick={toggleWebcam}
         className={`video-control-btn ${!isWebcamActive ? 'off' : ''}`}
-        title={isWebcamActive ? 'Turn camera off' : 'Turn camera on'}
+        title={isWebcamActive ? t('video.turnOffCamera') : t('video.turnOnCamera')}
       >
         {isWebcamActive ? (
           <Camera className="w-4 h-4" />
@@ -101,7 +105,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
       <button
         onClick={disableVideoChat}
         className="video-control-btn leave"
-        title="Leave video chat"
+        title={t('video.leaveVideoChat')}
       >
         <VideoOff className="w-4 h-4" />
       </button>
@@ -111,7 +115,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onOpenPopout}
           className="video-control-btn"
-          title="Open video in popup window"
+          title={t('video.openVideoInPopup')}
         >
           <ExternalLink className="w-4 h-4" />
         </button>
@@ -122,7 +126,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onOpenSettings}
           className="video-control-btn"
-          title="Video settings"
+          title={t('video.videoSettings')}
         >
           <Settings className="w-4 h-4" />
         </button>

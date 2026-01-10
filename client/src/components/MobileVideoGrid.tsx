@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX, Eye, EyeOff, Video, VideoOff, Mic, MicOff, Camera, CameraOff, Settings } from 'lucide-react';
 import { useWebRTC } from '../contexts/WebRTCContext';
 import { useVideoUI } from '../contexts/VideoUIContext';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface VideoFeed {
   id: string;
@@ -21,7 +22,7 @@ interface MobileVideoGridProps {
   onJoinVideoChat?: () => void;
 }
 
-const VideoTile: React.FC<{ feed: VideoFeed; toggleMicrophone?: () => void; isMicrophoneMuted?: boolean }> = ({ feed, toggleMicrophone, isMicrophoneMuted }) => {
+const VideoTile: React.FC<{ feed: VideoFeed; toggleMicrophone?: () => void; isMicrophoneMuted?: boolean; t: (key: string) => string }> = ({ feed, toggleMicrophone, isMicrophoneMuted, t }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLocallyMuted, setIsLocallyMuted] = useState(false);
   const [isVideoHidden, setIsVideoHidden] = useState(false);
@@ -69,7 +70,7 @@ const VideoTile: React.FC<{ feed: VideoFeed; toggleMicrophone?: () => void; isMi
             style={{ display: isVideoHidden ? 'none' : 'block' }}
           />
         )}
-        
+
         {(isVideoHidden || !feed.stream) && (
           <div className="video-placeholder">
             <span>{isVideoHidden ? '🙈' : '📹'}</span>
@@ -82,7 +83,7 @@ const VideoTile: React.FC<{ feed: VideoFeed; toggleMicrophone?: () => void; isMi
         {/* Player Name Overlay */}
         <div className="player-name-overlay">
           <span className="player-name">{feed.playerName}</span>
-          {feed.isSelf && <span className="self-badge">You</span>}
+          {feed.isSelf && <span className="self-badge">{t('playerList.you')}</span>}
         </div>
 
         {/* Video Controls Overlay */}
@@ -92,8 +93,8 @@ const VideoTile: React.FC<{ feed: VideoFeed; toggleMicrophone?: () => void; isMi
             <button
               className="control-btn mute-btn"
               onClick={handleToggleMute}
-              title={isLocallyMuted ? "Unmute Audio" : "Mute Audio"}
-              aria-label={isLocallyMuted ? `Unmute ${feed.playerName}'s audio` : `Mute ${feed.playerName}'s audio`}
+              title={isLocallyMuted ? t('video.unmuteAudio') : t('video.muteAudio')}
+              aria-label={isLocallyMuted ? `${t('video.unmuteAudio')} ${feed.playerName}` : `${t('video.muteAudio')} ${feed.playerName}`}
             >
               {isLocallyMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
@@ -104,8 +105,8 @@ const VideoTile: React.FC<{ feed: VideoFeed; toggleMicrophone?: () => void; isMi
             <button
               className={`control-btn mic-btn ${isMicrophoneMuted ? 'muted-state' : ''}`}
               onClick={handleSelfMicToggle}
-              title="Toggle Microphone"
-              aria-label="Toggle microphone"
+              title={t('video.toggleMicrophone')}
+              aria-label={t('video.toggleMicrophone')}
             >
               {isMicrophoneMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
@@ -115,8 +116,8 @@ const VideoTile: React.FC<{ feed: VideoFeed; toggleMicrophone?: () => void; isMi
           <button
             className="control-btn hide-btn"
             onClick={handleToggleVideoHide}
-            title={isVideoHidden ? "Show Video" : "Hide Video"}
-            aria-label={isVideoHidden ? `Show ${feed.playerName}'s video` : `Hide ${feed.playerName}'s video`}
+            title={isVideoHidden ? t('video.showVideoLabel') : t('video.hideVideoLabel')}
+            aria-label={isVideoHidden ? `${t('video.showVideoLabel')} ${feed.playerName}` : `${t('video.hideVideoLabel')} ${feed.playerName}`}
           >
             {isVideoHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -144,6 +145,10 @@ export const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
   // Get Video UI context for settings/popout
   const videoUI = useVideoUI();
 
+  // Translation helper
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
+
   // Create video feeds from players
   const videoFeeds = useMemo<VideoFeed[]>(() => {
     return players
@@ -162,17 +167,17 @@ export const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
     return (
       <div className="mobile-video-grid-empty">
         <div className="empty-state">
-          <p>No camera feeds available</p>
+          <p>{t('video.noCameraFeeds')}</p>
           {!isVideoEnabled ? (
             <>
-              <small>Connect to see other players</small>
+              <small>{t('video.connectToSee')}</small>
               <button className="join-video-btn" onClick={onJoinVideoChat}>
                 <Video className="w-5 h-5" />
-                <span>Join Video Chat</span>
+                <span>{t('video.joinVideoChat')}</span>
               </button>
             </>
           ) : (
-            <small>Players will appear here when they enable their cameras</small>
+            <small>{t('video.playersWillAppear')}</small>
           )}
         </div>
       </div>
@@ -184,15 +189,16 @@ export const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
       {/* Grid of video feeds */}
       <div className="mobile-video-grid">
         {videoFeeds.map((feed) => (
-          <VideoTile 
-            key={feed.id} 
-            feed={feed} 
+          <VideoTile
+            key={feed.id}
+            feed={feed}
             toggleMicrophone={feed.isSelf ? toggleMicrophone : undefined}
             isMicrophoneMuted={feed.isSelf ? isMicrophoneMuted : undefined}
+            t={t}
           />
                 ))}
               </div>
-        
+
               {/* Bottom Control Bar - Clean Icon-Only Design */}
               <div className="mobile-video-actions-wrapper">
                 <div className="mobile-video-actions">
@@ -202,8 +208,8 @@ export const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
                       <button
                         onClick={toggleMicrophone}
                         className={`mobile-control-btn ${isMicrophoneMuted ? 'muted' : ''}`}
-                        title={isMicrophoneMuted ? 'Unmute microphone' : 'Mute microphone'}
-                        aria-label={isMicrophoneMuted ? 'Unmute microphone' : 'Mute microphone'}
+                        title={isMicrophoneMuted ? t('video.unmuteMicrophone') : t('video.muteMicrophone')}
+                        aria-label={isMicrophoneMuted ? t('video.unmuteMicrophone') : t('video.muteMicrophone')}
                       >
                         {isMicrophoneMuted ? (
                           <MicOff className="w-5 h-5" />
@@ -211,13 +217,13 @@ export const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
                           <Mic className="w-5 h-5" />
                         )}
                       </button>
-        
+
                       {/* Camera Toggle */}
                       <button
                         onClick={toggleWebcam}
                         className={`mobile-control-btn ${!isWebcamActive ? 'off' : ''}`}
-                        title={isWebcamActive ? 'Turn camera off' : 'Turn camera on'}
-                        aria-label={isWebcamActive ? 'Turn camera off' : 'Turn camera on'}
+                        title={isWebcamActive ? t('video.turnOffCamera') : t('video.turnOnCamera')}
+                        aria-label={isWebcamActive ? t('video.turnOffCamera') : t('video.turnOnCamera')}
                       >
                         {isWebcamActive ? (
                           <Camera className="w-5 h-5" />
@@ -225,23 +231,23 @@ export const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
                           <CameraOff className="w-5 h-5" />
                         )}
                       </button>
-        
+
                       {/* Settings */}
                       <button
                         onClick={videoUI.openSettings}
                         className="mobile-control-btn"
-                        title="Video settings"
-                        aria-label="Video settings"
+                        title={t('video.videoSettings')}
+                        aria-label={t('video.videoSettings')}
                       >
                         <Settings className="w-5 h-5" />
                       </button>
-        
+
                       {/* Leave Video - Danger Action */}
                       <button
                         onClick={disableVideoChat}
                         className="mobile-control-btn danger"
-                        title="Leave video chat"
-                        aria-label="Leave video chat"
+                        title={t('video.leaveVideoChat')}
+                        aria-label={t('video.leaveVideoChat')}
                       >
                         <VideoOff className="w-5 h-5" />
                       </button>
@@ -253,7 +259,7 @@ export const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
                       className="mobile-join-video-btn"
                     >
                       <Video className="w-6 h-6" />
-                      <span>Join Video Chat</span>
+                      <span>{t('video.joinVideoChat')}</span>
                     </button>
                   )}
                 </div>

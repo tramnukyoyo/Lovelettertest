@@ -503,6 +503,70 @@ export const translations = {
     // Answer Rating
     'rating.correct': 'Correct',
     'rating.incorrect': 'Incorrect',
+
+    // PlayerList Component (shared)
+    'playerList.players': 'Players',
+    'playerList.skipTurn': 'Skip Turn',
+    'playerList.host': 'HOST',
+    'playerList.you': 'YOU',
+    'playerList.active': 'ACTIVE',
+    'playerList.premium': 'PREMIUM',
+    'playerList.pro': 'PRO',
+    'playerList.disconnected': 'Disconnected',
+    'playerList.removing': 'Removing...',
+    'playerList.removingIn': 'Removing in {seconds}s',
+    'playerList.tokens': 'Tokens: {tokens}',
+    'playerList.confirmKick': 'Are you sure you want to kick this player?',
+    'playerList.confirmSkipTurn': 'Are you sure you want to skip this player\'s turn?',
+    'playerList.kick': 'Kick',
+
+    // Chat Component (shared)
+    'chat.title': 'Chat',
+    'chat.noMessages': 'No messages yet. Start chatting with your teammates!',
+    'chat.addEmoji': 'Add emoji',
+    'chat.placeholder': 'Type a message...',
+    'chat.send': 'Send',
+    'chat.justNow': 'just now',
+    'chat.minutesAgo': '{minutes}m ago',
+    'chat.hoursAgo': '{hours}h ago',
+
+    // Tutorial Carousel (HeartsGambit specific)
+    'tutorial.howToPlay': 'How to Play',
+    'tutorial.done': 'Done',
+    'tutorial.closeTutorial': 'Close tutorial',
+    'tutorial.previousSlide': 'Previous slide',
+    'tutorial.nextSlide': 'Next slide',
+    'tutorial.goToSlide': 'Go to slide {number}',
+    'tutorial.slide1Title': 'Welcome to Hearts Gambit!',
+    'tutorial.slide1Description': 'A murder mystery card game - The host was murdered in a locked mansion. Unmask the killer through risk, deduction, and luck!',
+    'tutorial.slide2Title': 'Draw & Play',
+    'tutorial.slide2Description': 'On your turn, draw one card and play one card. Each card has a unique effect that can help you or eliminate others.',
+    'tutorial.slide3Title': 'Card Effects',
+    'tutorial.slide3Description': 'Use Inspectors to accuse, Butlers to peek, or the Witness to confront. But be careful—discarding The Murderer eliminates you!',
+    'tutorial.slide4Title': 'Winning the Round',
+    'tutorial.slide4Description': 'Be the last player standing or hold the highest card when the deck runs out to win a Clue Token.',
+    'tutorial.slide5Title': 'Solving the Case',
+    'tutorial.slide5Description': 'Collect enough clue tokens to solve the case! 7 tokens for 2 players, 5 for 3 players, and 4 for 4 players.',
+
+    // Video Control Cluster (shared)
+    'video.joinVideo': 'Join Video',
+    'video.settingUp': 'Setting up...',
+    'video.collapseVideoStrip': 'Collapse video strip',
+    'video.expandVideoStrip': 'Expand video strip',
+    'video.leaveVideoChat': 'Leave video chat',
+    'video.openVideoInPopup': 'Open video in popup window',
+    'video.videoSettings': 'Video settings',
+    'video.noCameraFeeds': 'No camera feeds available',
+    'video.connectToSee': 'Connect to see other players',
+    'video.playersWillAppear': 'Players will appear here when they enable their cameras',
+    'video.unmuteAudio': 'Unmute Audio',
+    'video.muteAudio': 'Mute Audio',
+    'video.toggleMicrophone': 'Toggle Microphone',
+    'video.showVideoLabel': 'Show Video',
+    'video.hideVideoLabel': 'Hide Video',
+
+    // Game Meta
+    'gameMeta.tagline': 'A noir mystery card game of deduction, risk and betrayal',
   },
   de: {
     // App
@@ -1006,6 +1070,70 @@ export const translations = {
     // Answer Rating
     'rating.correct': 'Richtig',
     'rating.incorrect': 'Falsch',
+
+    // PlayerList Component (shared)
+    'playerList.players': 'Spieler',
+    'playerList.skipTurn': 'Zug überspringen',
+    'playerList.host': 'HOST',
+    'playerList.you': 'DU',
+    'playerList.active': 'AKTIV',
+    'playerList.premium': 'PREMIUM',
+    'playerList.pro': 'PRO',
+    'playerList.disconnected': 'Getrennt',
+    'playerList.removing': 'Wird entfernt...',
+    'playerList.removingIn': 'Entfernung in {seconds}s',
+    'playerList.tokens': 'Token: {tokens}',
+    'playerList.confirmKick': 'Sind Sie sicher, dass Sie diesen Spieler rauswerfen möchten?',
+    'playerList.confirmSkipTurn': 'Sind Sie sicher, dass Sie den Zug dieses Spielers überspringen möchten?',
+    'playerList.kick': 'Rauswerfen',
+
+    // Chat Component (shared)
+    'chat.title': 'Chat',
+    'chat.noMessages': 'Noch keine Nachrichten. Starte einen Chat mit deinen Mitspielern!',
+    'chat.addEmoji': 'Emoji hinzufügen',
+    'chat.placeholder': 'Nachricht eingeben...',
+    'chat.send': 'Senden',
+    'chat.justNow': 'gerade eben',
+    'chat.minutesAgo': 'vor {minutes}m',
+    'chat.hoursAgo': 'vor {hours}h',
+
+    // Tutorial Carousel (HeartsGambit specific)
+    'tutorial.howToPlay': 'Spielanleitung',
+    'tutorial.done': 'Fertig',
+    'tutorial.closeTutorial': 'Tutorial schließen',
+    'tutorial.previousSlide': 'Vorherige Seite',
+    'tutorial.nextSlide': 'Nächste Seite',
+    'tutorial.goToSlide': 'Zu Seite {number}',
+    'tutorial.slide1Title': 'Willkommen bei Hearts Gambit!',
+    'tutorial.slide1Description': 'Ein Mord-Mysterium-Kartenspiel - Der Gastgeber wurde in einem verschlossenen Herrenhaus ermordet. Entlarve den Mörder durch Risiko, Deduktion und Glück!',
+    'tutorial.slide2Title': 'Ziehen & Spielen',
+    'tutorial.slide2Description': 'Ziehe in deinem Zug eine Karte und spiele eine Karte. Jede Karte hat einen einzigartigen Effekt, der dir helfen oder andere eliminieren kann.',
+    'tutorial.slide3Title': 'Karteneffekte',
+    'tutorial.slide3Description': 'Benutze Inspektoren zum Anklagen, Butler zum Spähen oder den Zeugen zur Konfrontation. Aber Vorsicht—das Ablegen des Mörders eliminiert dich!',
+    'tutorial.slide4Title': 'Die Runde gewinnen',
+    'tutorial.slide4Description': 'Sei der letzte stehende Spieler oder halte die höchste Karte, wenn das Deck leer ist, um einen Hinweis-Token zu gewinnen.',
+    'tutorial.slide5Title': 'Den Fall lösen',
+    'tutorial.slide5Description': 'Sammle genug Hinweis-Token, um den Fall zu lösen! 7 Token für 2 Spieler, 5 für 3 Spieler und 4 für 4 Spieler.',
+
+    // Video Control Cluster (shared)
+    'video.joinVideo': 'Video beitreten',
+    'video.settingUp': 'Einrichten...',
+    'video.collapseVideoStrip': 'Videostreifen zuklappen',
+    'video.expandVideoStrip': 'Videostreifen ausklappen',
+    'video.leaveVideoChat': 'Video-Chat verlassen',
+    'video.openVideoInPopup': 'Video im Popup-Fenster öffnen',
+    'video.videoSettings': 'Video-Einstellungen',
+    'video.noCameraFeeds': 'Keine Kamera-Feeds verfügbar',
+    'video.connectToSee': 'Verbinden, um andere Spieler zu sehen',
+    'video.playersWillAppear': 'Spieler erscheinen hier, wenn sie ihre Kameras aktivieren',
+    'video.unmuteAudio': 'Audio aktivieren',
+    'video.muteAudio': 'Audio stummschalten',
+    'video.toggleMicrophone': 'Mikrofon umschalten',
+    'video.showVideoLabel': 'Video anzeigen',
+    'video.hideVideoLabel': 'Video verstecken',
+
+    // Game Meta
+    'gameMeta.tagline': 'Ein Noir-Mysterium-Kartenspiel voller Deduktion, Risiko und Verrat',
   }
 };
 

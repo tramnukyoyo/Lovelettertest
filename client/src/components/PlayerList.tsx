@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UserMinus } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import type { Player } from '../types';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface PlayerListProps {
   players: Player[];
@@ -34,7 +35,7 @@ const renderAvatar = (player: Player) => {
   );
 };
 
-const DisconnectedTimer = ({ disconnectedAt }: { disconnectedAt: number }) => {
+const DisconnectedTimer = ({ disconnectedAt, t }: { disconnectedAt: number; t: (key: string) => string }) => {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
@@ -47,11 +48,11 @@ const DisconnectedTimer = ({ disconnectedAt }: { disconnectedAt: number }) => {
     return () => clearInterval(interval);
   }, [disconnectedAt]);
 
-  if (timeLeft <= 0) return <div className="player-score">Removing...</div>;
+  if (timeLeft <= 0) return <div className="player-score">{t('playerList.removing')}</div>;
 
   return (
     <div className="player-score">
-      Removing in {timeLeft}s
+      {t('playerList.removingIn').replace('{seconds}', String(timeLeft))}
     </div>
   );
 };
@@ -66,11 +67,13 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
   showSkipButton = false,
 }) => {
   const isHost = hostId === mySocketId;
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
 
   const handleKickPlayer = (playerId: string) => {
     if (!isHost) return;
 
-    if (window.confirm('Are you sure you want to kick this player?')) {
+    if (window.confirm(t('playerList.confirmKick'))) {
       socket.emit('player:kick', { roomCode, playerId });
     }
   };
@@ -78,7 +81,7 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
   const handleSkipTurn = () => {
     if (!isHost || !currentTurnPlayerId) return;
 
-    if (window.confirm('Are you sure you want to skip this player\'s turn?')) {
+    if (window.confirm(t('playerList.confirmSkipTurn'))) {
       socket.emit('round:skip-turn', { roomCode });
     }
   };
@@ -86,10 +89,10 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
   return (
     <div className="player-list-fixed">
       <div className="player-list-header">
-        <h3>Players ({players.length})</h3>
+        <h3>{t('playerList.players')} ({players.length})</h3>
         {isHost && showSkipButton && currentTurnPlayerId && (
           <button className="skip-turn-button" onClick={handleSkipTurn}>
-            Skip Turn
+            {t('playerList.skipTurn')}
           </button>
         )}
       </div>
@@ -112,26 +115,26 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
                 <div className="player-name-row">
                   <span className="player-name">{player.name}</span>
                   <div className="player-badges">
-                    {isHostPlayer && <span className="badge-host">HOST</span>}
-                    {isMe && <span className="badge-you">YOU</span>}
-                    {isActive && <span className="badge-active">ACTIVE</span>}
+                    {isHostPlayer && <span className="badge-host">{t('playerList.host')}</span>}
+                    {isMe && <span className="badge-you">{t('playerList.you')}</span>}
+                    {isActive && <span className="badge-active">{t('playerList.active')}</span>}
                     {player.premiumTier === 'lifetime' && (
-                      <span className="badge-premium lifetime" title="Lifetime Premium">PREMIUM</span>
+                      <span className="badge-premium lifetime" title={t('playerList.premium')}>{t('playerList.premium')}</span>
                     )}
                     {player.premiumTier === 'monthly' && (
-                      <span className="badge-premium monthly" title="Pro Member">PRO</span>
+                      <span className="badge-premium monthly" title={t('playerList.pro')}>{t('playerList.pro')}</span>
                     )}
                   </div>
                 </div>
 
                 {/* isDisconnected && player.disconnectedAt && (
-                  <DisconnectedTimer disconnectedAt={player.disconnectedAt} />
+                  <DisconnectedTimer disconnectedAt={player.disconnectedAt} t={t} />
                 ) */}
 
-                {isDisconnected && <div className="player-score text-red-500">Disconnected</div>}
+                {isDisconnected && <div className="player-score text-red-500">{t('playerList.disconnected')}</div>}
 
                 {!isDisconnected && (
-                  <div className="player-score">Tokens: {(player as any).tokens || 0}</div>
+                  <div className="player-score">{t('playerList.tokens').replace('{tokens}', String((player as any).tokens || 0))}</div>
                 )}
               </div>
 
@@ -139,7 +142,7 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
                 <button
                   className="kick-button danger"
                   onClick={() => handleKickPlayer(player.socketId)}
-                  title="Kick"
+                  title={t('playerList.kick')}
                   type="button"
                 >
                   <UserMinus className="w-4 h-4" />
