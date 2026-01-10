@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cardDatabase } from './hearts-gambit/cardDatabase';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface CardLegendModalProps {
   onClose: () => void;
@@ -9,6 +10,8 @@ interface CardLegendModalProps {
 
 export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -38,15 +41,15 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
       >
         <div className="settings-modal-header">
           <div className="settings-modal-title">
-            <div className="settings-modal-eyebrow">Case Files</div>
-            <h2 id="card-legend-title">Card Legend</h2>
+            <div className="settings-modal-eyebrow">{t('cardLegend.caseFiles')}</div>
+            <h2 id="card-legend-title">{t('cardLegend.title')}</h2>
           </div>
           <button
             ref={closeButtonRef}
             type="button"
             className="settings-modal-close"
             onClick={onClose}
-            aria-label="Close card legend"
+            aria-label={t('cardLegend.closeLabel')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -69,7 +72,7 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
                     <span className="card-legend-value">{card.value}</span>
                   </div>
                   <span className="card-legend-copies">
-                    {card.copies === 1 ? '1 copy in deck' : `${card.copies} copies in deck`}
+                    {card.copies === 1 ? t('cardLegend.oneCopy') : t('cardLegend.multipleCopies').replace('{count}', card.copies.toString())}
                   </span>
                   <p className="card-legend-description">{card.description}</p>
                 </div>
@@ -79,7 +82,7 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
         </div>
 
         <div className="settings-modal-footer">
-          <div className="settings-hint">16 cards total • Higher value wins in comparisons</div>
+          <div className="settings-hint">{t('cardLegend.footer')}</div>
         </div>
       </div>
     </div>,

@@ -19,6 +19,7 @@ import { CardLegendModal } from '../CardLegendModal';
 import TutorialCarousel from '../TutorialCarousel';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import HeartsGambitGameMobile from './HeartsGambitGameMobile';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface HeartsGambitGameProps {
   lobby: Lobby;
@@ -89,6 +90,8 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const tokenAnimationRef = useRef(false);
   const prevEliminatedRef = useRef<Set<string>>(new Set());
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
@@ -119,7 +122,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
   const buildZoomCardsFromTimeline = (events: DiscardEventWithOrder[]) => {
     return events.map((evt) => {
-      const actionLabel = evt.kind === 'forced-discard' ? 'Compelled discard' : 'Played';
+      const actionLabel = evt.kind === 'forced-discard' ? t('game.compelledDiscard') : t('game.played');
 
       return {
         key: `zoom-${evt.playerId}-${evt.timestamp}-${evt.card}`,
@@ -306,7 +309,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
     if (!discardTimeline && discardViewerMode === 'timeline') setDiscardViewerMode('by-player');
   }, [discardTimeline, discardViewerMode, isDiscardViewerOpen]);
 
-  if (!lobby.gameData) return <div className="text-white text-center mt-20">Loading Game Data...</div>;
+  if (!lobby.gameData) return <div className="text-white text-center mt-20">{t('game.loadingGameData')}</div>;
 
   return (
     <div className="hearts-gambit-game h-full text-[var(--parchment)] flex flex-col items-stretch p-0 overflow-hidden">
@@ -765,7 +768,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                           targetId ? 'text-[var(--royal-gold-light)]' : 'text-[var(--royal-crimson-light)] animate-pulse'
                         }`}
                       >
-                        {targetId ? lobby.players.find(p => p.id === targetId)?.name : 'Select Player Above'}
+                        {targetId ? lobby.players.find(p => p.id === targetId)?.name : t('game.selectPlayerAbove')}
                       </span>
                     )}
                   </div>
@@ -858,7 +861,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="hg-panel hg-candlelight border border-[rgba(var(--accent-color-rgb),0.35)] p-10 rounded-2xl max-w-lg w-full text-center shadow-[0_0_50px_rgba(var(--accent-color-rgb),0.25)]">
                <h2 className="text-4xl font-black mb-4 text-[var(--royal-gold)] uppercase tracking-widest drop-shadow-md">
-                  {lobby.gameData.winner ? 'Victory!' : 'Round Over'}
+                  {lobby.gameData.winner ? t('game.victory') : t('game.roundOver')}
                </h2>
 
                <div className="my-8">
@@ -875,7 +878,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                      onClick={() => socket.emit('game:start', {})}
                      className="px-10 py-4 bg-gradient-to-r from-[var(--royal-crimson)] to-[var(--royal-crimson-dark)] hover:from-[var(--royal-crimson-light)] hover:to-[var(--royal-crimson)] text-white font-black rounded-xl text-xl shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider"
                   >
-                     {lobby.gameData.winner ? 'New Game' : 'Next Round'}
+                     {lobby.gameData.winner ? t('game.newGame') : t('game.nextRound')}
                   </button>
                )}
             </div>

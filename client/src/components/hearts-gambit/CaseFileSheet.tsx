@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown, Layers } from 'lucide-react';
 import type { CardType, Player, Lobby } from '../../types';
 import DynamicCard from './DynamicCard';
 import { CARD_NAMES } from './cardDatabase';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface CaseFileSheetProps {
   /** Player's current hand */
@@ -71,6 +72,8 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const controls = useAnimation();
   const sheetRef = useRef<HTMLDivElement>(null);
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   // Auto-expand when it's the player's turn and they have cards
   useEffect(() => {
@@ -144,13 +147,13 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[var(--royal-gold)]" />
                 <span className="text-sm font-bold text-[var(--parchment)]">
-                  {hand.length} card{hand.length !== 1 ? 's' : ''}
+                  {hand.length} {hand.length !== 1 ? t('caseFile.cards') : t('caseFile.card')}
                 </span>
               </div>
 
               {isMyTurn && !amEliminated && (
                 <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-2 py-0.5 rounded-full text-xs font-bold animate-pulse">
-                  {waitingToDraw ? 'DRAW!' : 'YOUR TURN'}
+                  {waitingToDraw ? t('caseFile.draw') : t('caseFile.yourTurn')}
                 </span>
               )}
             </div>
@@ -225,17 +228,17 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
                   {/* Playing card indicator */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-[var(--parchment-dark)] uppercase">Playing:</span>
+                      <span className="text-xs text-[var(--parchment-dark)] uppercase">{t('caseFile.playing')}</span>
                       <span className="font-bold text-[var(--royal-gold)]">{CARD_NAMES[selectedCard]}</span>
                     </div>
 
                     {/* Target indicator (for non-Inspector cards) */}
                     {needsTarget && selectedCard !== 1 && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--parchment-dark)] uppercase">Target:</span>
+                        <span className="text-xs text-[var(--parchment-dark)] uppercase">{t('caseFile.target')}</span>
                         {allOpponentsProtected ? (
                           <span className="text-xs text-[var(--royal-gold-light)]">
-                            {selectedCard === 5 ? 'Self' : 'None'}
+                            {selectedCard === 5 ? t('caseFile.self') : t('caseFile.none')}
                           </span>
                         ) : targetId ? (
                           <span className="text-xs text-[var(--royal-gold-light)]">
@@ -243,7 +246,7 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
                           </span>
                         ) : (
                           <span className="text-xs text-[var(--royal-crimson-light)] animate-pulse">
-                            Select Above
+                            {t('caseFile.selectAbove')}
                           </span>
                         )}
                       </div>
@@ -258,8 +261,8 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
                         value={targetId || ''}
                         onChange={e => onSetTargetId(e.target.value)}
                       >
-                        <option value="">Select Target...</option>
-                        <option value={me?.id}>Self</option>
+                        <option value="">{t('caseFile.selectTarget')}</option>
+                        <option value={me?.id}>{t('caseFile.self')}</option>
                         {otherPlayers.map(
                           p =>
                             !p.isEliminated &&
@@ -276,7 +279,7 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
                   {/* Inspector card selection grid */}
                   {needsGuess && (
                     <div className="mb-3">
-                      <span className="text-xs text-[var(--parchment-dark)] uppercase block mb-2">Guess Card:</span>
+                      <span className="text-xs text-[var(--parchment-dark)] uppercase block mb-2">{t('caseFile.guessCard')}</span>
                       <div className="grid grid-cols-7 gap-1">
                         {[2, 3, 4, 5, 6, 7, 8].map(cardNum => (
                           <button
@@ -305,15 +308,11 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
                       onClick={onPlayCard}
                       disabled={!canConfirm}
                       className="flex-1 bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] disabled:opacity-50 disabled:grayscale text-white py-3 rounded-xl font-bold text-sm transition-all min-h-[48px]"
-                    >
-                      Confirm
-                    </button>
+                    >{t('caseFile.confirm')}</button>
                     <button
                       onClick={onCancel}
                       className="px-6 py-3 bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] text-[var(--parchment)] rounded-xl font-bold text-sm transition-all min-h-[48px]"
-                    >
-                      Cancel
-                    </button>
+                    >{t('caseFile.cancel')}</button>
                   </div>
                 </motion.div>
               )}

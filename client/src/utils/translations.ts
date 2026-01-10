@@ -567,6 +567,41 @@ export const translations = {
 
     // Game Meta
     'gameMeta.tagline': 'A noir mystery card game of deduction, risk and betrayal',
+
+    // Card Legend Modal
+    'cardLegend.caseFiles': 'Case Files',
+    'cardLegend.title': 'Card Legend',
+    'cardLegend.closeLabel': 'Close card legend',
+    'cardLegend.oneCopy': '1 copy in deck',
+    'cardLegend.multipleCopies': '{count} copies in deck',
+    'cardLegend.footer': '16 cards total • Higher value wins in comparisons',
+
+    // Case File Sheet
+    'caseFile.card': 'card',
+    'caseFile.cards': 'cards',
+    'caseFile.yourTurn': 'YOUR TURN',
+    'caseFile.draw': 'DRAW!',
+    'caseFile.playing': 'Playing:',
+    'caseFile.target': 'Target:',
+    'caseFile.self': 'Self',
+    'caseFile.none': 'None',
+    'caseFile.selectAbove': 'Select Above',
+    'caseFile.selectTarget': 'Select Target...',
+    'caseFile.guessCard': 'Guess Card:',
+    'caseFile.confirm': 'Confirm',
+    'caseFile.cancel': 'Cancel',
+
+    // Game Component
+    'game.compelledDiscard': 'Compelled discard',
+    'game.played': 'Played',
+    'game.loadingGameData': 'Loading Game Data...',
+    'game.selectPlayerAbove': 'Select Player Above',
+    'game.victory': 'Victory!',
+    'game.roundOver': 'Round Over',
+    'game.newGame': 'New Game',
+    'game.nextRound': 'Next Round',
+    'game.showEvidenceInOrder': 'Show evidence in order',
+    'game.chronologyRequiresUpdates': 'Chronology requires updated server evidence history',
   },
   de: {
     // App
@@ -1134,6 +1169,41 @@ export const translations = {
 
     // Game Meta
     'gameMeta.tagline': 'Ein Noir-Mysterium-Kartenspiel voller Deduktion, Risiko und Verrat',
+
+    // Card Legend Modal
+    'cardLegend.caseFiles': 'Fallakten',
+    'cardLegend.title': 'Kartenlegende',
+    'cardLegend.closeLabel': 'Kartenlegende schließen',
+    'cardLegend.oneCopy': '1 Exemplar im Deck',
+    'cardLegend.multipleCopies': '{count} Exemplare im Deck',
+    'cardLegend.footer': '16 Karten insgesamt • Höherer Wert gewinnt bei Vergleichen',
+
+    // Case File Sheet
+    'caseFile.card': 'Karte',
+    'caseFile.cards': 'Karten',
+    'caseFile.yourTurn': 'DU BIST DRAN',
+    'caseFile.draw': 'ZIEHEN!',
+    'caseFile.playing': 'Spielen:',
+    'caseFile.target': 'Ziel:',
+    'caseFile.self': 'Selbst',
+    'caseFile.none': 'Keines',
+    'caseFile.selectAbove': 'Oben auswählen',
+    'caseFile.selectTarget': 'Ziel auswählen...',
+    'caseFile.guessCard': 'Karte raten:',
+    'caseFile.confirm': 'Bestätigen',
+    'caseFile.cancel': 'Abbrechen',
+
+    // Game Component
+    'game.compelledDiscard': 'Erzwungenes Ablegen',
+    'game.played': 'Gespielt',
+    'game.loadingGameData': 'Lade Spieldaten...',
+    'game.selectPlayerAbove': 'Spieler oben auswählen',
+    'game.victory': 'Sieg!',
+    'game.roundOver': 'Runde vorbei',
+    'game.newGame': 'Neues Spiel',
+    'game.nextRound': 'Nächste Runde',
+    'game.showEvidenceInOrder': 'Beweise der Reihe nach zeigen',
+    'game.chronologyRequiresUpdates': 'Chronologie erfordert aktualisierte Server-Beweishistorie',
   }
 };
 
