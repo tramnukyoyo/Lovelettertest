@@ -1,7 +1,20 @@
 import type { CardType } from '../../types';
+import { getTranslation, type Language } from '../../utils/translations';
 
 // Import card back from assets (keeping the old back)
 import backImg from '../../assets/cards/back.png';
+
+// Card translation key mapping
+const cardTranslationKeys: Record<number, string> = {
+  1: 'inspector',
+  2: 'butler',
+  3: 'witness',
+  4: 'lawyer',
+  5: 'blackmailer',
+  6: 'doubleAgent',
+  7: 'accomplice',
+  8: 'murderer'
+};
 
 export interface CardData {
   id: CardType;         // CardType (1-8)
@@ -152,3 +165,66 @@ export const CARD_IMAGES: Record<number, string> = {
   0: CARD_BACK_IMAGE,
   ...Object.fromEntries(cardDatabase.map(card => [card.id, card.image]))
 };
+
+/**
+ * Get translated card name by CardType
+ */
+export function getTranslatedCardName(cardType: CardType, language: Language): string {
+  if (cardType === 0) return getTranslation('card.back' as any, language);
+  const key = cardTranslationKeys[cardType];
+  if (!key) return getTranslation('card.unknown' as any, language);
+  const translationKey = ('card.' + key + '.name') as any;
+  return getTranslation(translationKey, language);
+}
+
+/**
+ * Get translated card type by CardType
+ */
+export function getTranslatedCardType(cardType: CardType, language: Language): string {
+  const key = cardTranslationKeys[cardType];
+  if (!key) return '';
+  const translationKey = ('card.' + key + '.type') as any;
+  return getTranslation(translationKey, language);
+}
+
+/**
+ * Get translated card description by CardType
+ */
+export function getTranslatedCardDescription(cardType: CardType, language: Language): string {
+  const key = cardTranslationKeys[cardType];
+  if (!key) return '';
+  const translationKey = ('card.' + key + '.description') as any;
+  return getTranslation(translationKey, language);
+}
+
+/**
+ * Get card data with translations
+ */
+export interface TranslatedCardData extends Omit<CardData, 'name' | 'type' | 'description'> {
+  name: string;
+  type: string;
+  description: string;
+}
+
+export function getTranslatedCardData(cardType: CardType, language: Language): TranslatedCardData | null {
+  const card = getCardData(cardType);
+  if (!card) return null;
+  return {
+    ...card,
+    name: getTranslatedCardName(cardType, language),
+    type: getTranslatedCardType(cardType, language),
+    description: getTranslatedCardDescription(cardType, language)
+  };
+}
+
+/**
+ * Get translated card database
+ */
+export function getTranslatedCardDatabase(language: Language): TranslatedCardData[] {
+  return cardDatabase.map(card => ({
+    ...card,
+    name: getTranslatedCardName(card.id, language),
+    type: getTranslatedCardType(card.id, language),
+    description: getTranslatedCardDescription(card.id, language)
+  }));
+}

@@ -23,6 +23,7 @@ export const translations = {
     'common.pause': 'Pause',
     'common.reset': 'Reset',
     'common.apply': 'Apply',
+    'common.player': 'Player',
     'common.confirm': 'Confirm',
     'common.yes': 'Yes',
     'common.no': 'No',
@@ -566,6 +567,19 @@ export const translations = {
     'video.hideVideoLabel': 'Hide Video',
 
     // Game Meta
+    // Game Header
+    'gameHeader.room': 'Room',
+    'gameHeader.copyRoomLink': 'Copy room link',
+    'gameHeader.copyInviteLink': 'Copy invite link',
+    'gameHeader.copied': 'Copied!',
+    'gameHeader.streamerMode': 'Streamer Mode',
+    'gameHeader.streamer': 'Streamer',
+    'gameHeader.leave': 'Leave',
+    'gameHeader.waitingForPlayers': 'Waiting for players',
+    'gameHeader.getReady': 'Get Ready!',
+    'gameHeader.thinkOfWord': 'Think of a word',
+    'gameHeader.revealing': 'Revealing...',
+
     'gameMeta.tagline': 'A noir mystery card game of deduction, risk and betrayal',
 
     // Card Legend Modal
@@ -575,6 +589,33 @@ export const translations = {
     'cardLegend.oneCopy': '1 copy in deck',
     'cardLegend.multipleCopies': '{count} copies in deck',
     'cardLegend.footer': '16 cards total • Higher value wins in comparisons',
+// Card Names and Descriptions
+    'card.inspector.name': 'Inspector',
+    'card.inspector.type': 'Law',
+    'card.inspector.description': 'Accuse someone directly - if correct, they are arrested.',
+    'card.butler.name': 'Butler',
+    'card.butler.type': 'Staff',
+    'card.butler.description': 'You have seen everything - look at another player card.',
+    'card.witness.name': 'Witness',
+    'card.witness.type': 'Civilian',
+    'card.witness.description': 'Confrontation: Compare alibis - the weaker one breaks down.',
+    'card.lawyer.name': 'Lawyer',
+    'card.lawyer.type': 'Civilian',
+    'card.lawyer.description': 'Protection from accusation for one round.',
+    'card.blackmailer.name': 'Blackmailer',
+    'card.blackmailer.type': 'Criminal',
+    'card.blackmailer.description': 'Force someone to reveal their alibi (discard and draw new).',
+    'card.doubleAgent.name': 'Double Agent',
+    'card.doubleAgent.type': 'Spy',
+    'card.doubleAgent.description': 'Swap your identity with another guest.',
+    'card.accomplice.name': 'Accomplice',
+    'card.accomplice.type': 'Dangerous',
+    'card.accomplice.description': 'Knows too much - must reveal when with Blackmailer or Double Agent.',
+    'card.murderer.name': 'The Murderer',
+    'card.murderer.type': 'Guilty',
+    'card.murderer.description': 'The highest card - but beware if you are exposed!',
+    'card.back': 'Card Back',
+    'card.unknown': 'Unknown',
 
     // Case File Sheet
     'caseFile.card': 'card',
@@ -591,17 +632,6 @@ export const translations = {
     'caseFile.confirm': 'Confirm',
     'caseFile.cancel': 'Cancel',
 
-    // Game Component
-    'game.compelledDiscard': 'Compelled discard',
-    'game.played': 'Played',
-    'game.loadingGameData': 'Loading Game Data...',
-    'game.selectPlayerAbove': 'Select Player Above',
-    'game.victory': 'Victory!',
-    'game.roundOver': 'Round Over',
-    'game.newGame': 'New Game',
-    'game.nextRound': 'Next Round',
-    'game.showEvidenceInOrder': 'Show evidence in order',
-    'game.chronologyRequiresUpdates': 'Chronology requires updated server evidence history',
   },
   de: {
     // App
@@ -625,6 +655,7 @@ export const translations = {
     'common.pause': 'Pausieren',
     'common.reset': 'Zurücksetzen',
     'common.apply': 'Anwenden',
+    'common.player': 'Spieler',
     'common.confirm': 'Bestätigen',
     'common.yes': 'Ja',
     'common.no': 'Nein',
@@ -1168,6 +1199,19 @@ export const translations = {
     'video.hideVideoLabel': 'Video verstecken',
 
     // Game Meta
+    // Game Header
+    'gameHeader.room': 'Raum',
+    'gameHeader.copyRoomLink': 'Raum-Link kopieren',
+    'gameHeader.copyInviteLink': 'Einladungslink kopieren',
+    'gameHeader.copied': 'Kopiert!',
+    'gameHeader.streamerMode': 'Streamer-Modus',
+    'gameHeader.streamer': 'Streamer',
+    'gameHeader.leave': 'Verlassen',
+    'gameHeader.waitingForPlayers': 'Warte auf Spieler',
+    'gameHeader.getReady': 'Mach dich bereit!',
+    'gameHeader.thinkOfWord': 'Denk an ein Wort',
+    'gameHeader.revealing': 'Enthüllen...',
+
     'gameMeta.tagline': 'Ein Noir-Mysterium-Kartenspiel voller Deduktion, Risiko und Verrat',
 
     // Card Legend Modal
@@ -1177,6 +1221,34 @@ export const translations = {
     'cardLegend.oneCopy': '1 Exemplar im Deck',
     'cardLegend.multipleCopies': '{count} Exemplare im Deck',
     'cardLegend.footer': '16 Karten insgesamt • Höherer Wert gewinnt bei Vergleichen',
+
+    // Card Names and Descriptions (German)
+    'card.inspector.name': 'Inspektor',
+    'card.inspector.type': 'Gesetz',
+    'card.inspector.description': 'Beschuldige jemanden direkt - wenn richtig, wird er verhaftet.',
+    'card.butler.name': 'Butler',
+    'card.butler.type': 'Personal',
+    'card.butler.description': 'Du hast alles gesehen - schau dir die Karte eines anderen Spielers an.',
+    'card.witness.name': 'Zeuge',
+    'card.witness.type': 'Zivilist',
+    'card.witness.description': 'Konfrontation: Alibis vergleichen - der Schwachere bricht zusammen.',
+    'card.lawyer.name': 'Anwalt',
+    'card.lawyer.type': 'Zivilist',
+    'card.lawyer.description': 'Schutz vor Anklage fur eine Runde.',
+    'card.blackmailer.name': 'Erpresser',
+    'card.blackmailer.type': 'Krimineller',
+    'card.blackmailer.description': 'Zwinge jemanden, sein Alibi preiszugeben (ablegen und neu ziehen).',
+    'card.doubleAgent.name': 'Doppelagent',
+    'card.doubleAgent.type': 'Spion',
+    'card.doubleAgent.description': 'Tausche deine Identitat mit einem anderen Gast.',
+    'card.accomplice.name': 'Komplize',
+    'card.accomplice.type': 'Gefahrlich',
+    'card.accomplice.description': 'Weiss zu viel - muss sich offenbaren bei Erpresser oder Doppelagent.',
+    'card.murderer.name': 'Der Morder',
+    'card.murderer.type': 'Schuldig',
+    'card.murderer.description': 'Die hochste Karte - aber Vorsicht, wenn du entlarvt wirst!',
+    'card.back': 'Kartenruckseite',
+    'card.unknown': 'Unbekannt',
 
     // Case File Sheet
     'caseFile.card': 'Karte',
@@ -1193,17 +1265,6 @@ export const translations = {
     'caseFile.confirm': 'Bestätigen',
     'caseFile.cancel': 'Abbrechen',
 
-    // Game Component
-    'game.compelledDiscard': 'Erzwungenes Ablegen',
-    'game.played': 'Gespielt',
-    'game.loadingGameData': 'Lade Spieldaten...',
-    'game.selectPlayerAbove': 'Spieler oben auswählen',
-    'game.victory': 'Sieg!',
-    'game.roundOver': 'Runde vorbei',
-    'game.newGame': 'Neues Spiel',
-    'game.nextRound': 'Nächste Runde',
-    'game.showEvidenceInOrder': 'Beweise der Reihe nach zeigen',
-    'game.chronologyRequiresUpdates': 'Chronologie erfordert aktualisierte Server-Beweishistorie',
   }
 };
 

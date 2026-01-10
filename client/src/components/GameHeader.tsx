@@ -8,6 +8,8 @@ import socketService from '../services/socketService';
 import VideoControlCluster from './VideoControlCluster';
 import { useVideoUI } from '../contexts/VideoUIContext';
 import { GAME_META } from '../config/gameMeta';
+import SimpleLanguageSelector from './SimpleLanguageSelector';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface GameHeaderProps {
   lobby: Lobby;
@@ -22,6 +24,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
   const [copyFeedback, setCopyFeedback] = useState(false);
 
   const socket = socketService.getSocket();
+
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   // Video UI context for filmstrip/popup/settings control
   const videoUI = useVideoUI();
@@ -84,17 +89,17 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
   const getPhaseDisplay = (state: string) => {
     switch (state) {
       case 'LOBBY_WAITING':
-        return 'Waiting for players';
+        return t('gameHeader.waitingForPlayers');
       case 'ROUND_PREP':
-        return 'Get Ready!';
+        return t('gameHeader.getReady');
       case 'WORD_INPUT':
-        return 'Think of a word';
+        return t('gameHeader.thinkOfWord');
       case 'REVEAL':
-        return 'Revealing...';
+        return t('gameHeader.revealing');
       case 'VICTORY':
-        return 'Victory!';
+        return t('game.victory');
       case 'GAME_OVER':
-        return 'Game Over';
+        return t('game.gameOver');
       default:
         return '';
     }
@@ -138,34 +143,34 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
           <div className="game-header-room-info">
             {!hideRoomCode ? (
               <div className="game-header-room-code">
-                <span className="game-header-room-label">Room:</span>
+                <span className="game-header-room-label">{t('gameHeader.room')}:</span>
                 <span className="game-header-room-value">{lobby.code}</span>
                 <div className="game-header-copy-wrapper">
                   <button
                     onClick={copyRoomLink}
                     className="game-header-copy-btn"
-                    title="Copy room link"
+                    title={t('gameHeader.copyRoomLink')}
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                   {copyFeedback && (
-                    <span className="game-header-copy-feedback">Copied!</span>
+                    <span className="game-header-copy-feedback">{t('gameHeader.copied')}</span>
                   )}
                 </div>
               </div>
             ) : (
               <div className="game-header-streamer-badge">
-                <span>Streamer Mode</span>
+                <span>{t('gameHeader.streamerMode')}</span>
                 <div className="game-header-copy-wrapper">
                   <button
                     onClick={copyRoomLink}
                     className="game-header-copy-btn streamer"
-                    title="Copy invite link"
+                    title={t('gameHeader.copyInviteLink')}
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                   {copyFeedback && (
-                    <span className="game-header-copy-feedback">Copied!</span>
+                    <span className="game-header-copy-feedback">{t('gameHeader.copied')}</span>
                   )}
                 </div>
               </div>
@@ -200,15 +205,17 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
           {/* Current player info */}
           <div className={`game-header-player-info ${isHost ? 'host' : ''}`}>
             {isHost && <Crown className="w-4 h-4" />}
-            <span>{myPlayer?.name || 'Player'}</span>
-            {isHost && <span className="game-header-host-badge">HOST</span>}
+            <span>{myPlayer?.name || t('common.player')}</span>
+            {isHost && <span className="game-header-host-badge">{t('playerList.host')}</span>}
           </div>
 
+          {/* Language Selector */}
+          <SimpleLanguageSelector />
           {/* Settings button */}
           <button
             onClick={() => setIsSettingsOpen(true)}
             className="game-header-settings-btn"
-            title="Settings"
+            title={t('header.settings')}
           >
             <Settings className="w-4 h-4" />
           </button>
@@ -216,7 +223,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
           {/* Leave button */}
           <button onClick={handleLeave} className="game-header-leave-btn">
             <ArrowLeft className="w-4 h-4" />
-            Leave
+            {t('gameHeader.leave')}
           </button>
         </div>
       </div>
@@ -225,23 +232,23 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
       <div className="game-header-mobile-row">
         {!hideRoomCode ? (
           <div className="game-header-room-code mobile">
-            <span className="game-header-room-label">Room:</span>
+            <span className="game-header-room-label">{t('gameHeader.room')}:</span>
             <span className="game-header-room-value">{lobby.code}</span>
             <div className="game-header-copy-wrapper">
               <button
                 onClick={copyRoomLink}
                 className="game-header-copy-btn"
-                title="Copy room link"
+                title={t('gameHeader.copyRoomLink')}
               >
                 <Copy className="w-3.5 h-3.5" />
               </button>
               {copyFeedback && (
-                <span className="game-header-copy-feedback">Copied!</span>
+                <span className="game-header-copy-feedback">{t('gameHeader.copied')}</span>
               )}
             </div>
           </div>
         ) : (
-          <span className="game-header-streamer-badge mobile">Streamer</span>
+          <span className="game-header-streamer-badge mobile">{t('gameHeader.streamer')}</span>
         )}
         <div className="game-header-phase-badge mobile">
           {getPhaseDisplay(lobby.state)}

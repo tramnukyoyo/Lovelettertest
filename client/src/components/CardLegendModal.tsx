@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import { cardDatabase } from './hearts-gambit/cardDatabase';
+import { getTranslatedCardDatabase } from './hearts-gambit/cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface CardLegendModalProps {
@@ -57,7 +57,7 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
 
         <div className="settings-modal-content card-legend-content">
           <div className="card-legend-grid">
-            {cardDatabase.map((card) => (
+            {getTranslatedCardDatabase(language).map((card) => (
               <div key={card.id} className="card-legend-item">
                 <div className="card-legend-image-wrapper">
                   <img
