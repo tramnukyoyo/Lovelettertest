@@ -120,7 +120,7 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
                 <button
                   onClick={onClose}
                   className="hg-icon-btn w-10 h-10 flex items-center justify-center rounded-xl bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] transition-colors"
-                  aria-label="Close chat"
+                  aria-label={t('chat.closeChat')}
                 >
                   <X className="w-5 h-5 text-[var(--parchment)]" />
                 </button>
@@ -134,10 +134,10 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
                       <span className="text-3xl">🕵️</span>
                     </div>
                     <p className="text-[var(--parchment-dark)] text-sm italic">
-                      No messages yet...
+                      {t('chat.noMessagesYet')}
                     </p>
                     <p className="text-[var(--parchment-dark)] text-xs mt-1 opacity-70">
-                      Start the investigation by sending a message!
+                      {t('chat.startInvestigation')}
                     </p>
                   </div>
                 ) : (
@@ -241,7 +241,7 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Type a message..."
+                    placeholder={t('chat.typeMessage')}
                     maxLength={500}
                     className="flex-1 h-11 px-4 rounded-xl bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] text-[var(--parchment)] placeholder-[var(--parchment-dark)] text-sm focus:outline-none focus:border-[rgba(212,175,55,0.4)] transition-colors"
                   />

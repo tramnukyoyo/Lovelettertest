@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw, X } from 'lucide-react';
 import { useOrientation } from '../../hooks/useIsMobile';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface OrientationPromptProps {
   className?: string;
@@ -16,6 +17,10 @@ const STORAGE_KEY = 'hg-orientation-dismissed';
 const OrientationPrompt: React.FC<OrientationPromptProps> = ({ className = '' }) => {
   const orientation = useOrientation();
   const [isDismissed, setIsDismissed] = useState(false);
+
+  // Translation helper
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   // Check if previously dismissed this session
   useEffect(() => {
@@ -62,11 +67,11 @@ const OrientationPrompt: React.FC<OrientationPromptProps> = ({ className = '' })
           <RotateCcw className="w-8 h-8 text-[var(--royal-gold)] mb-4 animate-pulse" />
 
           <h2 className="text-xl font-bold text-[var(--parchment)] text-center mb-2">
-            Rotate for Best Experience
+            {t('orientation.rotateForBestExperience')}
           </h2>
 
           <p className="text-sm text-[var(--parchment-dark)] text-center max-w-xs mb-8">
-            Hearts Gambit plays best in landscape mode. Rotate your device for the full investigation experience.
+            {t('orientation.description')}
           </p>
 
           <button
@@ -74,7 +79,7 @@ const OrientationPrompt: React.FC<OrientationPromptProps> = ({ className = '' })
             className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] text-[var(--parchment)] px-6 py-3 rounded-xl text-sm font-bold transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
           >
             <X className="w-4 h-4" />
-            Continue in Portrait
+            {t('orientation.continueInPortrait')}
           </button>
 
           {/* Decorative corners */}

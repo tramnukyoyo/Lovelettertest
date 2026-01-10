@@ -600,7 +600,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             </button>
           ) : (
             <p className="text-sm text-[var(--parchment-dark)] italic">
-              Waiting for host to start...
+              {t('game.waitingForHost')}
             </p>
           )}
         </div>
@@ -610,7 +610,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       {mustPlayAccomplice && isMyTurn && !waitingToDraw && lobby.state !== 'LOBBY' && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
           <span className="bg-purple-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
-            Must Play Accomplice (7)
+            {t('game.mustPlayAccomplice')} (7)
           </span>
         </div>
       )}

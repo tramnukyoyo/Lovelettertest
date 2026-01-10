@@ -423,7 +423,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
           ))}
           
           {otherPlayers.length === 0 && (
-             <div className="text-slate-400 italic">Waiting for opponents...</div>
+             <div className="text-slate-400 italic">{t('game.waitingForOpponents')}</div>
           )}
         </div>
 
@@ -581,7 +581,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                   {waitingToDraw && (
                       <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap">
                           <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-                            DRAW
+                            {t('game.draw')}
                           </span>
                       </div>
                   )}
@@ -618,7 +618,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                    </div>
                 ))}
                 {(!lobby.messages || lobby.messages.length === 0) && (
-                   <div className="text-xs text-[rgba(246,240,230,0.45)] italic">No messages yet...</div>
+                   <div className="text-xs text-[rgba(246,240,230,0.45)] italic">{t('game.noMessagesYet')}</div>
                 )}
              </div>
           </div>
@@ -643,16 +643,16 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               >
                 {t('game.tokens').replace('{count}', String(me?.tokens || 0))}
               </motion.span>
-              {isMyTurn && <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-3 py-1 rounded-full text-xs font-bold animate-pulse">YOUR TURN</span>}
-              {waitingToDraw && <span className="bg-[var(--royal-crimson-light)] text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce">DRAW A CARD!</span>}
+              {isMyTurn && <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-3 py-1 rounded-full text-xs font-bold animate-pulse">{t('game.yourTurn')}</span>}
+              {waitingToDraw && <span className="bg-[var(--royal-crimson-light)] text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce">{t('game.drawCard')}</span>}
               {mustPlayAccomplice && !waitingToDraw && (
                 <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-                  Must Play Accomplice!
+                  {t('game.mustPlayAccomplice')}
                 </span>
               )}
               {amEliminated && (
                 <span className="bg-red-700 text-white text-xs font-black px-3 py-1 rounded-full uppercase flex items-center gap-1">
-                  <Skull className="w-4 h-4" /> ELIMINATED
+                  <Skull className="w-4 h-4" /> {t('game.eliminated')}
                 </span>
               )}
 
@@ -730,7 +730,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               {/* Row 1: Playing + Target */}
               <div className={`flex items-center gap-4 ${selectedCard === 1 ? 'w-full' : ''}`}>
                 <div className="flex flex-col">
-                  <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">Playing</span>
+                  <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">{t('game.playing')}</span>
                   <span className="font-bold text-[var(--royal-gold)]">{CARD_NAMES[selectedCard]}</span>
                 </div>
 
@@ -739,15 +739,15 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                 {/* Dynamic Inputs based on Card */}
                 {[1, 2, 3, 5, 6].includes(selectedCard) && (
                   <div className="flex flex-col">
-                    <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">Target</span>
+                    <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">{t('game.target')}</span>
                     {selectedCard === 5 && !allOpponentsProtected ? (
                       <select
                         className="bg-[var(--velvet-dark)] border border-[rgba(var(--accent-color-rgb),0.30)] rounded px-2 py-1 text-sm outline-none focus:border-[var(--royal-gold)] text-white"
                         value={targetId || ''}
                         onChange={e => setTargetId(e.target.value)}
                       >
-                        <option value="">Select Target...</option>
-                        <option value={me?.id}>Self</option>
+                        <option value="">{t('game.selectTargetPlaceholder')}</option>
+                        <option value={me?.id}>{t('game.self')}</option>
                         {otherPlayers.map(
                           p =>
                             !p.isEliminated &&
@@ -760,7 +760,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                       </select>
                     ) : allOpponentsProtected ? (
                       <span className="font-bold text-[var(--royal-gold-light)]">
-                        {selectedCard === 5 ? 'Self (Forced)' : 'None (All Protected)'}
+                        {selectedCard === 5 ? t('game.selfForced') : t('game.noneAllProtected')}
                       </span>
                     ) : (
                       <span
@@ -782,7 +782,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                       disabled={[2, 3, 5, 6].includes(selectedCard) && !allOpponentsProtected && !targetId}
                       className="bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white px-6 py-2 rounded-lg font-bold shadow-lg disabled:opacity-50 disabled:grayscale transition-all"
                     >
-                      Confirm
+                      {t('game.confirm')}
                     </button>
                     <button
                       onClick={() => {
@@ -792,7 +792,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                       }}
                       className="text-[var(--parchment-dark)] hover:text-white px-2"
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                   </>
                 )}
@@ -801,7 +801,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               {/* Row 2: Inspector card selection grid */}
               {selectedCard === 1 && (
                 <div className="flex flex-col gap-2">
-                  <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">Guess Card</span>
+                  <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">{t('game.guessCard')}</span>
                   <div className="grid grid-cols-4 gap-3 justify-items-center">
                     {[2, 3, 4, 5, 6, 7, 8].map(cardNum => (
                       <div
@@ -836,7 +836,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                     disabled={(!allOpponentsProtected && !targetId) || (!allOpponentsProtected && !guessCard)}
                     className="bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white px-8 py-2 rounded-lg font-bold shadow-lg disabled:opacity-50 disabled:grayscale transition-all"
                   >
-                    Confirm
+                    {t('game.confirm')}
                   </button>
                   <button
                     onClick={() => {
@@ -846,7 +846,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                     }}
                     className="text-[var(--parchment-dark)] hover:text-white px-4 py-2"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                 </div>
               )}
@@ -865,7 +865,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                </h2>
 
                <div className="my-8">
-                  <div className="text-[var(--parchment-dark)] mb-2 uppercase text-xs tracking-widest">Winner</div>
+                  <div className="text-[var(--parchment-dark)] mb-2 uppercase text-xs tracking-widest">{t('game.winner')}</div>
                   <div className="text-3xl font-bold text-white">
                       {lobby.gameData.winner
                         ? lobby.players.find(p => p.id === lobby.gameData?.winner)?.name
@@ -905,12 +905,12 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               transition={{ duration: 0.15 }}
               role="dialog"
               aria-modal="true"
-              aria-label="Evidence locker"
+              aria-label={t('evidence.openEvidenceLocker')}
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(var(--accent-color-rgb),0.18)]">
                 <div>
                   <div className="hg-meta text-xs tracking-widest text-[rgba(var(--accent-color-rgb),0.85)] font-bold">{t('evidence.locker')}</div>
-                  <div className="text-sm text-[rgba(246,240,230,0.75)]">{totalDiscardedCount} items logged</div>
+                  <div className="text-sm text-[rgba(246,240,230,0.75)]">{totalDiscardedCount} {t('evidence.itemsLogged')}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
@@ -927,7 +927,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                           onClick={() => discardTimeline && setDiscardViewerMode('timeline')}
                           title={discardTimeline ? 'Show evidence in order' : 'Chronology requires updated server evidence history'}
                         >
-                          Chronology
+                          {t('evidence.chronology')}
                         </button>
                         <button
                           className={`px-3 py-1 rounded-md text-xs font-bold transition-colors ${
@@ -935,7 +935,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                         }`}
                           onClick={() => setDiscardViewerMode('by-player')}
                         >
-                          By Player
+                          {t('evidence.byPlayer')}
                       </button>
                     </div>
 
@@ -947,7 +947,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                           }`}
                           onClick={() => setDiscardViewerOrder('newest')}
                         >
-                          Newest First
+                          {t('evidence.newestFirst')}
                         </button>
                         <button
                           className={`px-3 py-1 rounded-md text-xs font-bold transition-colors ${
@@ -955,7 +955,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                           }`}
                           onClick={() => setDiscardViewerOrder('oldest')}
                         >
-                          Oldest First
+                          {t('evidence.oldestFirst')}
                         </button>
                       </div>
                     )}
@@ -965,7 +965,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                     className="text-[var(--parchment-dark)] hover:text-white px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                     onClick={() => setIsDiscardViewerOpen(false)}
                   >
-                    Close
+                    {t('evidence.close')}
                   </button>
                 </div>
               </div>
@@ -979,8 +979,8 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                     {faceUpCards.length > 0 && (
                       <div className="border-b border-[rgba(var(--accent-color-rgb),0.2)] pb-4">
                         <div className="text-center text-sm text-[rgba(246,240,230,0.8)] mb-3">
-                          <span className="text-[var(--royal-gold)] font-bold">Removed at Start</span>
-                          <span className="text-[rgba(246,240,230,0.5)]"> (out of play)</span>
+                          <span className="text-[var(--royal-gold)] font-bold">{t('evidence.removedAtStart')}</span>
+                          <span className="text-[rgba(246,240,230,0.5)]"> {t('evidence.outOfPlay')}</span>
                         </div>
                         <div className="flex flex-wrap gap-3 justify-center">
                           {faceUpCards.map((card, idx) => (
@@ -1000,7 +1000,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                       <>
                         {lastDiscardEvent && (
                           <div className="text-center text-sm text-[rgba(246,240,230,0.8)]">
-                            Latest evidence: <span className="text-white font-bold">{CARD_NAMES[lastDiscardEvent.card]}</span>
+                            {t('evidence.latestEvidence')}: <span className="text-white font-bold">{CARD_NAMES[lastDiscardEvent.card]}</span>
                             {typeof lastDiscardOrder === 'number' ? (
                               <span className="hg-meta ml-2 text-[rgba(246,240,230,0.8)]">#{lastDiscardOrder}</span>
                             ) : null}
@@ -1015,7 +1015,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                 && evt.timestamp === lastDiscardEvent.timestamp
                                 && evt.playerId === lastDiscardEvent.playerId
                                 && evt.card === lastDiscardEvent.card;
-                              const actionLabel = evt.kind === 'forced-discard' ? 'Compelled discard' : 'Played';
+                              const actionLabel = evt.kind === 'forced-discard' ? t('evidence.compelledDiscard') : t('evidence.played');
 
                               return (
                                 <div key={`discard-timeline-${evt.playerId}-${evt.timestamp}-${evt.card}`} className="flex flex-col items-center gap-2">
@@ -1032,7 +1032,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                       className={`relative transition-all cursor-zoom-in ${
                                         isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''
                                       }`}
-                                      aria-label={`Inspect ${CARD_NAMES[evt.card]}`}
+                                      aria-label={t('evidence.inspectCard').replace('{cardName}', CARD_NAMES[evt.card])}
                                     >
                                       <DynamicCard
                                         cardType={evt.card}
@@ -1043,7 +1043,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                       </div>
                                     {isMostRecent && (
                                       <div className="hg-stamp absolute top-2 left-2 text-[10px] font-black px-2 py-1 rounded-full z-20">
-                                        LATEST
+                                        {t('evidence.latest')}
                                       </div>
                                     )}
                                   </button>
@@ -1075,7 +1075,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                     <div key={`discard-by-player-${p.id}`} className="space-y-3">
                                       <div className="flex items-baseline justify-between">
                                         <div className="text-white font-bold">{entry.playerName}</div>
-                                        <div className="text-xs text-[rgba(246,240,230,0.7)]">{events.length} items</div>
+                                        <div className="text-xs text-[rgba(246,240,230,0.7)]">{events.length} {t('evidence.items')}</div>
                                       </div>
                                       <div className="flex flex-wrap gap-3 justify-center">
                                         {events.map((evt, eventIdx) => {
@@ -1097,7 +1097,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                                 type="button"
                                                 onClick={() => openZoom({ title: t('evidence.playerEvidence').replace('{playerName}', entry.playerName), cards: buildZoomCardsFromTimeline(events as DiscardEventWithOrder[]), index: eventIdx })}
                                                 className={`relative transition-all cursor-zoom-in ${isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''}`}
-                                                aria-label={`Inspect ${CARD_NAMES[evt.card]}`}
+                                                aria-label={t('evidence.inspectCard').replace('{cardName}', CARD_NAMES[evt.card])}
                                               >
                                                 <DynamicCard
                                                   cardType={evt.card}
@@ -1210,7 +1210,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                           className="text-[var(--parchment-dark)] hover:text-white px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                           onClick={() => setZoomContext(null)}
                         >
-                          Close
+                          {t('evidence.close')}
                         </button>
                       </div>
                     </div>
@@ -1229,13 +1229,13 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                 return { ...prev, index: nextIndex };
                               })}
                             >
-                              Prev
+                              {t('evidence.prev')}
                             </button>
 
                             <div className="text-center min-w-0">
                               <div className="text-white font-bold truncate">{active.caption}</div>
                               {active.meta && <div className="hg-meta text-[10px] mt-1">{active.meta}</div>}
-                              <div className="hg-meta text-[10px] mt-1 text-[rgba(246,240,230,0.65)]">Tip: use ← / → keys</div>
+                              <div className="hg-meta text-[10px] mt-1 text-[rgba(246,240,230,0.65)]">{t('evidence.tipUseArrowKeys')}</div>
                             </div>
 
                             <button
@@ -1247,7 +1247,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                 return { ...prev, index: nextIndex };
                               })}
                             >
-                              Next
+                              {t('evidence.next')}
                             </button>
                           </div>
 

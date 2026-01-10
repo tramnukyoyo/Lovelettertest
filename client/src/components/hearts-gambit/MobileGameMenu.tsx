@@ -80,15 +80,15 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
     {
       id: 'room-code',
       icon: linkCopied ? Check : Copy,
-      label: `Room: ${roomCode}`,
-      sublabel: linkCopied ? 'Link copied!' : 'Tap to copy invite link',
+      label: `${t('menu.room')}: ${roomCode}`,
+      sublabel: linkCopied ? t('menu.linkCopied') : t('menu.tapToCopyInviteLink'),
       action: onCopyLink,
       highlight: true,
     },
     {
       id: 'players',
       icon: Users,
-      label: 'Players',
+      label: t('menu.players'),
       sublabel: playerCount || '',
       action: () => {}, // Could open players drawer
       show: !!playerCount,
@@ -108,8 +108,8 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
     {
       id: 'chat',
       icon: MessageCircle,
-      label: 'Chat',
-      sublabel: unreadCount > 0 ? `${unreadCount} new message${unreadCount > 1 ? 's' : ''}` : 'Open chat',
+      label: t('menu.chat'),
+      sublabel: unreadCount > 0 ? (unreadCount > 1 ? t('menu.newMessagesPlural').replace('{count}', String(unreadCount)) : t('menu.newMessages').replace('{count}', String(unreadCount))) : t('menu.openChat'),
       action: onChat ? () => handleMenuItemClick(onChat) : undefined,
       show: !!onChat,
       badge: unreadCount > 0 ? unreadCount : undefined,
@@ -117,22 +117,22 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
     {
       id: 'video',
       icon: isVideoEnabled ? Video : VideoOff,
-      label: isVideoEnabled ? 'Video On' : 'Video Off',
-      sublabel: 'Tap to toggle',
+      label: isVideoEnabled ? t('menu.videoOn') : t('menu.videoOff'),
+      sublabel: t('menu.tapToToggle'),
       action: onToggleVideo ? () => handleMenuItemClick(onToggleVideo) : undefined,
       show: !!onToggleVideo,
     },
     {
       id: 'settings',
       icon: Settings,
-      label: 'Settings',
+      label: t('menu.settings'),
       action: onSettings ? () => handleMenuItemClick(onSettings) : undefined,
       show: !!onSettings,
     },
     {
       id: 'leave',
       icon: LogOut,
-      label: 'Leave Room',
+      label: t('menu.leaveRoom'),
       action: () => handleMenuItemClick(onLeave),
       danger: true,
     },
@@ -154,7 +154,7 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
             rounded-lg transition-colors
             ${className}
           `}
-          aria-label="Open menu"
+          aria-label={t('menu.openMenu')}
           aria-expanded={isOpen}
         >
           <Menu className="w-4 h-4 text-[#f6f0e6]" />
@@ -194,12 +194,12 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
               {/* Header */}
               <div className="flex items-center justify-between px-3 py-2 border-b border-[rgba(var(--accent-color-rgb),0.2)]">
                 <span className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider">
-                  Menu
+                  {t('menu.title')}
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="hg-icon-btn w-6 h-6 flex items-center justify-center rounded-md hover:bg-[rgba(var(--accent-color-rgb),0.2)] transition-colors"
-                  aria-label="Close menu"
+                  aria-label={t('menu.closeMenu')}
                 >
                   <X className="hg-icon-btn-sm w-3.5 h-3.5 text-[#f6f0e6]" />
                 </button>
