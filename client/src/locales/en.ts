@@ -199,6 +199,11 @@ export const en = {
   'gm.roundSettings': 'Round Settings',
   'gm.roundDurationSeconds': 'Round Duration (Seconds)',
   'gm.updateTimer': 'Update Timer',
+  'gm.timerSettings': 'Timer Settings',
+  'gm.durationSeconds': 'Duration (Seconds)',
+  'gm.timerControl': 'Timer Control',
+  'gm.finaleQuestions': 'Finale Questions',
+  'gm.summarize': 'Summarize',
 
   'gm.difficulty': 'Difficulty',
   'gm.expectedAnswer': 'Expected Answer',
