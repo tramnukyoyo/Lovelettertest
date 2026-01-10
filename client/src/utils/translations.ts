@@ -938,13 +938,30 @@ export const getTranslation = (key: keyof typeof translations.en, language: Lang
   return translations[language][key] || translations.en[key] || key;
 };
 
+// Storage keys
+const GAMEBUDDIES_LANGUAGE_KEY = 'gamebuddies-language';
+const LOCAL_LANGUAGE_KEY = 'heartsgambit-language';
+
 // Get current language from localStorage
+// Checks GameBuddies.io platform language first for seamless integration
 export const getCurrentLanguage = (): Language => {
-  const saved = localStorage.getItem('ddf-language') as Language;
-  return saved && (saved === 'en' || saved === 'de') ? saved : 'en';
+  // First check GameBuddies.io platform language
+  const platformLang = localStorage.getItem(GAMEBUDDIES_LANGUAGE_KEY) as Language;
+  if (platformLang === 'en' || platformLang === 'de') {
+    return platformLang;
+  }
+  // Fallback to local game setting
+  const localLang = localStorage.getItem(LOCAL_LANGUAGE_KEY) as Language;
+  if (localLang === 'en' || localLang === 'de') {
+    return localLang;
+  }
+  // Default to English
+  return 'en';
 };
 
 // Set language in localStorage
+// Updates both local and platform keys for consistency
 export const setCurrentLanguage = (language: Language): void => {
-  localStorage.setItem('ddf-language', language);
+  localStorage.setItem(LOCAL_LANGUAGE_KEY, language);
+  localStorage.setItem(GAMEBUDDIES_LANGUAGE_KEY, language);
 }; 

@@ -3,6 +3,7 @@ import { Settings } from 'lucide-react';
 
 import { GAME_META } from '../config/gameMeta';
 import { SettingsModal } from './SettingsModalNoir';
+import SimpleLanguageSelector from './SimpleLanguageSelector';
 
 const Header: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -31,6 +32,7 @@ const Header: React.FC = () => {
       </a>
 
       <div className="header-right">
+        <SimpleLanguageSelector />
         <button
           onClick={() => setIsSettingsOpen(true)}
           className="game-header-settings-btn"
