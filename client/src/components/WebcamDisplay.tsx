@@ -728,7 +728,7 @@ const DeviceSettingsModal: React.FC<{
           <div className="flex items-center justify-between p-6 border-b border-slate-600/50">
             <h3 className="text-lg font-semibold text-slate-200 flex items-center">
               <Settings className="w-5 h-5 mr-2 text-cyan-400" />
-              Video & Audio Settings
+              {getTranslation('video.deviceSettings', language)}
             </h3>
             <button
               onClick={handleClose}
@@ -743,7 +743,7 @@ const DeviceSettingsModal: React.FC<{
         {(isPreparationMode || localStream) && (
           <div className="p-6 border-b border-slate-600/50">
             <h4 className="text-md font-medium text-cyan-400 mb-3 flex items-center">
-              Preview
+              {getTranslation('video.preview', language)}
             </h4>
             <div className="flex justify-center">
               <div className="relative bg-slate-900 rounded-xl overflow-hidden border-2 border-cyan-500/50 shadow-lg shadow-cyan-500/10 aspect-video w-full max-w-sm">
@@ -761,7 +761,7 @@ const DeviceSettingsModal: React.FC<{
                 )}
                 {/* Preview label */}
                 <div className="absolute bottom-2 left-2 bg-blue-600/80 text-white px-2 py-1 rounded text-xs font-medium">
-                  {localStream ? 'Preview' : 'Settings'}
+                  {getTranslation(localStream ? 'video.previewLabel' : 'video.settingsLabel', language)}
                 </div>
               </div>
             </div>
@@ -769,12 +769,12 @@ const DeviceSettingsModal: React.FC<{
               <p className="text-cyan-200 text-sm text-center">
                 {isPreparationMode ? (
                   localStream ?
-                    '👀 This is how you\'ll appear to other players. Configure your settings below before joining.' :
-                    '⚙️ Configure your camera, microphone, and effects below. Your camera will activate when you join.'
+                    `👀 ${getTranslation('video.previewDescriptionPrepMode', language)}` :
+                    `⚙️ ${getTranslation('video.configureSettingsPrepMode', language)}`
                 ) : (
                   localStream ?
-                    '👀 This is your current video feed. Adjust your settings below - changes apply immediately.' :
-                    '⚙️ Configure your camera and microphone settings. Changes will apply to your video feed.'
+                    `👀 ${getTranslation('video.previewDescriptionActive', language)}` :
+                    `⚙️ ${getTranslation('video.configureSettingsActive', language)}`
                 )}
               </p>
             </div>
@@ -792,7 +792,7 @@ const DeviceSettingsModal: React.FC<{
             }`}
           >
             <Settings size={16} />
-            <span>Devices</span>
+            <span>{getTranslation('video.devicesTab', language)}</span>
           </button>
           <button
             onClick={() => setSelectedTab('background')}
@@ -803,7 +803,7 @@ const DeviceSettingsModal: React.FC<{
             }`}
           >
             <Sparkles size={16} />
-            <span>Background</span>
+            <span>{getTranslation('video.backgroundTab', language)}</span>
           </button>
           <button
             onClick={() => setSelectedTab('audio')}
@@ -814,7 +814,7 @@ const DeviceSettingsModal: React.FC<{
             }`}
           >
             <Mic size={16} />
-            <span>Audio</span>
+            <span>{getTranslation('video.audioTab', language)}</span>
           </button>
           {/* Hidden Avatar Tab - Only show when activated */}
           {showAvatarOption && (
@@ -827,7 +827,7 @@ const DeviceSettingsModal: React.FC<{
               }`}
             >
               <span className="text-lg">🎭</span>
-              <span>3D Avatar</span>
+              <span>{getTranslation('video.avatarTab', language)}</span>
             </button>
           )}
         </div>
@@ -837,7 +837,7 @@ const DeviceSettingsModal: React.FC<{
             <div className="space-y-4">
               {/* Camera Selection */}
               <div>
-                <label className="text-sm text-slate-300 font-medium block mb-2">Camera</label>
+                <label className="text-sm text-slate-300 font-medium block mb-2">{getTranslation('video.cameraLabel', language)}</label>
                 <select
                   value={selectedDevices.cameraId}
                   onChange={(e) => setSelectedCamera(e.target.value)}
@@ -853,7 +853,7 @@ const DeviceSettingsModal: React.FC<{
 
               {/* Microphone Selection */}
               <div>
-                <label className="text-sm text-slate-300 font-medium block mb-2">Microphone</label>
+                <label className="text-sm text-slate-300 font-medium block mb-2">{getTranslation('video.microphoneLabel', language)}</label>
                 <select
                   value={selectedDevices.microphoneId}
                   onChange={(e) => setSelectedMicrophone(e.target.value)}
@@ -877,7 +877,7 @@ const DeviceSettingsModal: React.FC<{
               {/* Device Info */}
               <div className="bg-gradient-to-r from-amber-900/30 to-yellow-900/30 border border-amber-400/50 rounded-lg p-3">
                 <p className="text-amber-200 text-sm">
-                  💡 <strong>Tip:</strong> Changes will take effect immediately. If you experience issues, try refreshing your browser.
+                  💡 <strong>{getTranslation('video.deviceTip', language)}:</strong> {getTranslation('video.deviceTipDescription', language)}
                 </p>
               </div>
             </div>
@@ -1313,13 +1313,13 @@ const DeviceSettingsModal: React.FC<{
             onClick={handleClose}
             className={`bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors font-medium ${isMobile ? 'flex-1 py-3' : 'px-6 py-2'}`}
           >
-            Cancel
+            {getTranslation('video.cancel', language)}
           </button>
           <button
             onClick={handleDone}
             className={`bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium ${isMobile ? 'flex-1 py-3' : 'px-6 py-2'}`}
           >
-            Done
+            {getTranslation('video.done', language)}
           </button>
         </div>
       </div>

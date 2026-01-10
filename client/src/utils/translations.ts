@@ -488,7 +488,23 @@ export const translations = {
     'video.freeAlternativeToKrisp': 'Free Alternative to Krisp',
     'video.freeAlternativeToKrispDescription': 'Professional-grade audio processing without subscriptions.',
     'video.done': 'Done',
-    
+    'video.cancel': 'Cancel',
+
+    // Video Settings UI
+    'video.preview': 'Preview',
+    'video.previewLabel': 'Preview',
+    'video.settingsLabel': 'Settings',
+    'video.previewDescriptionPrepMode': 'This is how you\'ll appear to other players. Configure your settings below before joining.',
+    'video.previewDescriptionActive': 'This is your current video feed. Adjust your settings below - changes apply immediately.',
+    'video.configureSettingsPrepMode': 'Configure your camera, microphone, and effects below. Your camera will activate when you join.',
+    'video.configureSettingsActive': 'Configure your camera and microphone settings. Changes will apply to your video feed.',
+    'video.devicesTab': 'Devices',
+    'video.backgroundTab': 'Background',
+    'video.audioTab': 'Audio',
+    'video.avatarTab': '3D Avatar',
+    'video.cameraLabel': 'Camera',
+    'video.microphoneLabel': 'Microphone',
+
     // Video Controls & Tooltips
     'video.turnOffCamera': 'Turn off camera',
     'video.turnOnCamera': 'Turn on camera',
@@ -648,6 +664,7 @@ export const translations = {
 
     // Game UI
     'game.waitingForPlayers': 'Waiting for Players',
+    'game.waitingForOpponents': 'Waiting for opponents...',
     'game.startGame': 'Start Game',
     'game.tokens': '{count} Tokens',
 
@@ -1139,7 +1156,23 @@ export const translations = {
     'video.freeAlternativeToKrisp': 'Kostenlose Alternative zu Krisp',
     'video.freeAlternativeToKrispDescription': 'Professionelle Audio-Verarbeitung ohne Abonnements.',
     'video.done': 'Fertig',
-    
+    'video.cancel': 'Abbrechen',
+
+    // Video Settings UI
+    'video.preview': 'Vorschau',
+    'video.previewLabel': 'Vorschau',
+    'video.settingsLabel': 'Einstellungen',
+    'video.previewDescriptionPrepMode': 'So werden Sie anderen Spielern erscheinen. Konfigurieren Sie Ihre Einstellungen unten, bevor Sie beitreten.',
+    'video.previewDescriptionActive': 'Dies ist Ihr aktueller Video-Feed. Passen Sie Ihre Einstellungen unten an - Änderungen werden sofort übernommen.',
+    'video.configureSettingsPrepMode': 'Konfigurieren Sie Ihre Kamera, Mikrofon und Effekte unten. Ihre Kamera wird aktiviert, wenn Sie beitreten.',
+    'video.configureSettingsActive': 'Konfigurieren Sie Ihre Kamera- und Mikrofoneinstellungen. Änderungen werden auf Ihren Video-Feed angewendet.',
+    'video.devicesTab': 'Geräte',
+    'video.backgroundTab': 'Hintergrund',
+    'video.audioTab': 'Audio',
+    'video.avatarTab': '3D-Avatar',
+    'video.cameraLabel': 'Kamera',
+    'video.microphoneLabel': 'Mikrofon',
+
     // Video Controls & Tooltips
     'video.turnOffCamera': 'Kamera ausschalten',
     'video.turnOnCamera': 'Kamera einschalten',
@@ -1300,6 +1333,7 @@ export const translations = {
 
     // Game UI
     'game.waitingForPlayers': 'Warte auf Spieler',
+    'game.waitingForOpponents': 'Warte auf Gegner...',
     'game.startGame': 'Spiel starten',
     'game.tokens': '{count} Token',
 

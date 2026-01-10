@@ -41,7 +41,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
   if (players.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-[var(--parchment-dark)] italic text-sm">
-        Waiting for opponents...
+        {t('game.waitingForOpponents')}
       </div>
     );
   }
