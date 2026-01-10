@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Volume2, Music2, Sparkles } from 'lucide-react';
 import { soundEffects } from '../utils/soundEffects';
 import { backgroundMusic } from '../utils/backgroundMusic';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -10,6 +11,8 @@ interface SettingsModalProps {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
 
   // Lazy initialization from localStorage
   const [musicVolume, setMusicVolume] = useState(() => {
@@ -104,15 +107,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
       >
           <div className="settings-modal-header">
             <div className="settings-modal-title">
-              <div className="settings-modal-eyebrow">Case Settings</div>
-              <h2 id="settings-modal-title">Ambience</h2>
+              <div className="settings-modal-eyebrow">{t('settingsNoir.caseSettings')}</div>
+              <h2 id="settings-modal-title">{t('settingsNoir.ambience')}</h2>
             </div>
             <button
               ref={closeButtonRef}
               type="button"
               className="settings-modal-close"
               onClick={onClose}
-              aria-label="Close settings"
+              aria-label={t('settings.close')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -123,10 +126,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <div className="settings-row">
                 <div className="settings-row-label">
                   <Music2 className="w-4 h-4" />
-                  <span>Background Music</span>
+                  <span>{t('settingsNoir.backgroundMusic')}</span>
                 </div>
                 <div className="settings-row-actions">
-                  <span className="settings-row-value">{backgroundMusicEnabled ? 'ON' : 'OFF'}</span>
+                  <span className="settings-row-value">{backgroundMusicEnabled ? t('settingsNoir.on') : t('settingsNoir.off')}</span>
                   <button
                     type="button"
                     className={`settings-switch ${backgroundMusicEnabled ? 'on' : 'off'}`}
@@ -141,7 +144,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <div className="settings-row" style={{ marginBottom: 0 }}>
                 <div className="settings-row-label">
                   <Volume2 className="w-4 h-4" />
-                  <span>Music Volume</span>
+                  <span>{t('settingsNoir.musicVolume')}</span>
                 </div>
                 <div className="settings-row-value">{musicVolume}%</div>
               </div>
@@ -152,10 +155,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 value={musicVolume}
                 onChange={(e) => setMusicVolume(parseInt(e.target.value, 10))}
                 className="settings-slider"
-                aria-label="Music volume"
+                aria-label={t('settingsNoir.musicVolume')}
               />
               <div className="settings-subtext">
-                If music does not start, click once anywhere (browser autoplay rule).
+                {t('settingsNoir.autoplayHint')}
               </div>
             </section>
 
@@ -163,10 +166,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <div className="settings-row">
                 <div className="settings-row-label">
                   <Sparkles className="w-4 h-4" />
-                  <span>Sound Effects</span>
+                  <span>{t('settingsNoir.soundEffects')}</span>
                 </div>
                 <div className="settings-row-actions">
-                  <span className="settings-row-value">{soundEffectsEnabled ? 'ON' : 'OFF'}</span>
+                  <span className="settings-row-value">{soundEffectsEnabled ? t('settingsNoir.on') : t('settingsNoir.off')}</span>
                   <button
                     type="button"
                     className={`settings-switch ${soundEffectsEnabled ? 'on' : 'off'}`}
@@ -181,7 +184,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <div className="settings-row" style={{ marginBottom: 0 }}>
                 <div className="settings-row-label">
                   <Volume2 className="w-4 h-4" />
-                  <span>Effects Volume</span>
+                  <span>{t('settingsNoir.effectsVolume')}</span>
                 </div>
                 <div className="settings-row-value">{sfxVolume}%</div>
               </div>
@@ -192,13 +195,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 value={sfxVolume}
                 onChange={(e) => setSfxVolume(parseInt(e.target.value, 10))}
                 className="settings-slider"
-                aria-label="Sound effects volume"
+                aria-label={t('settingsNoir.effectsVolume')}
               />
             </section>
           </div>
 
           <div className="settings-modal-footer">
-            <div className="settings-hint">Saved automatically</div>
+            <div className="settings-hint">{t('settings.savedAutomatically')}</div>
           </div>
         </div>
       </div>,

@@ -47,7 +47,50 @@ export const translations = {
     'home.enterRoomCode': 'Enter 6-digit room code',
     'home.voiceChatRecommended': '🎧 Voice chat via Discord or similar app recommended',
     'home.createLobby': 'Create Lobby',
-    
+    'home.deductionCardGame': 'Deduction Card Game',
+    'home.createRoom': 'Create Room',
+    'home.joinRoom': 'Join Game',
+    'home.createRoomDescription': 'Start a private room and invite your players to join the sync.',
+    'home.joinRoomDescription': 'Enter the room code from your host to jump into the live round.',
+    'home.yourName': 'Your name',
+    'home.streamerMode': 'Streamer Mode (hide room code)',
+    'home.streamerModeEnabled': 'Streamer mode enabled • room code hidden',
+    'home.linkedWithGameBuddies': 'Linked with GameBuddies – use your session to join instantly',
+    'home.shareTip': 'Share the room code or use streamer mode for safe invites.',
+    'home.pleaseEnterName': 'Please enter your name',
+    'home.pleaseEnterRoomCode': 'Please enter a room code',
+
+    // Header
+    'header.settings': 'Settings',
+    'header.openMenu': 'Open menu',
+    'header.closeMenu': 'Close menu',
+    'header.menu': 'Menu',
+    'header.language': 'Language',
+    'header.howToPlay': 'How to Play',
+    'header.learnTheRules': 'Learn the rules',
+    'header.soundAndMusic': 'Sound & music',
+
+    // Settings
+    'settings.title': 'Settings',
+    'settings.close': 'Close settings',
+    'settings.volume': 'Volume',
+    'settings.enableBackgroundMusic': 'Enable Background Music',
+    'settings.enableSoundEffects': 'Enable Sound Effects',
+    'settings.performanceMode': 'Performance Mode',
+    'settings.performanceModeHint': 'Disable visual effects for better performance on slower devices',
+    'settings.savedAutomatically': 'Sound settings saved automatically',
+
+    // Settings Noir (HeartsGambit themed)
+    'settingsNoir.caseSettings': 'Case Settings',
+    'settingsNoir.ambience': 'Ambience',
+    'settingsNoir.backgroundMusic': 'Background Music',
+    'settingsNoir.on': 'ON',
+    'settingsNoir.off': 'OFF',
+    'settingsNoir.musicVolume': 'Music Volume',
+    'settingsNoir.autoplayHint': 'If music does not start, click once anywhere (browser autoplay rule).',
+    'settingsNoir.soundEffects': 'Sound Effects',
+    'settingsNoir.effectsVolume': 'Effects Volume',
+
     // Game
     'game.loading': 'Loading game...',
     'game.waiting': 'Waiting for players...',
@@ -507,7 +550,50 @@ export const translations = {
     'home.enterRoomCode': '6-stelligen Raumcode eingeben',
     'home.voiceChatRecommended': '🎧 Sprachchat über Discord oder ähnliche App empfohlen',
     'home.createLobby': 'Lobby erstellen',
-    
+    'home.deductionCardGame': 'Deduktions-Kartenspiel',
+    'home.createRoom': 'Raum erstellen',
+    'home.joinRoom': 'Spiel beitreten',
+    'home.createRoomDescription': 'Starten Sie einen privaten Raum und laden Sie Ihre Spieler zum Sync ein.',
+    'home.joinRoomDescription': 'Geben Sie den Raumcode Ihres Hosts ein, um der Live-Runde beizutreten.',
+    'home.yourName': 'Ihr Name',
+    'home.streamerMode': 'Streamer-Modus (Raumcode verbergen)',
+    'home.streamerModeEnabled': 'Streamer-Modus aktiviert • Raumcode verborgen',
+    'home.linkedWithGameBuddies': 'Mit GameBuddies verknüpft – nutzen Sie Ihre Sitzung für sofortigen Beitritt',
+    'home.shareTip': 'Teilen Sie den Raumcode oder nutzen Sie den Streamer-Modus für sichere Einladungen.',
+    'home.pleaseEnterName': 'Bitte geben Sie Ihren Namen ein',
+    'home.pleaseEnterRoomCode': 'Bitte geben Sie einen Raumcode ein',
+
+    // Header
+    'header.settings': 'Einstellungen',
+    'header.openMenu': 'Menü öffnen',
+    'header.closeMenu': 'Menü schließen',
+    'header.menu': 'Menü',
+    'header.language': 'Sprache',
+    'header.howToPlay': 'Spielanleitung',
+    'header.learnTheRules': 'Lerne die Regeln',
+    'header.soundAndMusic': 'Ton & Musik',
+
+    // Settings
+    'settings.title': 'Einstellungen',
+    'settings.close': 'Einstellungen schließen',
+    'settings.volume': 'Lautstärke',
+    'settings.enableBackgroundMusic': 'Hintergrundmusik aktivieren',
+    'settings.enableSoundEffects': 'Soundeffekte aktivieren',
+    'settings.performanceMode': 'Leistungsmodus',
+    'settings.performanceModeHint': 'Visuelle Effekte deaktivieren für bessere Leistung auf langsameren Geräten',
+    'settings.savedAutomatically': 'Soundeinstellungen werden automatisch gespeichert',
+
+    // Settings Noir (HeartsGambit themed)
+    'settingsNoir.caseSettings': 'Fall-Einstellungen',
+    'settingsNoir.ambience': 'Atmosphäre',
+    'settingsNoir.backgroundMusic': 'Hintergrundmusik',
+    'settingsNoir.on': 'AN',
+    'settingsNoir.off': 'AUS',
+    'settingsNoir.musicVolume': 'Musik-Lautstärke',
+    'settingsNoir.autoplayHint': 'Wenn die Musik nicht startet, klicken Sie einmal irgendwo (Browser-Autoplay-Regel).',
+    'settingsNoir.soundEffects': 'Soundeffekte',
+    'settingsNoir.effectsVolume': 'Effekt-Lautstärke',
+
     // Game
     'game.loading': 'Spiel wird geladen...',
     'game.waiting': 'Warte auf Spieler...',

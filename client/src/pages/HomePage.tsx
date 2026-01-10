@@ -6,6 +6,7 @@ import TutorialCarousel, { TutorialButton } from '../components/TutorialCarousel
 import { GAME_META } from '../config/gameMeta';
 import { playEliminatedSound } from '../utils/soundEffects';
 import { useTypewriterSound } from '../hooks/useTypewriterSound';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface HomePageProps {
   onCreateRoom: (playerName: string, session: GameBuddiesSession | null, streamerMode: boolean) => void;
@@ -22,6 +23,8 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
   const cardsRef = useRef<HTMLDivElement>(null);
   const { onKeyDown: typewriterKeyDown } = useTypewriterSound();
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
 
   // Update tutorial position to align with cards
   useEffect(() => {
@@ -70,7 +73,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
     e.preventDefault();
 
     if (!createName.trim()) {
-      alert('Please enter your name');
+      alert(t('home.pleaseEnterName'));
       return;
     }
 
@@ -83,12 +86,12 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
     e.preventDefault();
 
     if (!joinName.trim()) {
-      alert('Please enter your name');
+      alert(t('home.pleaseEnterName'));
       return;
     }
 
     if (!joinCode.trim()) {
-      alert('Please enter a room code');
+      alert(t('home.pleaseEnterRoomCode'));
       return;
     }
 
@@ -113,7 +116,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                 className="home-mascot-anim"
               />
             </div>
-            <span className="eyebrow">Deduction Card Game</span>
+            <span className="eyebrow">{t('home.deductionCardGame')}</span>
             <h1>{GAME_META.name}</h1>
             <p className="home-tagline">{GAME_META.tagline}</p>
             <div className="tutorial-mobile-trigger">
@@ -126,8 +129,8 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
               <span role="img" aria-label="streamer">🎙️</span>
               <span>
                 {gameBuddiesSession.isStreamerMode
-                  ? 'Streamer mode enabled • room code hidden'
-                  : 'Linked with GameBuddies – use your session to join instantly'}
+                  ? t('home.streamerModeEnabled')
+                  : t('home.linkedWithGameBuddies')}
               </span>
             </div>
           )}
@@ -139,14 +142,14 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
               className={activeTab === 'create' ? 'active' : ''}
               onClick={() => setActiveTab('create')}
             >
-              Create Room
+              {t('home.createRoom')}
             </button>
             <button
               type="button"
               className={activeTab === 'join' ? 'active' : ''}
               onClick={() => setActiveTab('join')}
             >
-              Join Game
+              {t('home.joinRoom')}
             </button>
           </div>
 
@@ -154,18 +157,18 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
             <div className="split-actions" ref={cardsRef}>
               <div className={`split-card ${activeTab !== 'create' ? 'mobile-hidden' : ''}`}>
                 <div className="card-head">
-                  <h3>Create Room</h3>
-                  <p>Start a private room and invite your players to join the sync.</p>
+                  <h3>{t('home.createRoom')}</h3>
+                  <p>{t('home.createRoomDescription')}</p>
                 </div>
                 <form onSubmit={handleCreateSubmit} className="home-form">
                   <div className="form-group">
-                    <label>Your name</label>
+                    <label>{t('home.yourName')}</label>
                     <input
                       type="text"
                       value={createName}
                       onChange={(e) => setCreateName(e.target.value)}
                       onKeyDown={typewriterKeyDown}
-                      placeholder="Enter your name"
+                      placeholder={t('home.enterYourName')}
                       maxLength={20}
                       required
                       className="home-input"
@@ -177,48 +180,48 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                       checked={streamerMode}
                       onChange={(e) => setStreamerMode(e.target.checked)}
                     />
-                    <span>Streamer Mode (hide room code)</span>
+                    <span>{t('home.streamerMode')}</span>
                   </label>
                   <button type="submit" className="primary-cta create-cta">
-                    Create Room
+                    {t('home.createRoom')}
                   </button>
                 </form>
               </div>
 
               <div className={`split-card ${activeTab !== 'join' ? 'mobile-hidden' : ''}`}>
                 <div className="card-head">
-                  <h3>Join Game</h3>
-                  <p>Enter the room code from your host to jump into the live round.</p>
+                  <h3>{t('home.joinRoom')}</h3>
+                  <p>{t('home.joinRoomDescription')}</p>
                 </div>
                 <form onSubmit={handleJoinSubmit} className="home-form">
                   <div className="form-group">
-                    <label>Your name</label>
+                    <label>{t('home.yourName')}</label>
                     <input
                       type="text"
                       value={joinName}
                       onChange={(e) => setJoinName(e.target.value)}
                       onKeyDown={typewriterKeyDown}
-                      placeholder="Enter your name"
+                      placeholder={t('home.enterYourName')}
                       maxLength={20}
                       required
                       className="home-input"
                     />
                   </div>
                   <div className="form-group">
-                    <label>Room code</label>
+                    <label>{t('home.roomCode')}</label>
                     <input
                       type="text"
                       value={joinCode}
                       onChange={(e) => setJoinCode(e.target.value)}
                       onKeyDown={typewriterKeyDown}
-                      placeholder="Enter room code"
+                      placeholder={t('home.enterRoomCode')}
                       maxLength={40}
                       required
                       className="home-input"
                     />
                   </div>
                   <button type="submit" className="primary-cta join-cta">
-                    Join Game
+                    {t('home.joinRoom')}
                   </button>
                 </form>
               </div>
@@ -228,7 +231,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
 
           <div className="home-tip-banner" role="status" aria-live="polite">
             <span role="img" aria-label="tip">📡</span>
-            Share the room code or use streamer mode for safe invites.
+            {t('home.shareTip')}
           </div>
         </div>
       </div>

@@ -4,9 +4,12 @@ import { Settings } from 'lucide-react';
 import { GAME_META } from '../config/gameMeta';
 import { SettingsModal } from './SettingsModalNoir';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 const Header: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
 
   return (
     <>
@@ -36,7 +39,7 @@ const Header: React.FC = () => {
         <button
           onClick={() => setIsSettingsOpen(true)}
           className="game-header-settings-btn"
-          title="Settings"
+          title={t('header.settings')}
         >
           <Settings className="w-4 h-4" />
         </button>
