@@ -1,6 +1,6 @@
 import type { Socket } from 'socket.io-client';
 import type { WebcamConfig, WebcamPlayer } from '../config/WebcamConfig.tsx';
-import type { Language } from '../utils/translations';
+import { getCurrentLanguage } from '../utils/translations';
 import type { Lobby } from '../types';
 
 /**
@@ -24,7 +24,7 @@ export function createGameAdapter(
     getSocket: () => socket,
     getRoomCode: () => roomCode,
     getUserId: () => lobby?.mySocketId || socket?.id || '',
-    getLanguage: (): Language => 'en',
+    getLanguage: () => getCurrentLanguage(),
 
     // Required for video feed rendering
     getUserRole: () => {
