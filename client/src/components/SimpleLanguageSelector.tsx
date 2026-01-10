@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Language, getCurrentLanguage, setCurrentLanguage } from '../utils/translations';
+import type { Language } from '../utils/translations';
+import { getCurrentLanguage, setCurrentLanguage } from '../utils/translations';
 
 const languageOptions: { code: Language; label: string; flag: string }[] = [
   { code: 'en', label: 'English', flag: '\u{1F1EC}\u{1F1E7}' },
