@@ -564,17 +564,17 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-4 z-[100] backdrop-blur-sm">
           <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
           <p className="text-sm text-[var(--parchment-dark)]">
-            {lobby.players.length}/{lobby.maxPlayers || 4} players joined
+            {t('lobby.playersJoined').replace('{current}', String(lobby.players.length)).replace('{max}', String(lobby.maxPlayers || 4))}
           </p>
 
           {/* Room code with copy button */}
           <div className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.2)] border border-[rgba(var(--accent-color-rgb),0.4)] rounded-xl px-4 py-2">
-            <span className="text-[var(--parchment-dark)] text-sm">Room:</span>
+            <span className="text-[var(--parchment-dark)] text-sm">{t('menu.room')}:</span>
             <span className="text-[var(--royal-gold)] font-bold text-lg tracking-wider">{lobby.code}</span>
             <button
               onClick={copyRoomLink}
               className="ml-2 p-2 rounded-lg bg-[rgba(var(--accent-color-rgb),0.3)] hover:bg-[rgba(var(--accent-color-rgb),0.5)] transition-colors"
-              aria-label="Copy invite link"
+              aria-label={t('gameHeader.copyInviteLink')}
             >
               {copyFeedback ? (
                 <Check className="w-4 h-4 text-green-400" />
@@ -584,7 +584,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             </button>
           </div>
           {copyFeedback && (
-            <p className="text-xs text-green-400">Invite link copied!</p>
+            <p className="text-xs text-green-400">{t('lobby.inviteLinkCopied')}</p>
           )}
 
           {me?.isHost ? (
