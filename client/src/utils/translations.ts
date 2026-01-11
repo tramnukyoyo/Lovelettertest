@@ -178,7 +178,7 @@ export const translations = {
     'lobby.gameLeader': 'Game Leader',
     'lobby.noPlayersJoined': 'No players have joined yet',
     'lobby.playersJoined': '{current}/{max} players joined',
-    'lobby.inviteLinkCopied': 'Invite link copied!',n    'lobby.inviteLinkCopied': 'Invite link copied\!',
+    'lobby.inviteLinkCopied': 'Invite link copied!',
     'lobby.startSoloGame': 'Start Solo Game (Debug)',
     'lobby.soloModeReady': 'Solo mode ready - click to start!',
     'lobby.needThreePlayers': 'You need at least 3 players to start the game',
