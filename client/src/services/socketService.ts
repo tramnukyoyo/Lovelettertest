@@ -77,6 +77,7 @@ class SocketService {
 
       // Manual reconnection with stored data
       const stored = this.getStoredReconnectionData();
+      const userId = sessionStorage.getItem('gamebuddies_playerId');
       if (stored.sessionToken && stored.roomCode && stored.playerName) {
         console.log(`[Socket] Attempting auto-reconnection to room ${stored.roomCode}`);
         this.socket?.emit('room:join', {
@@ -84,7 +85,10 @@ class SocketService {
           playerName: stored.playerName,
           sessionToken: stored.sessionToken,
           avatarUrl: stored.avatarUrl || undefined,
+          userId: userId || undefined,
+          playerId: userId || undefined,
         });
+        console.log('🔑 [USER DEBUG] userId being sent:', userId);
       }
     });
 
