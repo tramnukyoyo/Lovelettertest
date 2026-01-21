@@ -111,6 +111,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           players={players}
           onComplete={handlePortalComplete}
           duration={3000}
+          logoUrl={`${import.meta.env.BASE_URL}mascot.webp`}
         />
         <button
           onClick={handleReturn}
