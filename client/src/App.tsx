@@ -1,4 +1,4 @@
-import { useEffect, useCallback, lazy, Suspense } from 'react';
+import { useEffect, useCallback, lazy, Suspense, useMemo } from 'react';
 import type { Socket } from 'socket.io-client';
 import HomePage from './pages/HomePage';
 import LobbyPage from './pages/LobbyPage';
@@ -22,9 +22,19 @@ import { backgroundMusic } from './utils/backgroundMusic';
 import { soundEffects } from './utils/soundEffects';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
 import InstallPrompt from './components/InstallPrompt';
+import LoadingScreen from './components/LoadingScreen';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
 import './unified.css';
+
+/**
+ * Synchronously detect if we're coming from a GameBuddies session
+ * This runs before render to avoid homepage flash
+ */
+function hasGameBuddiesSessionToken(): boolean {
+  const params = new URLSearchParams(window.location.search);
+  return !!(params.get('session') || params.get('room') || params.get('gbRoomCode'));
+}
 
 // ========================================
 // LAZY-LOADED COMPONENTS (Code Splitting)
@@ -48,6 +58,9 @@ const SettingsSkeleton = () => (
 
 function AppContent() {
   const mobileNav = useMobileNavigation();
+
+  // Detect GameBuddies launch synchronously (memoized to run once)
+  const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
 
   const registerGameEvents = useCallback(
     (socket: Socket, helpers: RegisterGameEventsHelpers) => {
@@ -135,6 +148,11 @@ function AppContent() {
   } = useGameBuddiesClient({ registerGameEvents });
 
   const renderPage = () => {
+    // Show loading screen when coming from GameBuddies but not connected yet
+    if (isLoadingFromGameBuddies && !isConnected) {
+      return <LoadingScreen message="Launching Prime Suspect" />;
+    }
+
     if (!isConnected) {
       return (
         <div className="container">
@@ -144,6 +162,12 @@ function AppContent() {
           </p>
         </div>
       );
+    }
+
+    // Show loading screen when coming from GameBuddies but room not created yet
+    if (isLoadingFromGameBuddies && !lobby && gameBuddiesSession) {
+      console.log('[App] Showing LoadingScreen - waiting for GameBuddies room join');
+      return <LoadingScreen message="Launching Prime Suspect" />;
     }
 
     if (!lobby) {
