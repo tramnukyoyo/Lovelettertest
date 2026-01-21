@@ -108,7 +108,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
         <PortalCloseOverlay
           isVisible={showPortal}
           isGroupReturn={isGroupReturn}
-          players={players}
+          players={[]}
           onComplete={handlePortalComplete}
           duration={3000}
           logoUrl={`${import.meta.env.BASE_URL}mascot.webp`}
@@ -157,9 +157,10 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
       <PortalCloseOverlay
         isVisible={showPortal}
         isGroupReturn={isGroupReturn}
-        players={players}
+        players={[]}
         onComplete={handlePortalComplete}
         duration={3000}
+        logoUrl={`${import.meta.env.BASE_URL}mascot.webp`}
       />
       <div className="gamebuddies-return">
         <button
