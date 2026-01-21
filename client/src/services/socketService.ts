@@ -1,25 +1,10 @@
 import { io, Socket } from 'socket.io-client';
-
-// Use environment variable in development, same origin in production (for GameBuddies reverse proxy)
-const getServerUrl = (): string => {
-  // If VITE_BACKEND_URL is explicitly set, use it
-  if (import.meta.env.VITE_BACKEND_URL) {
-    return import.meta.env.VITE_BACKEND_URL;
-  }
-
-  // In production, use same origin (works with reverse proxy)
-  if (import.meta.env.PROD) {
-    return window.location.origin;
-  }
-
-  // Development fallback
-  return 'http://localhost:3001';
-};
-
-const SERVER_URL = getServerUrl();
+import { SERVERS, GAME_NAMESPACE, Region } from '../config/servers';
+import { detectFastestRegion, getCachedRegion } from './regionService';
 
 class SocketService {
   private socket: Socket | null = null;
+  private currentRegion: Region = 'eu';
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 15; // Increased from 5 for better mobile support
   private listenersSetup = false;
@@ -36,14 +21,19 @@ class SocketService {
     playerName: 'primesuspect_player_name',
   };
 
-  connect(): Socket {
+  async connect(): Promise<Socket> {
     if (this.socket?.connected) {
       return this.socket;
     }
 
-    console.log('[Socket] Connecting to server:', SERVER_URL + '/primesuspect');
+    // Detect fastest region for connection
+    const region = await detectFastestRegion();
+    this.currentRegion = region;
+    const serverUrl = SERVERS[region];
 
-    this.socket = io(`${SERVER_URL}/primesuspect`, {
+    console.log(`[Socket] Connecting to ${region.toUpperCase()} server:`, serverUrl + GAME_NAMESPACE);
+
+    this.socket = io(`${serverUrl}${GAME_NAMESPACE}`, {
       reconnection: true,
       reconnectionAttempts: this.maxReconnectAttempts,
       reconnectionDelay: 1000,
@@ -288,6 +278,11 @@ class SocketService {
   // Check if connected
   isConnected(): boolean {
     return this.socket?.connected ?? false;
+  }
+
+  // Get current region
+  getCurrentRegion(): Region {
+    return this.currentRegion;
   }
 }
 
