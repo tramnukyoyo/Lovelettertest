@@ -315,30 +315,39 @@ export function UnifiedServerApp() {
   // ============================================================================
 
   useEffect(() => {
-    // Connect to socket
-    const socket = socketService.connect();
-    socketRef.current = socket;
+    let mounted = true;
 
-    // Setup listeners
-    setupSocketListeners(socket);
+    const initSocket = async () => {
+      const socket = await socketService.connect();
+      if (!mounted) return;
+      socketRef.current = socket;
+
+      // Setup listeners
+      setupSocketListeners(socket);
+    };
+
+    initSocket();
 
     // Cleanup on unmount
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('room:created');
-      socket.off('room:joined');
-      socket.off('roomStateUpdated');
-      socket.off('game:started');
-      socket.off('game:ended');
-      socket.off('gamePhaseChanged');
-      socket.off('chat:message');
-      socket.off('error');
-      socket.off('player:kicked');
-      // Remove custom game events
-      socket.off('timer:update');
-      socket.off('turn:changed');
-      socket.off('action:result');
+      mounted = false;
+      if (socketRef.current) {
+        socketRef.current.off('connect');
+        socketRef.current.off('disconnect');
+        socketRef.current.off('room:created');
+        socketRef.current.off('room:joined');
+        socketRef.current.off('roomStateUpdated');
+        socketRef.current.off('game:started');
+        socketRef.current.off('game:ended');
+        socketRef.current.off('gamePhaseChanged');
+        socketRef.current.off('chat:message');
+        socketRef.current.off('error');
+        socketRef.current.off('player:kicked');
+        // Remove custom game events
+        socketRef.current.off('timer:update');
+        socketRef.current.off('turn:changed');
+        socketRef.current.off('action:result');
+      }
 
       socketService.disconnect();
     };

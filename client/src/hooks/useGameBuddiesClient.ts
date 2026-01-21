@@ -223,8 +223,15 @@ export function useGameBuddiesClient(
 
   // Register core socket events once
   useEffect(() => {
-    const socket = socketService.connect();
-    setIsConnected(socket.connected);
+    let socketRef: ReturnType<typeof socketService.getSocket> = null;
+    let mounted = true;
+    let cleanupGameEvents: void | (() => void) = undefined;
+
+    const initSocket = async () => {
+      const socket = await socketService.connect();
+      if (!mounted) return;
+      socketRef = socket;
+      setIsConnected(socket.connected);
 
     const onConnect = async () => {
       setIsConnected(true);
@@ -341,31 +348,37 @@ export function useGameBuddiesClient(
     socket.on('error', onError);
     socket.on('player:kicked', onKicked);
 
-    const cleanupGameEvents = options.registerGameEvents?.(socket, {
+    cleanupGameEvents = options.registerGameEvents?.(socket, {
       setLobbyState,
       patchLobby,
       setMessages,
       setError,
     });
+    };
+
+    initSocket();
 
     return () => {
+      mounted = false;
       clearAllTimeouts();
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('room:created', onRoomCreated);
-      socket.off('room:joined', onRoomJoined);
-      socket.off('room:player-joined', onPlayerEvent);
-      socket.off('room:player-left', onPlayerEvent);
-      socket.off('room:player-disconnected', onPlayerEvent);
-      socket.off('room:player-reconnected', onPlayerEvent);
-      socket.off('room:host-transferred', onHostTransferred);
-      socket.off('room:player-list-update', onPlayerListUpdate);
-      socket.off('room:settings-updated', onSettingsUpdated);
-      socket.off('game:started', onGameStarted);
-      socket.off('game:ended', onGameEnded);
-      socket.off('chat:message', onChatMessage);
-      socket.off('error', onError);
-      socket.off('player:kicked', onKicked);
+      if (socketRef) {
+        socketRef.off('connect');
+        socketRef.off('disconnect');
+        socketRef.off('room:created');
+        socketRef.off('room:joined');
+        socketRef.off('room:player-joined');
+        socketRef.off('room:player-left');
+        socketRef.off('room:player-disconnected');
+        socketRef.off('room:player-reconnected');
+        socketRef.off('room:host-transferred');
+        socketRef.off('room:player-list-update');
+        socketRef.off('room:settings-updated');
+        socketRef.off('game:started');
+        socketRef.off('game:ended');
+        socketRef.off('chat:message');
+        socketRef.off('error');
+        socketRef.off('player:kicked');
+      }
 
       if (typeof cleanupGameEvents === 'function') {
         cleanupGameEvents();
