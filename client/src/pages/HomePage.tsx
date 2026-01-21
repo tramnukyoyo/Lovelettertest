@@ -111,7 +111,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
           <div className="home-header">
             <div className="home-mascot-container">
               <img
-                src={`${import.meta.env.BASE_URL}mascot.webp`}
+                src="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
                 alt={GAME_META.mascotAlt}
                 className="home-mascot-anim"
               />

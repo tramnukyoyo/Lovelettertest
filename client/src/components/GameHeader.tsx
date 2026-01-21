@@ -120,7 +120,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
           {/* Game Branding */}
           <a href="/" className="game-header-logo">
             <img
-              src={`${import.meta.env.BASE_URL}mascot.webp`}
+              src="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
               alt={GAME_META.mascotAlt}
               className="game-header-logo-icon"
             />

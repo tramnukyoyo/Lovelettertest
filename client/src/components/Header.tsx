@@ -16,7 +16,7 @@ const Header: React.FC = () => {
       <header className="header">
       <a href="/" className="logo">
         <img
-          src={`${import.meta.env.BASE_URL}mascot.webp`}
+          src="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
           alt={GAME_META.mascotAlt}
           className="logo-icon"
         />

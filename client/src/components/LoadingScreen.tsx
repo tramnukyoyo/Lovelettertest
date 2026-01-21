@@ -18,7 +18,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ message = 'Loading' }) =>
       <div className="gb-loading-content">
         <div className="gb-loading-mascot-wrapper">
           <img
-            src={`${import.meta.env.BASE_URL}mascot.webp`}
+            src="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
             alt="Prime Suspect"
             className="gb-loading-mascot"
           />
