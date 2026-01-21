@@ -165,7 +165,8 @@ function AppContent() {
     }
 
     // Show loading screen when coming from GameBuddies but room not created yet
-    if (isLoadingFromGameBuddies && !lobby && gameBuddiesSession) {
+    // Keep showing until lobby is created (gameBuddiesSession may still be resolving)
+    if (isLoadingFromGameBuddies && !lobby) {
       console.log('[App] Showing LoadingScreen - waiting for GameBuddies room join');
       return <LoadingScreen message="Launching Prime Suspect" />;
     }

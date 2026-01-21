@@ -4,6 +4,7 @@ import type { Lobby, Player } from '../types';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import { SettingsModal } from './SettingsModalNoir';
 import socketService from '../services/socketService';
+import GameBuddiesReturnButton from './GameBuddiesReturnButton';
 
 import VideoControlCluster from './VideoControlCluster';
 import { useVideoUI } from '../contexts/VideoUIContext';
@@ -220,11 +221,25 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
             <Settings className="w-4 h-4" />
           </button>
 
-          {/* Leave button */}
-          <button onClick={handleLeave} className="game-header-leave-btn">
-            <ArrowLeft className="w-4 h-4" />
-            {t('gameHeader.leave')}
-          </button>
+          {/* Leave/Return button */}
+          {gameBuddiesSession && socket ? (
+            <GameBuddiesReturnButton
+              roomCode={lobby.code}
+              socket={socket}
+              isHost={isHost}
+              variant="icon"
+              players={lobby.players.map((p: Player) => ({
+                id: p.socketId,
+                name: p.name,
+                avatarUrl: p.avatarUrl
+              }))}
+            />
+          ) : (
+            <button onClick={handleLeave} className="game-header-leave-btn">
+              <ArrowLeft className="w-4 h-4" />
+              {t('gameHeader.leave')}
+            </button>
+          )}
         </div>
       </div>
 
