@@ -5,7 +5,8 @@
  * No external API needed - uses your own server health endpoints.
  */
 
-import { SERVERS, Region } from '../config/servers';
+import { SERVERS } from '../config/servers';
+import type { Region } from '../config/servers';
 
 let cachedRegion: Region | null = null;
 

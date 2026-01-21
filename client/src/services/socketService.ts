@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
-import { SERVERS, GAME_NAMESPACE, Region } from '../config/servers';
-import { detectFastestRegion, getCachedRegion } from './regionService';
+import { SERVERS, GAME_NAMESPACE } from '../config/servers';
+import type { Region } from '../config/servers';
+import { detectFastestRegion } from './regionService';
 
 class SocketService {
   private socket: Socket | null = null;
