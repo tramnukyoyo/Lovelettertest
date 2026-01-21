@@ -111,7 +111,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           players={[]}
           onComplete={handlePortalComplete}
           duration={3000}
-          logoUrl={`${import.meta.env.BASE_URL}mascot.webp`}
+          logoUrl="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
         />
         <button
           onClick={handleReturn}
@@ -160,7 +160,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
         players={[]}
         onComplete={handlePortalComplete}
         duration={3000}
-        logoUrl={`${import.meta.env.BASE_URL}mascot.webp`}
+        logoUrl="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
       />
       <div className="gamebuddies-return">
         <button
