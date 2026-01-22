@@ -920,6 +920,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       
       // Request fresh peer list without resetting everything
       setTimeout(() => {
+        if (!socket) return;
         console.log('[WebRTC] Requesting fresh peer list');
         socket.emit('webrtc:enable-video', { roomCode, peerId: userId });
       }, 200);
@@ -1077,7 +1078,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
 
   // Socket event handlers for WebRTC signaling
   useEffect(() => {
-    if (!socket || !roomCode) return;
+    if (!socket || !roomCode || typeof socket.on !== 'function') return;
 
     const handleVideoEnabledPeers = ({ peers, peerConnectionTypes }: { peers: string[]; peerConnectionTypes?: Record<string, string> }) => {
       console.log('[WebRTC] Received list of video-enabled peers:', peers);
@@ -1323,6 +1324,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
     socket.on('webrtc:ice-candidate', handleIceCandidate);
 
     return () => {
+      if (!socket) return;
       socket.off('webrtc:video-enabled-peers', handleVideoEnabledPeers);
       socket.off('webrtc:peer-enabled-video', handlePeerEnabledVideo);
       socket.off('webrtc:peer-disabled-video', handlePeerDisabledVideo);

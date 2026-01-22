@@ -37,9 +37,9 @@ export interface WebcamConfig {
 
   /**
    * Get the Socket.io connection instance
-   * @returns Active socket connection
+   * @returns Active socket connection or null if not connected
    */
-  getSocket: () => Socket;
+  getSocket: () => Socket | null;
 
   /**
    * Get the current user's ID
