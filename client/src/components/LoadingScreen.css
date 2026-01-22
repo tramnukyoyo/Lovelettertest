@@ -1,95 +1,418 @@
-/* LoadingScreen - Full-screen GameBuddies launch overlay */
-/* Prime Suspect theme: Noir/detective dark theme with crimson accents */
+/* LoadingScreen - Beautiful playful loading overlay */
+/* Prime Suspect theme: Noir/detective with crimson accents */
 
-.gb-loading-screen {
+.loading-screen {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 9999;
-  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+
+  /* Animated gradient background */
+  background: linear-gradient(
+    135deg,
+    #1a1a2e 0%,
+    #16213e 25%,
+    #1a1a2e 50%,
+    #0f0f23 75%,
+    #1a1a2e 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
 }
 
-.gb-loading-content {
-  text-align: center;
-}
-
-.gb-loading-mascot-wrapper {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 24px;
-}
-
-.gb-loading-mascot {
+/* Floating particles background */
+.loading-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  animation: gbLoadingBounce 1s ease-in-out infinite;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.gb-loading-mascot-glow {
+.loading-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat 4s ease-in-out infinite;
+}
+
+.loading-particle:nth-child(1) {
+  left: 10%;
+  background: #ef4444;
+  animation-delay: 0s;
+}
+.loading-particle:nth-child(2) {
+  left: 25%;
+  background: #f97316;
+  animation-delay: 0.5s;
+}
+.loading-particle:nth-child(3) {
+  left: 40%;
+  background: #eab308;
+  animation-delay: 1s;
+}
+.loading-particle:nth-child(4) {
+  left: 55%;
+  background: #a855f7;
+  animation-delay: 1.5s;
+}
+.loading-particle:nth-child(5) {
+  left: 70%;
+  background: #ec4899;
+  animation-delay: 2s;
+}
+.loading-particle:nth-child(6) {
+  left: 85%;
+  background: #f43f5e;
+  animation-delay: 2.5s;
+}
+.loading-particle:nth-child(7) {
+  left: 15%;
+  background: #fb923c;
+  animation-delay: 3s;
+}
+.loading-particle:nth-child(8) {
+  left: 60%;
+  background: #fbbf24;
+  animation-delay: 3.5s;
+}
+
+.loading-content {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Mascot container with glow ring */
+.loading-mascot-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 32px;
+}
+
+/* Animated glow rings */
+.loading-ring {
   position: absolute;
   top: 50%;
   left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.loading-ring-1 {
   width: 160px;
   height: 160px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(185, 28, 28, 0.3) 0%, transparent 70%);
-  animation: gbLoadingGlowPulse 2s ease-in-out infinite;
-  z-index: -1;
+  border-top-color: #ef4444;
+  border-right-color: #f97316;
+  animation: ringRotate 3s linear infinite;
 }
 
-.gb-loading-text {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin-bottom: 16px;
+.loading-ring-2 {
+  width: 180px;
+  height: 180px;
+  border-bottom-color: #eab308;
+  border-left-color: #a855f7;
+  animation: ringRotate 4s linear infinite reverse;
 }
 
-.gb-loading-dots {
-  animation: gbLoadingDots 1.5s infinite;
-}
-
-.gb-loading-bar {
+.loading-ring-3 {
   width: 200px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
+  height: 200px;
+  border-top-color: rgba(236, 72, 153, 0.5);
+  border-right-color: rgba(244, 63, 94, 0.5);
+  animation: ringRotate 5s linear infinite;
+}
+
+/* Mascot with playful float */
+.loading-mascot {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  animation: mascotFloat 2s ease-in-out infinite;
+  filter: drop-shadow(0 8px 24px rgba(239, 68, 68, 0.4));
+  border-radius: 20px;
+}
+
+/* Pulsing glow behind mascot */
+.loading-mascot-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(239, 68, 68, 0.5) 0%,
+    rgba(249, 115, 22, 0.3) 40%,
+    transparent 70%
+  );
+  animation: glowPulse 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Game title */
+.loading-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 50%, #eab308 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShimmer 3s ease-in-out infinite;
+  background-size: 200% 200%;
+}
+
+/* Status message */
+.loading-status {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 24px;
+  min-height: 24px;
+}
+
+.loading-status-text {
+  display: inline-block;
+  animation: textFadeIn 0.3s ease-out;
+}
+
+/* Progress container */
+.loading-progress-container {
+  width: 240px;
   margin: 0 auto;
 }
 
-.gb-loading-bar-fill {
+/* Progress bar track */
+.loading-progress-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Animated progress fill with gradient */
+.loading-progress-fill {
   height: 100%;
-  width: 40%;
-  background: linear-gradient(90deg, #b91c1c, #991b1b);
-  border-radius: 4px;
-  animation: gbLoadingBarSlide 1.5s ease-in-out infinite;
+  width: 30%;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    #ef4444 0%,
+    #f97316 25%,
+    #eab308 50%,
+    #a855f7 75%,
+    #ef4444 100%
+  );
+  background-size: 200% 100%;
+  animation: progressSlide 2s ease-in-out infinite, progressGradient 2s linear infinite;
+  position: relative;
 }
 
-@keyframes gbLoadingBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+/* Shimmer overlay on progress */
+.loading-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
-@keyframes gbLoadingGlowPulse {
-  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+/* Hint text */
+.loading-hint {
+  margin-top: 32px;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+  animation: hintFade 4s ease-in-out infinite;
 }
 
-@keyframes gbLoadingDots {
-  0%, 20% { content: '.'; }
-  40% { content: '..'; }
-  60%, 100% { content: '...'; }
+/* Fade out transition */
+.loading-screen.fade-out {
+  animation: fadeOut 0.4s ease-out forwards;
 }
 
-@keyframes gbLoadingBarSlide {
+/* ========== KEYFRAMES ========== */
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes particleFloat {
+  0% {
+    bottom: -10%;
+    opacity: 0;
+    transform: translateX(0) scale(0.5);
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    bottom: 110%;
+    opacity: 0;
+    transform: translateX(30px) scale(1);
+  }
+}
+
+@keyframes ringRotate {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes mascotFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+  75% {
+    transform: translateY(-12px) rotate(0deg);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes titleShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes textFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progressSlide {
   0% { transform: translateX(-100%); }
-  50% { transform: translateX(150%); }
-  100% { transform: translateX(250%); }
+  50% { transform: translateX(250%); }
+  100% { transform: translateX(500%); }
+}
+
+@keyframes progressGradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes hintFade {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 480px) {
+  .loading-mascot-wrapper {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 24px;
+  }
+
+  .loading-ring-1 { width: 120px; height: 120px; }
+  .loading-ring-2 { width: 140px; height: 140px; }
+  .loading-ring-3 { width: 160px; height: 160px; }
+
+  .loading-mascot-glow {
+    width: 90px;
+    height: 90px;
+  }
+
+  .loading-title {
+    font-size: 1.5rem;
+  }
+
+  .loading-status {
+    font-size: 0.875rem;
+  }
+
+  .loading-progress-container {
+    width: 200px;
+  }
+
+  .loading-hint {
+    font-size: 0.75rem;
+    padding: 0 16px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen,
+  .loading-particle,
+  .loading-ring-1,
+  .loading-ring-2,
+  .loading-ring-3,
+  .loading-mascot,
+  .loading-mascot-glow,
+  .loading-title,
+  .loading-progress-fill,
+  .loading-progress-fill::after,
+  .loading-hint {
+    animation: none;
+  }
+
+  .loading-progress-fill {
+    width: 100%;
+    transform: none;
+  }
 }
