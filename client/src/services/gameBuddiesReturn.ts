@@ -35,7 +35,7 @@ class GameBuddiesReturnManager {
   async returnToLobby(
     mode: ReturnMode = 'group',
     roomCode: string,
-    currentPlayer?: { id?: string; name?: string },
+    _currentPlayer?: { id?: string; name?: string },
     _allPlayers?: Array<{ id?: string; name?: string }>
   ): Promise<GameBuddiesReturnResponse> {
     const session = getCurrentSession();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { isInStandaloneMode, isIOSSafari, isAndroid, dismissInstallPrompt } from '../utils/pwaUtils';
+import { isInStandaloneMode, isIOSSafari, dismissInstallPrompt } from '../utils/pwaUtils';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;

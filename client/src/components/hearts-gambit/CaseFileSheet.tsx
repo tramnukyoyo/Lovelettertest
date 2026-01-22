@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import type { PanInfo } from 'framer-motion';
-import { ChevronUp, ChevronDown, Layers } from 'lucide-react';
+import { ChevronUp, Layers } from 'lucide-react';
 import type { CardType, Player, Lobby } from '../../types';
 import DynamicCard from './DynamicCard';
 import { CARD_NAMES } from './cardDatabase';
@@ -66,11 +66,11 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
   me,
   onPlayCard,
   onCancel,
-  mustPlayAccomplice,
+  mustPlayAccomplice: _mustPlayAccomplice,
   lobby,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const controls = useAnimation();
+  useAnimation(); // Required for framer-motion animation context
   const sheetRef = useRef<HTMLDivElement>(null);
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);

@@ -82,7 +82,7 @@ export class VirtualBackgroundService {
   private outputCtx: OffscreenCanvasRenderingContext2D | null = null;
   private backgroundImage: ImageBitmap | null = null;
   private isProcessing = false;
-  private previousMask: ImageData | null = null;
+  // Note: previousMask replaced by previousMaskBuffer for better memory efficiency
   private maskCanvas: OffscreenCanvas | null = null;
   private maskCtx: OffscreenCanvasRenderingContext2D | null = null;
   private smoothedBuffer: Uint8ClampedArray | null = null;
@@ -617,7 +617,7 @@ export class VirtualBackgroundService {
     this.trackProcessor = null; this.trackGenerator = null;
     if (this.imageSegmenter) { this.imageSegmenter.close(); this.imageSegmenter = null; }
     if (this.backgroundImage) { this.backgroundImage.close(); this.backgroundImage = null; }
-    this.previousMask = null; this.maskCanvas = null; this.maskCtx = null;
+    this.maskCanvas = null; this.maskCtx = null;
     this.smoothedBuffer = null; this.previousMaskBuffer = null;
     this.isInitialized = false;
   }

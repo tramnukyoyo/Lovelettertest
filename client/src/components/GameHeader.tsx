@@ -98,7 +98,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
       case 'REVEAL':
         return t('gameHeader.revealing');
       case 'VICTORY':
-        return t('game.victory');
+        return t('game.winner');
       case 'GAME_OVER':
         return t('game.gameOver');
       default:

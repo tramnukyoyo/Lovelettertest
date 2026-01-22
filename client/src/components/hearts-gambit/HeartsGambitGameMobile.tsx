@@ -2,12 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Lobby, CardType, Player } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Skull, FileText, Copy, Check, User, ArrowLeft, Play, X } from 'lucide-react';
+import { Skull, FileText, Copy, Check, User, ArrowLeft, Play } from 'lucide-react';
 import Toast from './Toast';
 import DynamicCard from './DynamicCard';
 import {
   CARD_NAMES,
-  CARD_DESCRIPTIONS,
   CARD_IMAGES,
   CARD_BACK_IMAGE
 } from './cardDatabase';
@@ -70,7 +69,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   const [inspectorTitle, setInspectorTitle] = useState('');
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [previewCard, setPreviewCard] = useState<CardType | null>(null);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  void longPressTimerRef; // Available for future use
 
   // Chat: Calculate unread count
   const chatMessages = lobby.messages || [];
@@ -139,7 +139,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   // Elimination sound tracking
   useEffect(() => {
     const currentEliminated = new Set(
-      lobby.players.filter(p => p.isEliminated).map(p => p.id)
+      lobby.players.filter(p => p.isEliminated).map(p => p.id).filter((id): id is string => !!id)
     );
     const prevEliminated = prevEliminatedRef.current;
 
@@ -294,8 +294,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     return !p.isImmune;
   });
 
-  // Card inspection handlers
-  const openHandInspector = useCallback((card: CardType, index: number) => {
+  // Card inspection handlers (openHandInspector kept for potential future use)
+  const _openHandInspector = useCallback((_card: CardType, index: number) => {
     const cards: InspectorCard[] = myHand.map((c, i) => ({
       card: c,
       source: 'hand' as const,
@@ -308,6 +308,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     setInspectorTitle('Your Hand');
     setIsInspectorOpen(true);
   }, [myHand, isMyTurn, waitingToDraw, amEliminated]);
+  void _openHandInspector;
 
   const openOpponentInspector = useCallback((player: Player) => {
     const cards: InspectorCard[] = [];
@@ -336,7 +337,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     const cards: InspectorCard[] = [];
 
     // Add face-up cards (2-player removal)
-    faceUpCards.forEach((card, i) => {
+    faceUpCards.forEach((card) => {
       cards.push({
         card,
         source: 'evidence',
@@ -358,7 +359,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     } else {
       // Fallback to player discards
       lobby.players.forEach(p => {
-        p.discarded?.forEach((card, i) => {
+        p.discarded?.forEach((card) => {
           cards.push({
             card,
             source: 'discard',
@@ -380,7 +381,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     setIsInspectorOpen(true);
   }, [faceUpCards, discardEvents, lobby.players]);
 
-  const handleInspectorPlayCard = useCallback((card: CardType, handIndex: number) => {
+  const handleInspectorPlayCard = useCallback((_card: CardType, handIndex: number) => {
     if (isMyTurn && !waitingToDraw && !amEliminated) {
       setSelectedCardIndex(handIndex);
     }
@@ -436,7 +437,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           onCardLegend={() => setIsLegendOpen(true)}
           onChat={() => setIsChatOpen(true)}
           unreadCount={unreadChatCount}
-          playerCount={`${lobby.players.length}/${lobby.maxPlayers || 4}`}
+          playerCount={`${lobby.players.length}/4`}
         />
       </div>
 
@@ -446,7 +447,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         <div className="hg-mobile-opponent-area overflow-hidden">
           <MobileOpponentStrip
             players={otherPlayers}
-            currentTurnId={lobby.gameData?.currentTurn}
+            currentTurnId={lobby.gameData?.currentTurn ?? undefined}
             selectedCard={selectedCard}
             targetId={targetId}
             onSelectTarget={setTargetId}
@@ -494,7 +495,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           {/* Case File (Deck) */}
           <div className="flex flex-col items-center translate-y-[5vh]">
             <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[1.5vw] whitespace-nowrap" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
-              {t('caseFile.title')} <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
+              Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
             </span>
             <button
               onClick={() => {
@@ -564,7 +565,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-4 z-[100] backdrop-blur-sm">
           <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
           <p className="text-sm text-[var(--parchment-dark)]">
-            {t('lobby.playersJoined').replace('{current}', String(lobby.players.length)).replace('{max}', String(lobby.maxPlayers || 4))}
+            {t('lobby.playersJoined').replace('{current}', String(lobby.players.length)).replace('{max}', '4')}
           </p>
 
           {/* Room code with copy button */}

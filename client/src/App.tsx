@@ -1,7 +1,6 @@
 import { useEffect, useCallback, lazy, Suspense, useMemo } from 'react';
 import type { Socket } from 'socket.io-client';
 import HomePage from './pages/HomePage';
-import LobbyPage from './pages/LobbyPage';
 import GamePage from './pages/GamePage';
 import ChatWindow from './components/ChatWindow';
 import PlayerList from './components/PlayerList';
@@ -281,7 +280,7 @@ function AppContent() {
               {lobby && (
                 <BottomTabBar
                   activeTab={mobileNav.activeTab}
-                  showHistory={lobby.state !== 'LOBBY_WAITING'}
+                  showHistory={lobby.state !== 'LOBBY'}
                   onTabChange={(tab) => {
                     mobileNav.setActiveTab(tab);
                     if (tab === 'chat') mobileNav.openDrawer('chat');

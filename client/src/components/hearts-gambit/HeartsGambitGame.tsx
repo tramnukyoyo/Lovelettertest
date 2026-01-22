@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
-import { User, Settings, Shield, Crown, Skull, BookOpen, HelpCircle } from 'lucide-react';
+import { Settings, Shield, Crown, Skull, BookOpen, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CardTooltip from './CardTooltip';
 import Toast from './Toast';
-import DynamicCard, { CardBackOnly } from './DynamicCard';
+import DynamicCard from './DynamicCard';
 import {
   CARD_NAMES,
   CARD_DESCRIPTIONS,
   CARD_IMAGES,
-  getCardData,
-  getCardImage,
   CARD_BACK_IMAGE
 } from './cardDatabase';
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
@@ -122,7 +120,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
   const buildZoomCardsFromTimeline = (events: DiscardEventWithOrder[]) => {
     return events.map((evt) => {
-      const actionLabel = evt.kind === 'forced-discard' ? t('game.compelledDiscard') : t('game.played');
+      const actionLabel = evt.kind === 'forced-discard' ? 'Compelled Discard' : 'Played';
 
       return {
         key: `zoom-${evt.playerId}-${evt.timestamp}-${evt.card}`,
@@ -167,7 +165,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
   // Track player elimination and play gunshot sound
   useEffect(() => {
     const currentEliminated = new Set(
-      lobby.players.filter(p => p.isEliminated).map(p => p.id)
+      lobby.players.filter(p => p.isEliminated).map(p => p.id).filter((id): id is string => !!id)
     );
     const prevEliminated = prevEliminatedRef.current;
 
@@ -309,7 +307,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
     if (!discardTimeline && discardViewerMode === 'timeline') setDiscardViewerMode('by-player');
   }, [discardTimeline, discardViewerMode, isDiscardViewerOpen]);
 
-  if (!lobby.gameData) return <div className="text-white text-center mt-20">{t('game.loadingGameData')}</div>;
+  if (!lobby.gameData) return <div className="text-white text-center mt-20">{t('game.loading')}</div>;
 
   return (
     <div className="hearts-gambit-game h-full text-[var(--parchment)] flex flex-col items-stretch p-0 overflow-hidden">
@@ -545,7 +543,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               {/* Deck */}
               <div className="flex flex-col items-center relative">
                 <h3 className="text-sm font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
-                  {t('caseFile.title')} <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
+                  Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
                 </h3>
                 <div
                     className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}`}
@@ -768,7 +766,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                           targetId ? 'text-[var(--royal-gold-light)]' : 'text-[var(--royal-crimson-light)] animate-pulse'
                         }`}
                       >
-                        {targetId ? lobby.players.find(p => p.id === targetId)?.name : t('game.selectPlayerAbove')}
+                        {targetId ? lobby.players.find(p => p.id === targetId)?.name : 'Select a player above'}
                       </span>
                     )}
                   </div>
@@ -861,7 +859,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="hg-panel hg-candlelight border border-[rgba(var(--accent-color-rgb),0.35)] p-10 rounded-2xl max-w-lg w-full text-center shadow-[0_0_50px_rgba(var(--accent-color-rgb),0.25)]">
                <h2 className="text-4xl font-black mb-4 text-[var(--royal-gold)] uppercase tracking-widest drop-shadow-md">
-                  {lobby.gameData.winner ? t('game.victory') : t('game.roundOver')}
+                  {lobby.gameData.winner ? 'Victory!' : 'Round Over'}
                </h2>
 
                <div className="my-8">
@@ -878,7 +876,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                      onClick={() => socket.emit('game:start', {})}
                      className="px-10 py-4 bg-gradient-to-r from-[var(--royal-crimson)] to-[var(--royal-crimson-dark)] hover:from-[var(--royal-crimson-light)] hover:to-[var(--royal-crimson)] text-white font-black rounded-xl text-xl shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider"
                   >
-                     {lobby.gameData.winner ? t('game.newGame') : t('game.nextRound')}
+                     {lobby.gameData.winner ? 'New Game' : t('game.nextRound')}
                   </button>
                )}
             </div>

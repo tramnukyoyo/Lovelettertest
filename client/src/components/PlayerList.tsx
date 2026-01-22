@@ -35,7 +35,8 @@ const renderAvatar = (player: Player) => {
   );
 };
 
-const DisconnectedTimer = ({ disconnectedAt, t }: { disconnectedAt: number; t: (key: string) => string }) => {
+// DisconnectedTimer kept for future use - currently UI shows simpler disconnected state
+const _DisconnectedTimer = ({ disconnectedAt, t }: { disconnectedAt: number; t: (key: string) => string }) => {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ const DisconnectedTimer = ({ disconnectedAt, t }: { disconnectedAt: number; t: (
     </div>
   );
 };
+void _DisconnectedTimer; // Silence unused warning
 
 const PlayerListComponent: React.FC<PlayerListProps> = ({
   players,

@@ -373,7 +373,7 @@ export function UnifiedServerApp() {
 
   // Render based on game state
   switch (lobby.state) {
-    case 'LOBBY_WAITING':
+    case 'LOBBY':
       return (
         <LobbyScreen
           lobby={lobby}
@@ -384,9 +384,7 @@ export function UnifiedServerApp() {
         />
       );
 
-    case 'WORD_INPUT':
-    case 'REVEAL':
-    case 'VICTORY':
+    case 'PLAYING':
       return (
         <GameScreen
           lobby={lobby}
@@ -397,7 +395,7 @@ export function UnifiedServerApp() {
         />
       );
 
-    case 'GAME_OVER':
+    case 'ENDED':
       return (
         <GameOverScreen
           lobby={lobby}
