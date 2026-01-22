@@ -23,11 +23,14 @@ class SocketService {
   };
 
   async connect(): Promise<Socket> {
+    console.log('[Socket] connect() called');
     if (this.socket?.connected) {
+      console.log('[Socket] Already connected, reusing socket');
       return this.socket;
     }
 
     // Detect fastest region for connection
+    console.log('[Socket] Starting region detection...');
     const region = await detectFastestRegion();
     this.currentRegion = region;
     const serverUrl = SERVERS[region];

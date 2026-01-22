@@ -30,6 +30,7 @@ async function measureLatency(serverUrl: string): Promise<number> {
 }
 
 export async function detectFastestRegion(): Promise<Region> {
+  console.log('[Region] detectFastestRegion() called, cached:', cachedRegion);
   if (cachedRegion) return cachedRegion;
 
   console.log('[Region] Measuring server latency...');
