@@ -1,4 +1,4 @@
-import { useEffect, useCallback, lazy, Suspense, useMemo } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense, useMemo } from 'react';
 import type { Socket } from 'socket.io-client';
 import HomePage from './pages/HomePage';
 import GamePage from './pages/GamePage';
@@ -22,6 +22,9 @@ import { soundEffects } from './utils/soundEffects';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
 import InstallPrompt from './components/InstallPrompt';
 import LoadingScreen from './components/LoadingScreen';
+import SiteNotificationToast from './components/ui/SiteNotificationToast';
+import type { SiteNotification } from './components/ui/SiteNotificationToast';
+import socketService from './services/socketService';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
 import './unified.css';
@@ -367,10 +370,31 @@ function AppContent() {
 }
 
 function App() {
+  const [siteNotification, setSiteNotification] = useState<SiteNotification | null>(null);
+
+  // Listen for site-wide notifications (retry until socket is available)
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    const interval = setInterval(() => {
+      const s = socketService.getSocket();
+      if (s) {
+        clearInterval(interval);
+        const handler = (data: SiteNotification) => setSiteNotification(data);
+        s.on('site:notification', handler);
+        cleanup = () => s.off('site:notification', handler);
+      }
+    }, 500);
+    return () => {
+      clearInterval(interval);
+      cleanup?.();
+    };
+  }, []);
+
   return (
     <ThemeProvider>
       <AppContent />
       <InstallPrompt />
+      <SiteNotificationToast notification={siteNotification} onClose={() => setSiteNotification(null)} />
     </ThemeProvider>
   );
 }
