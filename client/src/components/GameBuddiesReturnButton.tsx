@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Socket } from 'socket.io-client';
 import { getCurrentSession } from '../services/gameBuddiesSession';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import PortalCloseOverlay from './PortalCloseOverlay';
 
 interface Player {
@@ -24,6 +25,8 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   variant = 'button',
   players: _players = [],
 }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const [isReturning, setIsReturning] = useState(false);
   const [showPortal, setShowPortal] = useState(false);
   const [isGroupReturn, setIsGroupReturn] = useState(false);
@@ -113,7 +116,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
         <button
           onClick={handleReturn}
           disabled={isReturning}
-          title="Return all players to GameBuddies"
+          title={t('return.returnAllPlayersTitle')}
           className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300"
           style={{
             background: isReturning
@@ -142,7 +145,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           }}
         >
           <span>←</span>
-          <span>{isReturning ? 'Returning...' : 'GameBuddies'}</span>
+          <span>{isReturning ? t('return.returning') : 'GameBuddies'}</span>
         </button>
       </>
     );
@@ -194,10 +197,10 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           }}
         >
           ← {isReturning
-            ? 'Returning...'
+            ? t('return.returning')
             : isHost
-              ? 'Return All Players'
-              : 'Return to GameBuddies'}
+              ? t('return.returnAllPlayers')
+              : t('return.returnToGameBuddies')}
         </button>
       </div>
     </>

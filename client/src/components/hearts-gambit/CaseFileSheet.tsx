@@ -4,7 +4,7 @@ import type { PanInfo } from 'framer-motion';
 import { ChevronUp, Layers } from 'lucide-react';
 import type { CardType, Player, Lobby } from '../../types';
 import DynamicCard from './DynamicCard';
-import { CARD_NAMES } from './cardDatabase';
+import { getTranslatedCardName } from './cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface CaseFileSheetProps {
@@ -229,7 +229,7 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-[var(--parchment-dark)] uppercase">{t('caseFile.playing')}</span>
-                      <span className="font-bold text-[var(--royal-gold)]">{CARD_NAMES[selectedCard]}</span>
+                      <span className="font-bold text-[var(--royal-gold)]">{getTranslatedCardName(selectedCard as any, language)}</span>
                     </div>
 
                     {/* Target indicator (for non-Inspector cards) */}

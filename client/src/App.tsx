@@ -27,7 +27,30 @@ import type { SiteNotification } from './components/ui/SiteNotificationToast';
 import socketService from './services/socketService';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
+import { getTranslation, getCurrentLanguage } from './utils/translations';
 import './unified.css';
+
+/** Translate a server game log message. Messages are JSON `{key, params}` objects. */
+function translateGameMessage(rawMessage: string): string {
+  try {
+    if (!rawMessage.startsWith('{')) return rawMessage; // backward-compat plain text
+    const { key, params } = JSON.parse(rawMessage) as { key: string; params: Record<string, string> };
+    const lang = getCurrentLanguage();
+    let text = getTranslation(key as any, lang);
+    if (text === key) return rawMessage; // key not found, show raw
+    // Replace {placeholder} tokens – translate card keys inside params
+    for (const [k, v] of Object.entries(params)) {
+      let translated = v;
+      if (v.startsWith('card.')) {
+        translated = getTranslation(v as any, lang);
+      }
+      text = text.replace(`{${k}}`, translated);
+    }
+    return text;
+  } catch {
+    return rawMessage;
+  }
+}
 
 /**
  * Synchronously detect if we're coming from a GameBuddies session
@@ -98,20 +121,17 @@ function AppContent() {
         console.log('[Game] No match', data);
       };
 
-      // Game log events from server
+      // Game log events from server (translates JSON {key,params} messages)
       const handleGameLog = (data: { message: string }) => {
-        console.log('[GameLog] Received game:log event:', data);
         helpers.patchLobby((prev) => {
           if (!prev) return prev;
           const newMessage = {
             id: crypto.randomUUID(),
             playerId: 'system',
             playerName: 'Game',
-            message: data.message,
+            message: translateGameMessage(data.message),
             timestamp: Date.now(),
           };
-          console.log('[GameLog] Adding message to state:', newMessage);
-          console.log('[GameLog] Previous messages count:', prev.messages?.length || 0);
           return {
             ...prev,
             messages: [...(prev.messages || []), newMessage],
@@ -152,15 +172,15 @@ function AppContent() {
   const renderPage = () => {
     // Show loading screen when coming from GameBuddies but not connected yet
     if (isLoadingFromGameBuddies && !isConnected) {
-      return <LoadingScreen message="Launching Prime Suspect" />;
+      return <LoadingScreen message={getTranslation('app.launchingGame', getCurrentLanguage())} />;
     }
 
     if (!isConnected) {
       return (
         <div className="container">
-          <h1>Connecting...</h1>
+          <h1>{getTranslation('app.connecting', getCurrentLanguage())}</h1>
           <p style={{ textAlign: 'center', color: '#94a3b8' }}>
-            Connecting to server...
+            {getTranslation('app.connectingToServer', getCurrentLanguage())}
           </p>
         </div>
       );
@@ -170,7 +190,7 @@ function AppContent() {
     // Keep showing until lobby is created (gameBuddiesSession may still be resolving)
     if (isLoadingFromGameBuddies && !lobby) {
       console.log('[App] Showing LoadingScreen - waiting for GameBuddies room join');
-      return <LoadingScreen message="Launching Prime Suspect" />;
+      return <LoadingScreen message={getTranslation('app.launchingGame', getCurrentLanguage())} />;
     }
 
     if (!lobby) {
@@ -303,10 +323,10 @@ function AppContent() {
                   className={mobileNav.drawerContent === 'video' ? 'video-drawer-full' : ''}
                   hideHeader={mobileNav.drawerContent === 'video'} // Hide header for video drawer
                   title={
-                    mobileNav.drawerContent === 'chat' ? 'Chat' :
-                    mobileNav.drawerContent === 'players' ? 'Players' :
-                    mobileNav.drawerContent === 'settings' ? 'Settings' :
-                    mobileNav.drawerContent === 'history' ? 'History' : ''
+                    mobileNav.drawerContent === 'chat' ? getTranslation('drawer.chat', getCurrentLanguage()) :
+                    mobileNav.drawerContent === 'players' ? getTranslation('drawer.players', getCurrentLanguage()) :
+                    mobileNav.drawerContent === 'settings' ? getTranslation('drawer.settings', getCurrentLanguage()) :
+                    mobileNav.drawerContent === 'history' ? getTranslation('drawer.history', getCurrentLanguage()) : ''
                   }
                 >
                   {mobileNav.drawerContent === 'chat' && (
@@ -336,7 +356,7 @@ function AppContent() {
                     </Suspense>
                   )}
                   {mobileNav.drawerContent === 'history' && lobby.gameData && (
-                    <div className="p-4">History not available in Hearts Gambit</div>
+                    <div className="p-4">{getTranslation('drawer.historyNotAvailable', getCurrentLanguage())}</div>
                   )}
                 </MobileDrawer>
               )}

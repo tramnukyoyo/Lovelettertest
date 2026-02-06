@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { isInStandaloneMode, isIOSSafari, dismissInstallPrompt } from '../utils/pwaUtils';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -7,6 +8,8 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function InstallPrompt() {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const [showIOSPrompt, setShowIOSPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showAndroidPrompt, setShowAndroidPrompt] = useState(false);
@@ -71,26 +74,26 @@ export function InstallPrompt() {
             <CloseIcon />
           </button>
 
-          <h2 style={styles.title}>Install Prime Suspect</h2>
-          <p style={styles.subtitle}>Get the full-screen experience!</p>
+          <h2 style={styles.title}>{t('installPrompt.title')}</h2>
+          <p style={styles.subtitle}>{t('installPrompt.getFullScreen')}</p>
 
           <div style={styles.steps}>
             <div style={styles.step}>
               <span style={styles.stepNumber}>1</span>
-              <span>Tap the <ShareIcon /> Share button below</span>
+              <span>{t('installPrompt.tapShare').split('{icon}')[0]}<ShareIcon />{t('installPrompt.tapShare').split('{icon}')[1]}</span>
             </div>
             <div style={styles.step}>
               <span style={styles.stepNumber}>2</span>
-              <span>Scroll and tap <strong>"Add to Home Screen"</strong></span>
+              <span>{t('installPrompt.scrollAndTap')}</span>
             </div>
             <div style={styles.step}>
               <span style={styles.stepNumber}>3</span>
-              <span>Tap <strong>"Add"</strong> to install</span>
+              <span>{t('installPrompt.tapAdd')}</span>
             </div>
           </div>
 
           <button style={styles.dontShowButton} onClick={handleDontShowAgain}>
-            Don't show again
+            {t('installPrompt.dontShowAgain')}
           </button>
         </div>
       </div>
@@ -106,15 +109,15 @@ export function InstallPrompt() {
             <CloseIcon />
           </button>
 
-          <h2 style={styles.title}>Install Prime Suspect</h2>
-          <p style={styles.subtitle}>Add to home screen for full-screen play!</p>
+          <h2 style={styles.title}>{t('installPrompt.title')}</h2>
+          <p style={styles.subtitle}>{t('installPrompt.addToHomeScreenPlay')}</p>
 
           <button style={styles.installButton} onClick={handleAndroidInstall}>
-            Install App
+            {t('installPrompt.installApp')}
           </button>
 
           <button style={styles.dontShowButton} onClick={handleDontShowAgain}>
-            Don't show again
+            {t('installPrompt.dontShowAgain')}
           </button>
         </div>
       </div>

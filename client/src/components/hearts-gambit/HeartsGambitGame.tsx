@@ -7,7 +7,7 @@ import CardTooltip from './CardTooltip';
 import Toast from './Toast';
 import DynamicCard from './DynamicCard';
 import {
-  CARD_NAMES,
+  getTranslatedCardName,
   CARD_DESCRIPTIONS,
   CARD_IMAGES,
   CARD_BACK_IMAGE
@@ -51,7 +51,7 @@ type ZoomContext = {
   index: number;
 };
 
-// CARD_NAMES, CARD_DESCRIPTIONS, and CARD_IMAGES are now imported from cardDatabase.ts
+// getTranslatedCardName, CARD_DESCRIPTIONS, and CARD_IMAGES are now imported from cardDatabase.ts
 
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
 
@@ -126,7 +126,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
         key: `zoom-${evt.playerId}-${evt.timestamp}-${evt.card}`,
         card: evt.card,
         image: CARD_IMAGES[evt.card],
-        caption: CARD_NAMES[evt.card],
+        caption: getTranslatedCardName(evt.card as any, language),
         meta: `#${evt.order} - ${actionLabel} - ${evt.playerName}`,
         stamp: isMostRecentDiscard(evt) ? 'LATEST' : undefined
       } satisfies ZoomCard;
@@ -382,7 +382,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                          {Array.from({length: Math.min(player.handCount, 3)}).map((_, i) => {
                              const cardToDisplay = player.hand[i]; // This will be the actual card or '0' (card back)
                              const imgSrc = cardToDisplay !== 0 ? CARD_IMAGES[cardToDisplay] : CARD_BACK_IMAGE;
-                             const cardName = cardToDisplay !== 0 ? CARD_NAMES[cardToDisplay] : "Hidden Card";
+                             const cardName = getTranslatedCardName(cardToDisplay as any, language);
                              const cardDesc = cardToDisplay !== 0 ? CARD_DESCRIPTIONS[cardToDisplay] : "This card is face down";
 
                              return (
@@ -532,7 +532,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                     {lastDiscardEvent && (
                       <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
                         <span className="hg-stamp text-[var(--parchment)] px-3 py-1 rounded-full text-[10px] font-bold">
-                          Latest evidence: {CARD_NAMES[lastDiscardEvent.card]}
+                          {t('evidence.latestEvidence')}: {getTranslatedCardName(lastDiscardEvent.card as any, language)}
                           {typeof lastDiscardOrder === 'number' ? ` #${lastDiscardOrder}` : ''} - {lastDiscardEvent.playerName}
                         </span>
                       </div>
@@ -729,7 +729,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
               <div className={`flex items-center gap-4 ${selectedCard === 1 ? 'w-full' : ''}`}>
                 <div className="flex flex-col">
                   <span className="text-xs text-[var(--parchment-dark)] uppercase font-bold">{t('game.playing')}</span>
-                  <span className="font-bold text-[var(--royal-gold)]">{CARD_NAMES[selectedCard]}</span>
+                  <span className="font-bold text-[var(--royal-gold)]">{getTranslatedCardName(selectedCard as any, language)}</span>
                 </div>
 
                 <div className="h-8 w-px bg-[rgba(var(--accent-color-rgb),0.25)]"></div>
@@ -987,7 +987,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                 cardType={card}
                                 className="hg-evidence-card opacity-75"
                               />
-                              <span className="text-[10px] text-[var(--parchment-dark)]">{CARD_NAMES[card]}</span>
+                              <span className="text-[10px] text-[var(--parchment-dark)]">{getTranslatedCardName(card as any, language)}</span>
                             </div>
                           ))}
                         </div>
@@ -998,7 +998,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                       <>
                         {lastDiscardEvent && (
                           <div className="text-center text-sm text-[rgba(246,240,230,0.8)]">
-                            {t('evidence.latestEvidence')}: <span className="text-white font-bold">{CARD_NAMES[lastDiscardEvent.card]}</span>
+                            {t('evidence.latestEvidence')}: <span className="text-white font-bold">{getTranslatedCardName(lastDiscardEvent.card as any, language)}</span>
                             {typeof lastDiscardOrder === 'number' ? (
                               <span className="hg-meta ml-2 text-[rgba(246,240,230,0.8)]">#{lastDiscardOrder}</span>
                             ) : null}
@@ -1020,7 +1020,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                   <CardTooltip
                                     card={evt.card}
                                     cardImage={CARD_IMAGES[evt.card]}
-                                    cardName={CARD_NAMES[evt.card]}
+                                    cardName={getTranslatedCardName(evt.card as any, language)}
                                     cardDescription={CARD_DESCRIPTIONS[evt.card]}
                                     useDynamicCard={true}
                                   >
@@ -1030,7 +1030,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                       className={`relative transition-all cursor-zoom-in ${
                                         isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''
                                       }`}
-                                      aria-label={t('evidence.inspectCard').replace('{cardName}', CARD_NAMES[evt.card])}
+                                      aria-label={t('evidence.inspectCard').replace('{cardName}', getTranslatedCardName(evt.card as any, language))}
                                     >
                                       <DynamicCard
                                         cardType={evt.card}
@@ -1087,7 +1087,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                               key={`discard-by-player-card-${evt.playerId}-${evt.timestamp}-${evt.card}`}
                                               card={evt.card}
                                               cardImage={CARD_IMAGES[evt.card]}
-                                              cardName={CARD_NAMES[evt.card]}
+                                              cardName={getTranslatedCardName(evt.card as any, language)}
                                               cardDescription={CARD_DESCRIPTIONS[evt.card]}
                                               useDynamicCard={true}
                                             >
@@ -1095,7 +1095,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                                 type="button"
                                                 onClick={() => openZoom({ title: t('evidence.playerEvidence').replace('{playerName}', entry.playerName), cards: buildZoomCardsFromTimeline(events as DiscardEventWithOrder[]), index: eventIdx })}
                                                 className={`relative transition-all cursor-zoom-in ${isMostRecent ? 'ring-2 ring-[var(--royal-gold)]' : ''}`}
-                                                aria-label={t('evidence.inspectCard').replace('{cardName}', CARD_NAMES[evt.card])}
+                                                aria-label={t('evidence.inspectCard').replace('{cardName}', getTranslatedCardName(evt.card as any, language))}
                                               >
                                                 <DynamicCard
                                                   cardType={evt.card}
@@ -1137,7 +1137,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                     key={`discard-${p.id}-${idx}-${card}`}
                                     card={card}
                                     cardImage={CARD_IMAGES[card]}
-                                    cardName={CARD_NAMES[card]}
+                                    cardName={getTranslatedCardName(card as any, language)}
                                     cardDescription={CARD_DESCRIPTIONS[card]}
                                     useDynamicCard={true}
                                   >
@@ -1148,13 +1148,13 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                           key: `zoom-discarded-${p.id}-${i}-${c}`,
                                           card: c,
                                           image: CARD_IMAGES[c],
-                                          caption: CARD_NAMES[c],
+                                          caption: getTranslatedCardName(c as any, language),
                                           meta: `#${i + 1} - ${p.name}`
                                         }));
                                         openZoom({ title: t('evidence.playerEvidence').replace('{playerName}', p.name), cards, index: idx });
                                       }}
                                       className="relative transition-all cursor-zoom-in hover:ring-2 hover:ring-[rgba(var(--accent-color-rgb),0.35)]"
-                                      aria-label={`Inspect ${CARD_NAMES[card]}`}
+                                      aria-label={t('evidence.inspectCard').replace('{cardName}', getTranslatedCardName(card as any, language))}
                                     >
                                       <DynamicCard
                                         cardType={card}
@@ -1287,7 +1287,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
           >
             <img
               src={playingCard.image}
-              alt={CARD_NAMES[playingCard.card]}
+              alt={getTranslatedCardName(playingCard.card as any, language)}
               className="hg-card object-cover rounded-xl shadow-2xl border-4 border-[var(--royal-gold)]"
             />
           </motion.div>

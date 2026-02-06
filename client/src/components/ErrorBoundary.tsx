@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface Props {
   children: ReactNode;
@@ -59,6 +60,9 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      const language = getCurrentLanguage();
+      const t = (key: string) => getTranslation(key as any, language);
+
       // Default error UI
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
@@ -66,16 +70,16 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="text-center">
               <div className="text-4xl mb-4">!</div>
               <h2 className="text-xl font-bold text-red-400 mb-2">
-                Something went wrong
+                {t('errorBoundary.somethingWentWrong')}
               </h2>
               <p className="text-slate-300 mb-4">
-                An error occurred while rendering this component.
+                {t('errorBoundary.errorOccurred')}
               </p>
 
               {this.state.error && (
                 <details className="mb-4 text-left">
                   <summary className="cursor-pointer text-slate-400 hover:text-slate-200 transition-colors">
-                    Show error details
+                    {t('errorBoundary.showErrorDetails')}
                   </summary>
                   <div className="mt-2 p-3 bg-slate-900 rounded-lg overflow-auto max-h-48">
                     <code className="text-xs text-red-300 whitespace-pre-wrap">
@@ -95,13 +99,13 @@ class ErrorBoundary extends Component<Props, State> {
                   onClick={this.handleRetry}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
                 >
-                  Try Again
+                  {t('errorBoundary.tryAgain')}
                 </button>
                 <button
                   onClick={this.handleReload}
                   className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
                 >
-                  Reload Page
+                  {t('errorBoundary.reload')}
                 </button>
               </div>
             </div>

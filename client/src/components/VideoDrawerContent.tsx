@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useWebRTC } from '../contexts/WebRTCContext';
 import { MobileVideoGrid } from './MobileVideoGrid';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface VideoDrawerContentProps {
   players: any[];
@@ -12,6 +13,8 @@ interface VideoDrawerContentProps {
  * Combines local stream, remote streams, and player data for MobileVideoGrid
  */
 export const VideoDrawerContent: React.FC<VideoDrawerContentProps> = ({ players = [] }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   // This hook call is now inside WebRTCProvider boundary
   const { localStream, remoteStreams, isVideoEnabled, prepareVideoChat } = useWebRTC();
 
@@ -24,8 +27,8 @@ export const VideoDrawerContent: React.FC<VideoDrawerContentProps> = ({ players 
       enriched.push({
         id: 'self',
         socketId: 'self',
-        name: 'You',
-        playerName: 'You',
+        name: t('video.you'),
+        playerName: t('video.you'),
         stream: localStream,
         isActive: true,
         isSelf: true,

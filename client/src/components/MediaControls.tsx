@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Mic, MicOff, Volume2, VolumeX, Settings, User, Video, VideoOff, Crown } from 'lucide-react';
 import { useWebcamConfig } from '../config/WebcamConfig';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface MediaControlsProps {
   isGamemaster?: boolean;
@@ -16,6 +17,8 @@ const MediaControls: React.FC<MediaControlsProps> = ({
   onStreamUpdate
 }) => {
   const config = useWebcamConfig();
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const [isMicOn, setIsMicOn] = useState(false);
   const [isMusicOn, setIsMusicOn] = useState(true);
   const [musicVolume, setMusicVolume] = useState(0.3);
@@ -151,7 +154,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
       }
     } catch (error) {
       console.error('Error toggling microphone:', error);
-      alert('Unable to access microphone. Please check permissions.');
+      alert(t('media.unableToAccessMic'));
     } finally {
       setIsStreamOperationInProgress(false);
     }
@@ -197,7 +200,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
           onClick={toggleMicrophone}
           disabled={isStreamOperationInProgress}
           className={`btn btn-sm ${isMicOn ? 'btn-success' : 'btn-secondary'} ${isStreamOperationInProgress ? 'opacity-50 cursor-not-allowed' : ''} flex items-center space-x-1`}
-          title={isStreamOperationInProgress ? 'Processing...' : (isMicOn ? 'Turn off microphone' : 'Turn on microphone')}
+          title={isStreamOperationInProgress ? t('media.processing') : (isMicOn ? t('media.turnOffMicrophone') : t('media.turnOnMicrophone'))}
           data-testid="mic-toggle"
         >
           {isStreamOperationInProgress ? 
@@ -209,7 +212,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
         {isMicOn && (
           <div className="flex items-center space-x-1 text-green-400" data-testid="mic-status">
             <Mic className="w-3 h-3" />
-            <span className="text-xs">Mic Active</span>
+            <span className="text-xs">{t('media.micActive')}</span>
           </div>
         )}
 
@@ -217,7 +220,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
         <button
           onClick={toggleMusic}
           className={`btn btn-sm ${isMusicOn ? 'btn-warning' : 'btn-secondary'} flex items-center space-x-1`}
-          title={isMusicOn ? 'Mute background music' : 'Play background music'}
+          title={isMusicOn ? t('media.muteBackgroundMusic') : t('media.playBackgroundMusic')}
         >
           {isMusicOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </button>
@@ -226,7 +229,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
         <button
           onClick={() => setShowSettings(!showSettings)}
           className="btn btn-sm btn-secondary"
-          title="Media settings"
+          title={t('media.mediaSettings')}
         >
           <Settings className="w-4 h-4" />
         </button>
@@ -243,7 +246,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
         {isWebcamOn && (
           <div className="flex items-center space-x-1 text-green-400" data-testid="webcam-status">
             <Video className="w-3 h-3" />
-            <span className="text-xs">Camera Active</span>
+            <span className="text-xs">{t('media.cameraActive')}</span>
           </div>
         )}
       </div>
@@ -257,7 +260,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
               {isGamemaster ? (
                 <>
                   <Crown className="w-4 h-4" />
-                  Gamemaster
+                  {t('media.gamemaster')}
                 </>
               ) : (
                 playerName
@@ -266,7 +269,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
             {isMicOn && (
               <div className="flex items-center space-x-1 text-green-400">
                 <Mic className="w-3 h-3" />
-                <span className="text-xs">Mic Active</span>
+                <span className="text-xs">{t('media.micActive')}</span>
               </div>
             )}
           </div>
@@ -285,7 +288,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
           {/* Settings Modal */}
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-800/95 border border-slate-600/50 rounded-xl p-4 min-w-80 z-[9999] shadow-2xl">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-slate-200">🎛️ Audio Settings</h3>
+              <h3 className="text-lg font-semibold text-slate-200">{'🎛️ '}{t('media.audioSettings')}</h3>
               <button
                 onClick={() => setShowSettings(false)}
                 className="text-slate-400 hover:text-slate-200 transition-colors"
@@ -297,7 +300,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
             <div className="space-y-4">
               {/* Microphone Selection */}
               <div>
-                <label className="text-sm text-slate-300">Microphone</label>
+                <label className="text-sm text-slate-300">{t('media.microphone')}</label>
                 <select
                   value={selectedMicrophone}
                   onChange={(e) => setSelectedMicrophone(e.target.value)}
@@ -313,7 +316,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
 
               {/* Background Music Volume */}
               <div>
-                <label className="text-sm text-slate-300">Background Music Volume</label>
+                <label className="text-sm text-slate-300">{t('media.backgroundMusicVolume')}</label>
                 <input
                   type="range"
                   min="0"

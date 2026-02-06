@@ -7,6 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import './PortalCloseOverlay.css';
 
 interface Player {
@@ -32,6 +33,8 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
   duration = 3000,
   logoUrl,
 }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const [progress, setProgress] = useState(0);
   const [isCollapsing, setIsCollapsing] = useState(false);
   const [countdown, setCountdown] = useState(Math.ceil(duration / 1000));
@@ -91,7 +94,7 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
       aria-labelledby="portal-message"
     >
       <div className="sr-only" aria-live="polite">
-        Returning to GameBuddies in {countdown} seconds
+        {t('return.returningSeconds').replace('{seconds}', String(countdown))}
       </div>
 
       {/* Floating particles that converge to center */}
@@ -147,7 +150,7 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
 
       {/* Message */}
       <p className="portal-message" id="portal-message">
-        {isGroupReturn ? 'Returning everyone to lobby...' : 'Returning to GameBuddies...'}
+        {isGroupReturn ? t('return.returningEveryone') : t('return.returningToGameBuddies')}
       </p>
 
       {/* Player avatars for group return */}

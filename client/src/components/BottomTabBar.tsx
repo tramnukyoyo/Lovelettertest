@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { MessageCircle, Gamepad2, Users, Video, Settings, History } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 export type TabType = 'game' | 'players' | 'chat' | 'video' | 'settings' | 'history';
 
@@ -20,34 +21,37 @@ interface BottomTabBarProps {
 
 export const BottomTabBar = React.memo<BottomTabBarProps>(
   ({ activeTab, onTabChange, className = '', showHistory = false, videoCount = 0 }) => {
+    const language = getCurrentLanguage();
+    const t = (key: string) => getTranslation(key as any, language);
+
     // Memoize tab items to prevent recreation on every render
     const tabItems = useMemo<TabItem[]>(
       () => {
         const items: TabItem[] = [
           {
             id: 'game' as const,
-            label: 'Game',
+            label: t('bottomTab.game'),
             icon: <Gamepad2 className="w-5 h-5" />,
           },
           {
             id: 'players' as const,
-            label: 'Players',
+            label: t('bottomTab.players'),
             icon: <Users className="w-5 h-5" />,
           },
           {
             id: 'chat' as const,
-            label: 'Chat',
+            label: t('bottomTab.chat'),
             icon: <MessageCircle className="w-5 h-5" />,
           },
           {
             id: 'video' as const,
-            label: 'Video',
+            label: t('bottomTab.video'),
             icon: <Video className="w-5 h-5" />,
             badge: videoCount > 0 ? videoCount : undefined,
           },
           {
             id: 'settings' as const,
-            label: 'Settings',
+            label: t('bottomTab.settings'),
             icon: <Settings className="w-5 h-5" />,
           },
         ];
@@ -56,14 +60,14 @@ export const BottomTabBar = React.memo<BottomTabBarProps>(
         if (showHistory) {
           items.push({
             id: 'history' as const,
-            label: 'History',
+            label: t('bottomTab.history'),
             icon: <History className="w-5 h-5" />,
           });
         }
 
         return items;
       },
-      [showHistory, videoCount]
+      [showHistory, videoCount, language]
     );
 
     return (

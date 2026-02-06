@@ -8,6 +8,7 @@
 
 import React from 'react';
 import './LoadingScreen.css';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface LoadingScreenProps {
   /** Status message shown during loading (new API) */
@@ -18,13 +19,13 @@ interface LoadingScreenProps {
   fadeOut?: boolean;
 }
 
-const HINTS = [
-  'Trust no one completely!',
-  'Watch for suspicious behavior',
-  'Deception is key to survival',
-  'Observe before you accuse',
-  'The truth hides in plain sight',
-  'Your rivals are watching you too',
+const HINT_KEYS = [
+  'loadingScreen.hint1',
+  'loadingScreen.hint2',
+  'loadingScreen.hint3',
+  'loadingScreen.hint4',
+  'loadingScreen.hint5',
+  'loadingScreen.hint6',
 ];
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
@@ -32,9 +33,11 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   message,
   fadeOut = false
 }) => {
-  const displayStatus = status || message || 'Connecting';
-  const [hint] = React.useState(() =>
-    HINTS[Math.floor(Math.random() * HINTS.length)]
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
+  const displayStatus = status || message || t('loadingScreen.connecting');
+  const [hintKey] = React.useState(() =>
+    HINT_KEYS[Math.floor(Math.random() * HINT_KEYS.length)]
   );
 
   return (
@@ -78,7 +81,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
         </div>
 
         {/* Fun hint */}
-        <div className="loading-hint">{hint}</div>
+        <div className="loading-hint">{t(hintKey)}</div>
       </div>
     </div>
   );

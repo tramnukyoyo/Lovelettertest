@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 type DrawerPosition = 'bottom' | 'left' | 'right';
 
@@ -26,6 +27,8 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   className = '',
   hideHeader = false, // Default to false
 }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const drawerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +102,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             <button
               className="drawer-close-btn"
               onClick={onClose}
-              aria-label="Close drawer"
+              aria-label={t('video.closeDrawer')}
             >
               <X className="w-5 h-5" />
             </button>

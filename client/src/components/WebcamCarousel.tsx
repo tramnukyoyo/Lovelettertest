@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface VideoFeed {
   playerId: string;
@@ -16,6 +17,8 @@ interface WebcamCarouselProps {
 }
 
 export const WebcamCarousel: React.FC<WebcamCarouselProps> = ({ feeds, isPreparationMode = false }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -71,7 +74,7 @@ export const WebcamCarousel: React.FC<WebcamCarouselProps> = ({ feeds, isPrepara
         <button
           className="carousel-nav-btn carousel-nav-left"
           onClick={() => scroll('left')}
-          aria-label="Scroll webcams left"
+          aria-label={t('video.scrollLeft')}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -110,7 +113,7 @@ export const WebcamCarousel: React.FC<WebcamCarouselProps> = ({ feeds, isPrepara
         <button
           className="carousel-nav-btn carousel-nav-right"
           onClick={() => scroll('right')}
-          aria-label="Scroll webcams right"
+          aria-label={t('video.scrollRight')}
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -119,7 +122,7 @@ export const WebcamCarousel: React.FC<WebcamCarouselProps> = ({ feeds, isPrepara
       {/* Empty State */}
       {visibleFeeds.length === 0 && (
         <div className="carousel-empty">
-          <p>No camera feeds available</p>
+          <p>{t('video.noCameraFeeds')}</p>
         </div>
       )}
     </div>

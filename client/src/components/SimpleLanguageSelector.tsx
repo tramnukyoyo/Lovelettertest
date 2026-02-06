@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Language } from '../utils/translations';
-import { getCurrentLanguage, setCurrentLanguage } from '../utils/translations';
+import { getCurrentLanguage, setCurrentLanguage, getTranslation } from '../utils/translations';
 
 const languageOptions: { code: Language; label: string; flag: string }[] = [
   { code: 'en', label: 'English', flag: '\u{1F1EC}\u{1F1E7}' },
@@ -14,6 +14,7 @@ interface SimpleLanguageSelectorProps {
 
 const SimpleLanguageSelector: React.FC<SimpleLanguageSelectorProps> = () => {
   const [language, setLanguageState] = useState<Language>(getCurrentLanguage);
+  const t = (key: string) => getTranslation(key as any, language);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLanguageChange = (lang: Language) => {
@@ -46,15 +47,15 @@ const SimpleLanguageSelector: React.FC<SimpleLanguageSelectorProps> = () => {
       <button
         className="language-selector-button"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Select language"
-        title="Language"
+        aria-label={t('languageSelector.selectLanguage')}
+        title={t('languageSelector.language')}
       >
         <span className="language-flag">{currentLang.flag}</span>
       </button>
 
       {isOpen && (
         <div className="language-dropdown">
-          <div className="language-dropdown-header">Language</div>
+          <div className="language-dropdown-header">{t('languageSelector.language')}</div>
           {languageOptions.map((lang) => (
             <button
               key={lang.code}

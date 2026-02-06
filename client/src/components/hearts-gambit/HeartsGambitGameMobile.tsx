@@ -6,9 +6,9 @@ import { Skull, FileText, Copy, Check, User, ArrowLeft, Play } from 'lucide-reac
 import Toast from './Toast';
 import DynamicCard from './DynamicCard';
 import {
-  CARD_NAMES,
   CARD_IMAGES,
-  CARD_BACK_IMAGE
+  CARD_BACK_IMAGE,
+  getTranslatedCardName
 } from './cardDatabase';
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
 import { CardLegendModal } from '../CardLegendModal';
@@ -95,7 +95,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       setTimeout(() => setCopyFeedback(false), 2000);
     } catch (err) {
       console.error('Failed to copy link:', err);
-      setToast({ message: 'Failed to copy room link', type: 'error' });
+      setToast({ message: t('error.failedToCopyLink'), type: 'error' });
     }
   }, [lobby.code]);
 
@@ -299,7 +299,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     const cards: InspectorCard[] = myHand.map((c, i) => ({
       card: c,
       source: 'hand' as const,
-      label: CARD_NAMES[c],
+      label: getTranslatedCardName(c as any, language),
       canPlay: isMyTurn && !waitingToDraw && !amEliminated,
       handIndex: i,
     }));
@@ -318,7 +318,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         cards.push({
           card,
           source: 'opponent',
-          label: CARD_NAMES[card],
+          label: getTranslatedCardName(card as any, language),
           meta: `${player.name}'s card`,
         });
       }
@@ -341,7 +341,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       cards.push({
         card,
         source: 'evidence',
-        label: CARD_NAMES[card],
+        label: getTranslatedCardName(card as any, language),
         meta: 'Removed at start',
       });
     });
@@ -352,7 +352,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         cards.push({
           card: evt.card,
           source: 'discard',
-          label: CARD_NAMES[evt.card],
+          label: getTranslatedCardName(evt.card as any, language),
           meta: `#${i + 1} - ${evt.playerName}`,
         });
       });
@@ -363,7 +363,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           cards.push({
             card,
             source: 'discard',
-            label: CARD_NAMES[card],
+            label: getTranslatedCardName(card as any, language),
             meta: `${p.name}'s discard`,
           });
         });
@@ -837,13 +837,13 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                     </div>
                     <div className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider"
                          style={{ fontFamily: 'var(--font-typewriter)' }}>
-                      Guessing: {CARD_NAMES[guessCard]}
+                      {t('cardInspector.guessing')}: {getTranslatedCardName(guessCard as any, language)}
                     </div>
                   </>
                 ) : (
                   <div className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider"
                        style={{ fontFamily: 'var(--font-typewriter)' }}>
-                    {CARD_NAMES[selectedCard]}
+                    {getTranslatedCardName(selectedCard as any, language)}
                   </div>
                 )}
                 {targetId && (
@@ -951,7 +951,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           >
             <img
               src={playingCard.image}
-              alt={CARD_NAMES[playingCard.card]}
+              alt={getTranslatedCardName(playingCard.card as any, language)}
               className="hg-card object-cover rounded-xl shadow-2xl border-4 border-[var(--royal-gold)]"
             />
           </motion.div>

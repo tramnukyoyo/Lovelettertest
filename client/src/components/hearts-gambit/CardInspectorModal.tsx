@@ -5,7 +5,8 @@ import { X, ChevronLeft, ChevronRight, Play, Check, RotateCcw, ArrowLeft, User }
 import type { Socket } from 'socket.io-client';
 import type { CardType, Player } from '../../types';
 import DynamicCard from './DynamicCard';
-import { CARD_NAMES, CARD_DESCRIPTIONS } from './cardDatabase';
+import { getTranslatedCardName, getTranslatedCardDescription } from './cardDatabase';
+import { getTranslation, getCurrentLanguage, type Language } from '../../utils/translations';
 
 // Step flow for playing cards that need targets/guesses
 type ModalStep = 'BROWSING' | 'SELECTED' | 'TARGET_SELECT' | 'GUESS_SELECT' | 'READY_TO_PLAY';
@@ -58,6 +59,9 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
   meId,
   allOpponentsProtected = false,
 }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
+
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   // Track which card is selected (pending confirmation)
@@ -277,7 +281,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
             <button
               onClick={onClose}
               className="hg-inspector-close hg-icon-btn w-10 h-10 flex items-center justify-center rounded-full bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] transition-colors"
-              aria-label="Close inspector"
+              aria-label={t('cardInspector.closeInspector')}
             >
               <X className="w-5 h-5 text-[#f6f0e6]" />
             </button>
@@ -297,7 +301,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
               <button
                 onClick={goToPrev}
                 className="hg-inspector-nav hg-inspector-nav-prev hg-icon-btn absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-[rgba(212,175,55,0.4)] hover:bg-[rgba(212,175,55,0.5)] transition-colors z-20 border border-[rgba(212,175,55,0.5)]"
-                aria-label="Previous card"
+                aria-label={t('cardInspector.previousCard')}
               >
                 <ChevronLeft className="w-6 h-6 text-[#f6f0e6]" />
               </button>
@@ -328,7 +332,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 />
                 {selectedIndex === currentIndex && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20 bg-[var(--royal-gold)] text-[#1a0f1e] px-4 py-1.5 rounded-full text-xs font-bold shadow-[0_0_15px_rgba(210,178,90,0.5)]">
-                    ✓ Selected
+                    ✓ {t('cardInspector.selected')}
                   </div>
                 )}
               </div>
@@ -336,7 +340,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
               {/* Card info */}
               <div className="hg-inspector-info mt-4 text-center max-w-xs">
                 <h3 className="text-lg font-bold text-[var(--royal-gold)]">
-                  {CARD_NAMES[currentCard.card]}
+                  {getTranslatedCardName(currentCard.card, language)}
                 </h3>
                 {currentCard.label && (
                   <div className="text-sm text-[var(--parchment-dark)] mt-1">{currentCard.label}</div>
@@ -345,7 +349,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                   <div className="text-xs text-[var(--parchment-dark)] mt-1 opacity-75">{currentCard.meta}</div>
                 )}
                 <p className="text-sm text-[var(--parchment)] mt-2 opacity-80">
-                  {CARD_DESCRIPTIONS[currentCard.card]}
+                  {getTranslatedCardDescription(currentCard.card, language)}
                 </p>
               </div>
             </motion.div>
@@ -355,7 +359,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
               <button
                 onClick={goToNext}
                 className="hg-inspector-nav hg-inspector-nav-next hg-icon-btn absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-[rgba(212,175,55,0.4)] hover:bg-[rgba(212,175,55,0.5)] transition-colors z-20 border border-[rgba(212,175,55,0.5)]"
-                aria-label="Next card"
+                aria-label={t('cardInspector.nextCard')}
               >
                 <ChevronRight className="w-6 h-6 text-[#f6f0e6]" />
               </button>
@@ -379,14 +383,14 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                         className="flex-1 flex items-center justify-center gap-2 bg-[rgba(var(--accent-color-rgb),0.3)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] py-4 rounded-xl font-bold text-sm transition-all min-h-[56px] border border-[rgba(var(--accent-color-rgb),0.5)]"
                       >
                         <RotateCcw className="w-4 h-4" />
-                        Choose Another
+                        {t('cardInspector.chooseAnother')}
                       </button>
                       <button
                         onClick={handleConfirmSelection}
                         className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white py-4 rounded-xl font-bold text-sm transition-all min-h-[56px]"
                       >
                         <Check className="w-5 h-5" />
-                        Confirm
+                        {t('common.confirm')}
                       </button>
                     </div>
                   ) : currentCard.canPlay ? (
@@ -396,7 +400,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       className="w-full flex items-center justify-center gap-2 bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white py-4 rounded-xl font-bold text-sm transition-all min-h-[56px]"
                     >
                       <Play className="w-5 h-5" />
-                      Select This Card
+                      {t('cardInspector.selectThisCard')}
                     </button>
                   ) : (
                     /* Card can't be played */
@@ -404,7 +408,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       disabled
                       className="w-full flex items-center justify-center gap-2 bg-gray-600/50 text-gray-400 py-4 rounded-xl font-bold text-sm min-h-[56px] cursor-not-allowed"
                     >
-                      Cannot Play This Card
+                      {t('cardInspector.cannotPlayCard')}
                     </button>
                   )}
                 </div>
@@ -425,7 +429,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 className="bg-[#1a0f1e] rounded-2xl p-5 max-w-xs w-full border border-[var(--royal-gold)]/30 shadow-[0_0_30px_rgba(210,178,90,0.2)]"
               >
                 <h3 className="text-center text-lg font-bold text-[var(--royal-gold)] mb-4">
-                  Select Target
+                  {t('cardInspector.selectTarget')}
                 </h3>
 
                 {/* Player grid - 2 columns */}
@@ -459,7 +463,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                         {player.name}
                       </span>
                       {player.isImmune && (
-                        <span className="text-[10px] text-yellow-400 mt-0.5">Protected</span>
+                        <span className="text-[10px] text-yellow-400 mt-0.5">{t('cardInspector.protected')}</span>
                       )}
                     </button>
                   ))}
@@ -478,7 +482,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       <div className="w-14 h-14 rounded-full bg-[var(--royal-crimson)] flex items-center justify-center mb-2">
                         <User className="w-7 h-7 text-white" />
                       </div>
-                      <span className="text-sm text-[var(--parchment)] font-medium">Yourself</span>
+                      <span className="text-sm text-[var(--parchment)] font-medium">{t('cardInspector.yourself')}</span>
                     </button>
                   )}
                 </div>
@@ -489,7 +493,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                   className="w-full py-3 flex items-center justify-center gap-2 bg-[rgba(var(--accent-color-rgb),0.15)] hover:bg-[rgba(var(--accent-color-rgb),0.25)] text-[var(--parchment)] rounded-xl font-bold text-sm transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </motion.div>
             </div>
@@ -507,7 +511,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 className="bg-[#1a0f1e] rounded-2xl p-5 max-w-sm w-full border border-[var(--royal-gold)]/30 shadow-[0_0_30px_rgba(210,178,90,0.2)]"
               >
                 <h3 className="text-center text-lg font-bold text-[var(--royal-gold)] mb-4">
-                  Guess Their Card
+                  {t('cardInspector.guessTheirCard')}
                 </h3>
 
                 {/* Cards 2-8 grid */}
@@ -537,7 +541,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                   className="w-full py-3 flex items-center justify-center gap-2 bg-[rgba(var(--accent-color-rgb),0.15)] hover:bg-[rgba(var(--accent-color-rgb),0.25)] text-[var(--parchment)] rounded-xl font-bold text-sm transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Back
+                  {t('cardInspector.back')}
                 </button>
               </motion.div>
             </div>
@@ -568,20 +572,20 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 {/* Selection summary */}
                 <div className="text-center mb-4 space-y-1">
                   <div className="text-lg font-bold text-[var(--royal-gold)]">
-                    {CARD_NAMES[pendingCard]}
+                    {getTranslatedCardName(pendingCard, language)}
                   </div>
                   {targetId && (
                     <div className="text-sm text-[var(--parchment)]">
-                      Target: <span className="font-bold">
+                      {t('game.target')}: <span className="font-bold">
                         {targetId === meId
-                          ? 'Yourself'
-                          : otherPlayers?.find(p => p.id === targetId)?.name || 'Unknown'}
+                          ? t('cardInspector.yourself')
+                          : otherPlayers?.find(p => p.id === targetId)?.name || t('card.unknown')}
                       </span>
                     </div>
                   )}
                   {guessCard && (
                     <div className="text-sm text-[var(--parchment-dark)]">
-                      Guessing: <span className="font-bold text-[var(--royal-gold)]">{CARD_NAMES[guessCard]}</span>
+                      {t('cardInspector.guessing')}: <span className="font-bold text-[var(--royal-gold)]">{getTranslatedCardName(guessCard, language)}</span>
                     </div>
                   )}
                 </div>
@@ -592,14 +596,14 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                     onClick={handleBack}
                     className="flex-1 py-3 flex items-center justify-center gap-2 bg-[rgba(var(--accent-color-rgb),0.15)] hover:bg-[rgba(var(--accent-color-rgb),0.25)] text-[var(--parchment)] rounded-xl font-bold text-sm transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={handlePlayClick}
                     className="flex-1 py-3 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold text-sm transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                   >
                     <Play className="w-4 h-4" />
-                    Play Card
+                    {t('cardInspector.playCard')}
                   </button>
                 </div>
               </motion.div>
@@ -609,7 +613,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
           {/* Swipe hint */}
           {cards.length > 1 && (
             <div className="hg-inspector-hint absolute bottom-20 left-1/2 -translate-x-1/2 text-xs text-[var(--parchment-dark)] opacity-50">
-              Swipe to navigate
+              {t('cardInspector.swipeToNavigate')}
             </div>
           )}
 
@@ -628,7 +632,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       ? 'active bg-[var(--royal-gold)] w-4'
                       : 'bg-[var(--parchment-dark)] opacity-50 hover:opacity-75'
                   }`}
-                  aria-label={`Go to card ${idx + 1}`}
+                  aria-label={t('cardInspector.goToCard').replace('{number}', String(idx + 1))}
                 />
               ))}
             </div>

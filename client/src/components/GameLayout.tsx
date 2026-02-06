@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Video, VideoOff } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import WebcamDisplay from './WebcamDisplay';
 import PlayerList from './PlayerList';
 import ChatWindow from './ChatWindow';
@@ -13,6 +14,8 @@ interface GameLayoutProps {
 }
 
 const GameLayout: React.FC<GameLayoutProps> = ({ children, lobby, socket }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const [isWebcamHidden, setIsWebcamHidden] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
 
@@ -24,7 +27,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children, lobby, socket }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <Video size={18} style={{ color: 'var(--secondary)' }} />
             <h3 style={{ fontSize: '0.875rem', fontWeight: '600', margin: 0, color: 'var(--text-primary)' }}>
-              Video Chat
+              {t('video.videoChat')}
             </h3>
           </div>
           <WebcamDisplay lobby={lobby} />
@@ -35,17 +38,17 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children, lobby, socket }) => {
       <button
         onClick={() => setIsWebcamHidden(!isWebcamHidden)}
         className="webcam-toggle-btn"
-        title={isWebcamHidden ? 'Show Webcam' : 'Hide Webcam'}
+        title={isWebcamHidden ? t('video.showWebcam') : t('video.hideWebcam')}
       >
         {isWebcamHidden ? (
           <>
             <VideoOff size={16} style={{ display: 'inline-block', marginRight: '0.5rem' }} />
-            Show Video
+            {t('video.showVideoLabel')}
           </>
         ) : (
           <>
             <Video size={16} style={{ display: 'inline-block', marginRight: '0.5rem' }} />
-            Hide Video
+            {t('video.hideVideoLabel')}
           </>
         )}
       </button>

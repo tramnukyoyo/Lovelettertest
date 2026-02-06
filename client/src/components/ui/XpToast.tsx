@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface XpReward {
   reward: {
@@ -22,6 +23,8 @@ interface XpToastProps {
 export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
 
   const handleDismiss = useCallback(() => {
     setIsExiting(true);
@@ -62,12 +65,12 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
             {leveledUp ? '🏆' : '⭐'}
           </span>
           <span className="xp-toast-header-title">
-            {leveledUp ? 'LEVEL UP!' : 'XP GAINED'}
+            {leveledUp ? t('xp.levelUp') : t('xp.xpGained')}
           </span>
           <button
             className="xp-toast-close"
             onClick={handleDismiss}
-            aria-label="Dismiss notification"
+            aria-label={t('xp.dismissNotification')}
           >
             ×
           </button>
@@ -90,7 +93,7 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
 
             {leveledUp && (
               <div className="xp-toast-level-message">
-                You reached Level {newLevel}!
+                {t('xp.reachedLevel').replace('{level}', String(newLevel))}
               </div>
             )}
 

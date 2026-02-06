@@ -3,6 +3,7 @@ import { Grid, User, Users, Mic, MicOff, Camera, CameraOff, VideoOff, X, Maximiz
 import { useWebRTC } from '../contexts/WebRTCContext';
 import { useWebcamConfig } from '../config/WebcamConfig';
 import { getPopupLayoutPreference, savePopupLayoutPreference } from '../hooks/useVideoPreferences';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 type LayoutMode = 'grid' | 'speaker' | 'spotlight';
 
@@ -23,6 +24,8 @@ interface PopupVideoFeedProps {
 }
 
 const PopupVideoFeed: React.FC<PopupVideoFeedProps> = ({ feed, isLarge = false, onClick }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -71,8 +74,8 @@ const PopupVideoFeed: React.FC<PopupVideoFeedProps> = ({ feed, isLarge = false, 
 
       {/* Name label */}
       <div className="popup-name">
-        {feed.isSelf ? 'You' : feed.name}
-        {feed.isSelf && <span className="you-badge">YOU</span>}
+        {feed.isSelf ? t('video.you') : feed.name}
+        {feed.isSelf && <span className="you-badge">{t('video.you').toUpperCase()}</span>}
       </div>
 
       {/* Click hint for spotlight mode */}
@@ -91,6 +94,8 @@ interface EnhancedPopupContentProps {
 }
 
 const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, onClose }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const {
     isVideoEnabled,
     localStream,
@@ -130,7 +135,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
     videoFeeds.push({
       id: 'self',
       stream: localStream,
-      name: myPlayer?.name || 'You',
+      name: myPlayer?.name || t('video.you'),
       isSelf: true,
       isMuted: isMicrophoneMuted,
       isWebcamOff: !isWebcamActive,
@@ -144,7 +149,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
     videoFeeds.push({
       id: oderId,
       stream,
-      name: player?.name || 'Player',
+      name: player?.name || t('video.player'),
       isSelf: false,
       isMuted: false,
       isWebcamOff: !stream.getVideoTracks().some(t => t.enabled),
@@ -262,16 +267,16 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
               className="popup-mascot"
             />
             <div className="popup-logo-text">
-              <span className="logo-think">Think</span><span className="logo-alike">Alike</span>
+              <span className="logo-think">Prime</span><span className="logo-alike">Suspect</span>
               <span className="logo-by"> by </span>
               <span className="logo-gamebuddies">GameBuddies</span><span className="logo-io">.io</span>
             </div>
           </div>
           <div className="popup-room-info">
-            {roomCode && <span className="room-code">Room: {roomCode}</span>}
+            {roomCode && <span className="room-code">{t('video.room')}: {roomCode}</span>}
             <span className="connected-count">
               <Users className="w-4 h-4" />
-              {connectedCount} connected
+              {connectedCount} {t('video.connected')}
             </span>
           </div>
         </div>
@@ -282,21 +287,21 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
             <button
               className={`layout-btn ${layoutMode === 'grid' ? 'active' : ''}`}
               onClick={() => setLayoutMode('grid')}
-              title="Grid View"
+              title={t('video.gridView')}
             >
               <Grid className="w-4 h-4" />
             </button>
             <button
               className={`layout-btn ${layoutMode === 'speaker' ? 'active' : ''}`}
               onClick={() => setLayoutMode('speaker')}
-              title="Speaker View"
+              title={t('video.speakerView')}
             >
               <User className="w-4 h-4" />
             </button>
             <button
               className={`layout-btn ${layoutMode === 'spotlight' ? 'active' : ''}`}
               onClick={() => { setLayoutMode('spotlight'); setSpotlightId(null); }}
-              title="Spotlight View"
+              title={t('video.spotlightView')}
             >
               <Maximize2 className="w-4 h-4" />
             </button>
@@ -308,27 +313,27 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
             <button
               className={`header-video-btn ${isMicrophoneMuted ? 'muted' : ''}`}
               onClick={toggleMicrophone}
-              title={isMicrophoneMuted ? 'Unmute' : 'Mute'}
+              title={isMicrophoneMuted ? t('video.unmute') : t('video.mute')}
             >
               {isMicrophoneMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
             <button
               className={`header-video-btn ${!isWebcamActive ? 'off' : ''}`}
               onClick={toggleWebcam}
-              title={isWebcamActive ? 'Turn Camera Off' : 'Turn Camera On'}
+              title={isWebcamActive ? t('video.turnCameraOff') : t('video.turnCameraOn')}
             >
               {isWebcamActive ? <Camera className="w-4 h-4" /> : <CameraOff className="w-4 h-4" />}
             </button>
             <button
               className="header-video-btn leave"
               onClick={() => { disableVideoChat(); onClose?.(); }}
-              title="Leave Video Chat"
+              title={t('video.leaveVideoChat')}
             >
               <VideoOff className="w-4 h-4" />
             </button>
           </div>
           {onClose && (
-            <button className="popup-close-btn" onClick={onClose} title="Close">
+            <button className="popup-close-btn" onClick={onClose} title={t('video.close')}>
               <X className="w-5 h-5" />
             </button>
           )}
@@ -348,7 +353,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
             alt=""
             className="popup-branding-mascot"
           />
-          <span className="brand-think">Think</span><span className="brand-alike">Alike</span>
+          <span className="brand-think">Prime</span><span className="brand-alike">Suspect</span>
           <span className="by"> by </span>
           <span className="game">Game</span><span className="buddies">Buddies</span><span className="io">.io</span>
         </div>

@@ -3,6 +3,7 @@ import { ChevronUp, Users } from 'lucide-react';
 import { useWebRTC } from '../contexts/WebRTCContext';
 import { useVideoUI } from '../contexts/VideoUIContext';
 import { useWebcamConfig } from '../config/WebcamConfig';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 // Filmstrip height bounds
 const MIN_HEIGHT = 80;
@@ -32,6 +33,8 @@ const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
   thumbnailHeight,
   ballColor
 }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -83,13 +86,13 @@ const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
 
       {/* Status indicators */}
       <div className="filmstrip-status">
-        {isMuted && <span className="status-muted" title="Muted">🔇</span>}
-        {isWebcamOff && <span className="status-cam-off" title="Camera off">📷</span>}
+        {isMuted && <span className="status-muted" title={t('video.muted')}>🔇</span>}
+        {isWebcamOff && <span className="status-cam-off" title={t('video.cameraOffTitle')}>📷</span>}
       </div>
 
       {/* Name label */}
       <div className="filmstrip-name">
-        {isSelf ? 'You' : playerName}
+        {isSelf ? t('video.you') : playerName}
       </div>
 
       {/* Hover preview */}
@@ -113,7 +116,7 @@ const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
               <span>{playerName.charAt(0).toUpperCase()}</span>
             </div>
           )}
-          <div className="preview-name">{isSelf ? 'You' : playerName}</div>
+          <div className="preview-name">{isSelf ? t('video.you') : playerName}</div>
         </div>
       )}
     </div>
@@ -121,6 +124,8 @@ const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
 };
 
 const VideoFilmstrip: React.FC = () => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
   const {
     isVideoEnabled,
     localStream,
@@ -248,7 +253,7 @@ const VideoFilmstrip: React.FC = () => {
     videoFeeds.push({
       id: 'self',
       stream: localStream,
-      name: myPlayer?.name || 'You',
+      name: myPlayer?.name || t('video.you'),
       isSelf: true,
       isMuted: isMicrophoneMuted,
       isWebcamOff: !isWebcamActive
@@ -261,7 +266,7 @@ const VideoFilmstrip: React.FC = () => {
     videoFeeds.push({
       id: oderId,
       stream,
-      name: player?.name || 'Player',
+      name: player?.name || t('video.player'),
       isSelf: false,
       isMuted: false, // We don't know remote mute state
       isWebcamOff: !stream.getVideoTracks().some(t => t.enabled)
@@ -284,7 +289,7 @@ const VideoFilmstrip: React.FC = () => {
           <button onClick={toggleFilmstrip} className="filmstrip-expand-btn">
             <ChevronUp className="w-4 h-4" />
             <Users className="w-4 h-4" />
-            <span>Show Video ({connectedCount} connected)</span>
+            <span>{t('video.showVideoConnected').replace('{count}', String(connectedCount))}</span>
           </button>
         </div>
       )}
@@ -297,7 +302,7 @@ const VideoFilmstrip: React.FC = () => {
             className="filmstrip-resize-handle"
             onMouseDown={handleResizeStart}
             onTouchStart={handleResizeStart}
-            title="Drag to resize"
+            title={t('video.dragToResize')}
           />
 
           <div className="filmstrip-content">
