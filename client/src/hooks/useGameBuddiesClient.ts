@@ -187,8 +187,17 @@ export function useGameBuddiesClient(
 
     isReconnecting.current = true;
 
+    // Safety timeout: clear reconnecting flag if server never responds
+    const reconnectTimeout = setTimeout(() => {
+      if (isReconnecting.current) {
+        isReconnecting.current = false;
+        console.warn('[useGameBuddiesClient] Reconnection timed out after 10s');
+      }
+    }, 10000);
+
     return new Promise((resolve) => {
       socket.emit('session:reconnect', { sessionToken: token }, (response: SessionReconnectResponse) => {
+        clearTimeout(reconnectTimeout);
         isReconnecting.current = false;
 
         if (response.success && response.lobby) {
