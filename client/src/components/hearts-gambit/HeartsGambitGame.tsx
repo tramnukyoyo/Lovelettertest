@@ -8,7 +8,7 @@ import Toast from './Toast';
 import DynamicCard from './DynamicCard';
 import {
   getTranslatedCardName,
-  CARD_DESCRIPTIONS,
+  getTranslatedCardDescription,
   CARD_IMAGES,
   CARD_BACK_IMAGE
 } from './cardDatabase';
@@ -51,7 +51,7 @@ type ZoomContext = {
   index: number;
 };
 
-// getTranslatedCardName, CARD_DESCRIPTIONS, and CARD_IMAGES are now imported from cardDatabase.ts
+// getTranslatedCardName, getTranslatedCardDescription, and CARD_IMAGES are now imported from cardDatabase.ts
 
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
 
@@ -90,6 +90,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
   const prevEliminatedRef = useRef<Set<string>>(new Set());
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
+  console.log('[HeartsGambitGame] render, language:', language, 'messages count:', lobby.messages?.length, 'first msg:', lobby.messages?.[0]?.message?.slice(0, 60));
 
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
@@ -383,7 +384,8 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                              const cardToDisplay = player.hand[i]; // This will be the actual card or '0' (card back)
                              const imgSrc = cardToDisplay !== 0 ? CARD_IMAGES[cardToDisplay] : CARD_BACK_IMAGE;
                              const cardName = getTranslatedCardName(cardToDisplay as any, language);
-                             const cardDesc = cardToDisplay !== 0 ? CARD_DESCRIPTIONS[cardToDisplay] : "This card is face down";
+                             const cardDesc = cardToDisplay !== 0 ? getTranslatedCardDescription(cardToDisplay as any, language) : t('game.hiddenCardDescription');
+                             if (cardToDisplay !== 0) console.log('[CardDesc] opponent card:', cardToDisplay, 'lang:', language, 'desc:', cardDesc?.slice(0, 50));
 
                              return (
                                  <CardTooltip
@@ -1021,7 +1023,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                     card={evt.card}
                                     cardImage={CARD_IMAGES[evt.card]}
                                     cardName={getTranslatedCardName(evt.card as any, language)}
-                                    cardDescription={CARD_DESCRIPTIONS[evt.card]}
+                                    cardDescription={getTranslatedCardDescription(evt.card as any, language)}
                                     useDynamicCard={true}
                                   >
                                     <button
@@ -1088,7 +1090,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                               card={evt.card}
                                               cardImage={CARD_IMAGES[evt.card]}
                                               cardName={getTranslatedCardName(evt.card as any, language)}
-                                              cardDescription={CARD_DESCRIPTIONS[evt.card]}
+                                              cardDescription={getTranslatedCardDescription(evt.card as any, language)}
                                               useDynamicCard={true}
                                             >
                                               <button
@@ -1138,7 +1140,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                                     card={card}
                                     cardImage={CARD_IMAGES[card]}
                                     cardName={getTranslatedCardName(card as any, language)}
-                                    cardDescription={CARD_DESCRIPTIONS[card]}
+                                    cardDescription={getTranslatedCardDescription(card as any, language)}
                                     useDynamicCard={true}
                                   >
                                     <button

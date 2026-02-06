@@ -33,11 +33,18 @@ import './unified.css';
 /** Translate a server game log message. Messages are JSON `{key, params}` objects. */
 function translateGameMessage(rawMessage: string): string {
   try {
-    if (!rawMessage.startsWith('{')) return rawMessage; // backward-compat plain text
+    if (!rawMessage.startsWith('{')) {
+      console.log('[translateGameMessage] plain text, skipping:', rawMessage.slice(0, 80));
+      return rawMessage;
+    }
     const { key, params } = JSON.parse(rawMessage) as { key: string; params: Record<string, string> };
     const lang = getCurrentLanguage();
+    console.log('[translateGameMessage] key:', key, 'lang:', lang, 'params:', params);
     let text = getTranslation(key as any, lang);
-    if (text === key) return rawMessage; // key not found, show raw
+    if (text === key) {
+      console.warn('[translateGameMessage] KEY NOT FOUND:', key, '→ returning raw:', rawMessage.slice(0, 80));
+      return rawMessage;
+    }
     // Replace {placeholder} tokens – translate card keys inside params
     for (const [k, v] of Object.entries(params)) {
       let translated = v;
@@ -46,8 +53,10 @@ function translateGameMessage(rawMessage: string): string {
       }
       text = text.replace(`{${k}}`, translated);
     }
+    console.log('[translateGameMessage] result:', text);
     return text;
-  } catch {
+  } catch (err) {
+    console.error('[translateGameMessage] ERROR parsing:', rawMessage.slice(0, 80), err);
     return rawMessage;
   }
 }
@@ -90,10 +99,19 @@ function AppContent() {
   const registerGameEvents = useCallback(
     (socket: Socket, helpers: RegisterGameEventsHelpers) => {
       const handleRoomStateUpdated = (updatedLobby: Lobby) => {
-        helpers.setLobbyState(updatedLobby);
+        console.log('[handleRoomStateUpdated] messages count:', updatedLobby.messages?.length,
+          'first raw:', updatedLobby.messages?.[0]?.message?.slice(0, 80));
         if (updatedLobby.messages) {
-          helpers.setMessages(updatedLobby.messages);
+          updatedLobby = {
+            ...updatedLobby,
+            messages: updatedLobby.messages.map(msg => ({
+              ...msg,
+              message: translateGameMessage(msg.message),
+            })),
+          };
+          console.log('[handleRoomStateUpdated] first translated:', updatedLobby.messages[0]?.message?.slice(0, 80));
         }
+        helpers.setLobbyState(updatedLobby);
       };
 
       const handleTimerUpdate = (data: { timeRemaining: number }) => {
@@ -123,13 +141,16 @@ function AppContent() {
 
       // Game log events from server (translates JSON {key,params} messages)
       const handleGameLog = (data: { message: string }) => {
+        console.log('[handleGameLog] raw:', data.message?.slice(0, 80));
         helpers.patchLobby((prev) => {
           if (!prev) return prev;
+          const translated = translateGameMessage(data.message);
+          console.log('[handleGameLog] translated:', translated?.slice(0, 80));
           const newMessage = {
             id: crypto.randomUUID(),
             playerId: 'system',
             playerName: 'Game',
-            message: translateGameMessage(data.message),
+            message: translated,
             timestamp: Date.now(),
           };
           return {

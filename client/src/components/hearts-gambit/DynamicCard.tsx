@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CardType } from '../../types';
-import { getCardData, CARD_BACK_IMAGE } from './cardDatabase';
+import { getTranslatedCardData, CARD_BACK_IMAGE } from './cardDatabase';
+import { getCurrentLanguage } from '../../utils/translations';
 
 interface DynamicCardProps {
   cardType: CardType;
@@ -27,8 +28,9 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   selected = false,
   style
 }) => {
-  // Get card data from database
-  const cardData = getCardData(cardType);
+  // Get translated card data from database
+  const language = getCurrentLanguage();
+  const cardData = getTranslatedCardData(cardType, language);
 
   // If showing back or no card data, render card back
   if (!showFace || !cardData) {

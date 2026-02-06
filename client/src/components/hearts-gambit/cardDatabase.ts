@@ -192,9 +192,14 @@ export function getTranslatedCardType(cardType: CardType, language: Language): s
  */
 export function getTranslatedCardDescription(cardType: CardType, language: Language): string {
   const key = cardTranslationKeys[cardType];
-  if (!key) return '';
+  if (!key) {
+    console.warn('[getTranslatedCardDescription] no key for cardType:', cardType);
+    return '';
+  }
   const translationKey = ('card.' + key + '.description') as any;
-  return getTranslation(translationKey, language);
+  const result = getTranslation(translationKey, language);
+  console.log('[getTranslatedCardDescription] cardType:', cardType, 'lang:', language, 'key:', translationKey, 'result:', result?.slice(0, 40));
+  return result;
 }
 
 /**
