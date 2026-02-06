@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import './Confetti.css';
 
 interface Particle {
   id: number;
@@ -17,7 +18,7 @@ export const Confetti: React.FC = () => {
     Array.from({ length: 50 }, (_, i) => ({
       id: i,
       x: Math.random() * 100, // percentage across viewport
-      color: ['#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#f59e0b'][Math.floor(Math.random() * 5)],
+      color: ['#d2b25a', '#e7cc7a', '#8a2233', '#f6f0e6', '#a77e22'][Math.floor(Math.random() * 5)],
       size: Math.random() * 10 + 5,
       duration: 2 + Math.random() * 1.5, // 2-3.5s fall duration (varies per particle)
       delay: Math.random() * 0.5, // 0-0.5s stagger for natural effect

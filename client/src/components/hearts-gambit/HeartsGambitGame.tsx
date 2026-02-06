@@ -17,6 +17,7 @@ import { CardLegendModal } from '../CardLegendModal';
 import TutorialCarousel from '../TutorialCarousel';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import HeartsGambitGameMobile from './HeartsGambitGameMobile';
+import { VictoryScreen } from './VictoryScreen';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface HeartsGambitGameProps {
@@ -856,33 +857,9 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
       </div>
 
-      {/* Winner Overlay */}
+      {/* Victory / Round-Over Overlay */}
       {(lobby.gameData.roundWinner || lobby.gameData.winner) && (
-         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="hg-panel hg-candlelight border border-[rgba(var(--accent-color-rgb),0.35)] p-10 rounded-2xl max-w-lg w-full text-center shadow-[0_0_50px_rgba(var(--accent-color-rgb),0.25)]">
-               <h2 className="text-4xl font-black mb-4 text-[var(--royal-gold)] uppercase tracking-widest drop-shadow-md">
-                  {lobby.gameData.winner ? 'Victory!' : 'Round Over'}
-               </h2>
-
-               <div className="my-8">
-                  <div className="text-[var(--parchment-dark)] mb-2 uppercase text-xs tracking-widest">{t('game.winner')}</div>
-                  <div className="text-3xl font-bold text-white">
-                      {lobby.gameData.winner
-                        ? lobby.players.find(p => p.id === lobby.gameData?.winner)?.name
-                        : lobby.players.find(p => p.id === lobby.gameData?.roundWinner)?.name}
-                  </div>
-               </div>
-
-               {me?.isHost && (
-                  <button
-                     onClick={() => socket.emit('game:start', {})}
-                     className="px-10 py-4 bg-gradient-to-r from-[var(--royal-crimson)] to-[var(--royal-crimson-dark)] hover:from-[var(--royal-crimson-light)] hover:to-[var(--royal-crimson)] text-white font-black rounded-xl text-xl shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider"
-                  >
-                     {lobby.gameData.winner ? 'New Game' : t('game.nextRound')}
-                  </button>
-               )}
-            </div>
-         </div>
+        <VictoryScreen lobby={lobby} socket={socket} />
       )}
 
       {/* Discard Viewer */}

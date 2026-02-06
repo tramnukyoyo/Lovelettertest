@@ -778,6 +778,13 @@ export const translations = {
     'game.witnessTie': 'It\'s a tie! Both had {card}.',
     'game.tradedHands': '{player} and {target} traded hands.',
     'game.solvedCase': '{player} solved the case!',
+    'victory.caseSolved': 'CASE SOLVED!',
+    'victory.newGame': 'New Game',
+    'victory.backToLobby': 'Back to Lobby',
+    'victory.waitingForHost': 'Waiting for host...',
+    'victory.roundOver': 'Round Over',
+    'victory.nextRoundIn': 'Next round starting...',
+    'victory.caseProgress': 'Case Progress',
     'game.needMorePlayers': 'Need at least 2 players to start. Current: {count}',
 
     // Bottom Tab Bar
@@ -1689,6 +1696,13 @@ export const translations = {
     'game.witnessTie': 'Unentschieden! Beide hatten {card}.',
     'game.tradedHands': '{player} und {target} haben die Hände getauscht.',
     'game.solvedCase': '{player} hat den Fall gelöst!',
+    'victory.caseSolved': 'FALL GELÖST!',
+    'victory.newGame': 'Neues Spiel',
+    'victory.backToLobby': 'Zurück zur Lobby',
+    'victory.waitingForHost': 'Warte auf Host...',
+    'victory.roundOver': 'Runde vorbei',
+    'victory.nextRoundIn': 'Nächste Runde startet...',
+    'victory.caseProgress': 'Fallfortschritt',
     'game.needMorePlayers': 'Mindestens 2 Spieler benötigt. Aktuell: {count}',
 
     // Bottom Tab Bar

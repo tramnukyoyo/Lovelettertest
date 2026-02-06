@@ -160,12 +160,18 @@ function AppContent() {
         });
       };
 
+      const handleBackToLobby = () => {
+        // State transition handled by broadcastRoomState → roomStateUpdated
+        console.log('[Game] Back to lobby');
+      };
+
       socket.on('roomStateUpdated', handleRoomStateUpdated);
       socket.on('timer:update', handleTimerUpdate);
       socket.on('game:restarted', handleGameRestarted);
       socket.on('game:victory', handleVictory);
       socket.on('game:no-match', handleNoMatch);
       socket.on('game:log', handleGameLog);
+      socket.on('game:backToLobby', handleBackToLobby);
 
       return () => {
         socket.off('roomStateUpdated', handleRoomStateUpdated);
@@ -174,6 +180,7 @@ function AppContent() {
         socket.off('game:victory', handleVictory);
         socket.off('game:no-match', handleNoMatch);
         socket.off('game:log', handleGameLog);
+        socket.off('game:backToLobby', handleBackToLobby);
       };
     },
     []

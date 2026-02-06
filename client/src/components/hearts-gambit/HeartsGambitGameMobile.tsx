@@ -19,6 +19,7 @@ import CardInspectorModal, { type InspectorCard } from './CardInspectorModal';
 import MobileGameMenu from './MobileGameMenu';
 import MobileChatDrawer from './MobileChatDrawer';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
+import { VictoryScreen } from './VictoryScreen';
 
 interface HeartsGambitGameMobileProps {
   lobby: Lobby;
@@ -896,33 +897,9 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         )}
       </AnimatePresence>
 
-      {/* Winner Overlay */}
+      {/* Victory / Round-Over Overlay */}
       {(lobby.gameData.roundWinner || lobby.gameData.winner) && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="hg-panel hg-candlelight border border-[rgba(var(--accent-color-rgb),0.35)] p-6 rounded-2xl max-w-sm w-full text-center">
-            <h2 className="text-2xl font-black mb-3 text-[var(--royal-gold)] uppercase tracking-widest">
-              {lobby.gameData.winner ? 'Victory!' : 'Round Over'}
-            </h2>
-
-            <div className="my-4">
-              <div className="text-[var(--parchment-dark)] mb-1 uppercase text-xs tracking-widest">Winner</div>
-              <div className="text-xl font-bold text-white">
-                {lobby.gameData.winner
-                  ? lobby.players.find(p => p.id === lobby.gameData?.winner)?.name
-                  : lobby.players.find(p => p.id === lobby.gameData?.roundWinner)?.name}
-              </div>
-            </div>
-
-            {me?.isHost && (
-              <button
-                onClick={() => socket.emit('game:start', {})}
-                className="px-6 py-3 bg-gradient-to-r from-[var(--royal-crimson)] to-[var(--royal-crimson-dark)] text-white font-bold rounded-xl text-sm shadow-lg min-h-[48px] w-full"
-              >
-                {lobby.gameData.winner ? 'New Game' : 'Next Round'}
-              </button>
-            )}
-          </div>
-        </div>
+        <VictoryScreen lobby={lobby} socket={socket} />
       )}
 
       {/* Card Inspector Modal */}
