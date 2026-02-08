@@ -15,12 +15,10 @@ interface HomePageProps {
 }
 
 const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddiesSession }) => {
-  const [createName, setCreateName] = useState('');
-  const [joinName, setJoinName] = useState('');
-  const [joinCode, setJoinCode] = useState('');
+  const [playerName, setPlayerName] = useState('');
+  const [joinMode, setJoinMode] = useState<{ roomCode: string } | null>(null);
   const [streamerMode, setStreamerMode] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
   const cardsRef = useRef<HTMLDivElement>(null);
   const { onKeyDown: typewriterKeyDown } = useTypewriterSound();
   const language = getCurrentLanguage();
@@ -50,15 +48,18 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
     const joinCodeParam = urlParams.get('join') || urlParams.get('invite');
 
     if (joinCodeParam) {
-      setJoinCode(joinCodeParam.length > 10 ? joinCodeParam : joinCodeParam.toUpperCase());
+      if (joinCodeParam.length > 10) {
+        setJoinMode({ roomCode: joinCodeParam });
+      } else {
+        setJoinMode({ roomCode: joinCodeParam.toUpperCase() });
+      }
+      window.history.replaceState({}, '', window.location.pathname);
       return;
     }
 
     const session = getCurrentSession();
     if (session) {
-      setCreateName(session.playerName || '');
-      setJoinName(session.playerName || '');
-      setJoinCode(session.roomCode || '');
+      setPlayerName(session.playerName || '');
       console.log('[GameBuddies] Session found, auto-join will be handled by App component');
     } else {
       resolvePendingSession().then(resolved => {
@@ -72,35 +73,35 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!createName.trim()) {
+    if (!playerName.trim()) {
       alert(t('home.pleaseEnterName'));
       return;
     }
 
     console.log('[Home] Creating room with session:', gameBuddiesSession);
     playEliminatedSound();
-    onCreateRoom(createName, gameBuddiesSession, streamerMode);
+    onCreateRoom(playerName, gameBuddiesSession, streamerMode);
   };
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!joinName.trim()) {
+    if (!playerName.trim()) {
       alert(t('home.pleaseEnterName'));
       return;
     }
 
-    if (!joinCode.trim()) {
+    if (!joinMode || !joinMode.roomCode.trim()) {
       alert(t('home.pleaseEnterRoomCode'));
       return;
     }
 
     // Only uppercase if it's a standard room code (short)
     // Invite tokens (UUIDs) are case-sensitive and longer
-    const codeToSend = joinCode.length > 10 ? joinCode : joinCode.toUpperCase();
+    const codeToSend = joinMode.roomCode.length > 10 ? joinMode.roomCode : joinMode.roomCode.toUpperCase();
     console.log('[Home] Joining room with session:', gameBuddiesSession);
     playEliminatedSound();
-    onJoinRoom(codeToSend, joinName, gameBuddiesSession);
+    onJoinRoom(codeToSend, playerName, gameBuddiesSession);
   };
 
   return (
@@ -135,38 +136,20 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
             </div>
           )}
 
-          {/* Mobile tab switcher - only visible on mobile via CSS */}
-          <div className="mobile-tab-switcher">
-            <button
-              type="button"
-              className={activeTab === 'create' ? 'active' : ''}
-              onClick={() => setActiveTab('create')}
-            >
-              {t('home.createRoom')}
-            </button>
-            <button
-              type="button"
-              className={activeTab === 'join' ? 'active' : ''}
-              onClick={() => setActiveTab('join')}
-            >
-              {t('home.joinRoom')}
-            </button>
-          </div>
-
           <div className="home-cards-wrapper">
             <div className="split-actions" ref={cardsRef}>
-              <div className={`split-card ${activeTab !== 'create' ? 'mobile-hidden' : ''}`}>
+              <div className="split-card">
                 <div className="card-head">
-                  <h3>{t('home.createRoom')}</h3>
-                  <p>{t('home.createRoomDescription')}</p>
+                  <h3>{joinMode ? t('home.joinRoom') : t('home.createRoom')}</h3>
+                  <p>{joinMode ? t('home.joinRoomDescription') : t('home.createRoomDescription')}</p>
                 </div>
-                <form onSubmit={handleCreateSubmit} className="home-form">
+                <form onSubmit={joinMode ? handleJoinSubmit : handleCreateSubmit} className="home-form">
                   <div className="form-group">
                     <label>{t('home.yourName')}</label>
                     <input
                       type="text"
-                      value={createName}
-                      onChange={(e) => setCreateName(e.target.value)}
+                      value={playerName}
+                      onChange={(e) => setPlayerName(e.target.value)}
                       onKeyDown={typewriterKeyDown}
                       placeholder={t('home.enterYourName')}
                       maxLength={20}
@@ -174,54 +157,18 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                       className="home-input"
                     />
                   </div>
-                  <label className="streamer-toggle">
-                    <input
-                      type="checkbox"
-                      checked={streamerMode}
-                      onChange={(e) => setStreamerMode(e.target.checked)}
-                    />
-                    <span>{t('home.streamerMode')}</span>
-                  </label>
-                  <button type="submit" className="primary-cta create-cta">
-                    {t('home.createRoom')}
-                  </button>
-                </form>
-              </div>
-
-              <div className={`split-card ${activeTab !== 'join' ? 'mobile-hidden' : ''}`}>
-                <div className="card-head">
-                  <h3>{t('home.joinRoom')}</h3>
-                  <p>{t('home.joinRoomDescription')}</p>
-                </div>
-                <form onSubmit={handleJoinSubmit} className="home-form">
-                  <div className="form-group">
-                    <label>{t('home.yourName')}</label>
-                    <input
-                      type="text"
-                      value={joinName}
-                      onChange={(e) => setJoinName(e.target.value)}
-                      onKeyDown={typewriterKeyDown}
-                      placeholder={t('home.enterYourName')}
-                      maxLength={20}
-                      required
-                      className="home-input"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>{t('home.roomCode')}</label>
-                    <input
-                      type="text"
-                      value={joinCode}
-                      onChange={(e) => setJoinCode(e.target.value)}
-                      onKeyDown={typewriterKeyDown}
-                      placeholder={t('home.enterRoomCode')}
-                      maxLength={40}
-                      required
-                      className="home-input"
-                    />
-                  </div>
-                  <button type="submit" className="primary-cta join-cta">
-                    {t('home.joinRoom')}
+                  {!joinMode && (
+                    <label className="streamer-toggle">
+                      <input
+                        type="checkbox"
+                        checked={streamerMode}
+                        onChange={(e) => setStreamerMode(e.target.checked)}
+                      />
+                      <span>{t('home.streamerMode')}</span>
+                    </label>
+                  )}
+                  <button type="submit" className={`primary-cta ${joinMode ? 'join-cta' : 'create-cta'}`}>
+                    {joinMode ? t('home.joinRoom') : t('home.createRoom')}
                   </button>
                 </form>
               </div>
