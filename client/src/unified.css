@@ -11496,6 +11496,7 @@ textarea:focus {
   align-items: flex-start;
   width: 100%;
   position: relative;
+  flex: 1;
 }
 
 /* Tutorial sidebar - aligned with cards, far right */
@@ -11520,6 +11521,180 @@ textarea:focus {
   .tutorial-mobile-trigger {
     display: block;
   }
+}
+
+/* ====== ADAPTIVE CARD LAYOUT ====== */
+.home-cards {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 800px;
+  width: 100%;
+}
+
+.card.home-card {
+  flex: 1;
+  min-width: 280px;
+  max-width: 360px;
+  padding: 1.5rem;
+  background: var(--bg-secondary, rgba(12, 14, 28, 0.95));
+  border: 2px solid var(--panel-border, rgba(255, 255, 255, 0.1));
+  border-radius: 18px;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.card.home-card:hover {
+  border-color: var(--accent-color, var(--gb-cyan, #00d9ff));
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 217, 255, 0.15);
+}
+
+.home-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.home-card .card-header h2 {
+  font-family: var(--font-title, 'Orbitron', sans-serif);
+  font-size: 1.5rem;
+  color: var(--text-primary, #f8fafc);
+  margin: 0;
+}
+
+.home-card .card-header svg {
+  color: var(--accent-color, var(--gb-cyan, #00d9ff));
+}
+
+.home-card .card-description {
+  font-family: var(--font-hand, inherit);
+  font-size: 0.95rem;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.home-btn {
+  width: 100%;
+  min-height: 48px;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-title, 'Orbitron', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.home-btn.primary {
+  background: var(--gradient-button, linear-gradient(135deg, var(--gb-pink, #e94560) 0%, #d63d56 100%));
+  color: white;
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+}
+
+.home-btn.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+}
+
+.home-btn.secondary {
+  background: linear-gradient(135deg, var(--accent-color, var(--gb-cyan, #00d9ff)) 0%, #00a8c8 100%);
+  color: var(--bg-primary, #050713);
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+}
+
+.home-btn.secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 217, 255, 0.4);
+}
+
+.home-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.home-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.home-btn:focus-visible {
+  outline: 2px solid var(--accent-color, var(--gb-cyan, #00d9ff));
+  outline-offset: 2px;
+}
+
+.home-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.home-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--bg-primary, #0c0e1c);
+  border: 2px solid var(--panel-border, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.home-checkbox:checked {
+  background: var(--accent-color, var(--gb-cyan, #00d9ff));
+  border-color: var(--accent-color, var(--gb-cyan, #00d9ff));
+}
+
+.home-checkbox:checked::after {
+  content: '\2713';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--bg-primary, #050713);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.home-checkbox-text {
+  font-family: var(--font-hand, inherit);
+  font-size: 0.9rem;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+@media (max-width: 767px) {
+  .home-cards { flex-direction: column; align-items: center; }
+  .card.home-card { max-width: 100%; padding: 1.25rem; }
+}
+
+@media (max-width: 926px) and (orientation: landscape) {
+  .home-cards { flex-direction: row; flex-wrap: nowrap; gap: 1rem; }
+  .card.home-card { min-width: 240px; max-width: 300px; padding: 1rem; }
+  .home-card .card-description { display: none; }
+}
+
+@media (max-width: 374px) {
+  .card.home-card { padding: 1rem; }
+  .home-btn { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card.home-card { animation: none; transition: none; }
+  .home-btn { transition: none; }
 }
 
 .home-hero {

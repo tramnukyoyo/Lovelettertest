@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Users, Plus } from 'lucide-react';
 import { getCurrentSession, resolvePendingSession } from '../services/gameBuddiesSession';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import Header from '../components/Header';
@@ -137,12 +138,13 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
           )}
 
           <div className="home-cards-wrapper">
-            <div className="split-actions" ref={cardsRef}>
-              <div className="split-card">
-                <div className="card-head">
-                  <h3>{joinMode ? t('home.joinRoom') : t('home.createRoom')}</h3>
-                  <p>{joinMode ? t('home.joinRoomDescription') : t('home.createRoomDescription')}</p>
+            <div className="home-cards" ref={cardsRef}>
+              <div className="card home-card">
+                <div className="card-header">
+                  {joinMode ? <Users className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                  <h2>{joinMode ? t('home.joinRoom') : t('home.createRoom')}</h2>
                 </div>
+                <p className="card-description">{joinMode ? t('home.joinRoomDescription') : t('home.createRoomDescription')}</p>
                 <form onSubmit={joinMode ? handleJoinSubmit : handleCreateSubmit} className="home-form">
                   <div className="form-group">
                     <label>{t('home.yourName')}</label>
@@ -158,16 +160,17 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                     />
                   </div>
                   {!joinMode && (
-                    <label className="streamer-toggle">
+                    <label className="home-checkbox-label">
                       <input
                         type="checkbox"
                         checked={streamerMode}
                         onChange={(e) => setStreamerMode(e.target.checked)}
+                        className="home-checkbox"
                       />
-                      <span>{t('home.streamerMode')}</span>
+                      <span className="home-checkbox-text">{t('home.streamerMode')}</span>
                     </label>
                   )}
-                  <button type="submit" className={`primary-cta ${joinMode ? 'join-cta' : 'create-cta'}`}>
+                  <button type="submit" className={`home-btn ${joinMode ? 'secondary' : 'primary'}`}>
                     {joinMode ? t('home.joinRoom') : t('home.createRoom')}
                   </button>
                 </form>
