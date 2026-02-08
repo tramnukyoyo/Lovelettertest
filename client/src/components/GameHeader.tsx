@@ -235,10 +235,25 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
               }))}
             />
           ) : (
-            <button onClick={handleLeave} className="game-header-leave-btn">
-              <ArrowLeft className="w-4 h-4" />
-              {t('gameHeader.leave')}
-            </button>
+            <>
+              {isHost && lobby.state !== 'lobby' && (
+                <button
+                  onClick={() => {
+                    const sock = socketService.getSocket();
+                    if (sock) sock.emit('game:backToLobby', { roomCode: lobby.code });
+                  }}
+                  className="game-header-back-btn"
+                  title={t('gameHeader.backToLobby') || 'Return to Lobby'}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  {t('gameHeader.lobby') || 'Lobby'}
+                </button>
+              )}
+              <button onClick={handleLeave} className="game-header-leave-btn">
+                <ArrowLeft className="w-4 h-4" />
+                {t('gameHeader.leave')}
+              </button>
+            </>
           )}
         </div>
       </div>

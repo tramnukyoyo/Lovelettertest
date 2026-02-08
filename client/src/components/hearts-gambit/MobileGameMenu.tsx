@@ -13,7 +13,8 @@ import {
   Settings,
   Check,
   Users,
-  MessageCircle
+  MessageCircle,
+  ArrowLeft
 } from 'lucide-react';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
@@ -42,6 +43,8 @@ interface MobileGameMenuProps {
   onSettings?: () => void;
   /** Player count text like "1/4" */
   playerCount?: string;
+  /** Callback to return to lobby (host only) */
+  onReturnToLobby?: () => void;
   /** Custom class name */
   className?: string;
 }
@@ -63,6 +66,7 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   onToggleVideo,
   onSettings,
   playerCount,
+  onReturnToLobby,
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -128,6 +132,14 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
       label: t('menu.settings'),
       action: onSettings ? () => handleMenuItemClick(onSettings) : undefined,
       show: !!onSettings,
+    },
+    {
+      id: 'back-to-lobby',
+      icon: ArrowLeft,
+      label: t('menu.returnToLobby') || 'Return to Lobby',
+      action: onReturnToLobby ? () => handleMenuItemClick(onReturnToLobby) : undefined,
+      show: !!onReturnToLobby,
+      highlight: true,
     },
     {
       id: 'leave',

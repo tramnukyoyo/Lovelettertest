@@ -439,6 +439,9 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           onChat={() => setIsChatOpen(true)}
           unreadCount={unreadChatCount}
           playerCount={`${lobby.players.length}/4`}
+          onReturnToLobby={me?.isHost ? () => {
+            socket.emit('game:backToLobby', { roomCode: lobby.code });
+          } : undefined}
         />
       </div>
 
@@ -460,7 +463,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         {/* Center area - Deck & Discard */}
         <div className="hg-mobile-deck-area flex items-center justify-center gap-[clamp(16px,4vw,32px)] pointer-events-auto">
           {/* Discard Pile */}
-          <div className="flex flex-col items-center translate-y-[5vh]">
+          <div className="flex flex-col items-center translate-y-[3dvh]">
             <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[3vw]" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
               {t('evidence.title')}
             </span>
@@ -494,7 +497,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           </div>
 
           {/* Case File (Deck) */}
-          <div className="flex flex-col items-center translate-y-[5vh]">
+          <div className="flex flex-col items-center translate-y-[3dvh]">
             <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[1.5vw] whitespace-nowrap" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
               Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
             </span>
