@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import type { Socket } from 'socket.io-client';
 import socketService from '../services/socketService';
 import {
@@ -79,6 +79,10 @@ export function useGameBuddiesClient(
   const [error, setError] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [gameBuddiesSession, setGameBuddiesSession] = useState<GameBuddiesSession | null>(null);
+
+  // Stabilize registerGameEvents ref to prevent re-registration on every render
+  const registerGameEventsRef = useRef(options.registerGameEvents);
+  registerGameEventsRef.current = options.registerGameEvents;
 
   const isReconnecting = useRef(false);
   const timeoutRefs = useRef<Array<ReturnType<typeof setTimeout>>>([]);
@@ -357,7 +361,7 @@ export function useGameBuddiesClient(
     socket.on('error', onError);
     socket.on('player:kicked', onKicked);
 
-    cleanupGameEvents = options.registerGameEvents?.(socket, {
+    cleanupGameEvents = registerGameEventsRef.current?.(socket, {
       setLobbyState,
       patchLobby,
       setMessages,
@@ -400,7 +404,6 @@ export function useGameBuddiesClient(
     clearAllTimeouts,
     createRoom,
     joinRoom,
-    options.registerGameEvents,
     patchLobby,
     persistReconnectionData,
     pushChatMessage,

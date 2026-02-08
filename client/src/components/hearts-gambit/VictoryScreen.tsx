@@ -156,13 +156,13 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({ lobby, socket }) =
             {me?.isHost ? (
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => socket.emit('game:start', {})}
+                  onClick={() => { if (socket.connected) socket.emit('game:start', {}); }}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-[var(--royal-crimson)] to-[var(--royal-crimson-dark)] hover:from-[var(--royal-crimson-light)] hover:to-[var(--royal-crimson)] text-white font-black rounded-xl text-sm sm:text-base shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider min-h-[48px]"
                 >
                   {t('victory.newGame')}
                 </button>
                 <button
-                  onClick={() => socket.emit('game:backToLobby', {})}
+                  onClick={() => { if (socket.connected) socket.emit('game:backToLobby', {}); }}
                   className="flex-1 px-6 py-3 border-2 border-[var(--royal-gold)] text-[var(--royal-gold)] hover:bg-[rgba(var(--accent-color-rgb),0.1)] font-bold rounded-xl text-sm sm:text-base transition-all uppercase tracking-wider min-h-[48px]"
                 >
                   {t('victory.backToLobby')}

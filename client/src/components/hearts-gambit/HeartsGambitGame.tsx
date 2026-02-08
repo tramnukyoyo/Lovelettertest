@@ -246,11 +246,13 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
     // Send to server after animation starts
     setTimeout(() => {
-      socket.emit('play:card', {
-        card: cardToPlay,
-        targetId: targetToSend,
-        guess: guessToSend
-      });
+      if (socket.connected) {
+        socket.emit('play:card', {
+          card: cardToPlay,
+          targetId: targetToSend,
+          guess: guessToSend
+        });
+      }
       setPlayingCard(null);
     }, 400);
   };
@@ -550,7 +552,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                 </h3>
                 <div
                     className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}`}
-                    onClick={() => { if (waitingToDraw) { playDrawSound(); socket.emit('player:draw', {}); } }}
+                    onClick={() => { if (waitingToDraw && socket.connected) { playDrawSound(); socket.emit('player:draw', {}); } }}
                 >
                   {Array.from({ length: Math.min(lobby.gameData.deckCount, 5) }).map((_, i) => (
                     <div
@@ -596,7 +598,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                     <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">{t('game.waitingForPlayers')}</h2>
                      {me?.isHost && (
                         <button
-                            onClick={() => { playEliminatedSound(); socket.emit('game:start', {}); }}
+                            onClick={() => { if (socket.connected) { playEliminatedSound(); socket.emit('game:start', {}); } }}
                             disabled={lobby.players.length < 2}
                             className="bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white px-6 py-2 rounded-full font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
