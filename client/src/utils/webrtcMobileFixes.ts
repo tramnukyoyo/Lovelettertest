@@ -2,13 +2,7 @@
  * WebRTC Mobile Fixes - TypeScript Module
  *
  * Fixes mobile video issues with TURN servers, H.264 codec, and optimized constraints.
- *
- * REQUIREMENTS:
- * 1. Add to .env (client-side):
- *    VITE_METERED_USERNAME=your_username
- *    VITE_METERED_PASSWORD=your_password
- *
- * 2. Get free TURN credentials at: https://www.metered.ca/tools/openrelay/
+ * TURN credentials loaded from VITE_METERED_* environment variables.
  *
  * USAGE:
  * import { getICEServers, getVideoConstraints, setH264CodecPreference } from './webrtcMobileFixes';
@@ -41,54 +35,33 @@ export function isIOSDevice(): boolean {
 // ============================================================================
 
 /**
- * Get ICE servers configuration with TURN support for mobile cellular
- *
- * IMPORTANT: Mobile devices on 4G/5G need TURN servers because carrier-grade NAT
- * blocks direct peer connections. STUN only works on WiFi.
- *
- * @returns Array of ICE servers
+ * Get ICE servers configuration (STUN + TURN)
+ * TURN credentials loaded from environment variables
  */
 export function getICEServers(): RTCIceServer[] {
   const servers: RTCIceServer[] = [
-    // STUN servers (free - works for desktop/WiFi)
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
+    { urls: 'stun:stun1.l.google.com:19302' },
   ];
 
-  // Add TURN servers if credentials are configured
-  const username = import.meta.env?.VITE_METERED_USERNAME;
-  const password = import.meta.env?.VITE_METERED_PASSWORD;
+  const turnUsername = import.meta.env.VITE_METERED_USERNAME;
+  const turnPassword = import.meta.env.VITE_METERED_PASSWORD;
 
-  if (username && password) {
+  if (turnUsername && turnPassword) {
+    servers.push({
+      urls: [
+        'turn:a.relay.metered.ca:80',
+        'turn:a.relay.metered.ca:80?transport=tcp',
+        'turn:a.relay.metered.ca:443',
+        'turn:a.relay.metered.ca:443?transport=tcp',
+        'turns:a.relay.metered.ca:443',
+      ],
+      username: turnUsername,
+      credential: turnPassword,
+    });
     console.log('[WebRTC] ✅ TURN servers configured - Mobile cellular support enabled');
-
-    servers.push(
-      // Metered TURN servers (free tier: 500MB/month)
-      {
-        urls: 'turn:a.relay.metered.ca:80',
-        username: username,
-        credential: password
-      },
-      {
-        urls: 'turn:a.relay.metered.ca:80?transport=tcp',
-        username: username,
-        credential: password
-      },
-      {
-        urls: 'turn:a.relay.metered.ca:443',
-        username: username,
-        credential: password
-      },
-      {
-        urls: 'turns:a.relay.metered.ca:443?transport=tcp', // TLS for restrictive networks
-        username: username,
-        credential: password
-      }
-    );
   } else {
-    console.warn('[WebRTC] ⚠️ No TURN servers configured - Mobile cellular connections will fail!');
-    console.warn('[WebRTC] Get free credentials at: https://www.metered.ca/tools/openrelay/');
-    console.warn('[WebRTC] Add VITE_METERED_USERNAME and VITE_METERED_PASSWORD to your .env file');
+    console.warn('[WebRTC] ⚠️ No TURN servers configured - Set VITE_METERED_USERNAME and VITE_METERED_PASSWORD');
   }
 
   return servers;
