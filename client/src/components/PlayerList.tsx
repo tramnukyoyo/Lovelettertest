@@ -35,13 +35,12 @@ const renderAvatar = (player: Player) => {
   );
 };
 
-// DisconnectedTimer kept for future use - currently UI shows simpler disconnected state
-const _DisconnectedTimer = ({ disconnectedAt, t }: { disconnectedAt: number; t: (key: string) => string }) => {
+const DisconnectedTimer = ({ disconnectedAt, t }: { disconnectedAt: number; t: (key: string) => string }) => {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     const update = () => {
-      const seconds = Math.max(0, 60 - Math.floor((Date.now() - disconnectedAt) / 1000));
+      const seconds = Math.max(0, 30 - Math.floor((Date.now() - disconnectedAt) / 1000));
       setTimeLeft(seconds);
     };
     update();
@@ -57,7 +56,6 @@ const _DisconnectedTimer = ({ disconnectedAt, t }: { disconnectedAt: number; t: 
     </div>
   );
 };
-void _DisconnectedTimer; // Silence unused warning
 
 const PlayerListComponent: React.FC<PlayerListProps> = ({
   players,
@@ -68,15 +66,18 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
   currentTurnPlayerId,
   showSkipButton = false,
 }) => {
-  const isHost = hostId === mySocketId;
+  const me = players.find(p => p.socketId === mySocketId);
+  const isHost = me?.isHost || false;
   const language = getCurrentLanguage();
   const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
 
-  const handleKickPlayer = (playerId: string) => {
+  const handleKickPlayer = (playerSocketId: string) => {
     if (!isHost) return;
+    const target = players.find(p => p.socketId === playerSocketId);
+    if (!target) return;
 
     if (window.confirm(t('playerList.confirmKick'))) {
-      socket.emit('player:kick', { roomCode, playerId });
+      socket.emit('player:kick', { roomCode, playerId: target.id });
     }
   };
 
@@ -109,7 +110,7 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
           return (
             <div
               key={player.id || player.socketId}
-              className={`player-item ${isMe ? 'is-me' : ''} ${isActive ? 'is-active' : ''} ${isHostPlayer ? 'is-host' : ''}`}
+              className={`player-item ${isMe ? 'is-me' : ''} ${isActive ? 'is-active' : ''} ${isHostPlayer ? 'is-host' : ''} ${isDisconnected ? 'disconnected-player' : ''}`}
             >
               {renderAvatar(player)}
 
@@ -129,11 +130,11 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
                   </div>
                 </div>
 
-                {/* isDisconnected && player.disconnectedAt && (
+                {isDisconnected && player.disconnectedAt && (
                   <DisconnectedTimer disconnectedAt={player.disconnectedAt} t={t} />
-                ) */}
+                )}
 
-                {isDisconnected && <div className="player-score text-red-500">{t('playerList.disconnected')}</div>}
+                {isDisconnected && !player.disconnectedAt && <div className="player-score text-red-500">{t('playerList.disconnected')}</div>}
 
                 {!isDisconnected && (
                   <div className="player-score">{t('playerList.tokens').replace('{tokens}', String((player as any).tokens || 0))}</div>
