@@ -4,6 +4,7 @@ import socketService from '../services/socketService';
 import {
   getCurrentSession,
   resolvePendingSession,
+  clearSession,
 } from '../services/gameBuddiesSession';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import type {
@@ -45,6 +46,7 @@ interface UseGameBuddiesClientResult {
   isConnected: boolean;
   socket: Socket | null;
   gameBuddiesSession: GameBuddiesSession | null;
+  kickMessage: string | null;
   createRoom: (
     playerName: string,
     session: GameBuddiesSession | null,
@@ -56,6 +58,7 @@ interface UseGameBuddiesClientResult {
     session: GameBuddiesSession | null
   ) => void;
   clearError: () => void;
+  clearKickMessage: () => void;
   patchLobby: (updater: LobbyUpdater) => void;
   setLobbyState: (lobby: Lobby) => void;
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
@@ -79,6 +82,7 @@ export function useGameBuddiesClient(
   const [error, setError] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [gameBuddiesSession, setGameBuddiesSession] = useState<GameBuddiesSession | null>(null);
+  const [kickMessage, setKickMessage] = useState<string | null>(null);
 
   // Stabilize registerGameEvents ref to prevent re-registration on every render
   const registerGameEventsRef = useRef(options.registerGameEvents);
@@ -336,12 +340,14 @@ export function useGameBuddiesClient(
     const onError = (data: { message: string }) => setError(data.message);
 
     const onKicked = (data: { message: string }) => {
-      alert(data.message);
+      console.log('[KICK-CLIENT] ===== RECEIVED player:kicked =====');
+      clearSession();
+      socketService.clearReconnectionData();
+      sessionStorage.removeItem('gameSessionToken');
+      setKickMessage(data.message);
       setLobby(null);
       setMessages([]);
       setError('');
-      socketService.clearReconnectionData();
-      sessionStorage.removeItem('gameSessionToken');
     };
 
     socket.on('connect', onConnect);
@@ -418,9 +424,11 @@ export function useGameBuddiesClient(
     isConnected,
     socket: socketService.getSocket(),
     gameBuddiesSession,
+    kickMessage,
     createRoom,
     joinRoom,
     clearError: () => setError(''),
+    clearKickMessage: () => setKickMessage(null),
     patchLobby,
     setLobbyState,
     setMessages,

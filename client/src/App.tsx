@@ -24,6 +24,7 @@ import InstallPrompt from './components/InstallPrompt';
 import LoadingScreen from './components/LoadingScreen';
 import SiteNotificationToast from './components/ui/SiteNotificationToast';
 import type { SiteNotification } from './components/ui/SiteNotificationToast';
+import KickToast from './components/ui/KickToast';
 import socketService from './services/socketService';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
@@ -193,8 +194,10 @@ function AppContent() {
     isConnected,
     socket,
     gameBuddiesSession,
+    kickMessage,
     createRoom,
     joinRoom,
+    clearKickMessage,
   } = useGameBuddiesClient({ registerGameEvents });
 
   const renderPage = () => {
@@ -216,7 +219,7 @@ function AppContent() {
 
     // Show loading screen when coming from GameBuddies but room not created yet
     // Keep showing until lobby is created (gameBuddiesSession may still be resolving)
-    if (isLoadingFromGameBuddies && !lobby) {
+    if (isLoadingFromGameBuddies && !lobby && !kickMessage) {
       console.log('[App] Showing LoadingScreen - waiting for GameBuddies room join');
       return <LoadingScreen message={getTranslation('app.launchingGame', getCurrentLanguage())} />;
     }
@@ -413,6 +416,8 @@ function AppContent() {
           {renderPage()}
         </>
       )}
+      {/* Kick Toast */}
+      <KickToast message={kickMessage} onClose={clearKickMessage} />
     </div>
   );
 }
