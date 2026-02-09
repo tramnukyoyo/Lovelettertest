@@ -344,6 +344,8 @@ export function useGameBuddiesClient(
       clearSession();
       socketService.clearReconnectionData();
       sessionStorage.removeItem('gameSessionToken');
+      window.history.replaceState({}, '', window.location.pathname);
+      setGameBuddiesSession(null);
       setKickMessage(data.message);
       setLobby(null);
       setMessages([]);
