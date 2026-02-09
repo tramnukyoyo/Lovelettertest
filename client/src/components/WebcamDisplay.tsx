@@ -1752,7 +1752,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
     const newWindow = window.open(
       popupUrl,
       'VideoChatWindow',
-      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=no,resizable=yes,location=no,status=no`
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=no,resizable=yes,location=no,status=no,noopener,noreferrer`
     );
     
     if (newWindow) {

@@ -17,6 +17,8 @@ interface KickToastProps {
 const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
   const [visible, setVisible] = useState(false);
   const closeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onCloseRef = React.useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (message) {
@@ -30,7 +32,7 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
       const timer = setTimeout(() => {
         console.log('[KickToast] Auto-dismissing');
         setVisible(false);
-        animationTimer = setTimeout(onClose, 300); // Wait for animation
+        animationTimer = setTimeout(() => onCloseRef.current(), 300); // Wait for animation
       }, 5000);
 
       return () => {
@@ -40,7 +42,7 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
     } else {
       setVisible(false);
     }
-  }, [message, onClose]);
+  }, [message]);
 
   if (!message) return null;
 
