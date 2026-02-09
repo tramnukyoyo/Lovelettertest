@@ -44,6 +44,13 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
     }
   }, [message]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
+
   if (!message) return null;
 
   const handleClose = () => {
@@ -53,13 +60,6 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     closeTimerRef.current = setTimeout(onClose, 300);
   };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    };
-  }, []);
 
   return createPortal(
     <div className={`kick-toast ${visible ? 'visible' : ''}`}>
