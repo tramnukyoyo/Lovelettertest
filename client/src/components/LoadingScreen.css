@@ -44,6 +44,7 @@
   border-radius: 50%;
   opacity: 0;
   animation: particleFloat 4s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .loading-particle:nth-child(1) {
@@ -109,6 +110,7 @@
   transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 2px solid transparent;
+  will-change: transform;
 }
 
 .loading-ring-1 {
@@ -145,6 +147,7 @@
   animation: mascotFloat 2s ease-in-out infinite;
   filter: drop-shadow(0 8px 24px rgba(239, 68, 68, 0.4));
   border-radius: 20px;
+  will-change: transform;
 }
 
 /* Pulsing glow behind mascot */
@@ -163,6 +166,7 @@
   );
   animation: glowPulse 2s ease-in-out infinite;
   z-index: 1;
+  will-change: transform, opacity;
 }
 
 /* Game title */
@@ -223,6 +227,7 @@
   background-size: 200% 100%;
   animation: progressSlide 2s ease-in-out infinite, progressGradient 2s linear infinite;
   position: relative;
+  will-change: transform;
 }
 
 /* Shimmer overlay on progress */

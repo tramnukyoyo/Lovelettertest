@@ -24,8 +24,6 @@
   );
   background-size: 400% 400%;
   animation: portalGradientShift 6s ease infinite;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .portal-overlay.visible {
@@ -44,14 +42,12 @@
 
 @keyframes portalVortex {
   0% {
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
     opacity: 1;
-    filter: blur(0px);
   }
   100% {
-    transform: scale(0) rotate(180deg);
+    transform: scale(0);
     opacity: 0;
-    filter: blur(10px);
   }
 }
 
@@ -68,6 +64,7 @@
   border-radius: 50%;
   opacity: 0;
   animation: portalParticleConverge 3s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .portal-particle:nth-child(1) {
@@ -159,6 +156,7 @@
     transparent 70%
   );
   animation: portalGlowPulse 2s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .portal-glow::before {
@@ -191,6 +189,7 @@
   position: absolute;
   border-radius: 50%;
   border: 2px solid transparent;
+  will-change: transform;
 }
 
 .portal-outer-ring-1 {
@@ -257,6 +256,7 @@
   justify-content: center;
   animation: portalLogoFloat 2s ease-in-out infinite;
   z-index: 2;
+  will-change: transform;
 }
 
 .portal-logo img {
@@ -392,14 +392,14 @@
 
 @keyframes playerAvatarBounce {
   0% {
-    transform: scale(0) rotate(-180deg);
+    transform: scale(0);
     opacity: 0;
   }
   60% {
-    transform: scale(1.1) rotate(10deg);
+    transform: scale(1.1);
   }
   100% {
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
     opacity: 1;
   }
 }
