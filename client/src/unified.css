@@ -1242,6 +1242,28 @@
   scrollbar-color: var(--royal-crimson) rgba(var(--primary-rgb), 0.12);
 }
 
+/* Exempt portal overlay from global border-radius reset - needs circular elements */
+[data-theme="primesuspect"] .portal-overlay .portal-particle,
+[data-theme="primesuspect"] .portal-overlay .portal-glow,
+[data-theme="primesuspect"] .portal-overlay .portal-outer-ring,
+[data-theme="primesuspect"] .portal-overlay .portal-countdown,
+[data-theme="primesuspect"] .portal-overlay .portal-player-avatar,
+[data-theme="primesuspect"] .portal-overlay .portal-player-avatar img {
+  border-radius: 50% !important;
+}
+
+/* Exempt loading screen from global border-radius reset - needs circular elements */
+[data-theme="primesuspect"] .loading-screen .loading-particle,
+[data-theme="primesuspect"] .loading-screen .loading-ring,
+[data-theme="primesuspect"] .loading-screen .loading-mascot-glow {
+  border-radius: 50% !important;
+}
+
+[data-theme="primesuspect"] .loading-screen .loading-progress-track,
+[data-theme="primesuspect"] .loading-screen .loading-progress-fill {
+  border-radius: 3px !important;
+}
+
 /* Octagonal clip for avatars (photo corners) */
 [data-theme="primesuspect"] .player-avatar,
 [data-theme="primesuspect"] .avatar {
