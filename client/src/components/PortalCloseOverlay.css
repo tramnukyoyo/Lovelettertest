@@ -63,6 +63,7 @@
   border-radius: 50%;
   opacity: 0;
   animation: portalParticleConverge 3s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .portal-particle:nth-child(1) {
@@ -154,6 +155,7 @@
     transparent 70%
   );
   animation: portalGlowPulse 2s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .portal-glow::before {
@@ -168,6 +170,7 @@
     transparent 60%
   );
   animation: portalGlowPulse 2s ease-in-out infinite reverse;
+  will-change: transform, opacity;
 }
 
 @keyframes portalGlowPulse {
@@ -186,6 +189,7 @@
   position: absolute;
   border-radius: 50%;
   border: 2px solid transparent;
+  will-change: transform;
 }
 
 .portal-outer-ring-1 {
@@ -251,6 +255,7 @@
   justify-content: center;
   animation: portalLogoFloat 2s ease-in-out infinite;
   z-index: 2;
+  will-change: transform;
 }
 
 .portal-logo img {

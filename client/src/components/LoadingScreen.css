@@ -42,7 +42,9 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  bottom: -10%;
   opacity: 0;
+  will-change: transform, opacity;
   animation: particleFloat 4s ease-in-out infinite;
 }
 
@@ -109,6 +111,7 @@
   transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 2px solid transparent;
+  will-change: transform;
 }
 
 .loading-ring-1 {
@@ -143,6 +146,7 @@
   position: relative;
   z-index: 2;
   animation: mascotFloat 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* Pulsing glow behind mascot */
@@ -161,6 +165,7 @@
   );
   animation: glowPulse 2s ease-in-out infinite;
   z-index: 1;
+  will-change: transform, opacity;
 }
 
 /* Game title */
@@ -262,9 +267,8 @@
 
 @keyframes particleFloat {
   0% {
-    bottom: -10%;
     opacity: 0;
-    transform: translateX(0) scale(0.5);
+    transform: translateX(0) translateY(0) scale(0.5);
   }
   10% {
     opacity: 0.8;
@@ -273,9 +277,8 @@
     opacity: 0.8;
   }
   100% {
-    bottom: 110%;
     opacity: 0;
-    transform: translateX(30px) scale(1);
+    transform: translateX(30px) translateY(-120vh) scale(1);
   }
 }
 

@@ -51,6 +51,8 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
       return;
     }
 
+    let rafId: number;
+    let completeTimeoutId: number;
     const startTime = Date.now();
 
     const animationFrame = () => {
@@ -63,17 +65,22 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
       setCountdown(newCountdown);
 
       if (newProgress < 1) {
-        requestAnimationFrame(animationFrame);
+        rafId = requestAnimationFrame(animationFrame);
       } else {
-        // Countdown finished, now collapse
         setIsCollapsing(true);
-        setTimeout(() => onComplete(), 500);
+        completeTimeoutId = window.setTimeout(() => onComplete(), 500);
       }
     };
 
-    // Small delay before starting animation
-    const timeoutId = setTimeout(() => requestAnimationFrame(animationFrame), 100);
-    return () => clearTimeout(timeoutId);
+    const timeoutId = window.setTimeout(() => {
+      rafId = requestAnimationFrame(animationFrame);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      cancelAnimationFrame(rafId);
+      clearTimeout(completeTimeoutId);
+    };
   }, [isVisible, duration, onComplete]);
 
   useEffect(() => {
