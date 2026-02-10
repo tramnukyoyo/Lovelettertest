@@ -268,10 +268,14 @@ export function useGameBuddiesClient(
       }
 
       let session = getCurrentSession();
-      if (!session) {
-        session = await resolvePendingSession();
-      } else if (session.sessionToken && !session.roomCode) {
-        session = await resolvePendingSession();
+      try {
+        if (!session) {
+          session = await resolvePendingSession();
+        } else if (session.sessionToken && !session.roomCode) {
+          session = await resolvePendingSession();
+        }
+      } catch (err) {
+        console.error('[useGameBuddiesClient] Session resolution failed:', err);
       }
 
       if (session) {

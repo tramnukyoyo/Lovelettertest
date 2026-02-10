@@ -96,6 +96,17 @@ function AppContent() {
 
   // Detect GameBuddies launch synchronously (memoized to run once)
   const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+
+  // Safety timeout: force-resolve loading state after 10s to prevent infinite LoadingScreen
+  useEffect(() => {
+    if (!isLoadingFromGameBuddies || loadingTimedOut) return;
+    const timeout = setTimeout(() => {
+      console.warn('[App] Session resolution timeout — forcing resolved');
+      setLoadingTimedOut(true);
+    }, 5000);
+    return () => clearTimeout(timeout);
+  }, [isLoadingFromGameBuddies, loadingTimedOut]);
 
   const registerGameEvents = useCallback(
     (socket: Socket, helpers: RegisterGameEventsHelpers) => {
@@ -202,7 +213,7 @@ function AppContent() {
 
   const renderPage = () => {
     // Show loading screen when coming from GameBuddies but not connected yet
-    if (isLoadingFromGameBuddies && !isConnected) {
+    if (isLoadingFromGameBuddies && !isConnected && !loadingTimedOut) {
       return <LoadingScreen message={getTranslation('app.launchingGame', getCurrentLanguage())} />;
     }
 
@@ -219,7 +230,7 @@ function AppContent() {
 
     // Show loading screen when coming from GameBuddies but room not created yet
     // Keep showing until lobby is created (gameBuddiesSession may still be resolving)
-    if (isLoadingFromGameBuddies && !lobby && !kickMessage) {
+    if (isLoadingFromGameBuddies && !lobby && !kickMessage && !loadingTimedOut) {
       console.log('[App] Showing LoadingScreen - waiting for GameBuddies room join');
       return <LoadingScreen message={getTranslation('app.launchingGame', getCurrentLanguage())} />;
     }
