@@ -1,5 +1,4 @@
 /* LoadingScreen - Beautiful playful loading overlay */
-/* Prime Suspect theme: Noir/detective with crimson accents */
 
 .loading-screen {
   position: fixed;
@@ -25,10 +24,6 @@
   background-size: 400% 400%;
   animation: gradientShift 8s ease infinite;
 
-  /* GPU acceleration */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 /* Floating particles background */
@@ -49,47 +44,46 @@
   border-radius: 50%;
   opacity: 0;
   animation: particleFloat 4s ease-in-out infinite;
-  will-change: transform, opacity;
 }
 
 .loading-particle:nth-child(1) {
   left: 10%;
-  background: #ef4444;
+  background: #ff6b9d;
   animation-delay: 0s;
 }
 .loading-particle:nth-child(2) {
   left: 25%;
-  background: #f97316;
+  background: #c084fc;
   animation-delay: 0.5s;
 }
 .loading-particle:nth-child(3) {
   left: 40%;
-  background: #eab308;
+  background: #60a5fa;
   animation-delay: 1s;
 }
 .loading-particle:nth-child(4) {
   left: 55%;
-  background: #a855f7;
+  background: #4ade80;
   animation-delay: 1.5s;
 }
 .loading-particle:nth-child(5) {
   left: 70%;
-  background: #ec4899;
+  background: #facc15;
   animation-delay: 2s;
 }
 .loading-particle:nth-child(6) {
   left: 85%;
-  background: #f43f5e;
+  background: #fb923c;
   animation-delay: 2.5s;
 }
 .loading-particle:nth-child(7) {
   left: 15%;
-  background: #fb923c;
+  background: #f472b6;
   animation-delay: 3s;
 }
 .loading-particle:nth-child(8) {
   left: 60%;
-  background: #fbbf24;
+  background: #a78bfa;
   animation-delay: 3.5s;
 }
 
@@ -105,9 +99,6 @@
   width: 140px;
   height: 140px;
   margin: 0 auto 32px;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 /* Animated glow rings */
@@ -118,30 +109,29 @@
   transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 2px solid transparent;
-  will-change: transform;
 }
 
 .loading-ring-1 {
   width: 160px;
   height: 160px;
-  border-top-color: #ef4444;
-  border-right-color: #f97316;
+  border-top-color: #ff6b9d;
+  border-right-color: #c084fc;
   animation: ringRotate 3s linear infinite;
 }
 
 .loading-ring-2 {
   width: 180px;
   height: 180px;
-  border-bottom-color: #eab308;
-  border-left-color: #a855f7;
+  border-bottom-color: #60a5fa;
+  border-left-color: #4ade80;
   animation: ringRotate 4s linear infinite reverse;
 }
 
 .loading-ring-3 {
   width: 200px;
   height: 200px;
-  border-top-color: rgba(236, 72, 153, 0.5);
-  border-right-color: rgba(244, 63, 94, 0.5);
+  border-top-color: rgba(250, 204, 21, 0.5);
+  border-right-color: rgba(251, 146, 60, 0.5);
   animation: ringRotate 5s linear infinite;
 }
 
@@ -153,9 +143,6 @@
   position: relative;
   z-index: 2;
   animation: mascotFloat 2s ease-in-out infinite;
-  filter: drop-shadow(0 8px 24px rgba(239, 68, 68, 0.4));
-  border-radius: 20px;
-  will-change: transform;
 }
 
 /* Pulsing glow behind mascot */
@@ -168,13 +155,12 @@
   transform: translate(-50%, -50%);
   background: radial-gradient(
     circle,
-    rgba(239, 68, 68, 0.5) 0%,
-    rgba(249, 115, 22, 0.3) 40%,
+    rgba(139, 92, 246, 0.5) 0%,
+    rgba(99, 102, 241, 0.3) 40%,
     transparent 70%
   );
   animation: glowPulse 2s ease-in-out infinite;
   z-index: 1;
-  will-change: transform, opacity;
 }
 
 /* Game title */
@@ -182,7 +168,7 @@
   font-size: 1.75rem;
   font-weight: 800;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #ef4444 0%, #f97316 50%, #eab308 100%);
+  background: linear-gradient(135deg, #ff6b9d 0%, #c084fc 50%, #60a5fa 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -226,16 +212,15 @@
   border-radius: 3px;
   background: linear-gradient(
     90deg,
-    #ef4444 0%,
-    #f97316 25%,
-    #eab308 50%,
-    #a855f7 75%,
-    #ef4444 100%
+    #ff6b9d 0%,
+    #c084fc 25%,
+    #60a5fa 50%,
+    #4ade80 75%,
+    #facc15 100%
   );
   background-size: 200% 100%;
   animation: progressSlide 2s ease-in-out infinite, progressGradient 2s linear infinite;
   position: relative;
-  will-change: transform;
 }
 
 /* Shimmer overlay on progress */

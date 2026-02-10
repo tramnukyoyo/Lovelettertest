@@ -25,10 +25,6 @@
   background-size: 400% 400%;
   animation: portalGradientShift 6s ease infinite;
 
-  /* GPU acceleration */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 .portal-overlay.visible {
@@ -47,11 +43,9 @@
 
 @keyframes portalVortex {
   0% {
-    transform: scale(1);
     opacity: 1;
   }
   100% {
-    transform: scale(0);
     opacity: 0;
   }
 }
@@ -69,7 +63,6 @@
   border-radius: 50%;
   opacity: 0;
   animation: portalParticleConverge 3s ease-in-out infinite;
-  will-change: transform, opacity;
 }
 
 .portal-particle:nth-child(1) {
@@ -146,9 +139,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 /* Multi-layered glow effect */
@@ -164,7 +154,6 @@
     transparent 70%
   );
   animation: portalGlowPulse 2s ease-in-out infinite;
-  will-change: transform, opacity;
 }
 
 .portal-glow::before {
@@ -197,7 +186,6 @@
   position: absolute;
   border-radius: 50%;
   border: 2px solid transparent;
-  will-change: transform;
 }
 
 .portal-outer-ring-1 {
@@ -235,7 +223,6 @@
   width: 180px;
   height: 180px;
   transform: rotate(-90deg);
-  filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.6));
 }
 
 .portal-ring-bg {
@@ -264,7 +251,6 @@
   justify-content: center;
   animation: portalLogoFloat 2s ease-in-out infinite;
   z-index: 2;
-  will-change: transform;
 }
 
 .portal-logo img {
