@@ -373,6 +373,15 @@ export function useGameBuddiesClient(
     socket.on('error', onError);
     socket.on('player:kicked', onKicked);
 
+    // If socket is already connected, fire onConnect manually
+    // (handles race condition where connect event already fired before listener registered)
+    if (socket.connected) {
+      console.log('[GB-DEBUG] Socket already connected — calling onConnect manually');
+      onConnect();
+    } else {
+      console.log('[GB-DEBUG] Socket not yet connected — waiting for connect event');
+    }
+
     cleanupGameEvents = registerGameEventsRef.current?.(socket, {
       setLobbyState,
       patchLobby,

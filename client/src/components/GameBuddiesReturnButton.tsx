@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import type { Socket } from 'socket.io-client';
-import { getCurrentSession } from '../services/gameBuddiesSession';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import PortalCloseOverlay from './PortalCloseOverlay';
 
@@ -92,14 +91,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
     setShowPortal(true);
   };
 
-  // Check if launched from GameBuddies
-  const session = getCurrentSession();
-  const isGameBuddiesLaunched = session?.source === 'gamebuddies';
-
-  // Don't show button if not launched from GameBuddies
-  if (!isGameBuddiesLaunched) {
-    return null;
-  }
+  console.log('[GB-DEBUG] PrimeSuspect GameBuddiesReturnButton rendered', { roomCode, isHost, variant });
 
   // Icon variant for compact gameplay display (beside lives)
   if (variant === 'icon') {

@@ -18,6 +18,7 @@ interface GameHeaderProps {
 }
 
 const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) => {
+  console.log('[GB-DEBUG] PrimeSuspect GameHeader: gameBuddiesSession=%s', !!gameBuddiesSession);
   const hideRoomCode = gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode || false;
   const myPlayer = lobby.players.find((p: Player) => p.socketId === lobby.mySocketId);
   const isHost = myPlayer?.isHost || false;
