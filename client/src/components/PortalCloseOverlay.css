@@ -24,6 +24,12 @@
   );
   background-size: 400% 400%;
   animation: portalGradientShift 6s ease infinite;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout paint;
 }
 
 .portal-overlay.visible {
@@ -141,6 +147,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Multi-layered glow effect */

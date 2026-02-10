@@ -24,6 +24,12 @@
   );
   background-size: 400% 400%;
   animation: gradientShift 8s ease infinite;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout paint;
 }
 
 /* Floating particles background */
@@ -100,6 +106,9 @@
   width: 140px;
   height: 140px;
   margin: 0 auto 32px;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Animated glow rings */
