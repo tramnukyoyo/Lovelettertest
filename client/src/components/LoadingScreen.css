@@ -29,7 +29,6 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  contain: layout paint;
 }
 
 /* Floating particles background */
