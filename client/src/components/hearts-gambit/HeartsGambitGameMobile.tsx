@@ -12,6 +12,7 @@ import {
 } from './cardDatabase';
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
 import { CardLegendModal } from '../CardLegendModal';
+import { RulesModal } from '../RulesModal';
 import TutorialCarousel from '../TutorialCarousel';
 import OrientationPrompt from './OrientationPrompt';
 import MobileOpponentStrip from './MobileOpponentStrip';
@@ -61,6 +62,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
   // UI state
   const [isLegendOpen, setIsLegendOpen] = useState(false);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
@@ -436,6 +438,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           }}
           onHowToPlay={() => setIsTutorialOpen(true)}
           onCardLegend={() => setIsLegendOpen(true)}
+          onRules={() => setIsRulesOpen(true)}
           onChat={() => setIsChatOpen(true)}
           unreadCount={unreadChatCount}
           playerCount={`${lobby.players.length}/4`}
@@ -951,6 +954,9 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
       {/* Card Legend Modal */}
       {isLegendOpen && <CardLegendModal onClose={() => setIsLegendOpen(false)} />}
+
+      {/* Rules Modal */}
+      {isRulesOpen && <RulesModal onClose={() => setIsRulesOpen(false)} />}
 
       {/* Tutorial Modal */}
       <TutorialCarousel

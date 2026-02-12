@@ -8,6 +8,7 @@ import {
   LogOut,
   HelpCircle,
   BookOpen,
+  ScrollText,
   Video,
   VideoOff,
   Settings,
@@ -31,6 +32,8 @@ interface MobileGameMenuProps {
   onHowToPlay: () => void;
   /** Callback to open Card Legend */
   onCardLegend: () => void;
+  /** Callback to open Rules */
+  onRules?: () => void;
   /** Callback to open Chat */
   onChat?: () => void;
   /** Number of unread chat messages */
@@ -60,6 +63,7 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   onLeave,
   onHowToPlay,
   onCardLegend,
+  onRules,
   onChat,
   unreadCount = 0,
   isVideoEnabled = false,
@@ -108,6 +112,13 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
       icon: BookOpen,
       label: t('cardLegend.title'),
       action: () => handleMenuItemClick(onCardLegend),
+    },
+    {
+      id: 'rules',
+      icon: ScrollText,
+      label: 'Rules',
+      action: onRules ? () => handleMenuItemClick(onRules) : undefined,
+      show: !!onRules,
     },
     {
       id: 'chat',

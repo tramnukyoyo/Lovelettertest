@@ -1831,6 +1831,353 @@
   }
 }
 
+/* ===== RULES MODAL - NOIR THEME ===== */
+[data-theme="primesuspect"] .rules-panel {
+  max-width: 720px;
+  width: 95vw;
+  max-height: 88vh;
+  max-height: 88dvh;
+}
+
+[data-theme="primesuspect"] .rules-content {
+  overflow-y: auto;
+  max-height: calc(88vh - 120px);
+  max-height: calc(88dvh - 120px);
+  padding: 1.5rem;
+}
+
+[data-theme="primesuspect"] .rules-section {
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="primesuspect"] .rules-section-title {
+  font-family: var(--hg-font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--royal-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+[data-theme="primesuspect"] .rules-text {
+  font-family: var(--hg-font-body);
+  font-size: 0.875rem;
+  color: rgba(246, 240, 230, 0.78);
+  line-height: 1.7;
+  margin-bottom: 0.75rem;
+}
+
+[data-theme="primesuspect"] .rules-text strong {
+  color: var(--parchment);
+  font-weight: 700;
+}
+
+[data-theme="primesuspect"] .rules-steps {
+  counter-reset: rules-step;
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0;
+}
+
+[data-theme="primesuspect"] .rules-steps li {
+  counter-increment: rules-step;
+  position: relative;
+  padding: 0.75rem 0.75rem 0.75rem 3rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  color: rgba(246, 240, 230, 0.78);
+  font-family: var(--hg-font-body);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+[data-theme="primesuspect"] .rules-steps li::before {
+  content: counter(rules-step);
+  position: absolute;
+  left: 0.6rem;
+  top: 0.75rem;
+  font-family: var(--hg-font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--velvet-dark);
+  background: var(--royal-gold);
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="primesuspect"] .rules-steps li strong {
+  color: var(--parchment);
+}
+
+/* Card Overview Grid */
+[data-theme="primesuspect"] .rules-card-grid {
+  display: grid;
+  gap: 0;
+  margin: 0.75rem 0;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+[data-theme="primesuspect"] .rules-card-row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 3.5rem 2.5fr;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  align-items: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.06);
+  font-family: var(--hg-font-body);
+  font-size: 0.8rem;
+  color: rgba(246, 240, 230, 0.72);
+}
+
+[data-theme="primesuspect"] .rules-card-row:last-child {
+  border-bottom: none;
+}
+
+[data-theme="primesuspect"] .rules-card-row-header {
+  background: rgba(212, 175, 55, 0.08);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--royal-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+[data-theme="primesuspect"] .rules-card-num {
+  font-weight: 700;
+  color: var(--royal-gold);
+  text-align: center;
+  font-size: 1rem;
+}
+
+[data-theme="primesuspect"] .rules-card-row-header .rules-card-num {
+  font-size: 0.7rem;
+}
+
+[data-theme="primesuspect"] .rules-card-name {
+  font-weight: 700;
+  color: var(--parchment);
+  white-space: nowrap;
+}
+
+[data-theme="primesuspect"] .rules-card-copies {
+  text-align: center;
+  color: rgba(246, 240, 230, 0.5);
+}
+
+[data-theme="primesuspect"] .rules-card-effect {
+  color: rgba(246, 240, 230, 0.65);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* Token Table */
+[data-theme="primesuspect"] .rules-token-table {
+  width: auto;
+  margin: 0.75rem auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: center;
+  font-family: var(--hg-font-body);
+}
+
+[data-theme="primesuspect"] .rules-token-table th {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--royal-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.6rem 2rem;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.25);
+}
+
+[data-theme="primesuspect"] .rules-token-table td {
+  padding: 0.6rem 2rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+  color: rgba(246, 240, 230, 0.78);
+}
+
+[data-theme="primesuspect"] .rules-token-table td:last-child {
+  font-weight: 700;
+  color: var(--royal-gold);
+}
+
+[data-theme="primesuspect"] .rules-token-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--royal-crimson);
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* Detailed Card Rules */
+[data-theme="primesuspect"] .rules-card-detail {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background:
+    radial-gradient(400px at 0% 0%, rgba(246, 240, 230, 0.03), transparent 60%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.18));
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+[data-theme="primesuspect"] .rules-card-detail-img {
+  width: 70px;
+  flex-shrink: 0;
+}
+
+[data-theme="primesuspect"] .rules-card-detail-img img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="primesuspect"] .rules-card-detail-body {
+  flex: 1;
+  min-width: 0;
+}
+
+[data-theme="primesuspect"] .rules-card-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+[data-theme="primesuspect"] .rules-cd-number {
+  font-family: var(--hg-font-body);
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--royal-gold);
+}
+
+[data-theme="primesuspect"] .rules-cd-title {
+  font-family: var(--hg-font-display);
+  font-size: 1rem;
+  color: var(--parchment);
+}
+
+[data-theme="primesuspect"] .rules-cd-copies {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: rgba(246, 240, 230, 0.5);
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 0.15rem 0.6rem;
+  border-radius: 12px;
+}
+
+[data-theme="primesuspect"] .rules-card-detail-effect {
+  font-family: var(--hg-font-body);
+  color: rgba(246, 240, 230, 0.75);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+[data-theme="primesuspect"] .rules-card-detail-effect strong {
+  color: var(--parchment);
+}
+
+/* Important Box */
+[data-theme="primesuspect"] .rules-important {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin: 1.25rem 0 0;
+  background: rgba(106, 22, 35, 0.12);
+  border: 1px solid rgba(106, 22, 35, 0.3);
+}
+
+[data-theme="primesuspect"] .rules-important-label {
+  font-family: var(--hg-font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--royal-crimson-light);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.5rem;
+}
+
+[data-theme="primesuspect"] .rules-important p {
+  font-family: var(--hg-font-body);
+  font-size: 0.82rem;
+  color: rgba(246, 240, 230, 0.72);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+[data-theme="primesuspect"] .rules-important p:last-child {
+  margin-bottom: 0;
+}
+
+[data-theme="primesuspect"] .rules-important p strong {
+  color: var(--parchment);
+}
+
+/* Divider */
+[data-theme="primesuspect"] .rules-divider {
+  height: 1px;
+  margin: 1.25rem 0;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+}
+
+/* Responsive: Stack card details on mobile */
+@media (max-width: 600px) {
+  [data-theme="primesuspect"] .rules-panel {
+    max-height: 92vh;
+    max-height: 92dvh;
+  }
+
+  [data-theme="primesuspect"] .rules-content {
+    max-height: calc(92vh - 120px);
+    max-height: calc(92dvh - 120px);
+    padding: 1rem;
+  }
+
+  [data-theme="primesuspect"] .rules-card-row {
+    grid-template-columns: 2rem 1fr 2.5rem 2fr;
+    gap: 0.3rem;
+    padding: 0.5rem;
+    font-size: 0.72rem;
+  }
+
+  [data-theme="primesuspect"] .rules-card-detail {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  [data-theme="primesuspect"] .rules-card-detail-header {
+    justify-content: center;
+  }
+
+  [data-theme="primesuspect"] .rules-cd-copies {
+    margin-left: 0;
+  }
+
+  [data-theme="primesuspect"] .rules-card-detail-img {
+    width: 60px;
+  }
+}
+
 /* ===== DEVICE SETTINGS MODAL (Video/Audio) - NOIR OVERRIDES ===== */
 /* Overrides Tailwind classes used in WebcamDisplay.tsx DeviceSettingsModal */
 [data-theme="primesuspect"] .device-settings-modal {

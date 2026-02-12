@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
-import { Settings, Shield, Crown, Skull, BookOpen, HelpCircle } from 'lucide-react';
+import { Settings, Shield, Crown, Skull, BookOpen, HelpCircle, ScrollText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CardTooltip from './CardTooltip';
 import Toast from './Toast';
@@ -14,6 +14,7 @@ import {
 } from './cardDatabase';
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
 import { CardLegendModal } from '../CardLegendModal';
+import { RulesModal } from '../RulesModal';
 import TutorialCarousel from '../TutorialCarousel';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import HeartsGambitGameMobile from './HeartsGambitGameMobile';
@@ -86,6 +87,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
   const [zoomContext, setZoomContext] = useState<ZoomContext | null>(null);
   const [prevTokens, setPrevTokens] = useState(0);
   const [isLegendOpen, setIsLegendOpen] = useState(false);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const tokenAnimationRef = useRef(false);
   const prevEliminatedRef = useRef<Set<string>>(new Set());
@@ -659,7 +661,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                 </span>
               )}
 
-              {/* Card Legend & How to Play Buttons */}
+              {/* Card Legend, Rules & How to Play Buttons */}
               <div className="ml-auto flex items-center gap-2">
                 <button
                   onClick={() => setIsLegendOpen(true)}
@@ -668,6 +670,14 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                 >
                   <BookOpen className="w-4 h-4" />
                   {t('cardLegend.title')}
+                </button>
+                <button
+                  onClick={() => setIsRulesOpen(true)}
+                  className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
+                  title="Rules"
+                >
+                  <ScrollText className="w-4 h-4" />
+                  Rules
                 </button>
                 <button
                   onClick={() => setIsTutorialOpen(true)}
@@ -1288,6 +1298,9 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
       {/* Card Legend Modal */}
       {isLegendOpen && <CardLegendModal onClose={() => setIsLegendOpen(false)} />}
+
+      {/* Rules Modal */}
+      {isRulesOpen && <RulesModal onClose={() => setIsRulesOpen(false)} />}
 
       {/* Tutorial Modal */}
       <TutorialCarousel
