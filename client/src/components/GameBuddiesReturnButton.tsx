@@ -109,35 +109,19 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           onClick={handleReturn}
           disabled={isReturning}
           title={t('return.returnAllPlayersTitle')}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300"
+          className="game-header-back-btn"
           style={{
             background: isReturning
-              ? 'linear-gradient(135deg, rgba(100, 100, 100, 0.2), rgba(80, 80, 80, 0.2))'
-              : 'linear-gradient(135deg, rgba(92, 244, 255, 0.2), rgba(177, 140, 255, 0.2))',
+              ? 'rgba(100, 100, 100, 0.2)'
+              : 'rgba(92, 244, 255, 0.15)',
             border: '1px solid rgba(92, 244, 255, 0.4)',
             color: '#5cf4ff',
-            fontSize: '0.875rem',
-            fontWeight: '600',
             cursor: isReturning ? 'not-allowed' : 'pointer',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
             opacity: isReturning ? 0.7 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (!isReturning) {
-              (e.currentTarget as HTMLElement).style.background = 'linear-gradient(135deg, rgba(92, 244, 255, 0.3), rgba(177, 140, 255, 0.3))';
-              (e.currentTarget as HTMLElement).style.borderColor = 'rgba(92, 244, 255, 0.6)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isReturning) {
-              (e.currentTarget as HTMLElement).style.background = 'linear-gradient(135deg, rgba(92, 244, 255, 0.2), rgba(177, 140, 255, 0.2))';
-              (e.currentTarget as HTMLElement).style.borderColor = 'rgba(92, 244, 255, 0.4)';
-            }
           }}
         >
           <span>←</span>
-          <span>{isReturning ? t('return.returning') : 'GameBuddies'}</span>
+          <span>{isReturning ? t('return.returning') : t('return.returnToGameBuddies')}</span>
         </button>
       </>
     );

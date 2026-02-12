@@ -6954,7 +6954,8 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.5rem;
+  height: 100%;
+  padding: 0 1.5rem;
 }
 
 .game-header-left {
@@ -7207,6 +7208,29 @@ textarea:focus {
   letter-spacing: normal;
 }
 
+.game-header-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(51, 65, 85, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.game-header-back-btn:hover {
+  background: rgba(var(--accent-color-rgb), 0.2);
+  border-color: rgba(var(--accent-color-rgb), 0.4);
+  color: var(--accent-color);
+}
+
 .game-header-leave-btn:hover {
   background: rgba(239, 68, 68, 0.2);
   border-color: rgba(239, 68, 68, 0.4);
@@ -7232,7 +7256,7 @@ textarea:focus {
 /* Responsive adjustments */
 @media (max-width: 767px) {
   .game-header-container {
-    padding: 0.5rem 1rem;
+    padding: 0 1rem;
   }
 
   .game-header-logo-icon {
