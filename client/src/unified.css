@@ -1837,6 +1837,40 @@
   width: 95vw;
   max-height: 88vh;
   max-height: 88dvh;
+  /* Override parchment background from settings-modal-panel */
+  background:
+    radial-gradient(900px at 30% 18%, rgba(246, 240, 230, 0.06), transparent 56%),
+    linear-gradient(135deg, rgba(12, 12, 16, 0.95), rgba(12, 12, 16, 0.85)) !important;
+  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  border-radius: 1rem !important;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Override header/close styles for dark rules panel */
+[data-theme="primesuspect"] .rules-panel .settings-modal-header {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+[data-theme="primesuspect"] .rules-panel .settings-modal-eyebrow {
+  background: rgba(212, 175, 55, 0.15) !important;
+  color: var(--royal-gold) !important;
+}
+
+[data-theme="primesuspect"] .rules-panel .settings-modal-title h2 {
+  color: var(--parchment) !important;
+}
+
+[data-theme="primesuspect"] .rules-panel .settings-modal-close {
+  color: rgba(246, 240, 230, 0.6) !important;
+  background: rgba(246, 240, 230, 0.08) !important;
+  border-color: rgba(246, 240, 230, 0.12) !important;
+}
+
+[data-theme="primesuspect"] .rules-panel .settings-modal-close:hover {
+  color: var(--parchment) !important;
+  background: rgba(246, 240, 230, 0.15) !important;
 }
 
 [data-theme="primesuspect"] .rules-content {
