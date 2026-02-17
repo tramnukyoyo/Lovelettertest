@@ -376,6 +376,8 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
   
   // Store pending ICE candidates
   const pendingCandidates = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
+  // Track peers who have enabled video (even before we enable ours)
+  const videoPeersRef = useRef<Set<string>>(new Set());
 
   const createPeerConnection = useCallback((peerId: string): RTCPeerConnection => {
     console.log(`[WebRTC] Creating peer connection for ${peerId}`);
@@ -814,6 +816,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
     }
 
     dispatch({ type: 'SET_VIDEO_ENABLED', payload: false });
+    videoPeersRef.current.clear();
     dispatch({ type: 'RESET_STATE' });
   }, [socket, roomCode, userId]);
 
@@ -1089,70 +1092,28 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
   useEffect(() => {
     if (!socket || !roomCode || typeof socket.on !== 'function') return;
 
-    const handleVideoEnabledPeers = ({ peers, peerConnectionTypes }: { peers: string[]; peerConnectionTypes?: Record<string, string> }) => {
-      console.log('[WebRTC] Received list of video-enabled peers:', peers);
-      console.log('[WebRTC] Peer connection types:', peerConnectionTypes);
-      console.log('[WebRTC] Current connection count:', stateRef.current.peerConnections.size);
-      console.log('[WebRTC] Current remote streams:', stateRef.current.remoteStreams.size);
-      
-      if (!stateRef.current.isVideoEnabled) return;
-      
-      // Store peer connection types
-      if (peerConnectionTypes) {
-        Object.entries(peerConnectionTypes).forEach(([peerId, connectionType]) => {
-          dispatch({ type: 'SET_PEER_CONNECTION_TYPE', payload: { peerId, connectionType } });
-        });
-      }
-      
-      // Connect to ALL peers (except ourselves)
-      peers.forEach(peerId => {
-        if (peerId !== userId) {
-          const hasConnection = stateRef.current.peerConnections.has(peerId);
-          const connectionState = stateRef.current.connectionStates.get(peerId);
-          
-          // Only create offer if we don't have a connection and we're the initiator
-          if (!hasConnection || connectionState === 'failed') {
-            const shouldInitiate = userId && userId < peerId;
-            console.log(`[WebRTC] Peer ${peerId}: hasConnection=${hasConnection}, state=${connectionState}, shouldInitiate=${shouldInitiate}`);
-            
-            if (shouldInitiate) {
-              // Stagger connection attempts to avoid overwhelming the network
-              const delay = Math.random() * 1000;
-              setTimeout(() => {
-                // Double-check connection doesn't exist before creating
-                if (!stateRef.current.peerConnections.has(peerId) || 
-                    stateRef.current.connectionStates.get(peerId) === 'failed') {
-                  console.log(`[WebRTC] Creating offer to ${peerId} after ${delay}ms delay`);
-                  createOffer(peerId);
-                }
-              }, delay);
-            } else {
-              console.log(`[WebRTC] Waiting for ${peerId} to initiate connection (they have smaller ID)`);
-            }
-          } else {
-            console.log(`[WebRTC] Skipping ${peerId}: already connected (state=${connectionState})`);
-          }
-        }
-      });
-    };
-
     const handlePeerEnabledVideo = ({ peerId, connectionType }: { peerId: string; connectionType?: string }) => {
-      console.log('[WebRTC] Peer enabled video:', peerId, 'with connection type:', connectionType);
-      
-      // Store peer connection type
+      console.log('[WebRTC] Peer enabled video:', peerId, 'connectionType:', connectionType);
+
+      if (peerId === userId) return; // Only skip self
+
+      // Always track this peer as having video enabled
+      videoPeersRef.current.add(peerId);
+
       if (connectionType) {
         dispatch({ type: 'SET_PEER_CONNECTION_TYPE', payload: { peerId, connectionType } });
       }
-      
-      if (!stateRef.current.isVideoEnabled || peerId === userId) return;
 
-      // Only initiate if we have the smaller ID
+      // Only try to connect if we have video enabled and a local stream
+      if (!stateRef.current.isVideoEnabled || !stateRef.current.localStream) {
+        console.log('[WebRTC] Not ready yet, will connect to', peerId, 'when we enable video');
+        return;
+      }
+
       const shouldInitiate = userId && userId < peerId;
-      
       if (shouldInitiate) {
         const hasConnection = stateRef.current.peerConnections.has(peerId);
         const connectionState = stateRef.current.connectionStates.get(peerId);
-        
         if (!hasConnection || connectionState === 'failed') {
           setTimeout(() => createOffer(peerId), 100);
         }
@@ -1164,6 +1125,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: peerId });
       dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
       pendingCandidates.current.delete(peerId);
+      videoPeersRef.current.delete(peerId);
     };
 
     const handlePeerLeft = ({ peerId }: { peerId: string }) => {
@@ -1171,6 +1133,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: peerId });
       dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
       pendingCandidates.current.delete(peerId);
+      videoPeersRef.current.delete(peerId);
     };
 
     // Handle peer reconnection - socket ID changed, need to re-establish WebRTC
@@ -1208,11 +1171,6 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
 
     const handleOffer = async ({ fromPeerId, offer }: { fromPeerId: string; offer: RTCSessionDescriptionInit }) => {
       console.log('[WebRTC] Received offer from:', fromPeerId);
-      
-      if (!stateRef.current.isVideoEnabled) {
-        console.log('[WebRTC] Video not enabled, ignoring offer');
-        return;
-      }
 
       try {
         // Always accept offers - the other peer has decided to initiate
@@ -1323,7 +1281,6 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       }
     };
 
-    socket.on('webrtc:video-enabled-peers', handleVideoEnabledPeers);
     socket.on('webrtc:peer-enabled-video', handlePeerEnabledVideo);
     socket.on('webrtc:peer-disabled-video', handlePeerDisabledVideo);
     socket.on('webrtc:peer-left', handlePeerLeft);
@@ -1334,7 +1291,6 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
 
     return () => {
       if (!socket) return;
-      socket.off('webrtc:video-enabled-peers', handleVideoEnabledPeers);
       socket.off('webrtc:peer-enabled-video', handlePeerEnabledVideo);
       socket.off('webrtc:peer-disabled-video', handlePeerDisabledVideo);
       socket.off('webrtc:peer-left', handlePeerLeft);
@@ -1342,8 +1298,39 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       socket.off('webrtc:offer', handleOffer);
       socket.off('webrtc:answer', handleAnswer);
       socket.off('webrtc:ice-candidate', handleIceCandidate);
+      videoPeersRef.current.clear();
     };
   }, [socket, roomCode, userId, createPeerConnection, createOffer]);
+
+  // Connect to known video peers when we enable video
+  useEffect(() => {
+    if (!socket || !state.isVideoEnabled || !state.localStream) return;
+
+    console.log('[WebRTC] Checking for known video peers:', videoPeersRef.current.size);
+
+    for (const peerId of videoPeersRef.current) {
+      if (peerId === userId) continue;
+
+      const hasConnection = stateRef.current.peerConnections.has(peerId);
+      const connectionState = stateRef.current.connectionStates.get(peerId);
+
+      if (!hasConnection || connectionState === 'failed') {
+        const shouldInitiate = userId && userId < peerId;
+        console.log(`[WebRTC] Known peer ${peerId}: shouldInitiate=${shouldInitiate}`);
+
+        if (shouldInitiate) {
+          const delay = Math.random() * 500;
+          setTimeout(() => {
+            if (!stateRef.current.peerConnections.has(peerId) ||
+                stateRef.current.connectionStates.get(peerId) === 'failed') {
+              console.log(`[WebRTC] Creating offer to known peer ${peerId}`);
+              createOffer(peerId);
+            }
+          }, delay);
+        }
+      }
+    }
+  }, [state.isVideoEnabled, state.localStream, socket, userId, createOffer]);
 
   // Initialize devices on mount
   useEffect(() => {
