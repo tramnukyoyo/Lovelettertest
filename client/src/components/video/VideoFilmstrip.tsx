@@ -233,6 +233,19 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
       display: flex;
       flex-direction: column;
     }
+    /* Inline popup icon styles - render before copied stylesheets load */
+    .popup-control-btn, .popup-layout-btn, .popup-close-btn {
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; cursor: pointer;
+    }
+    .popup-control-btn { width: 36px; height: 36px; border-radius: 8px; color: #fff; }
+    .popup-layout-btn { width: 32px; height: 32px; border-radius: 6px; color: #8b8b9e; }
+    .popup-close-btn { width: 36px; height: 36px; border-radius: 8px; color: #8b8b9e; }
+    .popup-control-btn svg, .popup-layout-btn svg, .popup-close-btn svg {
+      width: 16px; height: 16px;
+    }
+    .popup-control-btn.off { background: rgba(239,68,68,0.2); color: #ef4444; }
+    .popup-control-btn.leave { background: rgba(239,68,68,0.2); color: #ef4444; }
   </style>
 </head>
 <body>
@@ -258,6 +271,9 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
         // Ignore cross-origin stylesheet errors
       }
     });
+
+    console.log('[VideoPopout] Copied', parentStyles.length, 'stylesheets to popup');
+    console.log('[VideoPopout] data-theme:', newWindow.document.documentElement.getAttribute('data-theme'));
 
     // Get container for portal
     const container = newWindow.document.getElementById('webcam-popout-root');

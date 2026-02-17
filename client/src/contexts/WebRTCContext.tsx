@@ -960,13 +960,13 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
   const setSelectedCamera = useCallback((deviceId: string) => {
     dispatch({ type: 'SET_SELECTED_DEVICE', payload: { deviceType: 'camera', deviceId } });
     
-    // If video is enabled, restart stream with new camera
-    if (state.isVideoEnabled && state.localStream) {
+    // If stream exists (during preparation or active call), restart with new camera
+    if (state.localStream) {
       setTimeout(async () => {
         try {
           // Stop current stream
           state.localStream?.getTracks().forEach(track => track.stop());
-          
+
           // Create new stream with selected camera
           const stream = await navigator.mediaDevices.getUserMedia({
             video: {
@@ -977,32 +977,32 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
             },
             audio: getHighQualityAudioConstraints(state.selectedDevices.microphoneId || undefined)
           });
-          
+
           // Apply current mute states
           const audioTracks = stream.getAudioTracks();
           const videoTracks = stream.getVideoTracks();
-          
+
           audioTracks.forEach(track => {
             track.enabled = !state.isMicrophoneMuted;
           });
-          
+
           videoTracks.forEach(track => {
             track.enabled = state.isWebcamActive;
           });
-          
+
           dispatch({ type: 'SET_LOCAL_STREAM', payload: stream });
-          
-          // Update all peer connections with new stream
+
+          // Update all peer connections with new stream (only if any exist)
           state.peerConnections.forEach(async (pc) => {
             const senders = pc.getSenders();
-            
+
             // Replace video track
             const videoSender = senders.find(s => s.track?.kind === 'video');
             const newVideoTrack = stream.getVideoTracks()[0];
             if (videoSender && newVideoTrack) {
               await videoSender.replaceTrack(newVideoTrack);
             }
-            
+
             // Replace audio track if microphone also changed
             const audioSender = senders.find(s => s.track?.kind === 'audio');
             const newAudioTrack = stream.getAudioTracks()[0];
@@ -1010,25 +1010,25 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
               await audioSender.replaceTrack(newAudioTrack);
             }
           });
-          
+
           console.log('[WebRTC] Camera changed successfully');
         } catch (error) {
           console.error('[WebRTC] Error changing camera:', error);
         }
       }, 100);
     }
-  }, [state.isVideoEnabled, state.localStream, state.selectedDevices.microphoneId, state.isMicrophoneMuted, state.isWebcamActive, state.peerConnections]);
+  }, [state.localStream, state.selectedDevices.microphoneId, state.isMicrophoneMuted, state.isWebcamActive, state.peerConnections]);
 
   const setSelectedMicrophone = useCallback((deviceId: string) => {
     dispatch({ type: 'SET_SELECTED_DEVICE', payload: { deviceType: 'microphone', deviceId } });
     
-    // If video is enabled, restart stream with new microphone
-    if (state.isVideoEnabled && state.localStream) {
+    // If stream exists (during preparation or active call), restart with new microphone
+    if (state.localStream) {
       setTimeout(async () => {
         try {
           // Stop current stream
           state.localStream?.getTracks().forEach(track => track.stop());
-          
+
           // Create new stream with selected microphone
           const stream = await navigator.mediaDevices.getUserMedia({
             video: state.selectedDevices.cameraId ? {
@@ -1043,32 +1043,32 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
             },
             audio: getHighQualityAudioConstraints(deviceId)
           });
-          
+
           // Apply current mute states
           const audioTracks = stream.getAudioTracks();
           const videoTracks = stream.getVideoTracks();
-          
+
           audioTracks.forEach(track => {
             track.enabled = !state.isMicrophoneMuted;
           });
-          
+
           videoTracks.forEach(track => {
             track.enabled = state.isWebcamActive;
           });
-          
+
           dispatch({ type: 'SET_LOCAL_STREAM', payload: stream });
-          
-          // Update all peer connections with new stream
+
+          // Update all peer connections with new stream (only if any exist)
           state.peerConnections.forEach(async (pc) => {
             const senders = pc.getSenders();
-            
+
             // Replace audio track
             const audioSender = senders.find(s => s.track?.kind === 'audio');
             const newAudioTrack = stream.getAudioTracks()[0];
             if (audioSender && newAudioTrack) {
               await audioSender.replaceTrack(newAudioTrack);
             }
-            
+
             // Replace video track
             const videoSender = senders.find(s => s.track?.kind === 'video');
             const newVideoTrack = stream.getVideoTracks()[0];
@@ -1076,14 +1076,14 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
               await videoSender.replaceTrack(newVideoTrack);
             }
           });
-          
+
           console.log('[WebRTC] Microphone changed successfully');
         } catch (error) {
           console.error('[WebRTC] Error changing microphone:', error);
         }
       }, 100);
     }
-  }, [state.isVideoEnabled, state.localStream, state.selectedDevices.cameraId, state.isMicrophoneMuted, state.isWebcamActive, state.peerConnections]);
+  }, [state.localStream, state.selectedDevices.cameraId, state.isMicrophoneMuted, state.isWebcamActive, state.peerConnections]);
 
   // Socket event handlers for WebRTC signaling
   useEffect(() => {

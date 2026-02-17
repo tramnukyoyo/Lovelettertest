@@ -94,6 +94,12 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({
   console.log('[EnhancedPopupContent] players:', players.map(p => p.id));
   console.log('[EnhancedPopupContent] playersWithStreams:', playersWithStreams.map(p => p.id));
 
+  // Mount logging
+  useEffect(() => {
+    console.log('[EnhancedPopupContent] Mounted. Players:', players.length,
+      'remoteStreams:', remoteStreams.size, 'localStream:', !!localStream);
+  }, []);
+
   // Attach streams to video elements
   useEffect(() => {
     console.log('[EnhancedPopupContent] useEffect - attaching streams, videoRefs count:', videoRefs.current.size);
