@@ -44,38 +44,24 @@ const PopupVideoFeed: React.FC<PopupVideoFeedProps> = ({ feed, isLarge = false, 
   }, [feed.stream]);
 
   const hasVideo = feed.stream && feed.stream.getVideoTracks().length > 0 && feed.stream.getVideoTracks()[0].enabled;
-  const borderColor = feed.ballColor || (feed.isSelf ? '#00d9ff' : '#475569');
 
   return (
     <div
-      className={`popup-video-feed ${isLarge ? 'large' : ''} ${feed.isSelf ? 'self' : ''}`}
-      style={{ '--border-color': borderColor } as React.CSSProperties}
+      className={`popup-video-tile ${isLarge ? 'large' : ''} ${feed.isSelf ? 'local' : ''}`}
       onClick={onClick}
     >
       {hasVideo && !feed.isWebcamOff ? (
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className="popup-video"
-        />
+        <video ref={videoRef} autoPlay playsInline muted />
       ) : (
-        <div className="popup-avatar">
-          <span>{feed.name.charAt(0).toUpperCase()}</span>
+        <div className="popup-video-placeholder">
+          <VideoOff className="w-8 h-8" />
         </div>
       )}
 
-      {/* Status indicators */}
-      <div className="popup-status">
-        {feed.isMuted && <span className="status-muted">🔇</span>}
-        {feed.isWebcamOff && <span className="status-cam-off">📷</span>}
-      </div>
-
       {/* Name label */}
-      <div className="popup-name">
-        {feed.isSelf ? t('video.you') : feed.name}
-        {feed.isSelf && <span className="you-badge">{t('video.you').toUpperCase()}</span>}
+      <div className="popup-video-label">
+        <span>{feed.isSelf ? t('video.you') : feed.name}</span>
+        {feed.isSelf && <span className="you-badge">({t('video.you').toUpperCase()})</span>}
       </div>
 
       {/* Click hint for spotlight mode */}
@@ -159,12 +145,14 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
 
   const connectedCount = videoFeeds.length;
 
-  // Get grid column count based on participant count
-  const getGridCols = () => {
-    if (connectedCount <= 1) return 1;
-    if (connectedCount <= 4) return 2;
-    if (connectedCount <= 9) return 3;
-    return 4;
+  // Get grid class based on participant count
+  const getGridClass = () => {
+    if (connectedCount <= 1) return 'grid-1x1';
+    if (connectedCount <= 2) return 'grid-1x2';
+    if (connectedCount <= 4) return 'grid-2x2';
+    if (connectedCount <= 6) return 'grid-2x3';
+    if (connectedCount <= 9) return 'grid-3x3';
+    return 'grid-4x4';
   };
 
   // Render based on layout mode
@@ -177,20 +165,12 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
 
         return (
           <div className="popup-speaker-layout">
-            <div className="speaker-main">
-              {speakerFeed && (
-                <PopupVideoFeed feed={speakerFeed} isLarge />
-              )}
+            <div className="popup-speaker-main">
+              {speakerFeed && <PopupVideoFeed feed={speakerFeed} isLarge />}
             </div>
-            <div className="speaker-strip">
+            <div className="popup-speaker-filmstrip">
               {otherFeeds.map(feed => (
-                <PopupVideoFeed
-                  key={feed.id}
-                  feed={feed}
-                  onClick={() => {
-                    // Could switch speaker here
-                  }}
-                />
+                <PopupVideoFeed key={feed.id} feed={feed} />
               ))}
             </div>
           </div>
@@ -209,14 +189,14 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
         if (spotlightFeed) {
           return (
             <div className="popup-spotlight-layout">
-              <div className="spotlight-main">
+              <div className="popup-spotlight-main">
                 <PopupVideoFeed
                   feed={spotlightFeed}
                   isLarge
                   onClick={() => setSpotlightId(null)}
                 />
               </div>
-              <div className="spotlight-sidebar">
+              <div className="popup-spotlight-filmstrip">
                 {otherFeeds.map(feed => (
                   <PopupVideoFeed
                     key={feed.id}
@@ -231,7 +211,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
 
         // No spotlight selected - show grid with click handlers
         return (
-          <div className={`popup-grid cols-${getGridCols()}`}>
+          <div className={`popup-grid ${getGridClass()}`}>
             {videoFeeds.map(feed => (
               <PopupVideoFeed
                 key={feed.id}
@@ -239,6 +219,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
                 onClick={() => setSpotlightId(feed.id)}
               />
             ))}
+            <div className="popup-spotlight-hint">{t('video.spotlightView')}</div>
           </div>
         );
       }
@@ -246,7 +227,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
       case 'grid':
       default:
         return (
-          <div className={`popup-grid cols-${getGridCols()}`}>
+          <div className={`popup-grid ${getGridClass()}`}>
             {videoFeeds.map(feed => (
               <PopupVideoFeed key={feed.id} feed={feed} />
             ))}
@@ -256,76 +237,70 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
   };
 
   return (
-    <div className="enhanced-popup">
+    <div className="enhanced-popup-content">
       {/* Header */}
-      <div className="popup-header">
+      <header className="popup-header">
         <div className="popup-header-left">
-          <div className="popup-logo">
-            <img
-              src="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
-              alt="Prime Suspect"
-              className="popup-mascot"
-            />
-            <div className="popup-logo-text">
-              <span className="logo-think">Prime</span><span className="logo-alike">Suspect</span>
-              <span className="logo-by"> by </span>
-              <span className="logo-gamebuddies">GameBuddies</span><span className="logo-io">.io</span>
-            </div>
-          </div>
-          <div className="popup-room-info">
-            {roomCode && <span className="room-code">{t('video.room')}: {roomCode}</span>}
-            <span className="connected-count">
-              <Users className="w-4 h-4" />
-              {connectedCount} {t('video.connected')}
+          <img
+            src="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
+            alt="Prime Suspect"
+            className="popup-logo"
+          />
+          <div className="popup-title">
+            <span className="popup-game-name">
+              Prime <span className="accent">Suspect</span>
+            </span>
+            <span className="popup-room-info">
+              {roomCode ? `${t('video.room')}: ${roomCode} | ` : ''}{connectedCount} {t('video.connected')}
             </span>
           </div>
         </div>
 
-        <div className="popup-header-right">
-          {/* Layout selector */}
-          <div className="layout-selector">
+        <div className="popup-header-center">
+          <div className="popup-layout-selector">
             <button
-              className={`layout-btn ${layoutMode === 'grid' ? 'active' : ''}`}
+              className={`popup-layout-btn ${layoutMode === 'grid' ? 'active' : ''}`}
               onClick={() => setLayoutMode('grid')}
               title={t('video.gridView')}
             >
               <Grid className="w-4 h-4" />
             </button>
             <button
-              className={`layout-btn ${layoutMode === 'speaker' ? 'active' : ''}`}
+              className={`popup-layout-btn ${layoutMode === 'speaker' ? 'active' : ''}`}
               onClick={() => setLayoutMode('speaker')}
               title={t('video.speakerView')}
             >
               <User className="w-4 h-4" />
             </button>
             <button
-              className={`layout-btn ${layoutMode === 'spotlight' ? 'active' : ''}`}
+              className={`popup-layout-btn ${layoutMode === 'spotlight' ? 'active' : ''}`}
               onClick={() => { setLayoutMode('spotlight'); setSpotlightId(null); }}
               title={t('video.spotlightView')}
             >
               <Maximize2 className="w-4 h-4" />
             </button>
           </div>
+        </div>
 
-
+        <div className="popup-header-right">
           {/* Video control buttons */}
-          <div className="header-video-controls">
+          <div className="popup-controls">
             <button
-              className={`header-video-btn ${isMicrophoneMuted ? 'muted' : ''}`}
+              className={`popup-control-btn ${isMicrophoneMuted ? 'off' : ''}`}
               onClick={toggleMicrophone}
               title={isMicrophoneMuted ? t('video.unmute') : t('video.mute')}
             >
               {isMicrophoneMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
             <button
-              className={`header-video-btn ${!isWebcamActive ? 'off' : ''}`}
+              className={`popup-control-btn ${!isWebcamActive ? 'off' : ''}`}
               onClick={toggleWebcam}
               title={isWebcamActive ? t('video.turnCameraOff') : t('video.turnCameraOn')}
             >
               {isWebcamActive ? <Camera className="w-4 h-4" /> : <CameraOff className="w-4 h-4" />}
             </button>
             <button
-              className="header-video-btn leave"
+              className="popup-control-btn leave"
               onClick={() => { disableVideoChat(); onClose?.(); }}
               title={t('video.leaveVideoChat')}
             >
@@ -338,26 +313,29 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({ roomCode, o
             </button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Main content */}
-      <div className="popup-content">
+      <main className="popup-video-container">
         {renderLayout()}
-      </div>
+      </main>
 
       {/* Footer branding */}
-      <div className="popup-footer">
+      <footer className="popup-footer">
         <div className="popup-branding">
           <img
             src="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
             alt=""
             className="popup-branding-mascot"
           />
-          <span className="brand-think">Prime</span><span className="brand-alike">Suspect</span>
-          <span className="by"> by </span>
-          <span className="game">Game</span><span className="buddies">Buddies</span><span className="io">.io</span>
+          <span className="brand-prefix">Prime</span>
+          <span className="brand-accent">Suspect</span>
+          <span className="brand-by"> by </span>
+          <span className="brand-game">Game</span>
+          <span className="brand-buddies">Buddies</span>
+          <span className="brand-io">.io</span>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
