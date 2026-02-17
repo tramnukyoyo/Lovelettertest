@@ -237,6 +237,15 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
             />
           ) : (
             <>
+              {isHost && socket && (
+                <GameBuddiesReturnButton
+                  roomCode={lobby.code}
+                  socket={socket}
+                  isStandalone
+                  streamerMode={lobby.isStreamerMode}
+                  variant="icon"
+                />
+              )}
               {isHost && lobby.state !== 'lobby' && (
                 <button
                   onClick={() => {

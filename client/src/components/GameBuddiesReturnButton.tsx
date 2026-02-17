@@ -13,6 +13,10 @@ interface GameBuddiesReturnButtonProps {
   roomCode: string;
   socket: Socket;
   isHost?: boolean;
+  /** When true, shows "GB Lobby" instead of "Return" and emits create-lobby event */
+  isStandalone?: boolean;
+  /** Pass through streamer mode so the new GB lobby preserves it */
+  streamerMode?: boolean;
   variant?: 'button' | 'icon'; // 'button' for lobby, 'icon' for compact gameplay display
   players?: Player[];
 }
@@ -21,6 +25,8 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   roomCode,
   socket,
   isHost = false,
+  isStandalone = false,
+  streamerMode = false,
   variant = 'button',
   players: _players = [],
 }) => {
@@ -47,6 +53,22 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
     };
   }, [socket]);
 
+  // Listen for lobby redirect (standalone → GB.io flow)
+  useEffect(() => {
+    const handleLobbyRedirect = (data: { redirectUrl: string }) => {
+      console.log('[GameBuddies] Received lobby-redirect:', data);
+      setReturnUrl(data.redirectUrl);
+      setIsGroupReturn(false);
+      setShowPortal(true);
+    };
+
+    socket.on('gamebuddies:lobby-redirect', handleLobbyRedirect);
+
+    return () => {
+      socket.off('gamebuddies:lobby-redirect', handleLobbyRedirect);
+    };
+  }, [socket]);
+
   const handlePortalComplete = () => {
     // Set returning flag for WelcomeBackOverlay
     sessionStorage.setItem('gamebuddies_returning', JSON.stringify({
@@ -63,6 +85,12 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   const handleReturn = () => {
     if (isReturning) return;
 
+    if (isStandalone) {
+      console.log('[GameBuddies] Standalone mode: creating GB lobby');
+      socket.emit('gamebuddies:create-lobby', { roomCode, streamerMode });
+      return;
+    }
+
     console.log('[GameBuddies] Return clicked', { isHost });
     setIsReturning(true);
 
@@ -73,7 +101,6 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
 
     if (isHost) {
       setIsGroupReturn(true);
-      // Emit socket event to server (server will handle API call securely)
       socket.emit('gamebuddies:return', {
         roomCode,
         mode: 'group',
@@ -121,7 +148,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           }}
         >
           <span>←</span>
-          <span>{isReturning ? t('return.returning') : t('return.returnToGameBuddies')}</span>
+          <span>{isReturning ? t('return.returning') : (isStandalone ? 'GB Lobby' : t('return.returnToGameBuddies'))}</span>
         </button>
       </>
     );
@@ -174,9 +201,11 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
         >
           ← {isReturning
             ? t('return.returning')
-            : isHost
-              ? t('return.returnAllPlayers')
-              : t('return.returnToGameBuddies')}
+            : isStandalone
+              ? 'GB Lobby'
+              : isHost
+                ? t('return.returnAllPlayers')
+                : t('return.returnToGameBuddies')}
         </button>
       </div>
     </>
