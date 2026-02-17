@@ -2099,7 +2099,8 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
             .popup-video {
               width: 100%;
               height: 100%;
-              object-fit: cover;
+              object-fit: contain;
+              background: #000;
             }
             
             .popup-avatar {
@@ -2599,6 +2600,18 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Keyboard shortcut: P to toggle popout
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || (e.target as HTMLElement).isContentEditable) return;
+      if (e.key === 'p' || e.key === 'P') {
+        handlePopout();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handlePopout]);
 
   // Listen for settings open request from header
   useEffect(() => {
