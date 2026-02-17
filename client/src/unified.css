@@ -11827,7 +11827,7 @@ textarea:focus {
 /* Video Tile */
 .popup-video-tile {
   position: relative;
-  background: #000;
+  background: transparent;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
