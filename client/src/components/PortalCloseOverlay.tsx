@@ -142,11 +142,7 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
 
         {/* Logo */}
         <div className="portal-logo">
-          {logoUrl ? (
-            <img src={logoUrl} alt="GameBuddies" />
-          ) : (
-            <span className="portal-logo-fallback">🎮</span>
-          )}
+          <img src={logoUrl || `${import.meta.env.BASE_URL}mascot.webp`} alt="GameBuddies" className="portal-logo-img" />
         </div>
 
         {/* Countdown badge */}
