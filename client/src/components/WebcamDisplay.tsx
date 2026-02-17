@@ -2099,7 +2099,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({ className = '', lobby: _l
             .popup-video {
               width: 100%;
               height: 100%;
-              object-fit: cover;
+              object-fit: contain;
             }
             
             .popup-avatar {
