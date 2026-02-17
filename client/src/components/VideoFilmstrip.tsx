@@ -447,7 +447,7 @@ const VideoFilmstrip: React.FC = () => {
       {popoutWindow && !popoutWindow.closed && popoutContainerRef.current && (
         createPortal(
           <EnhancedPopupContent
-            roomCode={config.getRoomCode?.()}
+            roomCode={config.getRoomCode?.() ?? undefined}
             onClose={handleClosePopout}
           />,
           popoutContainerRef.current
