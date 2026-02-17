@@ -242,6 +242,12 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
     `);
     newWindow.document.close();
 
+    // Copy data-theme from parent for game-specific CSS
+    const parentTheme = document.documentElement.getAttribute('data-theme');
+    if (parentTheme) {
+      newWindow.document.documentElement.setAttribute('data-theme', parentTheme);
+    }
+
     // Copy parent styles
     const parentStyles = document.querySelectorAll('style, link[rel="stylesheet"]');
     parentStyles.forEach(style => {

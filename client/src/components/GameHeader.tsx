@@ -8,6 +8,7 @@ import GameBuddiesReturnButton from './GameBuddiesReturnButton';
 
 import { VideoControlCluster } from './video';
 import { useVideoUI } from '../contexts/VideoUIContext';
+import { useWebRTC } from '../contexts/WebRTCContext';
 import { GAME_META } from '../config/gameMeta';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
@@ -32,6 +33,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
 
   // Video UI context for filmstrip/popup/settings control
   const videoUI = useVideoUI();
+  const webrtc = useWebRTC();
 
   // Listen for invite token response
   useEffect(() => {
@@ -189,10 +191,18 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
         <div className="game-header-right">
           {/* Video Control Cluster */}
           <VideoControlCluster
+            isVideoEnabled={webrtc.isVideoEnabled}
+            isVideoPrepairing={webrtc.isVideoPrepairing}
+            onPrepareVideo={webrtc.prepareVideoChat}
+            onDisableVideo={webrtc.disableVideoChat}
+            isFilmstripExpanded={videoUI.isFilmstripExpanded}
+            onToggleFilmstrip={videoUI.toggleFilmstrip}
+            isCameraEnabled={webrtc.isCameraEnabled}
+            onToggleVideo={webrtc.toggleVideo}
+            isAudioEnabled={webrtc.isAudioEnabled}
+            onToggleAudio={webrtc.toggleAudio}
             onOpenSettings={videoUI.openSettings}
             onOpenPopout={videoUI.requestPopup}
-            onToggleFilmstrip={videoUI.toggleFilmstrip}
-            isFilmstripExpanded={videoUI.isFilmstripExpanded}
           />
 
           {/* Divider between video controls and other controls */}

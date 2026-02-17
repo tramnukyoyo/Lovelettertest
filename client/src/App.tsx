@@ -7,14 +7,16 @@ import PlayerList from './components/PlayerList';
 import { BottomTabBar } from './components/BottomTabBar';
 import { MobileDrawer } from './components/MobileDrawer';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
-import { WebRTCProvider } from './contexts/WebRTCContext';
-import { VideoUIProvider } from './contexts/VideoUIContext';
+import { WebRTCProvider, useWebRTC } from './contexts/WebRTCContext';
+import { VideoUIProvider, useVideoUI } from './contexts/VideoUIContext';
 import { WebcamConfigProvider } from './config/WebcamConfig';
 import { createGameAdapter } from './adapters/gameAdapter';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
 import GameHeader from './components/GameHeader';
-import { VideoFilmstrip, MobileVideoGrid } from './components/video';
+import { VideoFilmstrip, MobileVideoGrid, DeviceSettingsModal } from './components/video';
+import { useVideoKeyboardShortcuts } from './hooks/useVideoKeyboardShortcuts';
+import { useVideoPreferences } from './hooks/useVideoPreferences';
 import { backgroundMusic } from './utils/backgroundMusic';
 import { soundEffects } from './utils/soundEffects';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
@@ -87,6 +89,53 @@ const SettingsSkeleton = () => (
     ))}
   </div>
 );
+
+/**
+ * VideoHooksManager - Activates video-related hooks (P-key shortcut, preferences).
+ * Must be inside WebRTCProvider and VideoUIProvider.
+ */
+function VideoHooksManager() {
+  useVideoKeyboardShortcuts();
+  useVideoPreferences();
+  return null;
+}
+
+/**
+ * VideoSettingsManager - Renders device settings modal for video setup/edit.
+ * Must be inside WebRTCProvider and VideoUIProvider.
+ */
+function VideoSettingsManager() {
+  const { isVideoPrepairing, confirmVideoChat, cancelVideoPreparation } = useWebRTC();
+  const { isSettingsOpen, closeSettings } = useVideoUI();
+
+  const isOpen = isVideoPrepairing || isSettingsOpen;
+  const mode = isVideoPrepairing ? 'setup' : 'edit';
+
+  const handleClose = () => {
+    if (isVideoPrepairing) {
+      cancelVideoPreparation();
+    } else {
+      closeSettings();
+    }
+  };
+
+  const handleConfirm = () => {
+    if (isVideoPrepairing) {
+      confirmVideoChat();
+    } else {
+      closeSettings();
+    }
+  };
+
+  return (
+    <DeviceSettingsModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      onConfirm={handleConfirm}
+      mode={mode}
+    />
+  );
+}
 
 function AppContent() {
   const mobileNav = useMobileNavigation();
@@ -413,6 +462,8 @@ function AppContent() {
                   mySocketId={socket?.id}
                 />
               </div>
+              <VideoHooksManager />
+              <VideoSettingsManager />
             </VideoUIProvider>
           </WebRTCProvider>
         </WebcamConfigProvider>
