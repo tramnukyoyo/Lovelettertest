@@ -213,8 +213,10 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
   <title>${GAME_META.namePrefix}${GAME_META.nameAccent} - Video Chat</title>
   <style>
     :root {
-      --accent-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '#e94560'};
-      --accent-primary-rgb: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-primary-rgb') || '233, 69, 96'};
+      --accent-color: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-color') || '#00d9ff'};
+      --accent-color-rgb: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-color-rgb') || '0, 217, 255'};
+      --accent-primary: var(--accent-color);
+      --accent-primary-rgb: var(--accent-color-rgb);
       --panel-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--panel-bg') || '#1a1a2e'};
       --panel-border: ${getComputedStyle(document.documentElement).getPropertyValue('--panel-border') || '#2d2d44'};
       --text-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#ffffff'};

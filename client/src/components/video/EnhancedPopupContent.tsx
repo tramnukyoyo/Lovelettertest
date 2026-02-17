@@ -186,7 +186,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({
         />
         {!hasVideo && (
           <div className="popup-video-placeholder">
-            <VideoOff className="w-8 h-8" />
+            <VideoOff size={32} />
           </div>
         )}
         <div className="popup-video-label">
@@ -225,14 +225,14 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({
               onClick={() => setLayoutMode('grid')}
               title="Grid View"
             >
-              <Grid3X3 className="w-4 h-4" />
+              <Grid3X3 size={16} />
             </button>
             <button
               className={`popup-layout-btn ${layoutMode === 'speaker' ? 'active' : ''}`}
               onClick={() => setLayoutMode('speaker')}
               title="Speaker View"
             >
-              <Users className="w-4 h-4" />
+              <Users size={16} />
             </button>
             <button
               className={`popup-layout-btn ${layoutMode === 'spotlight' ? 'active' : ''}`}
@@ -242,7 +242,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({
               }}
               title="Spotlight View"
             >
-              <Maximize2 className="w-4 h-4" />
+              <Maximize2 size={16} />
             </button>
           </div>
         </div>
@@ -255,26 +255,26 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({
               onClick={toggleAudio}
               title={isAudioEnabled ? 'Mute' : 'Unmute'}
             >
-              {isAudioEnabled ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+              {isAudioEnabled ? <Mic size={16} /> : <MicOff size={16} />}
             </button>
             <button
               className={`popup-control-btn ${!isVideoEnabled ? 'off' : ''}`}
               onClick={toggleVideo}
               title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
             >
-              {isVideoEnabled ? <Video className="w-4 h-4" /> : <VideoOff className="w-4 h-4" />}
+              {isVideoEnabled ? <Video size={16} /> : <VideoOff size={16} />}
             </button>
             <button
               className="popup-control-btn leave"
               onClick={handleLeave}
               title="Leave video chat"
             >
-              <PhoneOff className="w-4 h-4" />
+              <PhoneOff size={16} />
             </button>
           </div>
 
           <button className="popup-close-btn" onClick={onClose} title="Close popup">
-            <X className="w-5 h-5" />
+            <X size={20} />
           </button>
         </div>
       </header>
@@ -300,7 +300,7 @@ const EnhancedPopupContent: React.FC<EnhancedPopupContentProps> = ({
                 renderVideoTile('local', localName, true, true)
               ) : (
                 <div className="popup-video-placeholder">
-                  <VideoOff className="w-12 h-12" />
+                  <VideoOff size={48} />
                   <span>No video</span>
                 </div>
               )}
