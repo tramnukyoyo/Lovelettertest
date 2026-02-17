@@ -435,7 +435,7 @@ function AppContent() {
                   )}
                   {mobileNav.drawerContent === 'video' && (
                     <MobileVideoGrid
-                      players={(lobby.players || []).map((p: any) => ({ id: p.socketId || p.id, name: p.name || p.playerName, ...p }))}
+                      players={(lobby.players || []).map((p: any) => ({ ...p, id: p.socketId || p.id, name: p.name || p.playerName }))}
                       localPlayerName={lobby.players?.find((p: any) => p.socketId === socket?.id)?.name}
                       mySocketId={socket?.id}
                     />
@@ -455,7 +455,7 @@ function AppContent() {
 
               <div className="hidden lg:block">
                 <VideoFilmstrip
-                  players={(lobby?.players || []).map((p: any) => ({ id: p.socketId || p.id, name: p.name || p.playerName, ...p }))}
+                  players={(lobby?.players || []).map((p: any) => ({ ...p, id: p.socketId || p.id, name: p.name || p.playerName }))}
                   roomCode={lobby?.code}
                   localPlayerName={lobby?.players?.find((p: any) => p.socketId === socket?.id)?.name}
                   teams={[]}
