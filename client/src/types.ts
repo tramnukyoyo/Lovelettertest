@@ -145,3 +145,10 @@ export interface GameEndedPayload {
   reason?: string;
   // rounds?: Round[]; // Removed legacy
 }
+
+export interface Team {
+  id: string;
+  name: string;
+  color: string;
+  playerIds: string[];
+}

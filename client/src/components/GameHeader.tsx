@@ -6,7 +6,7 @@ import { SettingsModal } from './SettingsModalNoir';
 import socketService from '../services/socketService';
 import GameBuddiesReturnButton from './GameBuddiesReturnButton';
 
-import VideoControlCluster from './VideoControlCluster';
+import { VideoControlCluster } from './video';
 import { useVideoUI } from '../contexts/VideoUIContext';
 import { GAME_META } from '../config/gameMeta';
 import SimpleLanguageSelector from './SimpleLanguageSelector';

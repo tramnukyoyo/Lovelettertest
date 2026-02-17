@@ -10,13 +10,11 @@ import { useMobileNavigation } from './hooks/useMobileNavigation';
 import { WebRTCProvider } from './contexts/WebRTCContext';
 import { VideoUIProvider } from './contexts/VideoUIContext';
 import { WebcamConfigProvider } from './config/WebcamConfig';
-import WebcamDisplay from './components/WebcamDisplay';
 import { createGameAdapter } from './adapters/gameAdapter';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
 import GameHeader from './components/GameHeader';
-import VideoFilmstrip from './components/VideoFilmstrip';
-import { VideoDrawerContent } from './components/VideoDrawerContent';
+import { VideoFilmstrip, MobileVideoGrid } from './components/video';
 import { backgroundMusic } from './utils/backgroundMusic';
 import { soundEffects } from './utils/soundEffects';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
@@ -76,7 +74,6 @@ function hasGameBuddiesSessionToken(): boolean {
 // Heavy components loaded on-demand for better initial load performance
 // Note: LobbyComponent and GameComponent use direct imports for reliability
 // ========================================
-const VideoEnhancements = lazy(() => import('./components/VideoEnhancements'));
 const SettingsModal = lazy(() => import('./components/SettingsModalNoir').then(m => ({ default: m.SettingsModal })));
 
 // ========================================
@@ -388,7 +385,11 @@ function AppContent() {
                     />
                   )}
                   {mobileNav.drawerContent === 'video' && (
-                    <VideoDrawerContent players={lobby.players} />
+                    <MobileVideoGrid
+                      players={(lobby.players || []).map((p: any) => ({ id: p.socketId || p.id, name: p.name || p.playerName, ...p }))}
+                      localPlayerName={lobby.players?.find((p: any) => p.socketId === socket?.id)?.name}
+                      mySocketId={socket?.id}
+                    />
                   )}
                   {mobileNav.drawerContent === 'settings' && (
                     <Suspense fallback={<SettingsSkeleton />}>
@@ -404,16 +405,14 @@ function AppContent() {
               )}
 
               <div className="hidden lg:block">
-                <VideoFilmstrip />
+                <VideoFilmstrip
+                  players={(lobby?.players || []).map((p: any) => ({ id: p.socketId || p.id, name: p.name || p.playerName, ...p }))}
+                  roomCode={lobby?.code}
+                  localPlayerName={lobby?.players?.find((p: any) => p.socketId === socket?.id)?.name}
+                  teams={[]}
+                  mySocketId={socket?.id}
+                />
               </div>
-
-              <div style={{ display: 'none' }}>
-                <WebcamDisplay />
-              </div>
-
-              <Suspense fallback={null}>
-                <VideoEnhancements />
-              </Suspense>
             </VideoUIProvider>
           </WebRTCProvider>
         </WebcamConfigProvider>

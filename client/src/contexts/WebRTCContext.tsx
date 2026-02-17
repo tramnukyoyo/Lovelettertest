@@ -312,7 +312,7 @@ const getHighQualityAudioConstraints = (deviceId?: string): MediaTrackConstraint
   return baseConstraints;
 };
 
-interface WebRTCContextState extends WebRTCState {
+interface WebRTCContextState extends Omit<WebRTCState, 'availableDevices'> {
   enableVideoChat: () => Promise<void>;
   prepareVideoChat: () => Promise<void>;
   confirmVideoChat: () => Promise<void>;
@@ -336,6 +336,15 @@ interface WebRTCContextState extends WebRTCState {
   enableFaceAvatar: () => Promise<void>;
   disableFaceAvatar: () => void;
   updateFaceAvatarConfig: (config: Partial<FaceAvatarConfig>) => void;
+  // Soundbite-compatible aliases
+  isAudioEnabled: boolean;
+  isCameraEnabled: boolean;
+  toggleVideo: () => void;
+  toggleAudio: () => void;
+  selectedCameraId: string | null;
+  selectedMicrophoneId: string | null;
+  connectionError: string | null;
+  availableDevices: MediaDeviceInfo[];
 }
 
 const WebRTCContext = createContext<WebRTCContextState | undefined>(undefined);
@@ -1742,7 +1751,19 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
     initializeFaceAvatar,
     enableFaceAvatar,
     disableFaceAvatar,
-    updateFaceAvatarConfig
+    updateFaceAvatarConfig,
+    // Soundbite-compatible aliases
+    isAudioEnabled: !state.isMicrophoneMuted,
+    isCameraEnabled: state.isWebcamActive,
+    toggleVideo: toggleWebcam,
+    toggleAudio: toggleMicrophone,
+    selectedCameraId: state.selectedDevices?.cameraId || null,
+    selectedMicrophoneId: state.selectedDevices?.microphoneId || null,
+    connectionError: null,
+    availableDevices: [
+      ...state.availableDevices.cameras,
+      ...state.availableDevices.microphones,
+    ],
   };
 
   return <WebRTCContext.Provider value={contextValue}>{children}</WebRTCContext.Provider>;
