@@ -259,15 +259,12 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
       source.connect(analyserRef.current);
 
       const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-      // Hard gate: values below floor output exactly 0 (covers hardware-mute noise)
-      const NOISE_FLOOR = 28;
 
       const updateLevel = () => {
         if (analyserRef.current) {
           analyserRef.current.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-          // Hard gate — below floor → 0; above floor → scaled to 0–100
-          const level = average < NOISE_FLOOR ? 0 : Math.min(100, (average - NOISE_FLOOR) * 2.0);
+          const level = Math.min(100, average * 1.5);
           setAudioLevel(level);
         }
         animationFrameRef.current = requestAnimationFrame(updateLevel);
@@ -434,7 +431,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 <div className="audio-meter-bars">
                   {Array.from({ length: 12 }, (_, i) => {
                     const threshold = ((i + 1) / 12) * 100;
-                    const isActive = !joinMuted && audioLevel >= threshold;
+                    const isActive = audioLevel >= threshold - 8;
                     const colorClass = i < 7 ? 'green' : i < 10 ? 'yellow' : 'red';
                     return (
                       <div
