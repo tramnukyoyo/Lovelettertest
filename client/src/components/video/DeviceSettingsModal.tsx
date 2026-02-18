@@ -259,15 +259,15 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
       source.connect(analyserRef.current);
 
       const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-      // Noise floor: discard values below this to prevent ambient/DC noise lighting bars
-      const NOISE_FLOOR = 10;
+      // Hard gate: values below floor output exactly 0 (covers hardware-mute noise)
+      const NOISE_FLOOR = 28;
 
       const updateLevel = () => {
         if (analyserRef.current) {
           analyserRef.current.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-          // Subtract noise floor so silence stays at 0; clamp 0–100
-          const level = Math.max(0, Math.min(100, (average - NOISE_FLOOR) * 1.8));
+          // Hard gate — below floor → 0; above floor → scaled to 0–100
+          const level = average < NOISE_FLOOR ? 0 : Math.min(100, (average - NOISE_FLOOR) * 2.0);
           setAudioLevel(level);
         }
         animationFrameRef.current = requestAnimationFrame(updateLevel);
