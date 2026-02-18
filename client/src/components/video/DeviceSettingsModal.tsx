@@ -243,21 +243,15 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
 
   // Audio level meter
   useEffect(() => {
-    if (!localStream) {
-      console.log('[AudioMeter] ❌ no localStream');
-      return;
-    }
+    if (!localStream) return;
 
     const audioTrack = localStream.getAudioTracks()[0];
-    if (!audioTrack) {
-      console.log('[AudioMeter] ❌ no audio track');
-      return;
-    }
+    if (!audioTrack) return;
 
-    // Clone the track so track.enabled=false on the original doesn't silence the meter
+    // Clone the track for the meter; force-enable because Chrome copies enabled=false
     const clonedTrack = audioTrack.clone();
+    clonedTrack.enabled = true;
     const meterStream = new MediaStream([clonedTrack]);
-    console.log('[AudioMeter] original.enabled:', audioTrack.enabled, 'clone.enabled:', clonedTrack.enabled);
 
     try {
       audioContextRef.current = new AudioContext();
@@ -273,18 +267,12 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
       source.connect(analyserRef.current);
 
       const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-      let frameCount = 0;
 
       const updateLevel = () => {
         if (analyserRef.current) {
           analyserRef.current.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-          const level = Math.min(100, average * 1.5);
-          if (frameCount % 60 === 0) {
-            console.log(`[AudioMeter] level=${level.toFixed(1)} avg=${average.toFixed(2)} orig.enabled=${audioTrack.enabled} clone.enabled=${clonedTrack.enabled}`);
-          }
-          frameCount++;
-          setAudioLevel(level);
+          setAudioLevel(Math.min(100, average * 1.5));
         }
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
