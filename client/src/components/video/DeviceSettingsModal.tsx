@@ -246,22 +246,29 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
     if (!localStream) return;
 
     const audioTrack = localStream.getAudioTracks()[0];
-    if (!audioTrack) return;
+    // Require a live, enabled track — broken/silent mics still have a track object
+    if (!audioTrack || audioTrack.readyState !== 'live' || !audioTrack.enabled) return;
 
     try {
       audioContextRef.current = new AudioContext();
       const source = audioContextRef.current.createMediaStreamSource(localStream);
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 256;
+      // Reduce time-averaging so the meter drops quickly when silent
+      analyserRef.current.smoothingTimeConstant = 0.5;
       source.connect(analyserRef.current);
 
       const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+      // Noise floor: discard values below this to prevent ambient/DC noise lighting bars
+      const NOISE_FLOOR = 10;
 
       const updateLevel = () => {
         if (analyserRef.current) {
           analyserRef.current.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-          setAudioLevel(Math.min(100, average * 1.5));
+          // Subtract noise floor so silence stays at 0; clamp 0–100
+          const level = Math.max(0, Math.min(100, (average - NOISE_FLOOR) * 1.8));
+          setAudioLevel(level);
         }
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
@@ -427,7 +434,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 <div className="audio-meter-bars">
                   {Array.from({ length: 12 }, (_, i) => {
                     const threshold = ((i + 1) / 12) * 100;
-                    const isActive = !joinMuted && audioLevel >= threshold - 8;
+                    const isActive = !joinMuted && audioLevel >= threshold;
                     const colorClass = i < 7 ? 'green' : i < 10 ? 'yellow' : 'red';
                     return (
                       <div
