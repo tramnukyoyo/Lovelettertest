@@ -5606,26 +5606,26 @@ canvas {
   gap: 2px;
 }
 
-.audio-bar {
+.audio-bars .audio-bar {
   width: 3px;
   background: linear-gradient(to top, #10b981, #34d399);
   border-radius: 1px;
   animation: audioWave 0.5s ease-in-out infinite alternate;
 }
 
-.audio-bar:nth-child(2) {
+.audio-bars .audio-bar:nth-child(2) {
   animation-delay: 0.1s;
 }
 
-.audio-bar:nth-child(3) {
+.audio-bars .audio-bar:nth-child(3) {
   animation-delay: 0.2s;
 }
 
-.audio-bar:nth-child(4) {
+.audio-bars .audio-bar:nth-child(4) {
   animation-delay: 0.3s;
 }
 
-.audio-bar:nth-child(5) {
+.audio-bars .audio-bar:nth-child(5) {
   animation-delay: 0.4s;
 }
 
