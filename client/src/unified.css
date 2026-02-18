@@ -535,6 +535,7 @@
   --font-heading: 'Special Elite', 'Courier Prime', monospace;
   --font-body: 'Courier Prime', 'Courier New', monospace;
   --hg-font-meta: 'Courier Prime', monospace;
+  --font-title: var(--font-heading);
 
   /* Solid colors for stamps/buttons (70s style) */
   --gradient-button: var(--rust);
@@ -3068,6 +3069,282 @@
 [data-theme="primesuspect"] .device-settings-modal .rounded-lg,
 [data-theme="primesuspect"] .device-settings-modal .rounded-xl {
   border-radius: 0 !important;
+}
+
+/* ===== PRIMESUSPECT: DEVICE SETTINGS - NOIR REDESIGN ===== */
+
+/* Header: dark tobacco band */
+[data-theme="primesuspect"] .device-settings-header {
+  background: var(--tobacco-brown);
+  border-bottom: 3px solid #2a2420;
+}
+[data-theme="primesuspect"] .device-settings-header h2 {
+  font-family: 'Special Elite', 'Courier Prime', monospace !important;
+  color: var(--aged-newspaper, #f5e6c8) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 1rem;
+}
+[data-theme="primesuspect"] .device-settings-close {
+  color: var(--aged-newspaper, #f5e6c8);
+  border: 1px solid rgba(245, 230, 200, 0.3);
+  border-radius: 0;
+}
+[data-theme="primesuspect"] .device-settings-close:hover {
+  background: rgba(245, 230, 200, 0.15);
+  color: #f5e6c8;
+}
+
+/* Tabs: manila folder effect */
+[data-theme="primesuspect"] .device-settings-tabs {
+  background: #b5a48e;
+  border-bottom: 3px solid #2a2420;
+  gap: 3px;
+  padding: 0 10px;
+}
+[data-theme="primesuspect"] .device-settings-tab {
+  background: #9e8d78;
+  border: 2px solid #2a2420;
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  color: #3a3028;
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  margin-bottom: 0;
+  opacity: 0.72;
+  transition: opacity 0.12s, transform 0.12s, background 0.12s;
+}
+[data-theme="primesuspect"] .device-settings-tab svg {
+  opacity: 0.7;
+}
+[data-theme="primesuspect"] .device-settings-tab:hover {
+  background: #b5a48e;
+  opacity: 0.88;
+  color: #2a2420;
+}
+[data-theme="primesuspect"] .device-settings-tab.active {
+  background: #c9b8a0;
+  color: #2a2420;
+  border-color: #2a2420;
+  border-bottom-color: #c9b8a0;
+  opacity: 1;
+  font-weight: 700;
+  transform: translateY(1px);
+}
+[data-theme="primesuspect"] .device-settings-tab.active svg {
+  opacity: 1;
+}
+
+/* Toggle sliders: visible on parchment */
+[data-theme="primesuspect"] .toggle-slider {
+  background: rgba(42, 36, 32, 0.18) !important;
+  border: 2px solid #2a2420 !important;
+  border-radius: 11px !important;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.15) !important;
+}
+[data-theme="primesuspect"] .toggle-slider::before {
+  background: #5a4f44 !important;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.25) !important;
+}
+[data-theme="primesuspect"] .privacy-toggle input:checked + .toggle-slider {
+  background: var(--tobacco-brown) !important;
+  border-color: #2a2420 !important;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2), 2px 2px 0 rgba(0,0,0,0.2) !important;
+}
+[data-theme="primesuspect"] .privacy-toggle input:checked + .toggle-slider::before {
+  background: var(--aged-newspaper, #f5e6c8) !important;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2) !important;
+}
+[data-theme="primesuspect"] .privacy-toggle:hover .toggle-slider {
+  border-color: var(--tobacco-brown) !important;
+}
+[data-theme="primesuspect"] .toggle-label {
+  color: #2a2420;
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+[data-theme="primesuspect"] .toggle-label svg {
+  color: #4a3f35;
+}
+[data-theme="primesuspect"] .privacy-toggle input:checked ~ .toggle-label {
+  color: #1a1210;
+}
+[data-theme="primesuspect"] .privacy-toggle input:checked ~ .toggle-label svg {
+  color: var(--tobacco-brown);
+}
+[data-theme="primesuspect"] .device-settings-privacy {
+  border-top: 2px dashed rgba(42, 36, 32, 0.25);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+/* Audio meter: noir ink bars, frozen when muted */
+[data-theme="primesuspect"] .audio-meter-bars {
+  background: rgba(42, 36, 32, 0.12);
+  border: 2px solid #4a3f35;
+  border-radius: 0;
+  transition: opacity 0.2s;
+}
+[data-theme="primesuspect"] .audio-bar {
+  background: rgba(42, 36, 32, 0.12);
+  border-radius: 0;
+}
+[data-theme="primesuspect"] .audio-bar.active.green {
+  background: var(--tobacco-brown);
+  box-shadow: none;
+}
+[data-theme="primesuspect"] .audio-bar.active.yellow {
+  background: var(--royal-gold, #d2b25a);
+  box-shadow: none;
+}
+[data-theme="primesuspect"] .audio-bar.active.red {
+  background: var(--rust, #b5451b);
+  box-shadow: none;
+}
+[data-theme="primesuspect"] .audio-meter-row.is-muted .audio-meter-bars {
+  opacity: 0.35;
+}
+[data-theme="primesuspect"] .audio-meter-row label {
+  font-family: 'Courier Prime', monospace;
+  color: #2a2420;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Device dropdowns label */
+[data-theme="primesuspect"] .device-setting-row label {
+  font-family: 'Courier Prime', monospace;
+  color: #2a2420;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Virtual background options: film contact-sheet style */
+[data-theme="primesuspect"] .background-options {
+  gap: 8px;
+  padding: 12px 14px;
+}
+[data-theme="primesuspect"] .background-option {
+  border: 3px solid #4a3f35;
+  border-radius: 0;
+  background: #8a7a67;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.35);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+}
+[data-theme="primesuspect"] .background-option span {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f5e6c8;
+  background: rgba(30, 24, 20, 0.82);
+  padding: 2px 5px;
+}
+[data-theme="primesuspect"] .background-option:hover {
+  border-color: var(--tobacco-brown);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 rgba(0,0,0,0.35);
+}
+[data-theme="primesuspect"] .background-option.active {
+  border-color: var(--royal-gold, #d2b25a);
+  border-width: 3px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+  transform: translate(-1px, -1px);
+}
+[data-theme="primesuspect"] .background-option.active::after {
+  background: var(--royal-gold, #d2b25a);
+  color: #2a2420;
+  border-radius: 0;
+  font-size: 11px;
+  font-weight: 900;
+  width: 18px;
+  height: 18px;
+}
+[data-theme="primesuspect"] .blur-option .blur-preview {
+  background: linear-gradient(135deg,
+    #8a7a67 25%, #7a6a58 25%,
+    #7a6a58 50%, #8a7a67 50%,
+    #8a7a67 75%, #7a6a58 75%
+  );
+  background-size: 14px 14px;
+  filter: blur(2px);
+}
+
+/* Info boxes */
+[data-theme="primesuspect"] .background-info {
+  background: rgba(42, 36, 32, 0.07);
+  border: 1px solid rgba(42, 36, 32, 0.25);
+  border-radius: 0;
+  color: #3a3028;
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.8rem;
+}
+[data-theme="primesuspect"] .background-info p {
+  color: #3a3028;
+}
+
+/* Noise suppression slider */
+[data-theme="primesuspect"] .slider-setting label span {
+  font-family: 'Courier Prime', monospace;
+  color: #2a2420;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+}
+[data-theme="primesuspect"] .slider-setting input[type="range"] {
+  accent-color: var(--tobacco-brown);
+}
+[data-theme="primesuspect"] .slider-labels span {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.68rem;
+  color: #4a3f35;
+  letter-spacing: 0.06em;
+}
+
+/* Actions footer */
+[data-theme="primesuspect"] .device-settings-actions {
+  background: #b5a48e;
+  border-top: 3px solid #2a2420;
+}
+[data-theme="primesuspect"] .device-settings-cancel {
+  border: 2px solid #2a2420;
+  border-radius: 0;
+  color: #2a2420;
+  font-family: 'Courier Prime', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  background: transparent;
+}
+[data-theme="primesuspect"] .device-settings-cancel:hover {
+  background: rgba(42, 36, 32, 0.12);
+  border-color: #2a2420;
+}
+[data-theme="primesuspect"] .device-settings-confirm {
+  background: var(--tobacco-brown);
+  color: var(--aged-newspaper, #f5e6c8);
+  font-family: 'Special Elite', 'Courier Prime', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 0;
+  border: 2px solid #2a2420;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.35);
+  font-size: 0.88rem;
+}
+[data-theme="primesuspect"] .device-settings-confirm:hover {
+  background: #4a3f35;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+}
+[data-theme="primesuspect"] .device-settings-confirm:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.35);
 }
 
 /* Remove frosted glass effects - replace with solid colors and textures */

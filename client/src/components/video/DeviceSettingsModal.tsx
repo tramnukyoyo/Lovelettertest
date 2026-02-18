@@ -419,7 +419,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               </div>
 
               {/* Audio Level Meter - Segmented Bars */}
-              <div className="device-setting-row audio-meter-row">
+              <div className={`device-setting-row audio-meter-row${joinMuted ? ' is-muted' : ''}`}>
                 <label>
                   {joinMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                   Audio Level
@@ -427,7 +427,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 <div className="audio-meter-bars">
                   {Array.from({ length: 12 }, (_, i) => {
                     const threshold = ((i + 1) / 12) * 100;
-                    const isActive = audioLevel >= threshold - 8;
+                    const isActive = !joinMuted && audioLevel >= threshold - 8;
                     const colorClass = i < 7 ? 'green' : i < 10 ? 'yellow' : 'red';
                     return (
                       <div
