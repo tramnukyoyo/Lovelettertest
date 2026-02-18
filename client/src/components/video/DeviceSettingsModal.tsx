@@ -243,25 +243,56 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
 
   // Audio level meter
   useEffect(() => {
-    if (!localStream) return;
+    if (!localStream) {
+      console.log('[AudioMeter] ❌ No localStream — meter inactive');
+      return;
+    }
 
     const audioTrack = localStream.getAudioTracks()[0];
-    if (!audioTrack) return;
+    if (!audioTrack) {
+      console.log('[AudioMeter] ❌ No audio tracks in localStream');
+      return;
+    }
+
+    console.log('[AudioMeter] ✅ Audio track found:', {
+      enabled: audioTrack.enabled,
+      muted: audioTrack.muted,
+      readyState: audioTrack.readyState,
+      label: audioTrack.label,
+    });
 
     try {
       audioContextRef.current = new AudioContext();
+      console.log('[AudioMeter] AudioContext state after creation:', audioContextRef.current.state);
+
+      // Resume if suspended (browser autoplay policy)
+      if (audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume().then(() =>
+          console.log('[AudioMeter] AudioContext resumed:', audioContextRef.current?.state)
+        );
+      }
+
       const source = audioContextRef.current.createMediaStreamSource(localStream);
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 256;
       source.connect(analyserRef.current);
 
       const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+      let frameCount = 0;
 
       const updateLevel = () => {
         if (analyserRef.current) {
           analyserRef.current.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-          setAudioLevel(Math.min(100, average * 1.5));
+          const level = Math.min(100, average * 1.5);
+
+          // Log every ~60 frames (~1 sec) so console isn't flooded
+          if (frameCount % 60 === 0) {
+            console.log(`[AudioMeter] level=${level.toFixed(1)} avg=${average.toFixed(2)} ctx=${audioContextRef.current?.state} trackEnabled=${audioTrack.enabled}`);
+          }
+          frameCount++;
+
+          setAudioLevel(level);
         }
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
