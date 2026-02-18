@@ -243,56 +243,35 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
 
   // Audio level meter
   useEffect(() => {
-    if (!localStream) {
-      console.log('[AudioMeter] ❌ No localStream — meter inactive');
-      return;
-    }
+    if (!localStream) return;
 
     const audioTrack = localStream.getAudioTracks()[0];
-    if (!audioTrack) {
-      console.log('[AudioMeter] ❌ No audio tracks in localStream');
-      return;
-    }
+    if (!audioTrack) return;
 
-    console.log('[AudioMeter] ✅ Audio track found:', {
-      enabled: audioTrack.enabled,
-      muted: audioTrack.muted,
-      readyState: audioTrack.readyState,
-      label: audioTrack.label,
-    });
+    // Clone the track so track.enabled=false on the original doesn't silence the meter
+    const clonedTrack = audioTrack.clone();
+    const meterStream = new MediaStream([clonedTrack]);
 
     try {
       audioContextRef.current = new AudioContext();
-      console.log('[AudioMeter] AudioContext state after creation:', audioContextRef.current.state);
 
       // Resume if suspended (browser autoplay policy)
       if (audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume().then(() =>
-          console.log('[AudioMeter] AudioContext resumed:', audioContextRef.current?.state)
-        );
+        audioContextRef.current.resume();
       }
 
-      const source = audioContextRef.current.createMediaStreamSource(localStream);
+      const source = audioContextRef.current.createMediaStreamSource(meterStream);
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 256;
       source.connect(analyserRef.current);
 
       const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-      let frameCount = 0;
 
       const updateLevel = () => {
         if (analyserRef.current) {
           analyserRef.current.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-          const level = Math.min(100, average * 1.5);
-
-          // Log every ~60 frames (~1 sec) so console isn't flooded
-          if (frameCount % 60 === 0) {
-            console.log(`[AudioMeter] level=${level.toFixed(1)} avg=${average.toFixed(2)} ctx=${audioContextRef.current?.state} trackEnabled=${audioTrack.enabled}`);
-          }
-          frameCount++;
-
-          setAudioLevel(level);
+          setAudioLevel(Math.min(100, average * 1.5));
         }
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
@@ -309,6 +288,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
+      clonedTrack.stop();
     };
   }, [localStream]);
 
