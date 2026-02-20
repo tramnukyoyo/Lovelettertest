@@ -15,6 +15,10 @@ class SocketService {
   private onlineListener: (() => void) | null = null;
   private offlineListener: (() => void) | null = null;
 
+  // Background idle disconnect — 30 minutes hidden = disconnect
+  private backgroundIdleTimeout: ReturnType<typeof setTimeout> | null = null;
+  private readonly BACKGROUND_IDLE_MS = 30 * 60 * 1000;
+
   // Storage keys for reconnection data
   private static readonly STORAGE_KEYS = {
     sessionToken: 'primesuspect_session_token',
@@ -179,12 +183,17 @@ class SocketService {
       if (document.visibilityState === 'visible') {
         console.log('[Socket] Page became visible');
 
-        // If disconnected, try to reconnect
+        // Cancel any pending background idle disconnect
+        if (this.backgroundIdleTimeout) {
+          clearTimeout(this.backgroundIdleTimeout);
+          this.backgroundIdleTimeout = null;
+          console.log('[Socket] Background idle timer cancelled (tab foregrounded)');
+        }
+
         if (!this.socket?.connected) {
           console.log('[Socket] Connection lost while backgrounded, reconnecting...');
           this.socket?.connect();
         } else if (stored.roomCode) {
-          // Send heartbeat to let server know we're back
           console.log('[Socket] Sending heartbeat to server');
           this.socket.emit('client:heartbeat', {
             roomCode: stored.roomCode,
@@ -192,13 +201,25 @@ class SocketService {
           });
         }
       } else {
-        console.log('[Socket] Page backgrounded');
+        console.log('[Socket] Page backgrounded — starting 30m idle timer');
         if (this.socket?.connected && stored.roomCode) {
           this.socket.emit('client:page-backgrounded', {
             roomCode: stored.roomCode,
             timestamp: Date.now(),
           });
         }
+
+        // Start 30-minute idle timer — disconnect if still in background
+        if (this.backgroundIdleTimeout) clearTimeout(this.backgroundIdleTimeout);
+        this.backgroundIdleTimeout = setTimeout(() => {
+          this.backgroundIdleTimeout = null;
+          if (document.visibilityState !== 'visible' && this.socket?.connected) {
+            console.log('[Socket] Background idle timeout (30m) — disconnecting');
+            this.clearReconnectionData();
+            this.socket.disconnect();
+            this.socket = null;
+          }
+        }, this.BACKGROUND_IDLE_MS);
       }
     };
     document.addEventListener('visibilitychange', this.visibilityListener);
@@ -240,6 +261,10 @@ class SocketService {
     if (this.offlineListener) {
       window.removeEventListener('offline', this.offlineListener);
       this.offlineListener = null;
+    }
+    if (this.backgroundIdleTimeout) {
+      clearTimeout(this.backgroundIdleTimeout);
+      this.backgroundIdleTimeout = null;
     }
     this.listenersSetup = false;
   }
