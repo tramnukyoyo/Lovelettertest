@@ -22,10 +22,21 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({ lobby, socket }) =
   const lang = getCurrentLanguage();
   const t = (key: string) => getTranslation(key, lang);
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
+  const isHost = me?.isHost || false;
   const isGameWin = !!lobby.gameData?.winner;
   const winnerId = lobby.gameData?.winner || lobby.gameData?.roundWinner;
   const winnerPlayer = lobby.players.find(p => p.id === winnerId);
   const tokensToWin = getTokensToWin(lobby.players.length);
+
+  const handleTryAnotherGame = () => {
+    if (!socket.connected) return;
+    socket.emit('gamebuddies:return', {
+      roomCode: lobby.code,
+      playerId: me?.id,
+      mode: isHost ? 'group' : 'individual',
+      reason: 'try_another_game'
+    });
+  };
 
   // Sort players by tokens descending
   const sortedPlayers = [...lobby.players].sort((a, b) => b.tokens - a.tokens);
@@ -172,6 +183,15 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({ lobby, socket }) =
               <div className="text-sm text-[var(--parchment-dark)] opacity-70 italic">
                 {t('victory.waitingForHost')}
               </div>
+            )}
+
+            {lobby.isGameBuddiesRoom && (
+              <button
+                onClick={handleTryAnotherGame}
+                className="w-full mt-3 px-6 py-3 bg-gradient-to-r from-[var(--royal-crimson)] to-[var(--royal-crimson-dark)] hover:from-[var(--royal-crimson-light)] hover:to-[var(--royal-crimson)] text-white font-black rounded-xl text-sm sm:text-base shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider min-h-[48px]"
+              >
+                Try Another Game
+              </button>
             )}
           </motion.div>
         </motion.div>
