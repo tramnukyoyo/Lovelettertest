@@ -80,7 +80,17 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
       timestamp: Date.now(),
     }));
 
-    window.location.href = returnUrl;
+    // Append ?returning=true for cross-domain detection (sessionStorage doesn't cross domains)
+    try {
+      const url = new URL(returnUrl);
+      url.searchParams.set('returning', 'true');
+      const pName = sessionStorage.getItem('gamebuddies_playerName') || '';
+      if (pName) url.searchParams.set('returningPlayer', pName);
+      console.log('[GameBuddies] Redirecting with returning=true:', url.toString());
+      window.location.href = url.toString();
+    } catch {
+      window.location.href = returnUrl;
+    }
   };
 
   const handleReturn = () => {
