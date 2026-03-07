@@ -159,6 +159,7 @@ export function useGameBuddiesClient(
       avatarUrl: sessionWithMode?.avatarUrl,
       streamerMode,
       hideRoomCode: streamerMode,
+      guestUserId: localStorage.getItem('gb_guestUserId') || undefined,
     });
   }, []);
 
@@ -184,6 +185,7 @@ export function useGameBuddiesClient(
       premiumTier: session?.premiumTier,
       avatarUrl: session?.avatarUrl,
       sessionToken: session?.sessionToken,
+      guestUserId: localStorage.getItem('gb_guestUserId') || undefined,
     });
   }, []);
 
@@ -290,7 +292,7 @@ export function useGameBuddiesClient(
 
     const onDisconnect = () => setIsConnected(false);
 
-    const onRoomCreated = (data: { room: Lobby; sessionToken?: string }) => {
+    const onRoomCreated = (data: { room: Lobby; sessionToken?: string; guestUserId?: string }) => {
       setLobbyState(data.room);
       setError('');
       if (data.sessionToken) {
@@ -299,9 +301,12 @@ export function useGameBuddiesClient(
         // Update session state with new token to ensure API calls use the valid token
         setGameBuddiesSession(prev => prev ? { ...prev, sessionToken: data.sessionToken } : null);
       }
+      if (data.guestUserId) {
+        localStorage.setItem('gb_guestUserId', data.guestUserId);
+      }
     };
 
-    const onRoomJoined = (data: { room: Lobby; sessionToken?: string }) => {
+    const onRoomJoined = (data: { room: Lobby; sessionToken?: string; guestUserId?: string }) => {
       setLobbyState(data.room);
       setError('');
       if (data.sessionToken) {
@@ -309,6 +314,9 @@ export function useGameBuddiesClient(
         persistReconnectionData(data.room, data.sessionToken);
         // Update session state with new token to ensure API calls use the valid token
         setGameBuddiesSession(prev => prev ? { ...prev, sessionToken: data.sessionToken } : null);
+      }
+      if (data.guestUserId) {
+        localStorage.setItem('gb_guestUserId', data.guestUserId);
       }
     };
 
