@@ -19,11 +19,13 @@ export interface BasePlayer {
   premiumTier?: 'free' | 'monthly' | 'lifetime';
   avatarUrl?: string;
   id?: string; // Added to match server
+  isPassPlayPlayer?: boolean;
 }
 
 export interface BaseSettings {
   minPlayers: number;
   maxPlayers: number;
+  gameType?: 'online' | 'pass-play';
 }
 
 export interface ChatMessage {
@@ -33,6 +35,14 @@ export interface ChatMessage {
   message: string;
   timestamp: number;
   isSystem?: boolean;
+}
+
+export interface PassPlayState {
+  enabled: boolean;
+  currentPlayerIndex: number;
+  revealed: boolean;
+  turnOrder: string[];
+  phase: 'waiting' | 'revealed' | 'acting';
 }
 
 export interface BaseLobby<TPlayer, TSettings, TGameData> {
@@ -47,6 +57,7 @@ export interface BaseLobby<TPlayer, TSettings, TGameData> {
   hideRoomCode?: boolean;
   mySocketId: string;
   messages?: ChatMessage[];
+  passPlay?: PassPlayState;
 }
 
 // ============================================================================

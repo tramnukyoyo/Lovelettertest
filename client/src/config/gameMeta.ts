@@ -5,4 +5,9 @@ export const GAME_META = {
   tagline: 'Risk, deduction, and luck. Solve the murder mystery!',
   description: 'Murder mystery card game - The host was murdered in a locked mansion. Unmask the killer!',
   mascotAlt: 'Prime Suspect Mascot',
+
+  // Pass & Play support
+  supportsPassPlay: true,
+  passPlayMinPlayers: 2,
+  passPlayHostPlays: true,
 };

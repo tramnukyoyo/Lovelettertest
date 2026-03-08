@@ -598,6 +598,9 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
             {lobby.state === 'LOBBY' && (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center flex-col gap-4 z-20 backdrop-blur-sm rounded-xl">
                     <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">{t('game.waitingForPlayers')}</h2>
+
+                    {/* Pass & Play Toggle removed — this is the desktop view, PP is mobile-only */}
+
                      {me?.isHost && (
                         <button
                             onClick={() => { if (socket.connected) { playEliminatedSound(); socket.emit('game:start', {}); } }}

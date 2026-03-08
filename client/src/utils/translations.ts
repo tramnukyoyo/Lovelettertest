@@ -919,6 +919,27 @@ export const translations = {
     // Must play accomplice error
     'error.mustPlayAccomplice': 'You must play the Accomplice!',
 
+    // Pass & Play
+    'passPlay.online': 'Online',
+    'passPlay.passAndPlay': 'Pass & Play',
+    'passPlay.passDeviceTo': 'Pass the device to',
+    'passPlay.onlyPlayerLooking': 'Only {name} should be looking!',
+    'passPlay.reveal': 'Reveal',
+    'passPlay.donePassDevice': 'Done \u2014 Pass Device',
+    'passPlay.enterPlayerName': 'Enter player name',
+    'passPlay.addPlayer': 'Add Player',
+    'passPlay.removePlayer': 'Remove',
+    'passPlay.addFailed': 'Failed to add player',
+    'passPlay.drawCard': 'Draw a card:',
+    'passPlay.drawFromDeck': 'Draw from Deck',
+    'passPlay.takeFaceUp': 'Take',
+    'passPlay.tapCardToPlay': 'Tap a card from your hand to play it',
+    'passPlay.yourTurn': 'Your Turn!',
+    'passPlay.notYourTurn': 'Not your turn',
+    'passPlay.yourHand': 'Your Hand:',
+    'passPlay.youAreEliminated': 'You are eliminated',
+    'passPlay.actionSubmitted': 'Action submitted!',
+
   },
   de: {
     // App
@@ -1838,6 +1859,27 @@ export const translations = {
 
     // Must play accomplice error
     'error.mustPlayAccomplice': 'Du musst den Komplizen spielen!',
+
+    // Pass & Play
+    'passPlay.online': 'Online',
+    'passPlay.passAndPlay': 'Pass & Play',
+    'passPlay.passDeviceTo': 'Gib das Ger\u00e4t an',
+    'passPlay.onlyPlayerLooking': 'Nur {name} sollte hinschauen!',
+    'passPlay.reveal': 'Aufdecken',
+    'passPlay.donePassDevice': 'Fertig \u2014 Ger\u00e4t weitergeben',
+    'passPlay.enterPlayerName': 'Spielername eingeben',
+    'passPlay.addPlayer': 'Spieler hinzuf\u00fcgen',
+    'passPlay.removePlayer': 'Entfernen',
+    'passPlay.addFailed': 'Spieler konnte nicht hinzugef\u00fcgt werden',
+    'passPlay.drawCard': 'Ziehe eine Karte:',
+    'passPlay.drawFromDeck': 'Vom Stapel ziehen',
+    'passPlay.takeFaceUp': 'Nehmen',
+    'passPlay.tapCardToPlay': 'Tippe auf eine Karte, um sie auszuspielen',
+    'passPlay.yourTurn': 'Dein Zug!',
+    'passPlay.notYourTurn': 'Nicht dein Zug',
+    'passPlay.yourHand': 'Deine Hand:',
+    'passPlay.youAreEliminated': 'Du bist ausgeschieden',
+    'passPlay.actionSubmitted': 'Aktion eingereicht!',
 
   }
 };

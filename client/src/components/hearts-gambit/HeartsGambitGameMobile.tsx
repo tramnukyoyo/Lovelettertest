@@ -21,10 +21,14 @@ import MobileGameMenu from './MobileGameMenu';
 import MobileChatDrawer from './MobileChatDrawer';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 import { VictoryScreen } from './VictoryScreen';
+import PassPlayToggle from '../lobby/PassPlayToggle';
+import { usePassPlay } from '../../hooks/usePassPlay';
 
 interface HeartsGambitGameMobileProps {
   lobby: Lobby;
   socket: Socket;
+  ppActivePlayerId?: string;
+  ppActionHandler?: (action: string, payload?: any) => void;
 }
 
 type DiscardKind = 'play' | 'forced-discard';
@@ -51,7 +55,8 @@ type DiscardEvent = {
  * - HUD Layer (z-10): Turn indicator, Menu
  * - Sheet Layer (z-20): Case File (Hand + Actions)
  */
-const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, socket }) => {
+const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, socket, ppActivePlayerId, ppActionHandler }) => {
+  const isPP = !!ppActivePlayerId;
   // Game state
   const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
@@ -110,11 +115,23 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
+  const pp = usePassPlay({
+    roomCode: lobby.code,
+    players: lobby.players,
+    passPlay: lobby.passPlay,
+    settings: lobby.settings,
+    socket,
+  });
+
   // Derived game state
-  const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
+  const me = ppActivePlayerId
+    ? lobby.players.find(p => p.id === ppActivePlayerId)
+    : lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
   const otherPlayers = lobby.players.filter(p => p.id !== me?.id);
+  // Server already masks opponent hands correctly in serializeRoom (sends 0 for hidden, real values for Butler-revealed)
+  const displayOtherPlayers = otherPlayers;
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
   const amEliminated = me?.isEliminated || false;
   const waitingToDraw = isMyTurn && lobby.gameData?.turnPhase === 'draw';
@@ -279,14 +296,22 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     resetPlayState();
 
     setTimeout(() => {
-      socket.emit('play:card', {
-        card: cardToPlay,
-        targetId: targetToSend,
-        guess: guessToSend
-      });
+      if (ppActionHandler) {
+        ppActionHandler('play-card', {
+          cardIndex: selectedCardIndex,
+          targetPlayerId: targetToSend,
+          guess: guessToSend,
+        });
+      } else {
+        socket.emit('play:card', {
+          card: cardToPlay,
+          targetId: targetToSend,
+          guess: guessToSend
+        });
+      }
       setPlayingCard(null);
     }, 400);
-  }, [selectedCardIndex, myHand, targetId, guessCard, allOpponentsProtected, me, socket, resetPlayState]);
+  }, [selectedCardIndex, myHand, targetId, guessCard, allOpponentsProtected, me, socket, resetPlayState, ppActionHandler]);
 
   // Get available targets for current card
   const availableTargets = otherPlayers.filter(p => {
@@ -406,11 +431,28 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       {/* HUD Layer - Minimal Top bar with hamburger menu */}
       <div className="hg-mobile-header-area bg-[rgba(0,0,0,0.6)] backdrop-blur-sm px-3 py-2 flex items-center justify-between safe-top border-b border-[rgba(var(--accent-color-rgb),0.15)]">
         <div className="flex items-center gap-2">
-          <motion.span
-            className="bg-[var(--royal-crimson)] text-[var(--parchment)] text-xs font-black px-2 py-1 rounded-full"
-          >
-            {t('game.tokens').replace('{count}', String(me?.tokens || 0))}
-          </motion.span>
+          {isPP ? (
+            <div className="flex items-center gap-1 flex-wrap">
+              {lobby.players.filter(p => !p.isEliminated).map(p => (
+                <span
+                  key={p.id}
+                  className={`text-[var(--parchment)] text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                    p.id === me?.id
+                      ? 'bg-[var(--royal-crimson)]'
+                      : 'bg-[rgba(255,255,255,0.12)]'
+                  }`}
+                >
+                  {p.name}: {p.tokens || 0}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <motion.span
+              className="bg-[var(--royal-crimson)] text-[var(--parchment)] text-xs font-black px-2 py-1 rounded-full"
+            >
+              {t('game.tokens').replace('{count}', String(me?.tokens || 0))}
+            </motion.span>
+          )}
 
           {isMyTurn && !amEliminated && (
             <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-2 py-1 rounded-full text-xs font-bold animate-pulse">
@@ -425,27 +467,27 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           )}
         </div>
 
-        {/* Hamburger Menu - replaces individual buttons */}
+        {/* Hamburger Menu */}
         <MobileGameMenu
-          roomCode={lobby.code || 'N/A'}
-          onCopyLink={copyRoomLink}
-          linkCopied={copyFeedback}
-          onLeave={() => {
-            if (confirm('Are you sure you want to leave the room?')) {
-              socket.emit('player:leave', {});
-              window.location.href = '/primesuspect/heartsgambit/';
-            }
-          }}
-          onHowToPlay={() => setIsTutorialOpen(true)}
-          onCardLegend={() => setIsLegendOpen(true)}
-          onRules={() => setIsRulesOpen(true)}
-          onChat={() => setIsChatOpen(true)}
-          unreadCount={unreadChatCount}
-          playerCount={`${lobby.players.length}/4`}
-          onReturnToLobby={me?.isHost ? () => {
-            socket.emit('game:backToLobby', { roomCode: lobby.code });
-          } : undefined}
-        />
+            roomCode={lobby.code || 'N/A'}
+            onCopyLink={copyRoomLink}
+            linkCopied={copyFeedback}
+            onLeave={() => {
+              if (confirm('Are you sure you want to leave the room?')) {
+                socket.emit('player:leave', {});
+                window.location.href = '/primesuspect/heartsgambit/';
+              }
+            }}
+            onHowToPlay={() => setIsTutorialOpen(true)}
+            onCardLegend={() => setIsLegendOpen(true)}
+            onRules={() => setIsRulesOpen(true)}
+            onChat={() => setIsChatOpen(true)}
+            unreadCount={unreadChatCount}
+            playerCount={`${lobby.players.length}/4`}
+            onReturnToLobby={me?.isHost ? () => {
+              socket.emit('game:backToLobby', { roomCode: lobby.code });
+            } : undefined}
+          />
       </div>
 
       {/* Board Layer - Main content */}
@@ -453,7 +495,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         {/* Opponents strip */}
         <div className="hg-mobile-opponent-area overflow-hidden">
           <MobileOpponentStrip
-            players={otherPlayers}
+            players={displayOtherPlayers}
             currentTurnId={lobby.gameData?.currentTurn ?? undefined}
             selectedCard={selectedCard}
             targetId={targetId}
@@ -508,7 +550,11 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               onClick={() => {
                 if (waitingToDraw) {
                   playDrawSound();
-                  socket.emit('player:draw', {});
+                  if (ppActionHandler) {
+                    ppActionHandler('draw', { source: 'deck' });
+                  } else {
+                    socket.emit('player:draw', {});
+                  }
                 }
               }}
               className={`relative hg-mobile-deck-card ${
@@ -567,8 +613,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
       </div>
 
-      {/* Waiting overlay - FIXED to cover full screen */}
-      {lobby.state === 'LOBBY' && (
+      {/* Waiting overlay - FIXED to cover full screen (never shown in PP mode) */}
+      {lobby.state === 'LOBBY' && !isPP && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-4 z-[100] backdrop-blur-sm">
           <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
           <p className="text-sm text-[var(--parchment-dark)]">
@@ -594,6 +640,17 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           {copyFeedback && (
             <p className="text-xs text-green-400">{t('lobby.inviteLinkCopied')}</p>
           )}
+
+          {/* Pass & Play Toggle */}
+          <PassPlayToggle
+            isPassPlay={pp.isPassPlay}
+            isHost={!!me?.isHost}
+            players={lobby.players}
+            maxPlayers={lobby.settings.maxPlayers}
+            onToggleMode={pp.toggleMode}
+            onAddPlayer={pp.addPlayer}
+            onRemovePlayer={pp.removePlayer}
+          />
 
           {me?.isHost ? (
             <button
@@ -965,14 +1022,16 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         onClose={() => setIsTutorialOpen(false)}
       />
 
-      {/* Chat Drawer */}
-      <MobileChatDrawer
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        messages={chatMessages}
-        socket={socket}
-        mySocketId={lobby.mySocketId}
-      />
+      {/* Chat Drawer - hide in PP */}
+      {!isPP && (
+        <MobileChatDrawer
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          messages={chatMessages}
+          socket={socket}
+          mySocketId={lobby.mySocketId}
+        />
+      )}
 
     </div>
   );
