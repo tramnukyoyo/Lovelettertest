@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
  * Updates on window resize.
  */
 export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
 
   useEffect(() => {
     const checkIsMobile = () => {
