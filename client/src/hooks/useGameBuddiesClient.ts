@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Socket } from 'socket.io-client';
 import socketService from '../services/socketService';
 import {
@@ -20,6 +20,11 @@ import type {
 } from '../types';
 
 type LobbyUpdater = (prev: Lobby | null) => Lobby | null;
+
+const GB_HOST_LAUNCH_DELAY_MS = 0;
+const GB_PLAYER_LAUNCH_DELAY_MS = 350;
+const GB_PLAYER_RETRY_DELAY_MS = 700;
+const GB_PLAYER_MAX_JOIN_RETRIES = 8;
 
 export interface RegisterGameEventsHelpers {
   setLobbyState: (lobby: Lobby) => void;
@@ -90,6 +95,9 @@ export function useGameBuddiesClient(
 
   const isReconnecting = useRef(false);
   const timeoutRefs = useRef<Array<ReturnType<typeof setTimeout>>>([]);
+  const pendingLaunchSessionRef = useRef<GameBuddiesSession | null>(null);
+  const playerJoinRetryCountRef = useRef(0);
+  const launchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const addTimeout = useCallback((callback: () => void, delay: number) => {
     const id = setTimeout(callback, delay);
@@ -97,10 +105,18 @@ export function useGameBuddiesClient(
     return id;
   }, []);
 
+  const clearPendingLaunchTimer = useCallback(() => {
+    if (launchTimerRef.current) {
+      clearTimeout(launchTimerRef.current);
+      launchTimerRef.current = null;
+    }
+  }, []);
+
   const clearAllTimeouts = useCallback(() => {
     timeoutRefs.current.forEach(clearTimeout);
     timeoutRefs.current = [];
-  }, []);
+    clearPendingLaunchTimer();
+  }, [clearPendingLaunchTimer]);
 
   const setLobbyState = useCallback((nextLobby: Lobby) => {
     setLobby(nextLobby);
@@ -188,6 +204,36 @@ export function useGameBuddiesClient(
       guestUserId: localStorage.getItem('gb_guestUserId') || undefined,
     });
   }, []);
+
+  const scheduleGameBuddiesLaunch = useCallback((
+    session: GameBuddiesSession,
+    attempt: number
+  ) => {
+    clearPendingLaunchTimer();
+    pendingLaunchSessionRef.current = session;
+    playerJoinRetryCountRef.current = session.isHost ? 0 : attempt;
+
+    const delay = session.isHost
+      ? GB_HOST_LAUNCH_DELAY_MS
+      : attempt === 0
+        ? GB_PLAYER_LAUNCH_DELAY_MS
+        : GB_PLAYER_RETRY_DELAY_MS;
+
+    launchTimerRef.current = setTimeout(() => {
+      if (session.isHost) {
+        createRoom(
+          session.playerName || 'Host',
+          session,
+          session.isStreamerMode || session.hideRoomCode || false
+        );
+        return;
+      }
+
+      if (session.playerName) {
+        joinRoom(session.roomCode, session.playerName, session);
+      }
+    }, delay);
+  }, [clearPendingLaunchTimer, createRoom, joinRoom]);
 
   const handleReconnection = useCallback((token: string): Promise<boolean> => {
     const socket = socketService.getSocket();
@@ -283,16 +329,46 @@ export function useGameBuddiesClient(
       if (session) {
         setGameBuddiesSession(session);
         if (session.isHost) {
-          addTimeout(() => createRoom(session.playerName || 'Host', session, session.isStreamerMode || session.hideRoomCode || false), 100);
+          const samePendingLaunch =
+            pendingLaunchSessionRef.current?.sessionToken === session.sessionToken &&
+            pendingLaunchSessionRef.current?.roomCode === session.roomCode &&
+            pendingLaunchSessionRef.current?.playerId === session.playerId &&
+            pendingLaunchSessionRef.current?.isHost === session.isHost;
+
+          if (!samePendingLaunch) {
+            playerJoinRetryCountRef.current = 0;
+          }
+
+          if (!samePendingLaunch || !launchTimerRef.current) {
+            scheduleGameBuddiesLaunch(session, playerJoinRetryCountRef.current);
+          }
         } else if (session.playerName) {
-          addTimeout(() => joinRoom(session.roomCode, session.playerName!, session), 100);
+          const samePendingLaunch =
+            pendingLaunchSessionRef.current?.sessionToken === session.sessionToken &&
+            pendingLaunchSessionRef.current?.roomCode === session.roomCode &&
+            pendingLaunchSessionRef.current?.playerId === session.playerId &&
+            pendingLaunchSessionRef.current?.isHost === session.isHost;
+
+          if (!samePendingLaunch) {
+            playerJoinRetryCountRef.current = 0;
+          }
+
+          if (!samePendingLaunch || !launchTimerRef.current) {
+            scheduleGameBuddiesLaunch(session, playerJoinRetryCountRef.current);
+          }
         }
       }
     };
 
-    const onDisconnect = () => setIsConnected(false);
+    const onDisconnect = () => {
+      clearPendingLaunchTimer();
+      setIsConnected(false);
+    };
 
     const onRoomCreated = (data: { room: Lobby; sessionToken?: string; guestUserId?: string }) => {
+      clearPendingLaunchTimer();
+      pendingLaunchSessionRef.current = null;
+      playerJoinRetryCountRef.current = 0;
       setLobbyState(data.room);
       setError('');
       if (data.sessionToken) {
@@ -307,6 +383,9 @@ export function useGameBuddiesClient(
     };
 
     const onRoomJoined = (data: { room: Lobby; sessionToken?: string; guestUserId?: string }) => {
+      clearPendingLaunchTimer();
+      pendingLaunchSessionRef.current = null;
+      playerJoinRetryCountRef.current = 0;
       setLobbyState(data.room);
       setError('');
       if (data.sessionToken) {
@@ -349,10 +428,29 @@ export function useGameBuddiesClient(
 
     const onChatMessage = (message: ChatMessage) => pushChatMessage(message);
 
-    const onError = (data: { message: string }) => setError(data.message);
+    const onError = (data: { message: string; code?: string }) => {
+      const pendingSession = pendingLaunchSessionRef.current;
+      const shouldRetryJoin =
+        !!pendingSession &&
+        !pendingSession.isHost &&
+        (data.code === 'ROOM_NOT_FOUND' || data.message === 'Room not found');
+
+      if (shouldRetryJoin && playerJoinRetryCountRef.current < GB_PLAYER_MAX_JOIN_RETRIES) {
+        const nextAttempt = playerJoinRetryCountRef.current + 1;
+        setError('');
+        scheduleGameBuddiesLaunch(pendingSession, nextAttempt);
+        return;
+      }
+
+      clearPendingLaunchTimer();
+      pendingLaunchSessionRef.current = null;
+      setError(data.message);
+    };
 
     const onKicked = (data: { message: string }) => {
       console.log('[KICK-CLIENT] ===== RECEIVED player:kicked =====');
+      clearPendingLaunchTimer();
+      pendingLaunchSessionRef.current = null;
       clearSession();
       socketService.clearReconnectionData();
       sessionStorage.removeItem('gameSessionToken');
@@ -431,11 +529,13 @@ export function useGameBuddiesClient(
   }, [
     addTimeout,
     clearAllTimeouts,
+    clearPendingLaunchTimer,
     createRoom,
     joinRoom,
     patchLobby,
     persistReconnectionData,
     pushChatMessage,
+    scheduleGameBuddiesLaunch,
     setLobbyState,
     handleReconnection,
   ]);
