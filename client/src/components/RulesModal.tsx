@@ -40,6 +40,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
   return createPortal(
     <div
       className="settings-modal"
+      data-broadcast-mirror-portal="rules"
       role="dialog"
       aria-modal="true"
       aria-labelledby="rules-modal-title"
@@ -67,7 +68,10 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
           </button>
         </div>
 
-        <div className="settings-modal-content rules-content">
+        <div
+          className="settings-modal-content rules-content"
+          data-mirror-scroll-region="rules-content"
+        >
           {/* The Case */}
           <div className="rules-section">
             <div className="rules-section-title">The Case</div>

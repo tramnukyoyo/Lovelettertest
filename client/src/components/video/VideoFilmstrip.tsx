@@ -3,20 +3,15 @@
  *
  * Horizontal strip of video feeds at the bottom of the screen.
  * Collapsible to save screen space.
- * Includes popout functionality for separate video window.
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
 import { useWebRTC } from './adapters';
 import { useVideoUI } from './adapters';
 import WebcamDisplay from './WebcamDisplay';
-import EnhancedPopupContent from './EnhancedPopupContent';
 import type { WebcamPlayer } from './adapters';
 import type { Team } from './adapters';
-import { GAME_META } from './adapters';
 
 // Filmstrip resize constants
 const MIN_HEIGHT = 80;
@@ -52,7 +47,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
   mySocketId
 }) => {
   const { localStream, remoteStreams, isVideoEnabled, isVideoPrepairing } = useWebRTC();
-  const { isFilmstripExpanded, toggleFilmstrip, isPopupOpen, setPopupOpen, setOnPopupRequested } = useVideoUI();
+  const { isFilmstripExpanded, toggleFilmstrip, isStreamerBroadcastOpen } = useVideoUI();
 
   // Helper to get player's team color
   const getPlayerTeamColor = (playerId: string): string | undefined => {
@@ -83,11 +78,6 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
     console.log('[VideoFilmstrip] Render - isVideoEnabled:', isVideoEnabled, 'isVideoPrepairing:', isVideoPrepairing, 'localStream:', !!localStream, 'players:', players.length);
   }
 
-  // Popout window state
-  const [popoutWindow, setPopoutWindow] = useState<Window | null>(null);
-  const [popoutContainer, setPopoutContainer] = useState<HTMLElement | null>(null);
-  const silentAudioRef = useRef<{ audioContext: AudioContext; oscillator: OscillatorNode } | null>(null);
-
   // Filmstrip resize state
   const [filmstripHeight, setFilmstripHeight] = useState(() => {
     const saved = localStorage.getItem('filmstrip-height');
@@ -100,34 +90,6 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
   const getStreamForPlayer = (playerId: string): MediaStream | null => {
     return remoteStreams.get(playerId) || null;
   };
-
-  // Start silent audio loop to prevent browser throttling
-  const startSilentAudio = useCallback((_targetWindow: Window) => {
-    try {
-      const audioContext = new AudioContext();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      // Silent (gain = 0)
-      gainNode.gain.value = 0;
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      oscillator.start();
-
-      silentAudioRef.current = { audioContext, oscillator };
-    } catch (e) {
-      console.warn('[VideoFilmstrip] Could not start silent audio:', e);
-    }
-  }, []);
-
-  // Stop silent audio
-  const stopSilentAudio = useCallback(() => {
-    if (silentAudioRef.current) {
-      silentAudioRef.current.oscillator.stop();
-      silentAudioRef.current.audioContext.close();
-      silentAudioRef.current = null;
-    }
-  }, []);
 
   // Handle filmstrip resize
   const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -179,156 +141,13 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
     };
   }, [isResizing]);
 
-  // Open popout window
-  const openPopout = useCallback(() => {
-    if (popoutWindow && !popoutWindow.closed) {
-      popoutWindow.focus();
-      return;
-    }
-
-    const width = 1200;
-    const height = 800;
-    const left = Math.max(0, (screen.width - width) / 2);
-    const top = Math.max(0, (screen.height - height) / 2);
-
-    const newWindow = window.open(
-      '',
-      'VideoChatWindow',
-      `width=${width},height=${height},left=${left},top=${top},resizable=yes,toolbar=no,menubar=no,scrollbars=no`
-    );
-
-    if (!newWindow) {
-      console.error('[VideoFilmstrip] Failed to open popout window (popup blocked?)');
-      return;
-    }
-
-    // Write HTML structure
-    newWindow.document.open();
-    newWindow.document.write(`
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${GAME_META.namePrefix}${GAME_META.nameAccent} - Video Chat</title>
-  <style>
-    :root {
-      --accent-color: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-color') || '#00d9ff'};
-      --accent-color-rgb: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-color-rgb') || '0, 217, 255'};
-      --accent-primary: var(--accent-color);
-      --accent-primary-rgb: var(--accent-color-rgb);
-      --panel-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--panel-bg') || '#1a1a2e'};
-      --panel-border: ${getComputedStyle(document.documentElement).getPropertyValue('--panel-border') || '#2d2d44'};
-      --text-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#ffffff'};
-      --text-muted: ${getComputedStyle(document.documentElement).getPropertyValue('--text-muted') || '#8b8b9e'};
-      --hover-bg: ${getComputedStyle(document.documentElement).getPropertyValue('--hover-bg') || 'rgba(255,255,255,0.05)'};
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
-      color: var(--text-primary);
-      min-height: 100vh;
-    }
-    #webcam-popout-root {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    /* Inline popup icon styles - render before copied stylesheets load */
-    .popup-control-btn, .popup-layout-btn, .popup-close-btn {
-      display: flex; align-items: center; justify-content: center;
-      background: transparent; border: none; cursor: pointer;
-    }
-    .popup-control-btn { width: 36px; height: 36px; border-radius: 8px; color: #fff; }
-    .popup-layout-btn { width: 32px; height: 32px; border-radius: 6px; color: #8b8b9e; }
-    .popup-close-btn { width: 36px; height: 36px; border-radius: 8px; color: #8b8b9e; }
-    .popup-control-btn svg, .popup-layout-btn svg, .popup-close-btn svg {
-      width: 16px; height: 16px;
-    }
-    .popup-control-btn.off { background: rgba(239,68,68,0.2); color: #ef4444; }
-    .popup-control-btn.leave { background: rgba(239,68,68,0.2); color: #ef4444; }
-  </style>
-</head>
-<body>
-  <div id="webcam-popout-root"></div>
-</body>
-</html>
-    `);
-    newWindow.document.close();
-
-    // Copy data-theme from parent for game-specific CSS
-    const parentTheme = document.documentElement.getAttribute('data-theme');
-    if (parentTheme) {
-      newWindow.document.documentElement.setAttribute('data-theme', parentTheme);
-    }
-
-    // Copy parent styles
-    const parentStyles = document.querySelectorAll('style, link[rel="stylesheet"]');
-    parentStyles.forEach(style => {
-      try {
-        const clone = style.cloneNode(true);
-        newWindow.document.head.appendChild(clone);
-      } catch (e) {
-        // Ignore cross-origin stylesheet errors
-      }
-    });
-
-    console.log('[VideoPopout] Copied', parentStyles.length, 'stylesheets to popup');
-    console.log('[VideoPopout] data-theme:', newWindow.document.documentElement.getAttribute('data-theme'));
-
-    // Get container for portal
-    const container = newWindow.document.getElementById('webcam-popout-root');
-    if (container) {
-      setPopoutContainer(container);
-      setPopoutWindow(newWindow);
-      setPopupOpen(true);
-      startSilentAudio(newWindow);
-    }
-
-    // Handle window close
-    newWindow.onbeforeunload = () => {
-      setPopoutWindow(null);
-      setPopoutContainer(null);
-      setPopupOpen(false);
-      stopSilentAudio();
-    };
-  }, [popoutWindow, setPopupOpen, startSilentAudio, stopSilentAudio]);
-
-  // Close popout window
-  const closePopout = useCallback(() => {
-    if (popoutWindow && !popoutWindow.closed) {
-      popoutWindow.close();
-    }
-    setPopoutWindow(null);
-    setPopoutContainer(null);
-    setPopupOpen(false);
-    stopSilentAudio();
-  }, [popoutWindow, setPopupOpen, stopSilentAudio]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (popoutWindow && !popoutWindow.closed) {
-        popoutWindow.close();
-      }
-      stopSilentAudio();
-    };
-  }, [popoutWindow, stopSilentAudio]);
-
-  // Register openPopout with context so keyboard shortcuts can trigger it
-  useEffect(() => {
-    setOnPopupRequested(() => openPopout);
-    return () => setOnPopupRequested(null);
-  }, [openPopout, setOnPopupRequested]);
-
   // Set CSS variable for filmstrip safe space (so content doesn't clip under filmstrip)
   useEffect(() => {
     const safeSpace = isFilmstripExpanded
       ? filmstripHeight
-      : (isPopupOpen ? 0 : COLLAPSED_SAFE_SPACE);
+      : (isStreamerBroadcastOpen ? 0 : COLLAPSED_SAFE_SPACE);
 
-    const showFilmstrip = isVideoEnabled && !isPopupOpen;
+    const showFilmstrip = isVideoEnabled && !isStreamerBroadcastOpen;
     document.documentElement.classList.toggle('has-filmstrip', showFilmstrip);
     document.documentElement.style.setProperty(
       '--filmstrip-safe-space',
@@ -339,7 +158,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
       document.documentElement.classList.remove('has-filmstrip');
       document.documentElement.style.setProperty('--filmstrip-safe-space', '0px');
     };
-  }, [isFilmstripExpanded, filmstripHeight, isVideoEnabled, isPopupOpen]);
+  }, [isFilmstripExpanded, filmstripHeight, isVideoEnabled, isStreamerBroadcastOpen]);
 
   // Hide filmstrip until video is active or preparing
   if (!isVideoEnabled && !isVideoPrepairing) {
@@ -349,25 +168,8 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
     return null;
   }
 
-  // Hide filmstrip when popout is open
-  if (isPopupOpen) {
-    return (
-      <>
-        {/* Only render the portal when popout is open */}
-        {popoutContainer && popoutWindow && !popoutWindow.closed && createPortal(
-          <EnhancedPopupContent
-            key="video-popup-portal"
-            roomCode={roomCode}
-            players={players}
-            localPlayerName={localPlayerName}
-            onClose={closePopout}
-            teams={teams}
-            mySocketId={mySocketId}
-          />,
-          popoutContainer
-        )}
-      </>
-    );
+  if (isStreamerBroadcastOpen) {
+    return null;
   }
 
   if (!isFilmstripExpanded) {
@@ -400,15 +202,6 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
           onDoubleClick={toggleFilmstrip}
           title="Drag to resize, double-click to collapse"
         />
-
-        {/* Popout button */}
-        <button
-          className="filmstrip-popout-btn"
-          onClick={openPopout}
-          title="Pop out video (P)"
-        >
-          <ExternalLink size={14} />
-        </button>
 
         {/* Video feeds */}
         <div className="video-filmstrip-feeds">
@@ -455,20 +248,6 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
           )}
         </div>
       </motion.div>
-
-      {/* Popout Portal */}
-      {popoutContainer && popoutWindow && !popoutWindow.closed && createPortal(
-        <EnhancedPopupContent
-          key={`popup-${remoteStreams.size}-${Array.from(remoteStreams.keys()).join(',')}`}
-          roomCode={roomCode}
-          players={players}
-          localPlayerName={localPlayerName}
-          onClose={closePopout}
-          teams={teams}
-          mySocketId={mySocketId}
-        />,
-        popoutContainer
-      )}
     </>
   );
 };

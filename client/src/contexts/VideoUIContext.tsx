@@ -1,3 +1,10 @@
+/**
+ * Video UI Context
+ *
+ * Manages video-related UI state like filmstrip expansion,
+ * settings modal, popup window state, and streamer broadcast window.
+ */
+
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 
@@ -12,15 +19,12 @@ interface VideoUIContextState {
   openSettings: () => void;
   closeSettings: () => void;
 
-  // Popup window state
-  isPopupOpen: boolean;
-  requestPopup: () => void;
-  closePopup: () => void;
-  setPopupOpen: (open: boolean) => void;
-
-  // Popup request callback (set by WebcamDisplay)
-  onPopupRequested: (() => void) | null;
-  setOnPopupRequested: (callback: (() => void) | null) => void;
+  // Streamer broadcast window state
+  isStreamerBroadcastOpen: boolean;
+  setStreamerBroadcastOpen: (open: boolean) => void;
+  requestStreamerBroadcast: () => void;
+  onBroadcastRequested: (() => void) | null;
+  setOnBroadcastRequested: (callback: (() => void) | null) => void;
 }
 
 const VideoUIContext = createContext<VideoUIContextState | undefined>(undefined);
@@ -44,11 +48,9 @@ export const VideoUIProvider: React.FC<VideoUIProviderProps> = ({ children }) =>
   // Settings modal state
   const [isSettingsOpen, setSettingsOpen] = useState(false);
 
-  // Popup window state
-  const [isPopupOpen, setPopupOpen] = useState(false);
-
-  // Callback for popup request (set by WebcamDisplay)
-  const [onPopupRequested, setOnPopupRequested] = useState<(() => void) | null>(null);
+  // Streamer broadcast window state
+  const [isStreamerBroadcastOpen, setStreamerBroadcastOpen] = useState(false);
+  const [onBroadcastRequested, setOnBroadcastRequested] = useState<(() => void) | null>(null);
 
   const toggleFilmstrip = useCallback(() => {
     setFilmstripExpanded(prev => !prev);
@@ -62,15 +64,11 @@ export const VideoUIProvider: React.FC<VideoUIProviderProps> = ({ children }) =>
     setSettingsOpen(false);
   }, []);
 
-  const requestPopup = useCallback(() => {
-    if (onPopupRequested) {
-      onPopupRequested();
+  const requestStreamerBroadcast = useCallback(() => {
+    if (onBroadcastRequested) {
+      onBroadcastRequested();
     }
-  }, [onPopupRequested]);
-
-  const closePopup = useCallback(() => {
-    setPopupOpen(false);
-  }, []);
+  }, [onBroadcastRequested]);
 
   const contextValue = useMemo<VideoUIContextState>(() => ({
     isFilmstripExpanded,
@@ -79,22 +77,20 @@ export const VideoUIProvider: React.FC<VideoUIProviderProps> = ({ children }) =>
     isSettingsOpen,
     openSettings,
     closeSettings,
-    isPopupOpen,
-    requestPopup,
-    closePopup,
-    setPopupOpen,
-    onPopupRequested,
-    setOnPopupRequested
+    isStreamerBroadcastOpen,
+    setStreamerBroadcastOpen,
+    requestStreamerBroadcast,
+    onBroadcastRequested,
+    setOnBroadcastRequested
   }), [
     isFilmstripExpanded,
     toggleFilmstrip,
     isSettingsOpen,
     openSettings,
     closeSettings,
-    isPopupOpen,
-    requestPopup,
-    closePopup,
-    onPopupRequested
+    isStreamerBroadcastOpen,
+    requestStreamerBroadcast,
+    onBroadcastRequested
   ]);
 
   return (

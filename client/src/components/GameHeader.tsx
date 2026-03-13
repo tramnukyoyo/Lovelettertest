@@ -202,7 +202,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
             isAudioEnabled={webrtc.isAudioEnabled}
             onToggleAudio={webrtc.toggleAudio}
             onOpenSettings={videoUI.openSettings}
-            onOpenPopout={videoUI.requestPopup}
+            onOpenBroadcast={videoUI.requestStreamerBroadcast}
           />
 
           {/* Divider between video controls and other controls */}

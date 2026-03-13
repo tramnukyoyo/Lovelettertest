@@ -23,6 +23,7 @@ import {
   DEFAULT_VIRTUAL_BACKGROUND_CONFIG,
   DEFAULT_BACKGROUNDS
 } from './adapters';
+import { getBroadcastCopy } from './broadcastCopy';
 
 type TabId = 'devices' | 'background' | 'audio' | 'avatar';
 
@@ -40,6 +41,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
   onConfirm,
   mode = 'setup'
 }) => {
+  const copy = getBroadcastCopy();
   const {
     localStream,
     availableDevices,
@@ -305,13 +307,13 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
   const microphones = availableDevices.filter(d => d.kind === 'audioinput');
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: 'devices', label: 'Devices', icon: <Monitor className="w-4 h-4" /> },
-    { id: 'background', label: 'Background', icon: <Image className="w-4 h-4" /> },
-    { id: 'audio', label: 'Audio', icon: <Volume2 className="w-4 h-4" /> },
+    { id: 'devices', label: copy.deviceSettings.devices, icon: <Monitor className="w-4 h-4" /> },
+    { id: 'background', label: copy.deviceSettings.background, icon: <Image className="w-4 h-4" /> },
+    { id: 'audio', label: copy.deviceSettings.audio, icon: <Volume2 className="w-4 h-4" /> },
   ];
 
   if (showAvatarTab) {
-    tabs.push({ id: 'avatar', label: 'Avatar', icon: <User className="w-4 h-4" /> });
+    tabs.push({ id: 'avatar', label: copy.deviceSettings.avatar, icon: <User className="w-4 h-4" /> });
   }
 
   // Use portal to render at document.body level, escaping any stacking context issues
@@ -322,8 +324,8 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
         <div className="device-settings-header">
           <h2>
             {isMobile
-              ? (mode === 'setup' ? 'Camera Setup' : 'Camera Settings')
-              : (mode === 'setup' ? 'Join Video Chat' : 'Video Settings')
+              ? (mode === 'setup' ? copy.deviceSettings.cameraSetup : copy.deviceSettings.cameraSettings)
+              : (mode === 'setup' ? copy.deviceSettings.joinVideoChat : copy.deviceSettings.videoSettings)
             }
           </h2>
           <button className="device-settings-close" onClick={onClose}>
@@ -350,19 +352,19 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
           {joinCameraOff && (
             <div className="camera-off-overlay">
               <VideoOff className="w-8 h-8" />
-              <span>Camera Off</span>
+              <span>{copy.deviceSettings.cameraOff}</span>
             </div>
           )}
           {isVbLoading && !joinCameraOff && (
             <div className="virtual-bg-loading">
               <div className="vb-loading-spinner" />
-              <span>Loading virtual background...</span>
+              <span>{copy.deviceSettings.loadingVirtualBackground}</span>
             </div>
           )}
           {virtualBgEnabled && !joinCameraOff && !isVbLoading && (
             <div className="virtual-bg-badge">
               <Sparkles className="w-3 h-3" />
-              <span>Virtual BG Active</span>
+              <span>{copy.deviceSettings.virtualBackgroundActive}</span>
             </div>
           )}
         </div>
@@ -392,18 +394,18 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               <div className="device-setting-row">
                 <label>
                   <Video className="w-4 h-4" />
-                  Camera
+                  {copy.deviceSettings.camera}
                 </label>
                 <select
                   value={selectedCameraId || ''}
                   onChange={e => setSelectedCamera(e.target.value)}
                 >
                   {cameras.length === 0 && (
-                    <option value="">No cameras found</option>
+                    <option value="">{copy.deviceSettings.noCamerasFound}</option>
                   )}
                   {cameras.map(cam => (
                     <option key={cam.deviceId} value={cam.deviceId}>
-                      {cam.label || `Camera ${cam.deviceId.slice(0, 8)}`}
+                      {cam.label || `${copy.deviceSettings.camera} ${cam.deviceId.slice(0, 8)}`}
                     </option>
                   ))}
                 </select>
@@ -413,18 +415,18 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               <div className="device-setting-row">
                 <label>
                   <Mic className="w-4 h-4" />
-                  Microphone
+                  {copy.deviceSettings.microphone}
                 </label>
                 <select
                   value={selectedMicrophoneId || ''}
                   onChange={e => setSelectedMicrophone(e.target.value)}
                 >
                   {microphones.length === 0 && (
-                    <option value="">No microphones found</option>
+                    <option value="">{copy.deviceSettings.noMicrophonesFound}</option>
                   )}
                   {microphones.map(mic => (
                     <option key={mic.deviceId} value={mic.deviceId}>
-                      {mic.label || `Microphone ${mic.deviceId.slice(0, 8)}`}
+                      {mic.label || `${copy.deviceSettings.microphone} ${mic.deviceId.slice(0, 8)}`}
                     </option>
                   ))}
                 </select>
@@ -434,7 +436,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               <div className={`device-setting-row audio-meter-row${joinMuted ? ' is-muted' : ''}`}>
                 <label>
                   {joinMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                  Audio Level
+                  {copy.deviceSettings.audioLevel}
                 </label>
                 <div className="audio-meter-bars">
                   {Array.from({ length: 12 }, (_, i) => {
@@ -462,7 +464,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   <span className="toggle-slider" />
                   <span className="toggle-label">
                     <MicOff className="w-4 h-4" />
-                    Join Muted
+                    {copy.deviceSettings.joinMuted}
                   </span>
                 </label>
 
@@ -475,7 +477,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   <span className="toggle-slider" />
                   <span className="toggle-label">
                     <VideoOff className="w-4 h-4" />
-                    Join with Camera Off
+                    {copy.deviceSettings.joinWithCameraOff}
                   </span>
                 </label>
               </div>
@@ -488,7 +490,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               {/* Browser compatibility check */}
               {!('MediaStreamTrackProcessor' in window) && (
                 <div className="background-info warning">
-                  <p>Virtual backgrounds require Chrome 108+ or a browser with Insertable Streams support.</p>
+                  <p>{copy.deviceSettings.virtualBackgroundBrowserSupport}</p>
                 </div>
               )}
 
@@ -503,7 +505,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 <span className="toggle-slider" />
                 <span className="toggle-label">
                   <Sparkles className="w-4 h-4" />
-                  Enable Virtual Background
+                  {copy.deviceSettings.enableVirtualBackground}
                 </span>
               </label>
 
@@ -516,7 +518,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                       onClick={() => setVirtualBgType('blur')}
                     >
                       <div className="blur-preview" />
-                      <span>Blur</span>
+                      <span>{copy.deviceSettings.blur}</span>
                     </button>
 
                     {/* Preset Backgrounds */}
@@ -536,7 +538,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   </div>
 
                   <div className="background-info info">
-                    <p>Virtual backgrounds use AI-powered segmentation to replace your background in real-time.</p>
+                    <p>{copy.deviceSettings.virtualBackgroundInfo}</p>
                   </div>
                 </>
               )}
@@ -556,7 +558,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 <span className="toggle-slider" />
                 <span className="toggle-label">
                   <Volume2 className="w-4 h-4" />
-                  AI Noise Suppression
+                  {copy.deviceSettings.noiseSuppression}
                 </span>
               </label>
 
@@ -565,7 +567,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   {/* Noise Threshold Slider */}
                   <div className="slider-setting">
                     <label>
-                      <span>Noise Threshold</span>
+                      <span>{copy.deviceSettings.noiseThreshold}</span>
                       <span className="slider-value">{noiseThreshold}%</span>
                     </label>
                     <input
@@ -576,13 +578,13 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                       onChange={e => setNoiseThreshold(parseInt(e.target.value, 10))}
                     />
                     <div className="slider-labels">
-                      <span>Sensitive</span>
-                      <span>Aggressive</span>
+                      <span>{copy.deviceSettings.sensitive}</span>
+                      <span>{copy.deviceSettings.aggressive}</span>
                     </div>
                   </div>
 
                   <div className="background-info success">
-                    <p>Reduces background noise like keyboard clicks, fans, and ambient sounds during video chat.</p>
+                    <p>{copy.deviceSettings.noiseSuppressionInfo}</p>
                   </div>
                 </>
               )}
@@ -602,7 +604,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 <span className="toggle-slider" />
                 <span className="toggle-label">
                   <User className="w-4 h-4" />
-                  3D Face Avatar
+                  {copy.deviceSettings.faceAvatar}
                 </span>
               </label>
 
@@ -611,10 +613,10 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   {/* Avatar Options */}
                   <div className="avatar-options">
                     {[
-                      { id: 'raccoon', emoji: '\u{1F99D}', label: 'Raccoon' },
-                      { id: 'robot', emoji: '\u{1F916}', label: 'Robot', soon: true },
-                      { id: 'alien', emoji: '\u{1F47D}', label: 'Alien', soon: true },
-                      { id: 'cat', emoji: '\u{1F431}', label: 'Cat', soon: true },
+                      { id: 'raccoon', emoji: '\u{1F99D}', label: copy.deviceSettings.raccoon },
+                      { id: 'robot', emoji: '\u{1F916}', label: copy.deviceSettings.robot, soon: true },
+                      { id: 'alien', emoji: '\u{1F47D}', label: copy.deviceSettings.alien, soon: true },
+                      { id: 'cat', emoji: '\u{1F431}', label: copy.deviceSettings.cat, soon: true },
                     ].map(avatar => (
                       <button
                         key={avatar.id}
@@ -624,13 +626,13 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                       >
                         <span className="avatar-emoji">{avatar.emoji}</span>
                         <span className="avatar-label">{avatar.label}</span>
-                        {avatar.soon && <span className="soon-badge">Soon</span>}
+                        {avatar.soon && <span className="soon-badge">{copy.deviceSettings.soon}</span>}
                       </button>
                     ))}
                   </div>
 
                   <div className="background-info experimental">
-                    <p>Your face movements control a 3D avatar using AI-powered face tracking. Your real face is never shown.</p>
+                    <p>{copy.deviceSettings.avatarInfo}</p>
                   </div>
                 </>
               )}
@@ -641,11 +643,11 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
         {/* Actions */}
         <div className="device-settings-actions">
           <button className="device-settings-cancel" onClick={onClose}>
-            {mode === 'setup' ? 'Cancel' : 'Close'}
+            {mode === 'setup' ? copy.deviceSettings.cancel : copy.deviceSettings.close}
           </button>
           <button className="device-settings-confirm" onClick={handleConfirm}>
             <Check className="w-4 h-4" />
-            {mode === 'setup' ? 'Join Video Chat' : 'Save Settings'}
+            {mode === 'setup' ? copy.deviceSettings.joinVideoChat : copy.deviceSettings.saveSettings}
           </button>
         </div>
       </div>

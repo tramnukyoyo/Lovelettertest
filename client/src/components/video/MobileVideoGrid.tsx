@@ -11,6 +11,7 @@ import { useWebRTC } from './adapters';
 import WebcamDisplay from './WebcamDisplay';
 import type { WebcamPlayer } from './adapters';
 import type { Team } from './adapters';
+import { getBroadcastCopy } from './broadcastCopy';
 
 interface MobileVideoGridProps {
   players: WebcamPlayer[];
@@ -33,6 +34,7 @@ const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
   teams = [],
   mySocketId
 }) => {
+  const copy = getBroadcastCopy();
   const {
     localStream,
     remoteStreams,
@@ -93,7 +95,7 @@ const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
       {localStream && (
         <div className="mobile-video-grid-item local">
           <WebcamDisplay
-            player={{ id: 'local', name: localPlayerName || 'You' }}
+            player={{ id: 'local', name: localPlayerName || copy.mobileGrid.you }}
             stream={localStream}
             isLocal
             size="medium"
@@ -121,7 +123,7 @@ const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
       {/* Hidden count indicator */}
       {hiddenCount > 0 && (
         <div className="mobile-video-grid-overflow">
-          <span>+{hiddenCount} more</span>
+          <span>+{hiddenCount} {copy.mobileGrid.more}</span>
         </div>
       )}
 
@@ -130,21 +132,21 @@ const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
         <button
           className={`mobile-video-control-btn ${!isAudioEnabled ? 'off' : ''}`}
           onClick={toggleAudio}
-          aria-label={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+          aria-label={isAudioEnabled ? copy.controls.muteMicrophone : copy.controls.unmuteMicrophone}
         >
           {isAudioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
         </button>
         <button
           className={`mobile-video-control-btn ${!isVideoEnabled ? 'off' : ''}`}
           onClick={toggleVideo}
-          aria-label={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+          aria-label={isVideoEnabled ? copy.controls.turnOffCamera : copy.controls.turnOnCamera}
         >
           {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
         </button>
         <button
           className="mobile-video-control-btn leave"
           onClick={onLeave}
-          aria-label="Leave video chat"
+          aria-label={copy.controls.leaveVideoChat}
         >
           <PhoneOff className="w-5 h-5" />
         </button>

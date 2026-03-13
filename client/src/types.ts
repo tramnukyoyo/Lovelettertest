@@ -88,7 +88,7 @@ export interface PrimeSuspectGameData {
   turnPhase: 'draw' | 'play';
   deckCount: number;
   faceUpCards: CardType[];
-  discardPile?: {
+  discardPile: {
     card: CardType;
     playerId: string;
     playerName: string;

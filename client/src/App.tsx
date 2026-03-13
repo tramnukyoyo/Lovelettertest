@@ -14,7 +14,7 @@ import { createGameAdapter } from './adapters/gameAdapter';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
 import GameHeader from './components/GameHeader';
-import { VideoFilmstrip, MobileVideoGrid, DeviceSettingsModal } from './components/video';
+import { VideoFilmstrip, MobileVideoGrid, DeviceSettingsModal, StreamerBroadcastWindow } from './components/video';
 import { useVideoKeyboardShortcuts } from './hooks/useVideoKeyboardShortcuts';
 import { useVideoPreferences } from './hooks/useVideoPreferences';
 import { backgroundMusic } from './utils/backgroundMusic';
@@ -462,6 +462,16 @@ function AppContent() {
                   mySocketId={socket?.id}
                 />
               </div>
+              {/* Streamer Broadcast Window - popup for OBS capture */}
+              {lobby && socket && (
+                <StreamerBroadcastWindow
+                  lobby={lobby}
+                  players={(lobby.players || []).map((p: any) => ({ ...p, id: p.socketId || p.id, name: p.name || p.playerName }))}
+                  localPlayerName={lobby.players?.find((p: any) => p.socketId === socket?.id)?.name}
+                  mySocketId={socket?.id}
+                  socket={socket}
+                />
+              )}
               <VideoHooksManager />
               <VideoSettingsManager />
             </VideoUIProvider>

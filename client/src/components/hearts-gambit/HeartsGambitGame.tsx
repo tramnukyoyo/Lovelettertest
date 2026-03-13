@@ -24,6 +24,7 @@ import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 interface HeartsGambitGameProps {
   lobby: Lobby;
   socket: Socket;
+  viewMode?: 'player' | 'broadcast';
 }
 
 type DiscardKind = 'play' | 'forced-discard';
@@ -64,6 +65,10 @@ const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1
 const HeartsGambitGame: React.FC<HeartsGambitGameProps> = (props) => {
   const isMobile = useIsMobile();
 
+  if (props.viewMode === 'broadcast') {
+    return <HeartsGambitGameDesktop {...props} />;
+  }
+
   if (isMobile) {
     return <HeartsGambitGameMobile {...props} />;
   }
@@ -75,7 +80,12 @@ const HeartsGambitGame: React.FC<HeartsGambitGameProps> = (props) => {
  * Desktop version of the HeartsGambit game.
  * This is the original full-featured implementation.
  */
-const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socket }) => {
+const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
+  lobby,
+  socket,
+  viewMode = 'player',
+}) => {
+  const isBroadcastMirror = viewMode === 'broadcast';
   const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
   const [guessCard, setGuessCard] = useState<CardType | null>(null);
@@ -93,7 +103,6 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
   const prevEliminatedRef = useRef<Set<string>>(new Set());
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
-  console.log('[HeartsGambitGame] render, language:', language, 'messages count:', lobby.messages?.length, 'first msg:', lobby.messages?.[0]?.message?.slice(0, 60));
 
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = lobby.gameData?.currentTurn === me?.id;
@@ -175,13 +184,13 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
     // Check if any new player was eliminated
     currentEliminated.forEach(id => {
-      if (!prevEliminated.has(id)) {
+      if (!prevEliminated.has(id) && !isBroadcastMirror) {
         playEliminatedSound();
       }
     });
 
     prevEliminatedRef.current = currentEliminated;
-  }, [lobby.players]);
+  }, [isBroadcastMirror, lobby.players]);
 
   // Listen for server errors
   useEffect(() => {
@@ -316,7 +325,10 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
   if (!lobby.gameData) return <div className="text-white text-center mt-20">{t('game.loading')}</div>;
 
   return (
-    <div className="hearts-gambit-game h-full text-[var(--parchment)] flex flex-col items-stretch p-0 overflow-hidden">
+    <div
+      className={`hearts-gambit-game h-full text-[var(--parchment)] flex flex-col items-stretch p-0 overflow-hidden${isBroadcastMirror ? ' hg-broadcast-view' : ''}`}
+      data-hearts-gambit-root={isBroadcastMirror ? undefined : 'true'}
+    >
 
       {/* Main Game Container - Dark Table Surface */}
       <div className="w-full h-full rounded-none overflow-hidden shadow-2xl flex flex-col flex-1 min-h-0 relative">
@@ -390,7 +402,6 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
                              const imgSrc = cardToDisplay !== 0 ? CARD_IMAGES[cardToDisplay] : CARD_BACK_IMAGE;
                              const cardName = getTranslatedCardName(cardToDisplay as any, language);
                              const cardDesc = cardToDisplay !== 0 ? getTranslatedCardDescription(cardToDisplay as any, language) : t('game.hiddenCardDescription');
-                             if (cardToDisplay !== 0) console.log('[CardDesc] opponent card:', cardToDisplay, 'lang:', language, 'desc:', cardDesc?.slice(0, 50));
 
                              return (
                                  <CardTooltip
@@ -874,7 +885,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({ lobby, socke
 
       {/* Victory / Round-Over Overlay */}
       {(lobby.gameData.roundWinner || lobby.gameData.winner) && (
-        <VictoryScreen lobby={lobby} socket={socket} />
+        <VictoryScreen lobby={lobby} socket={socket} viewMode={viewMode} />
       )}
 
       {/* Discard Viewer */}

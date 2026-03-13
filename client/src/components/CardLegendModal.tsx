@@ -28,6 +28,7 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
   return createPortal(
     <div
       className="settings-modal"
+      data-broadcast-mirror-portal="card-legend"
       role="dialog"
       aria-modal="true"
       aria-labelledby="card-legend-title"
@@ -55,7 +56,10 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
           </button>
         </div>
 
-        <div className="settings-modal-content card-legend-content">
+        <div
+          className="settings-modal-content card-legend-content"
+          data-mirror-scroll-region="card-legend-content"
+        >
           <div className="card-legend-grid">
             {getTranslatedCardDatabase(language).map((card) => (
               <div key={card.id} className="card-legend-item">

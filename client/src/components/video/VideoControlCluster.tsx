@@ -12,13 +12,14 @@ import {
   ChevronUp,
   ChevronDown,
   Settings,
-  ExternalLink,
+  Radio,
   Video,
   VideoOff,
   Mic,
   MicOff,
   PhoneOff
 } from 'lucide-react';
+import { getBroadcastCopy } from './broadcastCopy';
 
 interface VideoControlClusterProps {
   // Three-state flow
@@ -31,7 +32,7 @@ interface VideoControlClusterProps {
   isFilmstripExpanded?: boolean;
   onToggleFilmstrip?: () => void;
   onOpenSettings?: () => void;
-  onOpenPopout?: () => void;
+  onOpenBroadcast?: () => void;
   isCameraEnabled?: boolean;      // Whether camera track is on
   onToggleVideo?: () => void;
   isAudioEnabled?: boolean;
@@ -48,7 +49,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
   isFilmstripExpanded = false,
   onToggleFilmstrip,
   onOpenSettings,
-  onOpenPopout,
+  onOpenBroadcast,
   isCameraEnabled = true,
   onToggleVideo,
   isAudioEnabled = true,
@@ -56,6 +57,8 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
   compact = false,
   className = ''
 }) => {
+  const copy = getBroadcastCopy();
+
   // ============================================================================
   // State 1: NOT JOINED - Show "Join Video" button
   // ============================================================================
@@ -65,10 +68,10 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onPrepareVideo}
           className="video-join-btn"
-          title="Join video chat"
+          title={copy.controls.joinVideoChat}
         >
           <Video className="w-4 h-4" />
-          <span className="video-join-text">Join Video</span>
+          <span className="video-join-text">{copy.controls.joinVideo}</span>
         </button>
       </div>
     );
@@ -82,7 +85,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
       <div className={`video-control-cluster ${className}`}>
         <div className="video-preparing-badge">
           <Video className="w-4 h-4" />
-          <span>Setting up...</span>
+          <span>{copy.controls.settingUp}</span>
         </div>
       </div>
     );
@@ -98,14 +101,14 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onToggleFilmstrip}
           className="video-control-btn"
-          title={isFilmstripExpanded ? 'Collapse videos' : 'Expand videos'}
+          title={isFilmstripExpanded ? copy.controls.collapseVideos : copy.controls.expandVideos}
         >
           {isFilmstripExpanded ? (
             <ChevronDown className="w-4 h-4" />
           ) : (
             <ChevronUp className="w-4 h-4" />
           )}
-          {!compact && <span>Videos</span>}
+          {!compact && <span>{copy.controls.videos}</span>}
         </button>
       )}
 
@@ -114,7 +117,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onToggleVideo}
           className={`video-control-btn ${!isCameraEnabled ? 'off' : ''}`}
-          title={isCameraEnabled ? 'Turn off camera' : 'Turn on camera'}
+          title={isCameraEnabled ? copy.controls.turnOffCamera : copy.controls.turnOnCamera}
         >
           {isCameraEnabled ? (
             <Video className="w-4 h-4" />
@@ -129,7 +132,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onToggleAudio}
           className={`video-control-btn ${!isAudioEnabled ? 'off' : ''}`}
-          title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+          title={isAudioEnabled ? copy.controls.muteMicrophone : copy.controls.unmuteMicrophone}
         >
           {isAudioEnabled ? (
             <Mic className="w-4 h-4" />
@@ -144,7 +147,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onOpenSettings}
           className="video-control-btn"
-          title="Video settings"
+          title={copy.controls.videoSettings}
         >
           <Settings className="w-4 h-4" />
         </button>
@@ -155,20 +158,20 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         <button
           onClick={onDisableVideo}
           className="video-control-btn leave"
-          title="Leave video chat"
+          title={copy.controls.leaveVideoChat}
         >
           <PhoneOff className="w-4 h-4" />
         </button>
       )}
 
-      {/* Popout */}
-      {onOpenPopout && (
+      {/* Broadcast (OBS capture window) */}
+      {onOpenBroadcast && (
         <button
-          onClick={onOpenPopout}
+          onClick={onOpenBroadcast}
           className="video-control-btn"
-          title="Pop out video"
+          title={copy.controls.openBroadcastWindow}
         >
-          <ExternalLink className="w-4 h-4" />
+          <Radio className="w-4 h-4" />
         </button>
       )}
     </div>

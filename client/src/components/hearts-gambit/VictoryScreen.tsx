@@ -10,6 +10,7 @@ import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 interface VictoryScreenProps {
   lobby: Lobby;
   socket: Socket;
+  viewMode?: 'player' | 'broadcast';
 }
 
 function getTokensToWin(playerCount: number): number {
@@ -18,12 +19,17 @@ function getTokensToWin(playerCount: number): number {
   return 4;
 }
 
-export const VictoryScreen: React.FC<VictoryScreenProps> = ({ lobby, socket }) => {
+export const VictoryScreen: React.FC<VictoryScreenProps> = ({
+  lobby,
+  socket,
+  viewMode = 'player',
+}) => {
   const lang = getCurrentLanguage();
-  const t = (key: string) => getTranslation(key, lang);
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, lang);
   const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isHost = me?.isHost || false;
   const isGameWin = !!lobby.gameData?.winner;
+  const isBroadcastMirror = viewMode === 'broadcast';
   const winnerId = lobby.gameData?.winner || lobby.gameData?.roundWinner;
   const winnerPlayer = lobby.players.find(p => p.id === winnerId);
   const tokensToWin = getTokensToWin(lobby.players.length);
@@ -43,10 +49,10 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({ lobby, socket }) =
 
   // Play win sound on game victory
   useEffect(() => {
-    if (isGameWin) {
+    if (isGameWin && !isBroadcastMirror) {
       soundEffects.play('win');
     }
-  }, [isGameWin]);
+  }, [isBroadcastMirror, isGameWin]);
 
   // ── Round-Over Mode (no game winner yet) ──
   if (!isGameWin) {

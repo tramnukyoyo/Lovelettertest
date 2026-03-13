@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
@@ -177,8 +178,8 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
   const isFirst = currentSlide === 0;
   const isLast = currentSlide === slides.length - 1;
 
-  return (
-    <div className="tutorial-overlay" onClick={handleClose}>
+  const modalContent = (
+    <div className="tutorial-overlay" data-broadcast-mirror-portal="tutorial" onClick={handleClose}>
       <div
         className="tutorial-modal"
         onClick={e => e.stopPropagation()}
@@ -244,6 +245,8 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 // Button for mobile - triggers modal

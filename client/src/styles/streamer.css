@@ -1,0 +1,1184 @@
+/**
+ * Streamer Broadcast Window — Base Stylesheet
+ *
+ * Shared layout CSS for the OBS-capturable broadcast popup.
+ * Dark theme with cyan accents.
+ *
+ * Sections:
+ *   1. Root layout & setup/stream modes
+ *   2. Settings panel
+ *   3. Broadcast area & layout modes
+ *   4. Webcam tiles (strip, grid, spotlight)
+ *   5. Resize handles
+ *   6. Game stage (header, phases, content)
+ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 1. ROOT LAYOUT
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.streamer-broadcast-root {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: #06080f;
+  color: #e8ecf4;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Setup mode: preview (left) + settings panel (right) */
+.streamer-broadcast-root.setup-mode {
+  flex-direction: row;
+}
+
+/* Stream mode (locked): broadcast fills screen + tiny gear strip */
+.streamer-broadcast-root.stream-mode {
+  flex-direction: row;
+  position: relative;
+}
+
+
+/* ── Setup mode preview area ─────────────────────────────────────── */
+
+.streamer-broadcast-preview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid rgba(0, 229, 255, 0.12);
+  margin: 6px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #080b14;
+  box-shadow:
+    inset 0 0 40px rgba(0, 229, 255, 0.03),
+    0 0 1px rgba(0, 229, 255, 0.2);
+}
+
+.streamer-preview-label {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 229, 255, 0.1);
+  color: #00e5ff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 2px 12px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  z-index: 10;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 2. SETTINGS PANEL
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.streamer-settings-panel-container {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.streamer-settings-panel {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  background: #0a0d16;
+  border-left: 1px solid rgba(0, 229, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 12px;
+  gap: 16px;
+  overflow-y: auto;
+  /* Frosted scanline texture */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 229, 255, 0.008) 2px,
+      rgba(0, 229, 255, 0.008) 4px
+    );
+}
+
+/* Scrollbar */
+.streamer-settings-panel::-webkit-scrollbar {
+  width: 4px;
+}
+.streamer-settings-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.streamer-settings-panel::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.15);
+  border-radius: 2px;
+}
+
+.streamer-settings-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+}
+
+.streamer-settings-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #00e5ff;
+  text-transform: uppercase;
+}
+
+.streamer-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.streamer-settings-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(0, 229, 255, 0.45);
+  text-transform: uppercase;
+}
+
+/* Overlay toggle switches */
+.streamer-overlay-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.streamer-overlay-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.streamer-overlay-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.streamer-toggle-track {
+  width: 30px;
+  height: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.streamer-toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s ease, background 0.2s;
+}
+
+.streamer-overlay-toggle input:checked + .streamer-toggle-track {
+  background: rgba(0, 229, 255, 0.25);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.streamer-overlay-toggle input:checked + .streamer-toggle-track::after {
+  transform: translateX(14px);
+  background: #00e5ff;
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+}
+
+.streamer-overlay-label {
+  font-size: 11px;
+  color: rgba(232, 236, 244, 0.7);
+}
+
+/* Control buttons */
+.streamer-settings-controls {
+  margin-top: auto;
+  gap: 6px;
+}
+
+.streamer-lock-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 5px;
+  color: #00e5ff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.streamer-lock-btn:hover {
+  background: rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+}
+
+.streamer-close-btn {
+  width: 100%;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  color: rgba(232, 236, 244, 0.4);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.streamer-close-btn:hover {
+  border-color: rgba(255, 60, 80, 0.4);
+  color: #ff3c50;
+}
+
+.streamer-settings-hint {
+  font-size: 9px;
+  color: rgba(232, 236, 244, 0.2);
+  line-height: 1.4;
+  text-align: center;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 3. BROADCAST AREA & LAYOUT MODES
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Stream mode main container (when locked) */
+.streamer-broadcast-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Gear strip (right edge, OBS crop target) */
+.streamer-gear-strip {
+  width: 28px;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8px;
+  cursor: pointer;
+  position: relative;
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.streamer-gear-icon {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.2);
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.streamer-gear-strip:hover .streamer-gear-icon {
+  color: rgba(0, 229, 255, 0.5);
+}
+
+.streamer-gear-menu {
+  position: absolute;
+  right: 28px;
+  top: 6px;
+  background: #0c0f1a;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 5px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 100;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.streamer-gear-menu-btn {
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  color: rgba(232, 236, 244, 0.7);
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  text-align: left;
+  transition: all 0.1s;
+}
+
+.streamer-gear-menu-btn:hover {
+  background: rgba(0, 229, 255, 0.08);
+  color: #00e5ff;
+}
+
+/* Broadcast area: all 3 layout containers share this */
+.streamer-broadcast-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  background: #080b14;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 4. WEBCAM TILES — GRID
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Webcam grid ─────────────────────────────────────────────────── */
+
+.streamer-webcam-grid {
+  display: grid;
+  gap: 2px;
+  padding: 2px;
+  background: #080b14;
+}
+
+.streamer-webcam-grid.strip-mode {
+  height: auto;
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
+  overflow-y: auto;
+  gap: 6px;
+  padding: 6px;
+}
+
+.streamer-webcam-grid.sb-grid-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.streamer-webcam-grid.sb-grid-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.streamer-webcam-grid.sb-grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.streamer-webcam-grid.sb-grid-6 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.streamer-webcam-grid.sb-grid-9 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+
+.sb-webcam-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #0c0f1a;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: border-color 0.3s ease;
+}
+
+.sb-webcam-tile video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sb-webcam-tile video.mirrored {
+  transform: scaleX(-1);
+}
+
+.sb-webcam-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  padding: 14px 8px 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(232, 236, 244, 0.9);
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.sb-you-tag {
+  opacity: 0.5;
+  font-size: 9px;
+}
+
+/* ── Tile inner + no-video placeholder ───────────────────────────── */
+
+.sb-tile-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.sb-no-video-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0c0f1a 0%, #101425 100%);
+  pointer-events: none;
+}
+
+.sb-no-video-overlay span {
+  font-size: 2em;
+  font-weight: 700;
+  color: rgba(0, 229, 255, 0.15);
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 5. GAME STAGE — Header, content, phase displays
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.streamer-game-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, #080b14 0%, #0a0e19 50%, #080b14 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Subtle scan-line overlay on game stage */
+.streamer-game-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 229, 255, 0.008) 3px,
+    rgba(0, 229, 255, 0.008) 4px
+  );
+  z-index: 1;
+}
+
+/* Header bar */
+.streamer-stage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.06);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.streamer-stage-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.streamer-stage-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.streamer-game-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+}
+
+.streamer-room-code {
+  font-size: 11px;
+  color: rgba(0, 229, 255, 0.4);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Phase badge (generic) */
+.gb-phase-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.gb-phase-badge.phase-WAITING,
+.gb-phase-badge.phase-lobby {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(232, 236, 244, 0.5);
+}
+
+.gb-phase-badge.phase-PLAYING,
+.gb-phase-badge.phase-playing {
+  background: rgba(0, 229, 255, 0.12);
+  color: #00e5ff;
+}
+
+.gb-phase-badge.phase-VOTING,
+.gb-phase-badge.phase-voting {
+  background: rgba(255, 64, 129, 0.15);
+  color: #ff4081;
+}
+
+.gb-phase-badge.phase-FINALE,
+.gb-phase-badge.phase-finale {
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd700;
+}
+
+.gb-phase-badge.phase-FINISHED,
+.gb-phase-badge.phase-finished {
+  background: rgba(76, 255, 150, 0.12);
+  color: #4cff96;
+}
+
+/* Stage content */
+.streamer-stage-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+}
+
+.streamer-stage-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.streamer-stage-inner.stage-waiting {
+  opacity: 0.7;
+}
+
+.streamer-stage-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #e8ecf4;
+  line-height: 1.2;
+}
+
+.streamer-stage-subtitle {
+  font-size: 14px;
+  color: rgba(232, 236, 244, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Shared broadcast content styles (branded header, HUD, webcam grid)
+   ═══════════════════════════════════════════════════════════════ */
+
+.streamer-broadcast-area.streamer-layout-grid-only {
+  background: #080b14;
+}
+
+.streamer-broadcast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.streamer-broadcast-header-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.streamer-grid-status {
+  font-size: 11px;
+  color: rgba(232, 236, 244, 0.68);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.streamer-grid-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+
+.streamer-grid-stage > div {
+  flex: 1;
+  min-height: 0;
+}
+
+.streamer-settings-subcopy {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(232, 236, 244, 0.52);
+}
+
+.streamer-settings-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.streamer-settings-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  color: rgba(232, 236, 244, 0.64);
+}
+
+.streamer-settings-summary-row strong {
+  color: rgba(232, 236, 244, 0.9);
+  font-weight: 600;
+}
+
+.streamer-overlay-toggles.simplified {
+  gap: 8px;
+}
+
+.streamer-overlay-toggles.simplified .streamer-overlay-toggle {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.streamer-lock-btn,
+.streamer-close-btn,
+.streamer-gear-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.streamer-gear-icon,
+.streamer-gear-menu-btn svg,
+.streamer-lock-btn svg,
+.streamer-close-btn svg {
+  flex-shrink: 0;
+}
+
+.streamer-webcam-grid.responsive-grid {
+  height: 100%;
+  min-height: 0;
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.streamer-webcam-grid.responsive-grid.sb-grid-1 {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.streamer-webcam-grid.responsive-grid.sb-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.streamer-webcam-grid.responsive-grid.sb-grid-4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.streamer-webcam-grid.responsive-grid.sb-grid-6 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.streamer-webcam-grid.responsive-grid.sb-grid-9 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid:not(.strip-mode) {
+  align-content: start;
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid.sb-grid-1 {
+  grid-template-rows: auto;
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid.sb-grid-2 {
+  grid-template-rows: auto;
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid.sb-grid-4 {
+  grid-template-rows: repeat(2, auto);
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid.sb-grid-6 {
+  grid-template-rows: repeat(2, auto);
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid.sb-grid-9 {
+  grid-template-rows: repeat(3, auto);
+}
+
+.streamer-webcam-grid.responsive-grid .sb-webcam-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid:not(.strip-mode) .sb-webcam-tile {
+  align-self: start;
+}
+
+.streamer-broadcast-root.setup-mode .streamer-webcam-grid.responsive-grid:not(.strip-mode) .sb-webcam-media {
+  aspect-ratio: 4 / 3;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-webcam-media {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-tile-inner {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-webcam-namebar {
+  padding: 8px 10px 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(8, 11, 20, 0.95);
+  flex-shrink: 0;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-webcam-name {
+  position: static;
+  background: none;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(232, 236, 244, 0.88);
+  text-align: left;
+  text-shadow: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-you-tag {
+  opacity: 0.55;
+}
+
+.streamer-webcam-grid.responsive-grid.sidebar-stack {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: none;
+  grid-auto-rows: max-content;
+  align-content: start;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.streamer-webcam-grid.responsive-grid.sidebar-stack .sb-webcam-tile {
+  height: auto;
+}
+
+.streamer-webcam-grid.responsive-grid.sidebar-stack .sb-webcam-media {
+  width: 100%;
+  flex: 0 0 auto;
+  aspect-ratio: 4 / 3;
+}
+
+.streamer-webcam-grid.responsive-grid.sidebar-stack .sb-tile-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-webcam-media video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: #0c0f1a;
+}
+
+.streamer-broadcast-header.branded {
+  padding: 12px 16px;
+}
+
+.streamer-lobby-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.streamer-lobby-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gb-cyan, #00d9ff);
+  animation: lobby-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lobby-dot-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streamer-lobby-status-dot {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
+.streamer-broadcast-branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.streamer-broadcast-mascot {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.streamer-broadcast-brandcopy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.streamer-broadcast-title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--text-primary, #e8ecf4);
+  letter-spacing: 0.01em;
+}
+
+.streamer-broadcast-title-accent {
+  background: linear-gradient(135deg, var(--gb-pink, #e94560) 0%, var(--gb-cyan, #00d9ff) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.streamer-broadcast-subbrand {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.streamer-broadcast-subbrand .brand-game {
+  color: var(--gb-pink, #e94560);
+}
+
+.streamer-broadcast-subbrand .brand-buddies {
+  color: var(--gb-cyan, #00d9ff);
+}
+
+.streamer-broadcast-subbrand .brand-io {
+  color: rgba(232, 236, 244, 0.5);
+}
+
+/* Broadcast HUD and countdown refinements */
+.streamer-broadcast-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, rgba(10, 13, 22, 0.94), rgba(8, 11, 20, 0.86));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.streamer-broadcast-pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.streamer-hud-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8ecf4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.streamer-hud-pill.round {
+  background: rgba(255, 194, 46, 0.12);
+  border-color: rgba(255, 194, 46, 0.28);
+  color: #ffd76c;
+}
+
+.streamer-hud-pill.phase.phase-playing {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: rgba(0, 229, 255, 0.28);
+  color: #7ef6ff;
+}
+
+.streamer-hud-pill.phase.phase-voting,
+.streamer-hud-pill.phase.phase-tie-breaking {
+  background: rgba(255, 64, 129, 0.14);
+  border-color: rgba(255, 64, 129, 0.3);
+  color: #ff8db4;
+}
+
+.streamer-hud-pill.phase.phase-finale {
+  background: rgba(255, 209, 84, 0.16);
+  border-color: rgba(255, 209, 84, 0.32);
+  color: #ffe082;
+}
+
+.streamer-hud-pill.phase.phase-finished {
+  background: rgba(57, 208, 122, 0.16);
+  border-color: rgba(57, 208, 122, 0.28);
+  color: #8bf0b2;
+}
+
+.streamer-hud-pill.timer.is-live {
+  background: rgba(44, 197, 127, 0.14);
+  border-color: rgba(44, 197, 127, 0.32);
+  color: #7ff2b2;
+}
+
+.streamer-hud-pill.timer.is-warning {
+  background: rgba(255, 188, 56, 0.15);
+  border-color: rgba(255, 188, 56, 0.3);
+  color: #ffd36b;
+}
+
+.streamer-hud-pill.timer.is-critical {
+  background: rgba(255, 91, 91, 0.16);
+  border-color: rgba(255, 91, 91, 0.34);
+  color: #ff9b9b;
+  box-shadow: 0 0 18px rgba(255, 91, 91, 0.16);
+}
+
+.streamer-hud-pill.timer.is-idle {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(232, 236, 244, 0.72);
+}
+
+.streamer-broadcast-status-text {
+  color: rgba(232, 236, 244, 0.72);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: right;
+}
+
+.streamer-countdown-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08), rgba(6, 8, 15, 0.04) 40%, rgba(6, 8, 15, 0));
+}
+
+.streamer-countdown-badge {
+  min-width: 180px;
+  padding: 20px 28px;
+  border-radius: 28px;
+  background: rgba(8, 11, 20, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.38);
+  color: #ffffff;
+  font-size: 76px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+  animation: streamer-countdown-pop 0.85s ease-out;
+}
+
+@keyframes streamer-countdown-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.78);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 960px) {
+  .streamer-broadcast-hud {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .streamer-broadcast-status-text {
+    text-align: left;
+  }
+
+  .streamer-countdown-badge {
+    min-width: 150px;
+    font-size: 58px;
+    padding: 18px 24px;
+  }
+}
+
+/* Stable player placeholders and non-cropped popup video */
+.streamer-webcam-grid.responsive-grid .sb-webcam-tile.no-video {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.streamer-webcam-grid.responsive-grid .sb-webcam-media.is-placeholder {
+  background: none;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-no-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  transform: scale(1.08);
+  transform-origin: center;
+  z-index: 0;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-no-video-overlay {
+  padding: 0;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-no-video-overlay .sb-no-video-icon {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  color: rgba(216, 180, 254, 0.5);
+  z-index: 1;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-no-video-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(192, 132, 252, 0.12);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  color: rgba(216, 180, 254, 0.9);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-no-video-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.streamer-hud-pill.phase.phase-second-vote {
+  background: rgba(136, 92, 255, 0.18);
+  border-color: rgba(136, 92, 255, 0.32);
+  color: #c9b7ff;
+}
+
+.streamer-hud-pill.phase.phase-gm {
+  background: rgba(255, 141, 56, 0.18);
+  border-color: rgba(255, 141, 56, 0.34);
+  color: #ffc48a;
+}
+
+.streamer-webcam-grid.responsive-grid .sb-webcam-media video,
+.streamer-webcam-grid.responsive-grid .sb-webcam-tile.local .sb-webcam-media video {
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Webcam aspect ratio enforcement + strip mode vertical stacking
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Strip mode: override all grid classes to single-column vertical */
+.streamer-webcam-grid.responsive-grid.strip-mode,
+.streamer-webcam-grid.responsive-grid.strip-mode.sb-grid-1,
+.streamer-webcam-grid.responsive-grid.strip-mode.sb-grid-2,
+.streamer-webcam-grid.responsive-grid.strip-mode.sb-grid-4,
+.streamer-webcam-grid.responsive-grid.strip-mode.sb-grid-6,
+.streamer-webcam-grid.responsive-grid.strip-mode.sb-grid-9 {
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+}
+
+.streamer-webcam-grid.responsive-grid.strip-mode::-webkit-scrollbar {
+  width: 3px;
+}
+
+.streamer-webcam-grid.responsive-grid.strip-mode::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.15);
+  border-radius: 2px;
+}
+

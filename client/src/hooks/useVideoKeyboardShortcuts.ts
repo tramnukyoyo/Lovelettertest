@@ -9,7 +9,7 @@ import { useVideoUI } from '../contexts/VideoUIContext';
  * - V: Toggle video filmstrip visibility
  * - M: Toggle microphone mute/unmute
  * - C: Toggle camera on/off
- * - P: Open popup window
+ * - B: Open broadcast window
  */
 export const useVideoKeyboardShortcuts = () => {
   const {
@@ -20,7 +20,7 @@ export const useVideoKeyboardShortcuts = () => {
 
   const {
     toggleFilmstrip,
-    requestPopup
+    requestStreamerBroadcast
   } = useVideoUI();
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -64,15 +64,15 @@ export const useVideoKeyboardShortcuts = () => {
         }
         break;
 
-      case 'p':
-        // P: Open popup
+      case 'b':
+        // B: Open broadcast window
         if (!event.ctrlKey && !event.metaKey && !event.altKey) {
           event.preventDefault();
-          requestPopup();
+          requestStreamerBroadcast();
         }
         break;
     }
-  }, [isVideoEnabled, toggleFilmstrip, toggleMicrophone, toggleWebcam, requestPopup]);
+  }, [isVideoEnabled, toggleFilmstrip, toggleMicrophone, toggleWebcam, requestStreamerBroadcast]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
