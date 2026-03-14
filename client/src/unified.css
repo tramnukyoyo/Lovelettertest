@@ -15673,6 +15673,60 @@ textarea:focus {
   opacity: 1;
 }
 
+/* ============================================
+   SECTION 18.5: MUTE BUTTON
+   ============================================ */
+
+.game-header-mute-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.game-header-mute-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+  background: var(--bg-overlay);
+}
+
+.game-header-mute-btn.muted {
+  color: var(--gb-pink);
+  border-color: var(--gb-pink);
+  opacity: 0.8;
+}
+
+.game-header-mute-btn.muted:hover {
+  opacity: 1;
+}
+
+.home-header-mobile-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+@media (max-width: 767px) {
+  .game-header-mute-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-header-mute-btn {
+    transition: none;
+  }
+}
+
 /* =====================================================================
    SECTION 21: PASS & PLAY
    ===================================================================== */
