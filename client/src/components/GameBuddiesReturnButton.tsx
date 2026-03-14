@@ -129,32 +129,43 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
     setShowPortal(true);
   };
 
+  const title = isStandalone
+    ? 'Create a GameBuddies.io lobby to pick another game'
+    : 'Return to GameBuddies.io to pick another game';
+
+  const labelContent = isReturning ? (
+    <span>{isStandalone ? 'Opening...' : 'Returning...'}</span>
+  ) : (
+    <span className="gb-return-label">
+      <span className="gb-return-main">Try Another Game</span>
+      <span className="gb-return-sub">gamebuddies.io</span>
+    </span>
+  );
+
+  const portalOverlay = (
+    <PortalCloseOverlay
+      isVisible={showPortal}
+      isGroupReturn={isGroupReturn}
+      players={[]}
+      onComplete={handlePortalComplete}
+      duration={3000}
+      logoUrl="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
+    />
+  );
+
   // Icon variant for compact header display
   if (variant === 'icon') {
     return (
       <>
-        <PortalCloseOverlay
-          isVisible={showPortal}
-          isGroupReturn={isGroupReturn}
-          players={[]}
-          onComplete={handlePortalComplete}
-          duration={3000}
-          logoUrl="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
-        />
-      <button
-        onClick={handleReturn}
-        disabled={isReturning}
-        className="game-header-gb-btn"
-        title={isStandalone ? 'Create a GameBuddies.io lobby to pick another game' : isHost ? t('return.returnAllPlayersTitle') : t('return.returnToGameBuddies')}
-      >
+        {portalOverlay}
+        <button
+          onClick={handleReturn}
+          disabled={isReturning}
+          className="game-header-gb-btn"
+          title={title}
+        >
           <ArrowLeft className="w-4 h-4" />
-          <span>
-            {isReturning
-              ? t('return.returning')
-              : isHost
-                ? t('return.returnAll') || 'Try Another Game'
-                : t('return.returnToGameBuddies')}
-          </span>
+          {labelContent}
         </button>
       </>
     );
@@ -163,28 +174,15 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   // Button variant for lobby display
   return (
     <>
-      <PortalCloseOverlay
-        isVisible={showPortal}
-        isGroupReturn={isGroupReturn}
-        players={[]}
-        onComplete={handlePortalComplete}
-        duration={3000}
-        logoUrl="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
-      />
+      {portalOverlay}
       <button
         onClick={handleReturn}
         disabled={isReturning}
         className="game-header-gb-btn"
-        title={isStandalone ? 'Create a GameBuddies.io lobby to pick another game' : isHost ? t('return.returnAllPlayersTitle') : t('return.returnToGameBuddies')}
+        title={title}
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>
-          {isReturning
-            ? t('return.returning')
-            : isHost
-              ? t('return.returnAllPlayers')
-              : t('return.returnToGameBuddies')}
-        </span>
+        {labelContent}
       </button>
     </>
   );

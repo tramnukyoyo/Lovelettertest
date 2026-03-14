@@ -8840,6 +8840,21 @@ textarea:focus {
   cursor: not-allowed;
 }
 
+/* Two-line label layout for return button */
+.gb-return-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+.gb-return-main {
+  font-size: inherit;
+}
+.gb-return-sub {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
 /* Mobile row - visible only on small screens */
 .game-header-mobile-row {
   display: flex;
