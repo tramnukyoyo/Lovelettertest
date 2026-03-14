@@ -888,13 +888,9 @@ export const translations = {
     'video.gridView': 'Grid View',
     'video.speakerView': 'Speaker View',
     'video.spotlightView': 'Spotlight View',
-    'video.unmute': 'Unmute',
-    'video.mute': 'Mute',
     'video.turnCameraOff': 'Turn Camera Off',
     'video.turnCameraOn': 'Turn Camera On',
-    'video.leaveVideoChat': 'Leave Video Chat',
     'video.close': 'Close',
-    'video.noCameraFeeds': 'No camera feeds available',
     'video.closeDrawer': 'Close drawer',
 
     // Media Controls
@@ -1829,13 +1825,9 @@ export const translations = {
     'video.gridView': 'Rasteransicht',
     'video.speakerView': 'Sprecheransicht',
     'video.spotlightView': 'Spotlight-Ansicht',
-    'video.unmute': 'Stummschaltung aufheben',
-    'video.mute': 'Stummschalten',
     'video.turnCameraOff': 'Kamera ausschalten',
     'video.turnCameraOn': 'Kamera einschalten',
-    'video.leaveVideoChat': 'Video-Chat verlassen',
     'video.close': 'Schließen',
-    'video.noCameraFeeds': 'Keine Kamera-Feeds verfügbar',
     'video.closeDrawer': 'Schublade schließen',
 
     // Media Controls
