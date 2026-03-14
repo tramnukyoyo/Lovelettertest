@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import PortalCloseOverlay from './PortalCloseOverlay';
@@ -14,7 +14,7 @@ interface GameBuddiesReturnButtonProps {
   roomCode: string;
   socket: Socket;
   isHost?: boolean;
-  /** When true, shows "GB Lobby" instead of "Return" and emits create-lobby event */
+  /** When true, emits create-lobby instead of a room return */
   isStandalone?: boolean;
   /** Pass through streamer mode so the new GB lobby preserves it */
   streamerMode?: boolean;
@@ -141,21 +141,19 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           duration={3000}
           logoUrl="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
         />
-        <button
-          onClick={handleReturn}
-          disabled={isReturning}
-          className="game-header-gb-btn"
-          title={isStandalone ? 'Create a GameBuddies.io lobby' : isHost ? t('return.returnAllPlayersTitle') : t('return.returnToGameBuddies')}
-        >
-          {isStandalone ? <ExternalLink className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+      <button
+        onClick={handleReturn}
+        disabled={isReturning}
+        className="game-header-gb-btn"
+        title={isStandalone ? 'Create a GameBuddies.io lobby to pick another game' : isHost ? t('return.returnAllPlayersTitle') : t('return.returnToGameBuddies')}
+      >
+          <ArrowLeft className="w-4 h-4" />
           <span>
             {isReturning
               ? t('return.returning')
-              : isStandalone
-                ? 'GB Lobby'
-                : isHost
-                  ? t('return.returnAll') || 'Return All'
-                  : 'GameBuddies.io'}
+              : isHost
+                ? t('return.returnAll') || 'Try Another Game'
+                : t('return.returnToGameBuddies')}
           </span>
         </button>
       </>
@@ -177,17 +175,15 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
         onClick={handleReturn}
         disabled={isReturning}
         className="game-header-gb-btn"
-        title={isStandalone ? 'Create a GameBuddies.io lobby' : isHost ? t('return.returnAllPlayersTitle') : t('return.returnToGameBuddies')}
+        title={isStandalone ? 'Create a GameBuddies.io lobby to pick another game' : isHost ? t('return.returnAllPlayersTitle') : t('return.returnToGameBuddies')}
       >
-        {isStandalone ? <ExternalLink className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+        <ArrowLeft className="w-4 h-4" />
         <span>
           {isReturning
             ? t('return.returning')
-            : isStandalone
-              ? 'GB Lobby'
-              : isHost
-                ? t('return.returnAllPlayers')
-                : t('return.returnToGameBuddies')}
+            : isHost
+              ? t('return.returnAllPlayers')
+              : t('return.returnToGameBuddies')}
         </span>
       </button>
     </>

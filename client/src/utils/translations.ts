@@ -859,10 +859,10 @@ export const translations = {
 
     // Return Button
     'return.returningToGameBuddies': 'Returning to GameBuddies...',
-    'return.returnToGameBuddies': 'Return to GameBuddies',
+    'return.returnToGameBuddies': 'Back to GameBuddies',
     'return.returning': 'Returning...',
-    'return.returnAllPlayers': 'Return All Players',
-    'return.returnAllPlayersTitle': 'Return all players to GameBuddies',
+    'return.returnAllPlayers': 'Try Another Game',
+    'return.returnAllPlayersTitle': 'Return everyone to the GameBuddies lobby to pick another game',
     'return.returningEveryone': 'Returning everyone to lobby...',
     'return.returningSeconds': 'Returning to GameBuddies in {seconds} seconds',
 
@@ -1802,8 +1802,8 @@ export const translations = {
     'return.returningToGameBuddies': 'Kehre zu GameBuddies zurück...',
     'return.returnToGameBuddies': 'Zurück zu GameBuddies',
     'return.returning': 'Kehre zurück...',
-    'return.returnAllPlayers': 'Alle Spieler zurückbringen',
-    'return.returnAllPlayersTitle': 'Alle Spieler zu GameBuddies zurückbringen',
+    'return.returnAllPlayers': 'Anderes Spiel',
+    'return.returnAllPlayersTitle': 'Alle zurück zur GameBuddies-Lobby bringen, um ein anderes Spiel zu wählen',
     'return.returningEveryone': 'Bringe alle zurück zur Lobby...',
     'return.returningSeconds': 'Kehre in {seconds} Sekunden zu GameBuddies zurück',
 
