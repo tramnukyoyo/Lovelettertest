@@ -4,6 +4,7 @@ import { Settings } from 'lucide-react';
 import { GAME_META } from '../config/gameMeta';
 import { SettingsModal } from './SettingsModalNoir';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
+import MuteButton from './MuteButton';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 const Header: React.FC = () => {
@@ -36,6 +37,7 @@ const Header: React.FC = () => {
 
       <div className="header-right">
         <SimpleLanguageSelector />
+        <MuteButton />
         <button
           onClick={() => setIsSettingsOpen(true)}
           className="game-header-settings-btn"
