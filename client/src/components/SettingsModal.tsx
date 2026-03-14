@@ -75,6 +75,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     setBackgroundMusicEnabled(newEnabled);
     backgroundMusic.setEnabled(newEnabled);
     localStorage.setItem('heartsgambit-background-music-enabled', JSON.stringify(newEnabled));
+    window.dispatchEvent(new Event('gamebuddies:audio-changed'));
   };
 
   // Handle sound effects toggle
@@ -83,6 +84,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     setSoundEffectsEnabled(newEnabled);
     soundEffects.setEnabled(newEnabled);
     localStorage.setItem('heartsgambit-sound-effects-enabled', JSON.stringify(newEnabled));
+    window.dispatchEvent(new Event('gamebuddies:audio-changed'));
   };
 
   // Close on backdrop click

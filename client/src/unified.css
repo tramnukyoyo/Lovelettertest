@@ -8782,6 +8782,7 @@ textarea:focus {
   align-items: center;
   gap: 0.375rem;
   padding: 0.375rem 0.75rem;
+  min-height: 44px;
   background: rgba(51, 65, 85, 0.5);
   border: 1px solid rgba(71, 85, 105, 0.4);
   border-radius: 0.5rem;
@@ -8799,6 +8800,7 @@ textarea:focus {
   align-items: center;
   gap: 0.375rem;
   padding: 0.375rem 0.75rem;
+  min-height: 44px;
   background: rgba(51, 65, 85, 0.5);
   border: 1px solid rgba(71, 85, 105, 0.4);
   border-radius: 0.5rem;
@@ -11273,6 +11275,7 @@ textarea:focus {
   align-items: center;
   gap: 0.375rem;
   padding: 0.375rem 0.75rem;
+  min-height: 44px;
   background: rgba(0, 217, 255, 0.2);
   border: 1px solid rgba(0, 217, 255, 0.4);
   border-radius: 0.5rem;
@@ -11353,8 +11356,10 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
   background: rgba(51, 65, 85, 0.5);
   border: 1px solid rgba(71, 85, 105, 0.4);
@@ -11399,8 +11404,10 @@ textarea:focus {
   }
 
   .video-control-btn {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
   }
 
   .video-badge-btn {
@@ -15699,6 +15706,8 @@ textarea:focus {
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 44px;
+  height: 44px;
   min-width: 44px;
   min-height: 44px;
 }

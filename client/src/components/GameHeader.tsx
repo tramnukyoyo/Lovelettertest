@@ -11,6 +11,7 @@ import { useVideoUI } from '../contexts/VideoUIContext';
 import { useWebRTC } from '../contexts/WebRTCContext';
 import { GAME_META } from '../config/gameMeta';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
+import MuteButton from './MuteButton';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 interface GameHeaderProps {
@@ -223,6 +224,8 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
 
           {/* Language Selector */}
           <SimpleLanguageSelector />
+          {/* Mute button */}
+          <MuteButton />
           {/* Settings button */}
           <button
             onClick={() => setIsSettingsOpen(true)}
