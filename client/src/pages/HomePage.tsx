@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, Share2 } from 'lucide-react';
 import { getCurrentSession, resolvePendingSession } from '../services/gameBuddiesSession';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import Header from '../components/Header';
@@ -123,6 +123,34 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
             <p className="home-tagline">{GAME_META.tagline}</p>
             <div className="tutorial-mobile-trigger">
               <TutorialButton onClick={() => setShowTutorial(true)} />
+            </div>
+          </div>
+
+          {/* Multiplayer Badge */}
+          <div className="home-mp-badge">
+            <Users className="w-4 h-4" />
+            <span className="home-mp-badge-count">
+              {t('home.multiplayerBadge').replace('{min}', String(GAME_META.minPlayers)).replace('{max}', String(GAME_META.maxPlayers))}
+            </span>
+            <span className="home-mp-badge-sep">|</span>
+            <span className="home-mp-badge-category">{GAME_META.category || 'Party Game'}</span>
+          </div>
+
+          {/* How It Works Strip */}
+          <div className="home-steps">
+            <div className="home-step">
+              <span className="home-step-icon"><Plus className="w-4 h-4" /></span>
+              <span className="home-step-text">{t('home.step1Title')}</span>
+            </div>
+            <span className="home-step-arrow">&rarr;</span>
+            <div className="home-step">
+              <span className="home-step-icon"><Share2 className="w-4 h-4" /></span>
+              <span className="home-step-text">{t('home.step2Title')}</span>
+            </div>
+            <span className="home-step-arrow">&rarr;</span>
+            <div className="home-step">
+              <span className="home-step-icon"><Users className="w-4 h-4" /></span>
+              <span className="home-step-text">{t('home.step3Title')}</span>
             </div>
           </div>
 

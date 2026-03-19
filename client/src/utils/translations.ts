@@ -60,6 +60,10 @@ export const translations = {
     'home.shareTip': 'Share the room code or use streamer mode for safe invites.',
     'home.pleaseEnterName': 'Please enter your name',
     'home.pleaseEnterRoomCode': 'Please enter a room code',
+    'home.multiplayerBadge': '{min}-{max} players',
+    'home.step1Title': 'Create a Room',
+    'home.step2Title': 'Share the Link',
+    'home.step3Title': 'Play Together',
 
     // Header
     'header.settings': 'Settings',
@@ -996,6 +1000,10 @@ export const translations = {
     'home.shareTip': 'Teile den Raumcode oder nutze den Streamer-Modus für sichere Einladungen.',
     'home.pleaseEnterName': 'Bitte gib deinen Namen ein',
     'home.pleaseEnterRoomCode': 'Bitte gib einen Raumcode ein',
+    'home.multiplayerBadge': '{min}-{max} Spieler',
+    'home.step1Title': 'Raum erstellen',
+    'home.step2Title': 'Link teilen',
+    'home.step3Title': 'Zusammen spielen',
 
     // Header
     'header.settings': 'Einstellungen',
