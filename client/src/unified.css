@@ -13813,8 +13813,9 @@ textarea:focus {
   color: rgba(var(--accent-color-rgb), 0.8);
   box-shadow: 0 12px 30px rgba(5, 10, 25, 0.35);
   justify-content: center;
-  margin: 0.35rem auto 0;
+  margin: var(--spacing-md) auto 0;
   min-width: 340px;
+  flex-shrink: 0;
 }
 
 /* ====== MULTIPLAYER BADGE ====== */
@@ -13822,6 +13823,9 @@ textarea:focus {
 .home-mp-badge {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto var(--spacing-md);
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-lg);
   background: var(--bg-secondary);
@@ -13829,7 +13833,6 @@ textarea:focus {
   border-radius: 9999px;
   font-family: var(--font-hand);
   font-size: 0.9rem;
-  margin-bottom: var(--spacing-md);
   animation: fadeInUp 0.6s ease-out 0.15s backwards;
 }
 
@@ -13856,6 +13859,8 @@ textarea:focus {
 .home-steps {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
   animation: fadeInUp 0.6s ease-out 0.25s backwards;
@@ -15392,8 +15397,9 @@ textarea:focus {
   color: rgba(var(--accent-color-rgb), 0.8);
   box-shadow: 0 12px 30px rgba(5, 10, 25, 0.35);
   justify-content: center;
-  margin: 0.35rem auto 0;
+  margin: var(--spacing-md) auto 0;
   min-width: 340px;
+  flex-shrink: 0;
 }
 
 /* ====== MULTIPLAYER BADGE ====== */
@@ -15401,6 +15407,9 @@ textarea:focus {
 .home-mp-badge {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto var(--spacing-md);
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-lg);
   background: var(--bg-secondary);
@@ -15408,7 +15417,6 @@ textarea:focus {
   border-radius: 9999px;
   font-family: var(--font-hand);
   font-size: 0.9rem;
-  margin-bottom: var(--spacing-md);
   animation: fadeInUp 0.6s ease-out 0.15s backwards;
 }
 
@@ -15435,6 +15443,8 @@ textarea:focus {
 .home-steps {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
   animation: fadeInUp 0.6s ease-out 0.25s backwards;
