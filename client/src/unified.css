@@ -3797,6 +3797,49 @@
   flex-shrink: 0;
 }
 
+/* Compact homepage for 1920x1080 — prevent tutorial cutoff and card/tip clipping */
+@media (min-width: 1280px) and (min-height: 900px) {
+  [data-theme="primesuspect"] .home-mascot-container {
+    height: clamp(50px, 8vh, 100px);
+  }
+
+  [data-theme="primesuspect"] .home-mascot-container img {
+    filter: drop-shadow(0 0 15px var(--accent-glow, rgba(0,0,0,0.3)));
+  }
+
+  [data-theme="primesuspect"] .home-header h1 {
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    margin: 0.15rem 0 0.2rem !important;
+  }
+
+  [data-theme="primesuspect"] .home-shell {
+    gap: 0.5rem;
+    padding: clamp(0.25rem, 1.5vh, 1.25rem);
+  }
+
+  [data-theme="primesuspect"] .home-mp-badge {
+    margin-bottom: 0.25rem;
+  }
+
+  [data-theme="primesuspect"] .home-steps {
+    margin-bottom: 0.35rem;
+  }
+
+  [data-theme="primesuspect"] .home-tip-banner {
+    margin-top: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  [data-theme="primesuspect"] .tutorial-sidebar-content {
+    height: 340px;
+  }
+
+  [data-theme="primesuspect"] .tutorial-sidebar-image {
+    height: 150px;
+  }
+}
+
 /* Game container - full height flex with radial gradient */
 [data-theme="primesuspect"] .prime-suspect-game {
   height: 100%;
