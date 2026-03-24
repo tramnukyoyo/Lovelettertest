@@ -16222,19 +16222,20 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: var(--radius-md);
   background: rgba(255, 71, 87, 0.15);
   color: #ff4757;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s;
   margin-left: auto;
 }
 
 .bot-remove-btn:hover {
-  background: rgba(255, 71, 87, 0.3);
+  background: rgba(255, 71, 87, 0.35);
+  border-color: rgba(255, 71, 87, 0.6);
 }
 
 /* ----- Pass & Play Screen (in-game overlay) ----- */

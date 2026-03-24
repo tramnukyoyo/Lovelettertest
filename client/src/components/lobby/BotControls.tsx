@@ -6,7 +6,7 @@
  */
 
 import React, { useCallback } from 'react';
-import { Bot, X, UserPlus } from 'lucide-react';
+import { Bot, Trash2, UserPlus } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import type { Player } from '../../types';
 
@@ -61,7 +61,7 @@ const BotControls: React.FC<BotControlsProps> = ({
                 title="Remove bot"
                 type="button"
               >
-                <X className="w-3 h-3" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}
