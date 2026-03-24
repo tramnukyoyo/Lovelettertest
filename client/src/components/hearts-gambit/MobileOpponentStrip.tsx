@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Crown, Skull } from 'lucide-react';
+import { Shield, Crown, Skull, Bot } from 'lucide-react';
 import type { CardType, Player } from '../../types';
 import DynamicCard from './DynamicCard';
 import { CARD_BACK_IMAGE } from './cardDatabase';
@@ -114,6 +114,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
               <div className="flex items-center gap-1 max-w-full">
                 <span className="text-xs font-bold text-[var(--parchment)] truncate">{player.name}</span>
                 {player.isHost && <Crown className="w-3 h-3 text-[var(--royal-gold)] flex-shrink-0" />}
+                {player.isBot && <Bot className="w-3 h-3 text-[var(--parchment-dark)] flex-shrink-0" />}
               </div>
 
               {/* Tokens */}

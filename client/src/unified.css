@@ -16157,6 +16157,86 @@ textarea:focus {
   background: rgba(255, 71, 87, 0.3);
 }
 
+/* ----- Bot Controls ----- */
+
+.bot-controls-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  max-width: 280px;
+}
+
+.bot-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px dashed rgba(var(--accent-color-rgb), 0.5);
+  border-radius: var(--radius-md);
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--parchment);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.bot-add-btn:hover:not(:disabled) {
+  background: rgba(var(--accent-color-rgb), 0.2);
+  border-color: rgba(var(--accent-color-rgb), 0.7);
+}
+
+.bot-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bot-player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.bot-player-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(var(--accent-color-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+  border-radius: var(--radius-md);
+}
+
+.bot-player-name {
+  font-size: 0.82rem;
+  color: var(--parchment);
+  font-weight: 500;
+  flex: 1;
+}
+
+.bot-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: auto;
+}
+
+.bot-remove-btn:hover {
+  background: rgba(255, 71, 87, 0.3);
+}
+
 /* ----- Pass & Play Screen (in-game overlay) ----- */
 
 .pp-screen {

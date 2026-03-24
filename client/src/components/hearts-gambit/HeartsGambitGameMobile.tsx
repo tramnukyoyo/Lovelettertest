@@ -22,6 +22,7 @@ import MobileChatDrawer from './MobileChatDrawer';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 import { VictoryScreen } from './VictoryScreen';
 import PassPlayToggle from '../lobby/PassPlayToggle';
+import BotControls from '../lobby/BotControls';
 import { usePassPlay } from '../../hooks/usePassPlay';
 
 interface HeartsGambitGameMobileProps {
@@ -651,6 +652,17 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             onAddPlayer={pp.addPlayer}
             onRemovePlayer={pp.removePlayer}
           />
+
+          {/* Bot Controls (online mode only) */}
+          {!pp.isPassPlay && me?.isHost && (
+            <BotControls
+              roomCode={lobby.code}
+              players={lobby.players}
+              isHost={true}
+              maxPlayers={lobby.settings.maxPlayers}
+              socket={socket}
+            />
+          )}
 
           {me?.isHost ? (
             <button

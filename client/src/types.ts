@@ -74,6 +74,7 @@ export interface PrimeSuspectPlayer extends BasePlayer {
   discarded: CardType[];
   hand: CardType[];
   handCount: number;
+  isBot?: boolean;
 }
 
 export interface PrimeSuspectSettings extends BaseSettings {

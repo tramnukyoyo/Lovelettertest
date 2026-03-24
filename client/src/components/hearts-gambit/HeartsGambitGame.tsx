@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Lobby, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
-import { Settings, Shield, Crown, Skull, BookOpen, HelpCircle, ScrollText } from 'lucide-react';
+import { Settings, Shield, Crown, Skull, BookOpen, HelpCircle, ScrollText, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CardTooltip from './CardTooltip';
 import Toast from './Toast';
@@ -20,6 +20,7 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 import HeartsGambitGameMobile from './HeartsGambitGameMobile';
 import { VictoryScreen } from './VictoryScreen';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
+import BotControls from '../lobby/BotControls';
 
 interface HeartsGambitGameProps {
   lobby: Lobby;
@@ -380,6 +381,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                         <div className="flex items-center gap-1">
                             <span className="text-sm font-bold text-[var(--parchment)] truncate">{player.name}</span>
                             {player.isHost && <Crown className="w-3 h-3 text-[var(--royal-gold)]" />}
+                            {player.isBot && <Bot className="w-3 h-3 text-[var(--parchment-dark)]" />}
                         </div>
                         <div className="hg-meta flex items-center gap-2 text-[10px]">
                              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[var(--royal-crimson)]"></span> {t('game.tokens').replace('{count}', String(player.tokens))}</span>
@@ -610,7 +612,16 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center flex-col gap-4 z-20 backdrop-blur-sm rounded-xl">
                     <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">{t('game.waitingForPlayers')}</h2>
 
-                    {/* Pass & Play Toggle removed — this is the desktop view, PP is mobile-only */}
+                    {/* Bot Controls */}
+                    {me?.isHost && lobby.settings?.gameType !== 'pass-play' && (
+                      <BotControls
+                        roomCode={lobby.code}
+                        players={lobby.players}
+                        isHost={true}
+                        maxPlayers={lobby.settings?.maxPlayers || 999}
+                        socket={socket}
+                      />
+                    )}
 
                      {me?.isHost && (
                         <button
