@@ -33,6 +33,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   const winnerId = lobby.gameData?.winner || lobby.gameData?.roundWinner;
   const winnerPlayer = lobby.players.find(p => p.id === winnerId);
   const tokensToWin = getTokensToWin(lobby.players.length);
+  const lastMessage = lobby.messages?.[lobby.messages.length - 1]?.message;
 
   const handleTryAnotherGame = () => {
     if (!socket.connected) return;
@@ -68,6 +69,11 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             <div className="text-xl sm:text-3xl font-bold text-white">
               {winnerPlayer?.name}
             </div>
+            {lastMessage && (
+              <div className="text-sm text-[var(--parchment)] opacity-80 mt-2 italic leading-relaxed px-4">
+                {lastMessage}
+              </div>
+            )}
           </div>
 
           {/* Token Progress */}
