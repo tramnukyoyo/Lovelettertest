@@ -5982,7 +5982,7 @@ canvas {
 }
 
 .webcam-expanded {
-  min-height: 400px !important;
+  min-height: clamp(250px, 50dvh, 400px) !important;
 }
 
 /* Remove any resize handles and scrollbars for webcam */
