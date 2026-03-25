@@ -78,6 +78,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   const [inspectorTitle, setInspectorTitle] = useState('');
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [previewCard, setPreviewCard] = useState<CardType | null>(null);
+  const [eliminationMessage, setEliminationMessage] = useState<string | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   void longPressTimerRef; // Available for future use
 
@@ -169,6 +170,13 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         playEliminatedSound();
       }
     });
+
+    // If I was just eliminated, show overlay with reason from last game message
+    if (me?.id && currentEliminated.has(me.id) && !prevEliminated.has(me.id)) {
+      const lastMsg = lobby.messages?.[lobby.messages.length - 1]?.message || t('game.eliminated');
+      setEliminationMessage(lastMsg);
+      setTimeout(() => setEliminationMessage(null), 4000);
+    }
 
     prevEliminatedRef.current = currentEliminated;
   }, [lobby.players]);
@@ -968,6 +976,33 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               cardType={previewCard ?? selectedCard!}
               className="hg-mobile-preview-card"
             />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Elimination Overlay */}
+      <AnimatePresence>
+        {eliminationMessage && (
+          <motion.div
+            className="fixed inset-0 bg-black/85 flex items-center justify-center z-[55] p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="text-center max-w-sm"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            >
+              <Skull className="w-14 h-14 mx-auto mb-3 text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" />
+              <h2 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-3 drop-shadow-md">
+                {t('game.eliminated')}
+              </h2>
+              <p className="text-base text-[var(--parchment)] leading-relaxed">
+                {eliminationMessage}
+              </p>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

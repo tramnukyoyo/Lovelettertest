@@ -92,6 +92,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
   const [guessCard, setGuessCard] = useState<CardType | null>(null);
   const [toast, setToast] = useState<{message: string; type: 'error' | 'success'} | null>(null);
   const [playingCard, setPlayingCard] = useState<{card: CardType; image: string} | null>(null);
+  const [eliminationMessage, setEliminationMessage] = useState<string | null>(null);
   const [isDiscardViewerOpen, setIsDiscardViewerOpen] = useState(false);
   const [discardViewerMode, setDiscardViewerMode] = useState<'timeline' | 'by-player'>('timeline');
   const [discardViewerOrder, setDiscardViewerOrder] = useState<'newest' | 'oldest'>('newest');
@@ -189,6 +190,13 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
         playEliminatedSound();
       }
     });
+
+    // If I was just eliminated, show overlay with reason from last game message
+    if (me?.id && currentEliminated.has(me.id) && !prevEliminated.has(me.id) && !isBroadcastMirror) {
+      const lastMsg = lobby.messages?.[lobby.messages.length - 1]?.message || t('game.eliminated');
+      setEliminationMessage(lastMsg);
+      setTimeout(() => setEliminationMessage(null), 4000);
+    }
 
     prevEliminatedRef.current = currentEliminated;
   }, [isBroadcastMirror, lobby.players]);
@@ -893,6 +901,33 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
         </AnimatePresence>
 
       </div>
+
+      {/* Elimination Overlay */}
+      <AnimatePresence>
+        {eliminationMessage && (
+          <motion.div
+            className="fixed inset-0 bg-black/85 flex items-center justify-center z-[55] p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="text-center max-w-sm"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            >
+              <Skull className="w-16 h-16 mx-auto mb-4 text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" />
+              <h2 className="text-3xl sm:text-4xl font-black text-red-500 uppercase tracking-widest mb-4 drop-shadow-md">
+                {t('game.eliminated')}
+              </h2>
+              <p className="text-lg text-[var(--parchment)] leading-relaxed">
+                {eliminationMessage}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Victory / Round-Over Overlay */}
       {(lobby.gameData.roundWinner || lobby.gameData.winner) && (
