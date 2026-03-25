@@ -902,29 +902,26 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
       </div>
 
-      {/* Elimination Overlay */}
+      {/* Elimination Alert Card — positioned above Case Notes (bottom-left) */}
       <AnimatePresence>
         {eliminationMessage && (
           <motion.div
-            className="fixed inset-0 bg-black/85 flex items-center justify-center z-[55] p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="absolute bottom-56 left-4 w-72 z-[55] hg-panel border-2 border-red-500/50 rounded-xl p-4 shadow-[0_0_30px_rgba(239,68,68,0.3)]"
+            style={{ background: 'linear-gradient(135deg, rgba(30,10,10,0.95), rgba(60,15,15,0.95))' }}
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -100, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           >
-            <motion.div
-              className="text-center max-w-sm"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            >
-              <Skull className="w-16 h-16 mx-auto mb-4 text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" />
-              <h2 className="text-3xl sm:text-4xl font-black text-red-500 uppercase tracking-widest mb-4 drop-shadow-md">
+            <div className="flex items-center gap-3 mb-2">
+              <Skull className="w-8 h-8 text-red-500 flex-shrink-0 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+              <h3 className="text-lg font-black text-red-500 uppercase tracking-widest">
                 {t('game.eliminated')}
-              </h2>
-              <p className="text-lg text-[var(--parchment)] leading-relaxed">
-                {eliminationMessage}
-              </p>
-            </motion.div>
+              </h3>
+            </div>
+            <p className="text-sm text-[var(--parchment)] leading-relaxed opacity-90">
+              {eliminationMessage}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

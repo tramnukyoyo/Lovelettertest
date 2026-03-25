@@ -980,29 +980,26 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         )}
       </AnimatePresence>
 
-      {/* Elimination Overlay */}
+      {/* Elimination Alert Banner — top of screen on mobile */}
       <AnimatePresence>
         {eliminationMessage && (
           <motion.div
-            className="fixed inset-0 bg-black/85 flex items-center justify-center z-[55] p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="fixed top-4 left-4 right-4 z-[55] border-2 border-red-500/50 rounded-xl p-3 shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+            style={{ background: 'linear-gradient(135deg, rgba(30,10,10,0.95), rgba(60,15,15,0.95))' }}
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           >
-            <motion.div
-              className="text-center max-w-sm"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            >
-              <Skull className="w-14 h-14 mx-auto mb-3 text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" />
-              <h2 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-3 drop-shadow-md">
+            <div className="flex items-center gap-2 mb-1">
+              <Skull className="w-6 h-6 text-red-500 flex-shrink-0" />
+              <span className="text-base font-black text-red-500 uppercase tracking-widest">
                 {t('game.eliminated')}
-              </h2>
-              <p className="text-base text-[var(--parchment)] leading-relaxed">
-                {eliminationMessage}
-              </p>
-            </motion.div>
+              </span>
+            </div>
+            <p className="text-sm text-[var(--parchment)] leading-snug opacity-90">
+              {eliminationMessage}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
