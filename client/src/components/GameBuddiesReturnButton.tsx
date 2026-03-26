@@ -41,11 +41,12 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
 
   // Handle return redirect from server (for non-host players)
   useEffect(() => {
-    const handleReturnRedirect = (data: { returnUrl: string; playerName?: string }) => {
+    const handleReturnRedirect = (data: { returnUrl: string; playerNames?: Record<string, string> }) => {
       console.log('[GameBuddies] Received return-redirect:', data);
       setReturnUrl(data.returnUrl);
       setIsGroupReturn(true);
-      if (data.playerName) setReturnPlayerName(data.playerName);
+      const myName = data.playerNames?.[socket?.id || ''] || '';
+      if (myName) setReturnPlayerName(myName);
       setShowPortal(true);
     };
 
