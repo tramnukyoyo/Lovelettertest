@@ -37,13 +37,15 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   const [showPortal, setShowPortal] = useState(false);
   const [isGroupReturn, setIsGroupReturn] = useState(false);
   const [returnUrl, setReturnUrl] = useState('https://gamebuddies.io');
+  const [returnPlayerName, setReturnPlayerName] = useState('');
 
   // Handle return redirect from server (for non-host players)
   useEffect(() => {
-    const handleReturnRedirect = (data: { returnUrl: string }) => {
+    const handleReturnRedirect = (data: { returnUrl: string; playerName?: string }) => {
       console.log('[GameBuddies] Received return-redirect:', data);
       setReturnUrl(data.returnUrl);
       setIsGroupReturn(true);
+      if (data.playerName) setReturnPlayerName(data.playerName);
       setShowPortal(true);
     };
 
@@ -75,7 +77,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
     sessionStorage.setItem('gamebuddies_returning', JSON.stringify({
       fromGame: true,
       roomCode,
-      playerName: sessionStorage.getItem('gamebuddies_playerName') || '',
+      playerName: sessionStorage.getItem('gamebuddies_playerName') || returnPlayerName || '',
       isGroupReturn,
       timestamp: Date.now(),
     }));
@@ -84,7 +86,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
     try {
       const url = new URL(returnUrl);
       url.searchParams.set('returning', 'true');
-      const pName = sessionStorage.getItem('gamebuddies_playerName') || '';
+      const pName = sessionStorage.getItem('gamebuddies_playerName') || returnPlayerName || '';
       if (pName) url.searchParams.set('returningPlayer', pName);
       console.log('[GameBuddies] Redirecting with returning=true:', url.toString());
       window.location.href = url.toString();
