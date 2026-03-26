@@ -8,6 +8,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
+import './fonts.css'
 import ErrorBoundary from './components/ErrorBoundary.tsx'
 
 console.log('🚀 [main.tsx] Imports complete, rendering...');

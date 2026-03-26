@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     host: true,
   },
   esbuild: mode === 'production'
-    ? { drop: ['debugger'], pure: ['console.log', 'console.debug'] }
+    ? { drop: ['debugger'], pure: ['console.log', 'console.debug', 'console.warn', 'console.error'] }
     : {},
   build: {
     minify: 'esbuild',
