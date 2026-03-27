@@ -7,6 +7,7 @@
 import React, { useRef, useEffect } from 'react';
 import { MicOff, Crown } from 'lucide-react';
 import type { WebcamPlayer } from './adapters';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface WebcamDisplayProps {
   player: WebcamPlayer;
@@ -37,6 +38,8 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const attachAttempts = useRef(0);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as any, language);
 
   useEffect(() => {
     const attachStream = async () => {
@@ -127,7 +130,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
 
         {/* Local indicator (mirrored video) */}
         {isLocal && hasVideo && (
-          <div className="webcam-local-indicator">You</div>
+          <div className="webcam-local-indicator">{t('video.localIndicator')}</div>
         )}
       </div>
 
@@ -138,7 +141,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
           <div className="webcam-name">
             {isHost && <Crown className="w-3 h-3 webcam-host-icon" />}
             <span>{player.name}</span>
-            {isLocal && <span className="webcam-you-tag">(You)</span>}
+            {isLocal && <span className="webcam-you-tag">{t('video.youTag')}</span>}
           </div>
         )}
 
@@ -153,7 +156,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
       {/* Turn indicator */}
       {isTurn && (
         <div className="webcam-turn-indicator">
-          <span>Your Turn</span>
+          <span>{t('video.yourTurn')}</span>
         </div>
       )}
     </div>

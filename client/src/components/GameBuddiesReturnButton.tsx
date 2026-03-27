@@ -133,14 +133,14 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   };
 
   const title = isStandalone
-    ? 'Create a GameBuddies.io lobby to pick another game'
-    : 'Return to GameBuddies.io to pick another game';
+    ? t('lobby.createGBLobby')
+    : t('lobby.returnToGB');
 
   const labelContent = isReturning ? (
-    <span>{isStandalone ? 'Opening...' : 'Returning...'}</span>
+    <span>{isStandalone ? t('lobby.opening') : t('lobby.returning')}</span>
   ) : (
     <span className="gb-return-label">
-      <span className="gb-return-main">Try Another Game</span>
+      <span className="gb-return-main">{t('lobby.returnAll')}</span>
       <span className="gb-return-sub">gamebuddies.io</span>
     </span>
   );

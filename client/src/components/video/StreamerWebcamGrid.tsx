@@ -11,6 +11,7 @@ import { VideoOff } from 'lucide-react';
 import { useWebRTC } from '../../contexts/WebRTCContext';
 import type { WebcamPlayer } from '../../config/WebcamConfig';
 import type { BroadcastOverlays } from './StreamerSettingsPanel';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface StreamerWebcamGridProps {
   players: WebcamPlayer[];
@@ -109,7 +110,7 @@ const StreamerWebcamGrid: React.FC<StreamerWebcamGridProps> = ({
           <div className="sb-webcam-namebar">
             <div className="sb-webcam-name">
               {player.name}
-              {isLocal && <span className="sb-you-tag"> (You)</span>}
+              {isLocal && <span className="sb-you-tag"> {getTranslation('video.youTag' as any, getCurrentLanguage())}</span>}
             </div>
           </div>
         )}
