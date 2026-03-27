@@ -5,6 +5,7 @@ import { getCurrentLanguage, setCurrentLanguage, getTranslation } from '../utils
 const languageOptions: { code: Language; label: string; flag: string }[] = [
   { code: 'en', label: 'English', flag: '\u{1F1EC}\u{1F1E7}' },
   { code: 'de', label: 'Deutsch', flag: '\u{1F1E9}\u{1F1EA}' },
+  { code: 'es', label: 'Espanol', flag: '🇲🇽' },
 ];
 
 interface SimpleLanguageSelectorProps {
