@@ -2836,7 +2836,7 @@ export const languageNames = {
 export const languageFlags = {
   en: '🇺🇸',
   de: '🇩🇪',
-  es: '🇲🇽',
+  es: '🇪🇸',
 };
 
 // Simple translation function
