@@ -18,6 +18,11 @@ export function InstallPrompt() {
     // Don't show anything if already in standalone mode
     if (isInStandaloneMode()) return;
 
+    // Only show install prompt on mobile/tablet devices
+    const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      (navigator.maxTouchPoints > 0 && window.innerWidth < 1024);
+    if (!isMobileDevice) return;
+
     // Check if prompt was dismissed
     const dismissed = localStorage.getItem('pwa-prompt-dismissed');
     if (dismissed) return;
