@@ -217,9 +217,9 @@
   --border-focus: rgba(255, 255, 255, 0.8);
 
   /* Typography - Hand-Drawn Fonts */
-  --font-hand: 'Patrick Hand', cursive;
-  --font-title: 'Gloria Hallelujah', cursive;
-  --font-marker: 'Permanent Marker', cursive;
+  --font-hand: 'Patrick Hand', 'Inter', sans-serif;
+  --font-title: 'Gloria Hallelujah', 'Inter', sans-serif;
+  --font-marker: 'Permanent Marker', 'Inter', sans-serif;
   --font-pixel: 'VT323', monospace;
   --font-typewriter: 'Special Elite', serif;
 
