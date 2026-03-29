@@ -939,7 +939,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onMouseDown={(e) => {
+            onPointerDown={(e) => {
               if (e.target === e.currentTarget) setIsDiscardViewerOpen(false);
             }}
           >
@@ -1228,7 +1228,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  onMouseDown={(e) => {
+                  onPointerDown={(e) => {
                     if (e.target === e.currentTarget) setZoomContext(null);
                   }}
                   role="dialog"
@@ -1241,7 +1241,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.985, y: 10 }}
                     transition={{ duration: 0.12 }}
-                    onMouseDown={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(var(--accent-color-rgb),0.18)]">
                       <div className="min-w-0">

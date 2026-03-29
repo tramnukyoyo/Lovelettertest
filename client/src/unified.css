@@ -6190,8 +6190,9 @@ canvas {
   gap: 1rem;
   padding: 1rem;
   height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
-  background: linear-gradient(135deg, 
+  background: linear-gradient(135deg,
     var(--bg-primary) 0%, 
     var(--bg-secondary) 25%, 
     var(--bg-tertiary) 50%, 
@@ -6491,6 +6492,7 @@ canvas {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   background: var(--bg-primary);
   padding-top: 56px;
@@ -6981,6 +6983,7 @@ canvas {
     left: 0;
     top: 0;
     height: 100vh;
+    height: 100dvh;
     width: 85vw;
     max-width: 350px;
     background: var(--glass-bg);
@@ -7002,6 +7005,7 @@ canvas {
     right: 0;
     top: 0;
     height: 100vh;
+    height: 100dvh;
     width: 85vw;
     max-width: 350px;
     background: var(--glass-bg);
@@ -7390,6 +7394,7 @@ textarea:focus {
   .app-layout {
     flex-direction: column;
     height: 100vh;
+    height: 100dvh;
     height: 100dvh;
   }
 
