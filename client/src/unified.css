@@ -15720,21 +15720,31 @@ textarea:focus {
 }
 
 @media (max-width: 767px) {
+  /* Compact home screen — fit Create Room form in viewport on small phones */
+  .home-steps { display: none; }
+  .home-tagline { display: none; }
+  .home-gb-branding { display: none; }
+
+  .home-mascot { width: 60px; }
+
+  .home-title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
   .home-mp-badge {
+    padding: 4px 12px;
     font-size: 0.8rem;
-    padding: var(--spacing-xs) var(--spacing-md);
+    margin-bottom: 8px;
   }
 
-  .home-steps {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
+  .home-hero {
+    gap: 6px;
+    margin-bottom: 8px;
   }
 
-  .home-step-arrow {
-    transform: rotate(90deg);
-    font-size: 0.8rem;
-  }
+  .home-cards-wrapper { margin-top: 0; }
+  .home-card { padding: 12px 16px; }
+  .home-form .form-group { margin-bottom: 8px; }
 }
 
 @media (max-width: 900px) {
