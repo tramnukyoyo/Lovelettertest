@@ -58,7 +58,7 @@ const MuteButton: React.FC<{ className?: string }> = ({ className = '' }) => {
       title={isMuted ? 'Unmute' : 'Mute'}
       aria-label={isMuted ? 'Unmute game audio' : 'Mute game audio'}
     >
-      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+      {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
     </button>
   );
 };

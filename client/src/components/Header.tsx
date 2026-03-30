@@ -43,7 +43,7 @@ const Header: React.FC = () => {
           className="game-header-settings-btn"
           title={t('header.settings')}
         >
-          <Settings className="w-4 h-4" />
+          <Settings size={16} />
         </button>
       </div>
     </header>

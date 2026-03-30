@@ -8543,6 +8543,49 @@ textarea:focus {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Compact header on mobile */
+@media (max-width: 767px) {
+  .header {
+    padding: 0.5rem 0.75rem;
+    height: 52px;
+  }
+
+  .header-right {
+    gap: 0.25rem;
+  }
+
+  .header-right button,
+  .header-right .game-header-settings-btn,
+  .header-right .game-header-mute-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 6px !important;
+  }
+
+  .header-right .language-selector-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 4px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo-text {
+    font-size: 0.9rem;
+  }
+
+  .gb-branding {
+    display: none;
+  }
 }
 
 .logo {
