@@ -52,7 +52,7 @@ const VideoEnhancements: React.FC<VideoEnhancementsProps> = ({
           onClick={() => setActiveSection(activeSection === 'background' ? null : 'background')}
           className={`enhancement-toggle ${isVirtualBackgroundEnabled ? 'active' : ''}`}
         >
-          <Image className="w-4 h-4" />
+          <Image size={16} />
           <span>Virtual Background</span>
           <span className="enhancement-status">
             {isVirtualBackgroundEnabled ? 'On' : 'Off'}
@@ -67,7 +67,7 @@ const VideoEnhancements: React.FC<VideoEnhancementsProps> = ({
                 onClick={() => onSelectBackground?.(null)}
                 className={`background-option ${!selectedBackground ? 'selected' : ''}`}
               >
-                <X className="w-6 h-6" />
+                <X size={24} />
                 <span>None</span>
               </button>
 
@@ -76,7 +76,7 @@ const VideoEnhancements: React.FC<VideoEnhancementsProps> = ({
                 onClick={() => onSelectBackground?.('blur')}
                 className={`background-option ${selectedBackground === 'blur' ? 'selected' : ''}`}
               >
-                <Sliders className="w-6 h-6" />
+                <Sliders size={24} />
                 <span>Blur</span>
               </button>
 
@@ -90,7 +90,7 @@ const VideoEnhancements: React.FC<VideoEnhancementsProps> = ({
                   <img src={bg.url} alt={bg.name} />
                   {selectedBackground === bg.url && (
                     <span className="selected-indicator">
-                      <Check className="w-4 h-4" />
+                      <Check size={16} />
                     </span>
                   )}
                 </button>
@@ -106,7 +106,7 @@ const VideoEnhancements: React.FC<VideoEnhancementsProps> = ({
           onClick={onToggleFaceAvatar}
           className={`enhancement-toggle ${isFaceAvatarEnabled ? 'active' : ''}`}
         >
-          <Smile className="w-4 h-4" />
+          <Smile size={16} />
           <span>Face Avatar</span>
           <span className="enhancement-status">
             {isFaceAvatarEnabled ? 'On' : 'Off'}
@@ -120,7 +120,7 @@ const VideoEnhancements: React.FC<VideoEnhancementsProps> = ({
           onClick={onToggleNoiseSuppression}
           className={`enhancement-toggle ${isNoiseSuppressionEnabled ? 'active' : ''}`}
         >
-          <Volume2 className="w-4 h-4" />
+          <Volume2 size={16} />
           <span>Noise Suppression</span>
           <span className="enhancement-status">
             {isNoiseSuppressionEnabled ? 'On' : 'Off'}

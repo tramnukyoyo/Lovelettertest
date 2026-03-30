@@ -104,7 +104,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
               onClick={onClose}
               aria-label={t('video.closeDrawer')}
             >
-              <X className="w-5 h-5" />
+              <X size={20} />
             </button>
           </div>
         )}

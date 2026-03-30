@@ -83,7 +83,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
             </span>
           </div>
           <button className="pp-reveal-btn" onClick={pp.reveal}>
-            <Eye className="w-5 h-5" /> {t('passPlay.reveal')}
+            <Eye size={20} /> {t('passPlay.reveal')}
           </button>
           <PPProgressDots currentIndex={pp.currentPlayerIndex} total={lobby.passPlay?.turnOrder.length ?? 0} />
         </div>
@@ -105,7 +105,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
               <span className="pp-advance-check">&#10003;</span>
               <p className="pp-advance-label">{t('passPlay.actionSubmitted')}</p>
               <button className="pp-advance-btn" onClick={pp.advance}>
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight size={20} />
                 {t('passPlay.donePassDevice')}
               </button>
             </div>

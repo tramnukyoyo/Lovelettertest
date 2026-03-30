@@ -70,7 +70,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
           className="video-join-btn"
           title={copy.controls.joinVideoChat}
         >
-          <Video className="w-4 h-4" />
+          <Video size={16} />
           <span className="video-join-text">{copy.controls.joinVideo}</span>
         </button>
       </div>
@@ -84,7 +84,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
     return (
       <div className={`video-control-cluster ${className}`}>
         <div className="video-preparing-badge">
-          <Video className="w-4 h-4" />
+          <Video size={16} />
           <span>{copy.controls.settingUp}</span>
         </div>
       </div>
@@ -104,9 +104,9 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
           title={isFilmstripExpanded ? copy.controls.collapseVideos : copy.controls.expandVideos}
         >
           {isFilmstripExpanded ? (
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown size={16} />
           ) : (
-            <ChevronUp className="w-4 h-4" />
+            <ChevronUp size={16} />
           )}
           {!compact && <span>{copy.controls.videos}</span>}
         </button>
@@ -120,9 +120,9 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
           title={isCameraEnabled ? copy.controls.turnOffCamera : copy.controls.turnOnCamera}
         >
           {isCameraEnabled ? (
-            <Video className="w-4 h-4" />
+            <Video size={16} />
           ) : (
-            <VideoOff className="w-4 h-4" />
+            <VideoOff size={16} />
           )}
         </button>
       )}
@@ -135,9 +135,9 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
           title={isAudioEnabled ? copy.controls.muteMicrophone : copy.controls.unmuteMicrophone}
         >
           {isAudioEnabled ? (
-            <Mic className="w-4 h-4" />
+            <Mic size={16} />
           ) : (
-            <MicOff className="w-4 h-4" />
+            <MicOff size={16} />
           )}
         </button>
       )}
@@ -149,7 +149,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
           className="video-control-btn"
           title={copy.controls.videoSettings}
         >
-          <Settings className="w-4 h-4" />
+          <Settings size={16} />
         </button>
       )}
 
@@ -160,7 +160,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
           className="video-control-btn leave"
           title={copy.controls.leaveVideoChat}
         >
-          <PhoneOff className="w-4 h-4" />
+          <PhoneOff size={16} />
         </button>
       )}
 
@@ -171,7 +171,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
           className="video-control-btn"
           title={copy.controls.openBroadcastWindow}
         >
-          <Radio className="w-4 h-4" />
+          <Radio size={16} />
         </button>
       )}
     </div>

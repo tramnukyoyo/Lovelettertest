@@ -307,13 +307,13 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
   const microphones = availableDevices.filter(d => d.kind === 'audioinput');
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: 'devices', label: copy.deviceSettings.devices, icon: <Monitor className="w-4 h-4" /> },
-    { id: 'background', label: copy.deviceSettings.background, icon: <Image className="w-4 h-4" /> },
-    { id: 'audio', label: copy.deviceSettings.audio, icon: <Volume2 className="w-4 h-4" /> },
+    { id: 'devices', label: copy.deviceSettings.devices, icon: <Monitor size={16} /> },
+    { id: 'background', label: copy.deviceSettings.background, icon: <Image size={16} /> },
+    { id: 'audio', label: copy.deviceSettings.audio, icon: <Volume2 size={16} /> },
   ];
 
   if (showAvatarTab) {
-    tabs.push({ id: 'avatar', label: copy.deviceSettings.avatar, icon: <User className="w-4 h-4" /> });
+    tabs.push({ id: 'avatar', label: copy.deviceSettings.avatar, icon: <User size={16} /> });
   }
 
   // Use portal to render at document.body level, escaping any stacking context issues
@@ -329,7 +329,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
             }
           </h2>
           <button className="device-settings-close" onClick={onClose}>
-            <X className="w-5 h-5" />
+            <X size={20} />
           </button>
         </div>
 
@@ -351,7 +351,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
           />
           {joinCameraOff && (
             <div className="camera-off-overlay">
-              <VideoOff className="w-8 h-8" />
+              <VideoOff size={32} />
               <span>{copy.deviceSettings.cameraOff}</span>
             </div>
           )}
@@ -363,7 +363,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
           )}
           {virtualBgEnabled && !joinCameraOff && !isVbLoading && (
             <div className="virtual-bg-badge">
-              <Sparkles className="w-3 h-3" />
+              <Sparkles size={12} />
               <span>{copy.deviceSettings.virtualBackgroundActive}</span>
             </div>
           )}
@@ -393,7 +393,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               {/* Camera Selection */}
               <div className="device-setting-row">
                 <label>
-                  <Video className="w-4 h-4" />
+                  <Video size={16} />
                   {copy.deviceSettings.camera}
                 </label>
                 <select
@@ -414,7 +414,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               {/* Microphone Selection */}
               <div className="device-setting-row">
                 <label>
-                  <Mic className="w-4 h-4" />
+                  <Mic size={16} />
                   {copy.deviceSettings.microphone}
                 </label>
                 <select
@@ -435,7 +435,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
               {/* Audio Level Meter - Segmented Bars */}
               <div className={`device-setting-row audio-meter-row${joinMuted ? ' is-muted' : ''}`}>
                 <label>
-                  {joinMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  {joinMuted ? <MicOff size={16} /> : <Mic size={16} />}
                   {copy.deviceSettings.audioLevel}
                 </label>
                 <div className="audio-meter-bars">
@@ -463,7 +463,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   />
                   <span className="toggle-slider" />
                   <span className="toggle-label">
-                    <MicOff className="w-4 h-4" />
+                    <MicOff size={16} />
                     {copy.deviceSettings.joinMuted}
                   </span>
                 </label>
@@ -476,7 +476,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   />
                   <span className="toggle-slider" />
                   <span className="toggle-label">
-                    <VideoOff className="w-4 h-4" />
+                    <VideoOff size={16} />
                     {copy.deviceSettings.joinWithCameraOff}
                   </span>
                 </label>
@@ -504,7 +504,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 />
                 <span className="toggle-slider" />
                 <span className="toggle-label">
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles size={16} />
                   {copy.deviceSettings.enableVirtualBackground}
                 </span>
               </label>
@@ -557,7 +557,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 />
                 <span className="toggle-slider" />
                 <span className="toggle-label">
-                  <Volume2 className="w-4 h-4" />
+                  <Volume2 size={16} />
                   {copy.deviceSettings.noiseSuppression}
                 </span>
               </label>
@@ -603,7 +603,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                 />
                 <span className="toggle-slider" />
                 <span className="toggle-label">
-                  <User className="w-4 h-4" />
+                  <User size={16} />
                   {copy.deviceSettings.faceAvatar}
                 </span>
               </label>
@@ -646,7 +646,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
             {mode === 'setup' ? copy.deviceSettings.cancel : copy.deviceSettings.close}
           </button>
           <button className="device-settings-confirm" onClick={handleConfirm}>
-            <Check className="w-4 h-4" />
+            <Check size={16} />
             {mode === 'setup' ? copy.deviceSettings.joinVideoChat : copy.deviceSettings.saveSettings}
           </button>
         </div>

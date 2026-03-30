@@ -128,7 +128,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
 
           {/* Multiplayer Badge */}
           <div className="home-mp-badge">
-            <Users className="w-4 h-4" />
+            <Users size={16} />
             <span className="home-mp-badge-count">
               {t('home.multiplayerBadge').replace('{min}', String(GAME_META.minPlayers)).replace('{max}', String(GAME_META.maxPlayers))}
             </span>
@@ -139,17 +139,17 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
           {/* How It Works Strip */}
           <div className="home-steps">
             <div className="home-step">
-              <span className="home-step-icon"><Plus className="w-4 h-4" /></span>
+              <span className="home-step-icon"><Plus size={16} /></span>
               <span className="home-step-text">{t('home.step1Title')}</span>
             </div>
             <span className="home-step-arrow">&rarr;</span>
             <div className="home-step">
-              <span className="home-step-icon"><Share2 className="w-4 h-4" /></span>
+              <span className="home-step-icon"><Share2 size={16} /></span>
               <span className="home-step-text">{t('home.step2Title')}</span>
             </div>
             <span className="home-step-arrow">&rarr;</span>
             <div className="home-step">
-              <span className="home-step-icon"><Users className="w-4 h-4" /></span>
+              <span className="home-step-icon"><Users size={16} /></span>
               <span className="home-step-text">{t('home.step3Title')}</span>
             </div>
           </div>
@@ -169,7 +169,7 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
             <div className="home-cards" ref={cardsRef}>
               <div className="card home-card">
                 <div className="card-header">
-                  {joinMode ? <Users className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                  {joinMode ? <Users size={20} /> : <Plus size={20} />}
                   <h2>{joinMode ? t('home.joinRoom') : t('home.createRoom')}</h2>
                 </div>
                 <p className="card-description">{joinMode ? t('home.joinRoomDescription') : t('home.createRoomDescription')}</p>

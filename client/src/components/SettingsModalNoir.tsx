@@ -117,7 +117,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               onClick={onClose}
               aria-label={t('settings.close')}
             >
-              <X className="w-5 h-5" />
+              <X size={20} />
             </button>
           </div>
 
@@ -125,7 +125,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <section className="settings-section">
               <div className="settings-row">
                 <div className="settings-row-label">
-                  <Music2 className="w-4 h-4" />
+                  <Music2 size={16} />
                   <span>{t('settingsNoir.backgroundMusic')}</span>
                 </div>
                 <div className="settings-row-actions">
@@ -143,7 +143,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               </div>
               <div className="settings-row" style={{ marginBottom: 0 }}>
                 <div className="settings-row-label">
-                  <Volume2 className="w-4 h-4" />
+                  <Volume2 size={16} />
                   <span>{t('settingsNoir.musicVolume')}</span>
                 </div>
                 <div className="settings-row-value">{musicVolume}%</div>
@@ -165,7 +165,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <section className="settings-section">
               <div className="settings-row">
                 <div className="settings-row-label">
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles size={16} />
                   <span>{t('settingsNoir.soundEffects')}</span>
                 </div>
                 <div className="settings-row-actions">
@@ -183,7 +183,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               </div>
               <div className="settings-row" style={{ marginBottom: 0 }}>
                 <div className="settings-row-label">
-                  <Volume2 className="w-4 h-4" />
+                  <Volume2 size={16} />
                   <span>{t('settingsNoir.effectsVolume')}</span>
                 </div>
                 <div className="settings-row-value">{sfxVolume}%</div>

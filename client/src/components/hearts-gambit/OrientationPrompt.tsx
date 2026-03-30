@@ -78,7 +78,7 @@ const OrientationPrompt: React.FC<OrientationPromptProps> = ({ className = '' })
             onClick={handleDismiss}
             className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] text-[var(--parchment)] px-6 py-3 rounded-xl text-sm font-bold transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
           >
-            <X className="w-4 h-4" />
+            <X size={16} />
             {t('orientation.continueInPortrait')}
           </button>
 

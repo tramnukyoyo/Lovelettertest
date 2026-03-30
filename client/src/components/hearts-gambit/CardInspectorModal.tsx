@@ -283,7 +283,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
               className="hg-inspector-close hg-icon-btn w-10 h-10 flex items-center justify-center rounded-full bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] transition-colors"
               aria-label={t('cardInspector.closeInspector')}
             >
-              <X className="w-5 h-5 text-[#f6f0e6]" />
+              <X size={20} color="#f6f0e6" />
             </button>
           </div>
 
@@ -303,7 +303,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 className="hg-inspector-nav hg-inspector-nav-prev hg-icon-btn absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-[rgba(212,175,55,0.4)] hover:bg-[rgba(212,175,55,0.5)] transition-colors z-20 border border-[rgba(212,175,55,0.5)]"
                 aria-label={t('cardInspector.previousCard')}
               >
-                <ChevronLeft className="w-6 h-6 text-[#f6f0e6]" />
+                <ChevronLeft size={24} color="#f6f0e6" />
               </button>
             )}
 
@@ -361,7 +361,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 className="hg-inspector-nav hg-inspector-nav-next hg-icon-btn absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-[rgba(212,175,55,0.4)] hover:bg-[rgba(212,175,55,0.5)] transition-colors z-20 border border-[rgba(212,175,55,0.5)]"
                 aria-label={t('cardInspector.nextCard')}
               >
-                <ChevronRight className="w-6 h-6 text-[#f6f0e6]" />
+                <ChevronRight size={24} color="#f6f0e6" />
               </button>
             )}
           </motion.div>
@@ -382,14 +382,14 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                         onClick={handleCancelSelection}
                         className="flex-1 flex items-center justify-center gap-2 bg-[rgba(var(--accent-color-rgb),0.3)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] py-4 rounded-xl font-bold text-sm transition-all min-h-[56px] border border-[rgba(var(--accent-color-rgb),0.5)]"
                       >
-                        <RotateCcw className="w-4 h-4" />
+                        <RotateCcw size={16} />
                         {t('cardInspector.chooseAnother')}
                       </button>
                       <button
                         onClick={handleConfirmSelection}
                         className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white py-4 rounded-xl font-bold text-sm transition-all min-h-[56px]"
                       >
-                        <Check className="w-5 h-5" />
+                        <Check size={20} />
                         {t('common.confirm')}
                       </button>
                     </div>
@@ -399,7 +399,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       onClick={() => handleSelectCard(currentIndex)}
                       className="w-full flex items-center justify-center gap-2 bg-[var(--royal-crimson)] hover:bg-[var(--royal-crimson-light)] text-white py-4 rounded-xl font-bold text-sm transition-all min-h-[56px]"
                     >
-                      <Play className="w-5 h-5" />
+                      <Play size={20} />
                       {t('cardInspector.selectThisCard')}
                     </button>
                   ) : (
@@ -455,7 +455,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                           />
                         ) : (
                           <div className="w-full h-full rounded-full bg-[#1a0f1e] flex items-center justify-center">
-                            <User className="w-7 h-7 text-[var(--parchment)]" />
+                            <User size={28} color="var(--parchment)" />
                           </div>
                         )}
                       </div>
@@ -480,7 +480,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       `}
                     >
                       <div className="w-14 h-14 rounded-full bg-[var(--royal-crimson)] flex items-center justify-center mb-2">
-                        <User className="w-7 h-7 text-white" />
+                        <User size={28} color="white" />
                       </div>
                       <span className="text-sm text-[var(--parchment)] font-medium">{t('cardInspector.yourself')}</span>
                     </button>
@@ -492,7 +492,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                   onClick={handleBack}
                   className="w-full py-3 flex items-center justify-center gap-2 bg-[rgba(var(--accent-color-rgb),0.15)] hover:bg-[rgba(var(--accent-color-rgb),0.25)] text-[var(--parchment)] rounded-xl font-bold text-sm transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft size={16} />
                   {t('common.cancel')}
                 </button>
               </motion.div>
@@ -540,7 +540,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                   onClick={handleBack}
                   className="w-full py-3 flex items-center justify-center gap-2 bg-[rgba(var(--accent-color-rgb),0.15)] hover:bg-[rgba(var(--accent-color-rgb),0.25)] text-[var(--parchment)] rounded-xl font-bold text-sm transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft size={16} />
                   {t('cardInspector.back')}
                 </button>
               </motion.div>
@@ -602,7 +602,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                     onClick={handlePlayClick}
                     className="flex-1 py-3 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold text-sm transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                   >
-                    <Play className="w-4 h-4" />
+                    <Play size={16} />
                     {t('cardInspector.playCard')}
                   </button>
                 </div>

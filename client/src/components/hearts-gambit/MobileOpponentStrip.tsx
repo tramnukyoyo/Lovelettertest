@@ -113,8 +113,8 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
               {/* Player name */}
               <div className="flex items-center gap-1 max-w-full">
                 <span className="text-xs font-bold text-[var(--parchment)] truncate">{player.name}</span>
-                {player.isHost && <Crown className="w-3 h-3 text-[var(--royal-gold)] flex-shrink-0" />}
-                {player.isBot && <Bot className="w-3 h-3 text-[var(--parchment-dark)] flex-shrink-0" />}
+                {player.isHost && <Crown size={12} color="var(--royal-gold)" style={{flexShrink:0}} />}
+                {player.isBot && <Bot size={12} color="var(--parchment-dark)" style={{flexShrink:0}} />}
               </div>
 
               {/* Tokens */}

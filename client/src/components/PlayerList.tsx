@@ -148,7 +148,7 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
                   title={t('playerList.kick')}
                   type="button"
                 >
-                  <UserMinus className="w-4 h-4" />
+                  <UserMinus size={16} />
                 </button>
               )}
             </div>

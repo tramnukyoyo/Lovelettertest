@@ -122,7 +122,7 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
                   className="hg-icon-btn w-10 h-10 flex items-center justify-center rounded-xl bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] transition-colors"
                   aria-label={t('chat.closeChat')}
                 >
-                  <X className="w-5 h-5 text-[var(--parchment)]" />
+                  <X size={20} color="var(--parchment)" />
                 </button>
               </div>
 
@@ -231,7 +231,7 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
                         : 'bg-[rgba(var(--accent-color-rgb),0.2)] text-[var(--parchment)]'
                     }`}
                   >
-                    <Smile className="w-5 h-5" />
+                    <Smile size={20} />
                   </button>
 
                   {/* Input field */}
@@ -256,7 +256,7 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
                         : 'bg-[rgba(var(--accent-color-rgb),0.2)] text-[var(--parchment-dark)] opacity-50'
                     }`}
                   >
-                    <Send className="w-5 h-5" />
+                    <Send size={20} />
                   </button>
                 </div>
               </div>

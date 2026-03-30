@@ -156,7 +156,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
                     className="game-header-copy-btn"
                     title={t('gameHeader.copyRoomLink')}
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy size={16} />
                   </button>
                   {copyFeedback && (
                     <span className="game-header-copy-feedback">{t('gameHeader.copied')}</span>
@@ -172,7 +172,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
                     className="game-header-copy-btn streamer"
                     title={t('gameHeader.copyInviteLink')}
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy size={16} />
                   </button>
                   {copyFeedback && (
                     <span className="game-header-copy-feedback">{t('gameHeader.copied')}</span>
@@ -211,13 +211,13 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
 
           {/* Player count */}
           <div className="game-header-player-count">
-            <Users className="w-4 h-4" />
+            <Users size={16} />
             <span>{lobby.players.filter((p: Player) => p.connected).length}/2</span>
           </div>
 
           {/* Current player info */}
           <div className={`game-header-player-info ${isHost ? 'host' : ''}`}>
-            {isHost && <Crown className="w-4 h-4" />}
+            {isHost && <Crown size={16} />}
             <span>{myPlayer?.name || t('common.player')}</span>
             {isHost && <span className="game-header-host-badge">{t('playerList.host')}</span>}
           </div>
@@ -232,7 +232,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
             className="game-header-settings-btn"
             title={t('header.settings')}
           >
-            <Settings className="w-4 h-4" />
+            <Settings size={16} />
           </button>
 
           {/* Leave/Return button */}
@@ -268,12 +268,12 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
                   className="game-header-back-btn"
                   title={t('gameHeader.backToLobby') || 'Return to Lobby'}
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft size={16} />
                   {t('gameHeader.lobby') || 'Lobby'}
                 </button>
               )}
               <button onClick={handleLeave} className="game-header-leave-btn">
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft size={16} />
                 {t('gameHeader.leave')}
               </button>
             </>
@@ -293,7 +293,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
                 className="game-header-copy-btn"
                 title={t('gameHeader.copyRoomLink')}
               >
-                <Copy className="w-3.5 h-3.5" />
+                <Copy size={14} />
               </button>
               {copyFeedback && (
                 <span className="game-header-copy-feedback">{t('gameHeader.copied')}</span>

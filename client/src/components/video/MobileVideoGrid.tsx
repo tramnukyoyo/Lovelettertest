@@ -134,21 +134,21 @@ const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
           onClick={toggleAudio}
           aria-label={isAudioEnabled ? copy.controls.muteMicrophone : copy.controls.unmuteMicrophone}
         >
-          {isAudioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+          {isAudioEnabled ? <Mic size={20} /> : <MicOff size={20} />}
         </button>
         <button
           className={`mobile-video-control-btn ${!isVideoEnabled ? 'off' : ''}`}
           onClick={toggleVideo}
           aria-label={isVideoEnabled ? copy.controls.turnOffCamera : copy.controls.turnOnCamera}
         >
-          {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+          {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
         </button>
         <button
           className="mobile-video-control-btn leave"
           onClick={onLeave}
           aria-label={copy.controls.leaveVideoChat}
         >
-          <PhoneOff className="w-5 h-5" />
+          <PhoneOff size={20} />
         </button>
       </div>
     </div>

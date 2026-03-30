@@ -45,7 +45,7 @@ const BotControls: React.FC<BotControlsProps> = ({
         disabled={players.length >= maxPlayers}
         type="button"
       >
-        <UserPlus className="w-4 h-4" />
+        <UserPlus size={16} />
         Add Bot
       </button>
 
@@ -53,7 +53,7 @@ const BotControls: React.FC<BotControlsProps> = ({
         <div className="bot-player-list">
           {botPlayers.map(bot => (
             <div key={bot.id} className="bot-player-item">
-              <Bot className="w-3.5 h-3.5" style={{ opacity: 0.7 }} />
+              <Bot size={14} style={{ opacity: 0.7 }} />
               <span className="bot-player-name">{bot.name}</span>
               <button
                 className="bot-remove-btn"
@@ -61,7 +61,7 @@ const BotControls: React.FC<BotControlsProps> = ({
                 title="Remove bot"
                 type="button"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 size={14} />
               </button>
             </div>
           ))}

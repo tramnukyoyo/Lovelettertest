@@ -134,7 +134,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.4 }}
           >
-            <Crown className="w-10 h-10 sm:w-14 sm:h-14 mx-auto mb-2 text-[var(--royal-gold)]" strokeWidth={1.5} />
+            <Crown size={40} color="var(--royal-gold)" className="mx-auto mb-2" strokeWidth={1.5} />
             <div className="text-2xl sm:text-3xl font-black text-white">
               {winnerPlayer?.name}
             </div>
@@ -161,7 +161,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                 transition={{ duration: 0.2, delay: 0.6 + i * 0.08 }}
               >
                 <span className="flex items-center gap-1.5 truncate mr-2">
-                  {p.id === winnerId && <Crown className="w-3.5 h-3.5 flex-shrink-0" />}
+                  {p.id === winnerId && <Crown size={14} style={{flexShrink:0}} />}
                   {p.name}
                 </span>
                 <span className="font-mono whitespace-nowrap">{p.tokens} / {tokensToWin}</span>

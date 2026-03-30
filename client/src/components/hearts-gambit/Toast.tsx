@@ -35,7 +35,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = 3000 }
         onClick={onClose}
         className="p-1 hover:bg-white/10 rounded transition-colors"
       >
-        <X className="w-4 h-4" />
+        <X size={16} />
       </button>
     </motion.div>,
     document.body

@@ -471,7 +471,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
           {amEliminated && (
             <span className="bg-red-700 text-white text-xs font-black px-2 py-1 rounded-full flex items-center gap-1">
-              <Skull className="w-3 h-3" /> OUT
+              <Skull size={12} /> OUT
             </span>
           )}
         </div>
@@ -642,7 +642,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               {copyFeedback ? (
                 <Check className="w-4 h-4 text-green-400" />
               ) : (
-                <Copy className="w-4 h-4 text-[var(--parchment)]" />
+                <Copy size={16} color="var(--parchment)" />
               )}
             </button>
           </div>
@@ -792,7 +792,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                         {player.avatarUrl ? (
                           <img src={player.avatarUrl} alt={player.name} className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-5 h-5 text-[var(--parchment)]" />
+                          <User size={20} color="var(--parchment)" />
                         )}
                       </div>
                     </div>
@@ -814,7 +814,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                   >
                     <div className="hg-noir-avatar mb-1">
                       <div className="hg-noir-avatar-inner">
-                        <User className="w-5 h-5 text-[var(--parchment)]" />
+                        <User size={20} color="var(--parchment)" />
                       </div>
                     </div>
                     <span className="text-xs text-[var(--parchment)] font-medium">Yourself</span>
@@ -827,7 +827,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 onClick={handleBack}
                 className="hg-modal-btn hg-noir-cancel-btn w-full flex items-center justify-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft size={16} />
                 Cancel
               </button>
             </motion.div>
@@ -877,7 +877,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 onClick={handleBack}
                 className="hg-modal-btn hg-noir-cancel-btn w-full flex items-center justify-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft size={16} />
                 Back
               </button>
             </motion.div>
@@ -954,7 +954,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                   className="hg-modal-btn flex-1 py-1.5 bg-green-700 hover:bg-green-600 text-white font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-1"
                   style={{ fontFamily: 'var(--font-typewriter)', borderRadius: '4px' }}
                 >
-                  <Play className="w-3 h-3" />
+                  <Play size={12} />
                   Play
                 </button>
               </div>

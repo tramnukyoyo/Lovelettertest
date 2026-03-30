@@ -67,7 +67,7 @@ const PassPlayToggle: React.FC<PassPlayToggleProps> = ({
     if (!isPassPlay) return null;
     return (
       <div className="pp-mode-label">
-        <Smartphone className="w-4 h-4" />
+        <Smartphone size={16} />
         <span>{t('passPlay.passAndPlay')}</span>
       </div>
     );
@@ -82,7 +82,7 @@ const PassPlayToggle: React.FC<PassPlayToggleProps> = ({
           onClick={() => onToggleMode(false)}
           type="button"
         >
-          <Wifi className="w-4 h-4" />
+          <Wifi size={16} />
           {t('passPlay.online')}
         </button>
         <button
@@ -90,7 +90,7 @@ const PassPlayToggle: React.FC<PassPlayToggleProps> = ({
           onClick={() => onToggleMode(true)}
           type="button"
         >
-          <Smartphone className="w-4 h-4" />
+          <Smartphone size={16} />
           {t('passPlay.passAndPlay')}
         </button>
       </div>
@@ -116,7 +116,7 @@ const PassPlayToggle: React.FC<PassPlayToggleProps> = ({
               disabled={!newPlayerName.trim() || isAdding || players.length >= maxPlayers}
               type="button"
             >
-              <UserPlus className="w-4 h-4" />
+              <UserPlus size={16} />
             </button>
           </div>
 
@@ -124,7 +124,7 @@ const PassPlayToggle: React.FC<PassPlayToggleProps> = ({
 
           {/* Player Count */}
           <p className="pp-player-count">
-            <Users className="w-3 h-3" />
+            <Users size={12} />
             {players.length}/{maxPlayers} {t('lobby.players')}
           </p>
 
@@ -140,7 +140,7 @@ const PassPlayToggle: React.FC<PassPlayToggleProps> = ({
                     title={t('passPlay.removePlayer')}
                     type="button"
                   >
-                    <X className="w-3 h-3" />
+                    <X size={12} />
                   </button>
                 </div>
               ))}

@@ -52,7 +52,7 @@ export const CardLegendModal: React.FC<CardLegendModalProps> = ({ onClose }) => 
             onClick={onClose}
             aria-label={t('cardLegend.closeLabel')}
           >
-            <X className="w-5 h-5" />
+            <X size={20} />
           </button>
         </div>
 

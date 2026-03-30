@@ -103,7 +103,7 @@ const StreamerSettingsPanel: React.FC<StreamerSettingsPanelProps> = ({
 
       <div className="streamer-settings-section streamer-settings-controls">
         <button type="button" className="streamer-lock-btn" onClick={onLock}>
-          <Lock className="w-4 h-4" />
+          <Lock size={16} />
           <span>{copy.settings.lockForCapture}</span>
         </button>
         <button type="button" className="streamer-close-btn" onClick={onClose}>

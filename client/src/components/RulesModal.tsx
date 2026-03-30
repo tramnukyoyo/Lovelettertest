@@ -64,7 +64,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
             onClick={onClose}
             aria-label="Close rules"
           >
-            <X className="w-5 h-5" />
+            <X size={20} />
           </button>
         </div>
 

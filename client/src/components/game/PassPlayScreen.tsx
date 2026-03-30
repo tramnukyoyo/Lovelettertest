@@ -52,7 +52,7 @@ const PassPlayScreen: React.FC<PassPlayScreenProps> = ({
             disabled={!canAdvance}
             type="button"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight size={20} />
             {doneLabel || t('passPlay.donePassDevice')}
           </button>
         </div>
@@ -74,7 +74,7 @@ const PassPlayScreen: React.FC<PassPlayScreenProps> = ({
             onClick={onReveal}
             type="button"
           >
-            <Eye className="w-5 h-5" />
+            <Eye size={20} />
             {revealLabel || t('passPlay.reveal')}
           </button>
 

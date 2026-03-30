@@ -233,13 +233,13 @@ const StreamerBroadcastContent: React.FC<StreamerBroadcastContentProps> = ({
                   handleUnlock();
                 }}
               >
-                <LockOpen className="w-4 h-4" />
+                <LockOpen size={16} />
                 <span>{copy.content.unlock}</span>
               </button>
             </div>
           ) : (
             <span className="streamer-gear-icon">
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal size={16} />
             </span>
           )}
         </div>

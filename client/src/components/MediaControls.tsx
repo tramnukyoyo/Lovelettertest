@@ -205,13 +205,13 @@ const MediaControls: React.FC<MediaControlsProps> = ({
         >
           {isStreamOperationInProgress ? 
             <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> :
-            (isMicOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />)
+            (isMicOn ? <Mic size={16} /> : <MicOff size={16} />)
           }
         </button>
 
         {isMicOn && (
           <div className="flex items-center space-x-1 text-green-400" data-testid="mic-status">
-            <Mic className="w-3 h-3" />
+            <Mic size={12} />
             <span className="text-xs">{t('media.micActive')}</span>
           </div>
         )}
@@ -222,7 +222,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
           className={`btn btn-sm ${isMusicOn ? 'btn-warning' : 'btn-secondary'} flex items-center space-x-1`}
           title={isMusicOn ? t('media.muteBackgroundMusic') : t('media.playBackgroundMusic')}
         >
-          {isMusicOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          {isMusicOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
         </button>
 
         {/* Settings */}
@@ -231,7 +231,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
           className="btn btn-sm btn-secondary"
           title={t('media.mediaSettings')}
         >
-          <Settings className="w-4 h-4" />
+          <Settings size={16} />
         </button>
 
         {/* Webcam Toggle */}
@@ -240,12 +240,12 @@ const MediaControls: React.FC<MediaControlsProps> = ({
           className={`btn btn-sm ${isWebcamOn ? 'btn-success' : 'btn-secondary'} flex items-center space-x-1`}
           data-testid="webcam-toggle"
         >
-          {isWebcamOn ? <Video className="w-4 h-4" /> : <VideoOff className="w-4 h-4" />}
+          {isWebcamOn ? <Video size={16} /> : <VideoOff size={16} />}
         </button>
 
         {isWebcamOn && (
           <div className="flex items-center space-x-1 text-green-400" data-testid="webcam-status">
-            <Video className="w-3 h-3" />
+            <Video size={12} />
             <span className="text-xs">{t('media.cameraActive')}</span>
           </div>
         )}
@@ -255,11 +255,11 @@ const MediaControls: React.FC<MediaControlsProps> = ({
       <div className="mt-3">
         <div className="bg-slate-800/50 border border-slate-600/50 rounded-xl p-3">
           <div className="flex items-center space-x-2 text-slate-300">
-            <User className="w-4 h-4" />
+            <User size={16} />
             <span className="flex items-center gap-1">
               {isGamemaster ? (
                 <>
-                  <Crown className="w-4 h-4" />
+                  <Crown size={16} />
                   {t('media.gamemaster')}
                 </>
               ) : (
@@ -268,7 +268,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
             </span>
             {isMicOn && (
               <div className="flex items-center space-x-1 text-green-400">
-                <Mic className="w-3 h-3" />
+                <Mic size={12} />
                 <span className="text-xs">{t('media.micActive')}</span>
               </div>
             )}

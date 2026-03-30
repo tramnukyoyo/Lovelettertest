@@ -145,7 +145,7 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
           <div className="flex items-center justify-between w-full px-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[var(--royal-gold)]" />
+                <Layers size={16} color="var(--royal-gold)" />
                 <span className="text-sm font-bold text-[var(--parchment)]">
                   {hand.length} {hand.length !== 1 ? t('caseFile.cards') : t('caseFile.card')}
                 </span>
@@ -162,7 +162,7 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
               animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronUp className="w-5 h-5 text-[var(--parchment-dark)]" />
+              <ChevronUp size={20} color="var(--parchment-dark)" />
             </motion.div>
           </div>
         </motion.div>

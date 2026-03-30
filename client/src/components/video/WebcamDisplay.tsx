@@ -139,7 +139,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
         {/* Name */}
         {showName && (
           <div className="webcam-name">
-            {isHost && <Crown className="w-3 h-3 webcam-host-icon" />}
+            {isHost && <Crown size={12} className="webcam-host-icon" />}
             <span>{player.name}</span>
             {isLocal && <span className="webcam-you-tag">{t('video.youTag')}</span>}
           </div>
@@ -148,7 +148,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
         {/* Mute indicator */}
         {isMuted && (
           <div className="webcam-muted">
-            <MicOff className="w-3 h-3" />
+            <MicOff size={12} />
           </div>
         )}
       </div>

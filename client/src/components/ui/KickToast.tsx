@@ -68,7 +68,7 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
   return createPortal(
     <div className={`kick-toast ${visible ? 'visible' : ''}`}>
       <div className="kick-toast-icon">
-        <UserMinus className="w-6 h-6" />
+        <UserMinus size={24} />
       </div>
       <div className="kick-toast-content">
         <span className="kick-toast-title">Kicked from Room</span>
@@ -80,7 +80,7 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
         type="button"
         aria-label="Close notification"
       >
-        <X className="w-4 h-4" />
+        <X size={16} />
       </button>
     </div>,
     document.body

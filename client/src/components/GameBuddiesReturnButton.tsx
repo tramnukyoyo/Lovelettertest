@@ -167,7 +167,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
           className="game-header-gb-btn"
           title={title}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft size={16} />
           {labelContent}
         </button>
       </>
@@ -184,7 +184,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
         className="game-header-gb-btn"
         title={title}
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft size={16} />
         {labelContent}
       </button>
     </>

@@ -388,8 +388,8 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                     <div className="overflow-hidden">
                         <div className="flex items-center gap-1">
                             <span className="text-sm font-bold text-[var(--parchment)] truncate">{player.name}</span>
-                            {player.isHost && <Crown className="w-3 h-3 text-[var(--royal-gold)]" />}
-                            {player.isBot && <Bot className="w-3 h-3 text-[var(--parchment-dark)]" />}
+                            {player.isHost && <Crown size={12} color="var(--royal-gold)" />}
+                            {player.isBot && <Bot size={12} color="var(--parchment-dark)" />}
                         </div>
                         <div className="hg-meta flex items-center gap-2 text-[10px]">
                              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[var(--royal-crimson)]"></span> {t('game.tokens').replace('{count}', String(player.tokens))}</span>
@@ -690,7 +690,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
               )}
               {amEliminated && (
                 <span className="bg-red-700 text-white text-xs font-black px-3 py-1 rounded-full uppercase flex items-center gap-1">
-                  <Skull className="w-4 h-4" /> {t('game.eliminated')}
+                  <Skull size={16} /> {t('game.eliminated')}
                 </span>
               )}
 
@@ -701,7 +701,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                   title={t('cardLegend.title')}
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <BookOpen size={16} />
                   {t('cardLegend.title')}
                 </button>
                 <button
@@ -709,7 +709,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                   title="Rules"
                 >
-                  <ScrollText className="w-4 h-4" />
+                  <ScrollText size={16} />
                   Rules
                 </button>
                 <button
@@ -717,7 +717,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
                   title={t('tutorial.howToPlay')}
                 >
-                  <HelpCircle className="w-4 h-4" />
+                  <HelpCircle size={16} />
                   {t('tutorial.howToPlay')}
                 </button>
               </div>

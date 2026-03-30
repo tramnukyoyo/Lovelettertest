@@ -31,28 +31,28 @@ export const BottomTabBar = React.memo<BottomTabBarProps>(
           {
             id: 'game' as const,
             label: t('bottomTab.game'),
-            icon: <Gamepad2 className="w-5 h-5" />,
+            icon: <Gamepad2 size={20} />,
           },
           {
             id: 'players' as const,
             label: t('bottomTab.players'),
-            icon: <Users className="w-5 h-5" />,
+            icon: <Users size={20} />,
           },
           {
             id: 'chat' as const,
             label: t('bottomTab.chat'),
-            icon: <MessageCircle className="w-5 h-5" />,
+            icon: <MessageCircle size={20} />,
           },
           {
             id: 'video' as const,
             label: t('bottomTab.video'),
-            icon: <Video className="w-5 h-5" />,
+            icon: <Video size={20} />,
             badge: videoCount > 0 ? videoCount : undefined,
           },
           {
             id: 'settings' as const,
             label: t('bottomTab.settings'),
-            icon: <Settings className="w-5 h-5" />,
+            icon: <Settings size={20} />,
           },
         ];
 
@@ -61,7 +61,7 @@ export const BottomTabBar = React.memo<BottomTabBarProps>(
           items.push({
             id: 'history' as const,
             label: t('bottomTab.history'),
-            icon: <History className="w-5 h-5" />,
+            icon: <History size={20} />,
           });
         }
 
