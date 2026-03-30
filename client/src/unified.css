@@ -3701,6 +3701,18 @@
   }
 }
 
+/* Mobile lobby scroll fix — lobby content often exceeds viewport on small screens */
+@media (max-width: 767px) {
+  .lobby-page {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-root.in-room .app-layout:has(.lobby-page) {
+    overflow-y: auto !important;
+  }
+}
+
 /* PlayerList: avoid clipped gradient text on dark/noir backgrounds */
 [data-theme="primesuspect"] .player-list-fixed {
   background: rgba(0, 0, 0, 0.35);
