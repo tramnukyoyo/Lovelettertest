@@ -11439,6 +11439,67 @@ textarea:focus {
   }
 }
 
+/* Landscape mobile: fit modals in short viewport */
+@media (max-height: 500px) {
+  .tutorial-overlay {
+    padding: 4px !important;
+    align-items: flex-start !important;
+  }
+
+  .tutorial-modal {
+    padding: 0.75rem 1rem 0.5rem !important;
+    max-height: calc(100dvh - 8px) !important;
+    overflow-y: auto !important;
+  }
+
+  .tutorial-content,
+  [data-theme="primesuspect"] .tutorial-content {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .tutorial-image,
+  [data-theme="primesuspect"] .tutorial-image {
+    height: 120px !important;
+  }
+
+  .tutorial-title {
+    font-size: 1rem !important;
+    margin: 4px 0 !important;
+  }
+
+  .tutorial-description {
+    font-size: 0.8rem !important;
+  }
+
+  .tutorial-close {
+    top: 4px !important;
+    right: 4px !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Settings modals (Rules, Card Legend) */
+  [data-theme="primesuspect"] .settings-modal {
+    padding: 4px !important;
+    padding-top: 4px !important;
+  }
+
+  [data-theme="primesuspect"] .settings-modal-panel {
+    max-height: calc(100dvh - 8px) !important;
+    overflow-y: auto !important;
+  }
+
+  [data-theme="primesuspect"] .settings-modal-content {
+    padding: 0.5rem !important;
+    gap: 0.5rem !important;
+  }
+
+  [data-theme="primesuspect"] .settings-modal-header {
+    padding: 0.5rem 0.75rem !important;
+  }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .tutorial-overlay,
