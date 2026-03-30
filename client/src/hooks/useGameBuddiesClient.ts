@@ -499,27 +499,26 @@ export function useGameBuddiesClient(
     initSocket();
 
     // IMPORTANT: Pass handler refs to .off() to avoid removing ALL listeners
-    // (including internal socketService listeners)
     return () => {
       mounted = false;
       clearAllTimeouts();
       if (socketRef) {
-        socketRef.off('connect', onConnect);
-        socketRef.off('disconnect', onDisconnect);
-        socketRef.off('room:created', onRoomCreated);
-        socketRef.off('room:joined', onRoomJoined);
-        socketRef.off('room:player-joined', onPlayerEvent);
-        socketRef.off('room:player-left', onPlayerEvent);
-        socketRef.off('room:player-disconnected', onPlayerEvent);
-        socketRef.off('room:player-reconnected', onPlayerEvent);
-        socketRef.off('room:host-transferred', onHostTransferred);
-        socketRef.off('room:player-list-update', onPlayerListUpdate);
-        socketRef.off('room:settings-updated', onSettingsUpdated);
-        socketRef.off('game:started', onGameStarted);
-        socketRef.off('game:ended', onGameEnded);
-        socketRef.off('chat:message', onChatMessage);
-        socketRef.off('error', onError);
-        socketRef.off('player:kicked', onKicked);
+        socketRef.removeAllListeners('connect');
+        socketRef.removeAllListeners('disconnect');
+        socketRef.removeAllListeners('room:created');
+        socketRef.removeAllListeners('room:joined');
+        socketRef.removeAllListeners('room:player-joined');
+        socketRef.removeAllListeners('room:player-left');
+        socketRef.removeAllListeners('room:player-disconnected');
+        socketRef.removeAllListeners('room:player-reconnected');
+        socketRef.removeAllListeners('room:host-transferred');
+        socketRef.removeAllListeners('room:player-list-update');
+        socketRef.removeAllListeners('room:settings-updated');
+        socketRef.removeAllListeners('game:started');
+        socketRef.removeAllListeners('game:ended');
+        socketRef.removeAllListeners('chat:message');
+        socketRef.removeAllListeners('error');
+        socketRef.removeAllListeners('player:kicked');
       }
 
       if (typeof cleanupGameEvents === 'function') {
