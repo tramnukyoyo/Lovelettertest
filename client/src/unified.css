@@ -1458,11 +1458,39 @@
   pointer-events: auto;
 }
 
+/* Mobile: reduce modal padding so content starts near top */
+@media (max-width: 926px) {
+  [data-theme="primesuspect"] .settings-modal {
+    padding: 0.5rem;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+    align-items: flex-start;
+  }
+}
+
+/* Landscape mobile: even tighter */
+@media (max-height: 500px) {
+  [data-theme="primesuspect"] .settings-modal {
+    padding: 0.25rem;
+    padding-top: 0.25rem;
+  }
+}
+
 [data-theme="primesuspect"] .settings-modal-panel {
   width: min(560px, 100%);
+  max-height: calc(100vh - 1rem);
+  max-height: calc(100dvh - 1rem);
   border-radius: 1.1rem;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   pointer-events: auto;
+}
+
+/* Landscape: limit panel height */
+@media (max-height: 500px) {
+  [data-theme="primesuspect"] .settings-modal-panel {
+    max-height: calc(100dvh - 0.5rem);
+    border-radius: 0.75rem;
+  }
 }
 
 [data-theme="primesuspect"] .settings-modal-header {
@@ -8806,6 +8834,32 @@ textarea:focus {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+/* Compact header on small mobile screens */
+@media (max-width: 767px) {
+  .game-header-right {
+    gap: 0.35rem;
+  }
+}
+
+@media (max-width: 374px) {
+  .game-header-right {
+    gap: 0.2rem;
+  }
+
+  .game-header-player-info {
+    display: none;
+  }
+
+  .game-header-divider {
+    display: none;
+  }
+
+  .game-header-player-count {
+    padding: 2px 6px;
+    font-size: 0.8rem;
+  }
 }
 
 .game-header-player-count {
@@ -16215,6 +16269,42 @@ textarea:focus {
 
 /* ----- Bot Controls ----- */
 
+/* Lobby overlay — compact on landscape/small screens */
+.hg-lobby-overlay {
+  padding: 1rem;
+}
+
+@media (max-height: 500px) {
+  .hg-lobby-overlay {
+    gap: 4px !important;
+    padding: 0.5rem;
+    justify-content: flex-start !important;
+    padding-top: 0.75rem;
+  }
+
+  .hg-lobby-overlay h2 {
+    font-size: 1rem !important;
+    margin: 0;
+  }
+
+  .hg-lobby-overlay p {
+    font-size: 0.75rem !important;
+  }
+
+  .hg-lobby-overlay .hg-icon-btn {
+    padding: 0.5rem 1.25rem !important;
+    min-height: 40px !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+@media (max-height: 375px) {
+  .hg-lobby-overlay {
+    gap: 2px !important;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
 .bot-controls-section {
   display: flex;
   flex-direction: column;
@@ -16283,10 +16373,17 @@ textarea:focus {
   border: 1px solid rgba(255, 71, 87, 0.3);
   border-radius: var(--radius-md);
   background: rgba(255, 71, 87, 0.15);
-  color: #ff4757;
+  color: #ff4757 !important;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
   margin-left: auto;
+}
+
+.bot-remove-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: #ff4757;
+  flex-shrink: 0;
 }
 
 .bot-remove-btn:hover {

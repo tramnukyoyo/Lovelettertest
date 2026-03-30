@@ -624,7 +624,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
       {/* Waiting overlay - FIXED to cover full screen (never shown in PP mode) */}
       {lobby.state === 'LOBBY' && !isPP && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-4 z-[100] backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-2 z-[100] backdrop-blur-sm overflow-y-auto py-2 hg-lobby-overlay">
           <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
           <p className="text-sm text-[var(--parchment-dark)]">
             {t('lobby.playersJoined').replace('{current}', String(lobby.players.length)).replace('{max}', '4')}
