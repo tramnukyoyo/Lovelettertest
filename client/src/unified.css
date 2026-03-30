@@ -4994,12 +4994,19 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     @apply font-sans;
     font-family: var(--font-body);
     background: transparent !important;
-    height: 100dvh;
-    overflow: hidden;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
     color: var(--text-primary);
     padding-top: 0; /* Header padding handled by app-layout */
   }
-  
+
+  /* Lock body scroll during game phase only */
+  body:has(.game-page) {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
   #root {
     @apply min-h-screen;
     background: transparent !important;
