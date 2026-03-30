@@ -498,26 +498,28 @@ export function useGameBuddiesClient(
 
     initSocket();
 
+    // IMPORTANT: Pass handler refs to .off() to avoid removing ALL listeners
+    // (including internal socketService listeners)
     return () => {
       mounted = false;
       clearAllTimeouts();
       if (socketRef) {
-        socketRef.off('connect');
-        socketRef.off('disconnect');
-        socketRef.off('room:created');
-        socketRef.off('room:joined');
-        socketRef.off('room:player-joined');
-        socketRef.off('room:player-left');
-        socketRef.off('room:player-disconnected');
-        socketRef.off('room:player-reconnected');
-        socketRef.off('room:host-transferred');
-        socketRef.off('room:player-list-update');
-        socketRef.off('room:settings-updated');
-        socketRef.off('game:started');
-        socketRef.off('game:ended');
-        socketRef.off('chat:message');
-        socketRef.off('error');
-        socketRef.off('player:kicked');
+        socketRef.off('connect', onConnect);
+        socketRef.off('disconnect', onDisconnect);
+        socketRef.off('room:created', onRoomCreated);
+        socketRef.off('room:joined', onRoomJoined);
+        socketRef.off('room:player-joined', onPlayerEvent);
+        socketRef.off('room:player-left', onPlayerEvent);
+        socketRef.off('room:player-disconnected', onPlayerEvent);
+        socketRef.off('room:player-reconnected', onPlayerEvent);
+        socketRef.off('room:host-transferred', onHostTransferred);
+        socketRef.off('room:player-list-update', onPlayerListUpdate);
+        socketRef.off('room:settings-updated', onSettingsUpdated);
+        socketRef.off('game:started', onGameStarted);
+        socketRef.off('game:ended', onGameEnded);
+        socketRef.off('chat:message', onChatMessage);
+        socketRef.off('error', onError);
+        socketRef.off('player:kicked', onKicked);
       }
 
       if (typeof cleanupGameEvents === 'function') {

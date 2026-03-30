@@ -498,19 +498,18 @@ function App() {
 
   // Listen for site-wide notifications (retry until socket is available)
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
+    let handler: ((data: SiteNotification) => void) | null = null;
     const interval = setInterval(() => {
       const s = socketService.getSocket();
       if (s) {
         clearInterval(interval);
-        const handler = (data: SiteNotification) => setSiteNotification(data);
+        handler = (data: SiteNotification) => setSiteNotification(data);
         s.on('site:notification', handler);
-        cleanup = () => s.off('site:notification', handler);
       }
     }, 500);
     return () => {
       clearInterval(interval);
-      cleanup?.();
+      if (handler) socketService.getSocket()?.off('site:notification', handler);
     };
   }, []);
 
