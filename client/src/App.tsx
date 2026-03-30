@@ -25,6 +25,7 @@ import LoadingScreen from './components/LoadingScreen';
 import SiteNotificationToast from './components/ui/SiteNotificationToast';
 import type { SiteNotification } from './components/ui/SiteNotificationToast';
 import KickToast from './components/ui/KickToast';
+import ReconnectOverlay from './components/core/ReconnectOverlay';
 import socketService from './services/socketService';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
@@ -143,6 +144,7 @@ function AppContent() {
   // Detect GameBuddies launch synchronously (memoized to run once)
   const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+  const [restoreInfo, setRestoreInfo] = useState<{ phase: string; connectedCount: number; totalPlayers: number } | null>(null);
 
   // Safety timeout: force-resolve loading state after 10s to prevent infinite LoadingScreen
   useEffect(() => {
@@ -231,6 +233,18 @@ function AppContent() {
       socket.on('game:log', handleGameLog);
       socket.on('game:backToLobby', handleBackToLobby);
 
+      // Reconnect overlay events
+      const onGameRestored = (data: { phase: string; connectedCount: number; totalPlayers: number }) => {
+        setRestoreInfo(data);
+      };
+      const onGameResumed = () => setRestoreInfo(null);
+      const onPlayerReconnected = () => {
+        setRestoreInfo(prev => prev ? { ...prev, connectedCount: prev.connectedCount + 1 } : null);
+      };
+      socket.on('game:restored', onGameRestored);
+      socket.on('game:resumed', onGameResumed);
+      socket.on('player:reconnected', onPlayerReconnected);
+
       return () => {
         socket.off('roomStateUpdated', handleRoomStateUpdated);
         socket.off('timer:update', handleTimerUpdate);
@@ -239,6 +253,9 @@ function AppContent() {
         socket.off('game:no-match', handleNoMatch);
         socket.off('game:log', handleGameLog);
         socket.off('game:backToLobby', handleBackToLobby);
+        socket.off('game:restored', onGameRestored);
+        socket.off('game:resumed', onGameResumed);
+        socket.off('player:reconnected', onPlayerReconnected);
       };
     },
     []
@@ -486,6 +503,16 @@ function AppContent() {
           )}
           {renderPage()}
         </>
+      )}
+      {/* Reconnect overlay - shown when game is restored after server restart */}
+      {restoreInfo && (
+        <ReconnectOverlay
+          phase={restoreInfo.phase}
+          connectedCount={restoreInfo.connectedCount}
+          totalPlayers={restoreInfo.totalPlayers}
+          isHost={!!lobby?.players?.find((p: any) => p.socketId === socket?.id)?.isHost}
+          onResume={() => socket?.emit('game:resume')}
+        />
       )}
       {/* Kick Toast */}
       <KickToast message={kickMessage} onClose={clearKickMessage} />
