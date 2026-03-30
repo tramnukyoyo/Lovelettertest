@@ -8518,6 +8518,20 @@ textarea:focus {
    ============================================ */
 /* From: components/Header.css */
 
+/* Global fix: Ensure lucide-react SVG icons have explicit dimensions */
+/* Tailwind preflight + theme CSS can collapse SVG width to 0 */
+button svg.lucide,
+.settings-modal-close svg,
+.tutorial-close svg,
+.tutorial-nav-btn svg,
+.bot-remove-btn svg {
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  flex-shrink: 0;
+}
+
 /* Header Component Styles - GameBuddies.io Branding */
 
 .header {
