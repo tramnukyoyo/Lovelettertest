@@ -15724,8 +15724,22 @@ textarea:focus {
   .home-steps { display: none; }
   .home-tagline { display: none; }
   .home-gb-branding { display: none; }
+  .eyebrow { display: none; }
 
   .home-mascot { width: 60px; }
+  .home-mascot-anim { width: 60px; height: auto; }
+  .home-mascot-container { margin-bottom: 0; }
+
+  .home-shell { padding: 8px; }
+  .home-header { gap: 2px; }
+  .home-header h1 { font-size: clamp(1.5rem, 6vw, 2rem); margin: 0; }
+
+  .tutorial-mobile-trigger { margin: 4px 0; }
+
+  .home-cards-wrapper { margin-top: 0; gap: 0; }
+  .home-card { padding: 10px 14px; }
+  .card-header { margin-bottom: 4px; }
+  .card-description { display: none; }
 
   .home-title {
     font-size: clamp(1.5rem, 6vw, 2rem);
