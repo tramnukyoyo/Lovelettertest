@@ -3894,7 +3894,7 @@
   }
 
   [data-theme="primesuspect"] .home-steps {
-    margin-bottom: 0.35rem;
+    display: none;
   }
 
   [data-theme="primesuspect"] .home-tip-banner {
@@ -15721,25 +15721,34 @@ textarea:focus {
 
 @media (max-width: 767px) {
   /* Compact home screen — fit Create Room form in viewport on small phones */
-  .home-steps { display: none; }
-  .home-tagline { display: none; }
-  .home-gb-branding { display: none; }
-  .eyebrow { display: none; }
+  .home-steps { display: none !important; }
+  .home-tagline { display: none !important; }
+  .home-gb-branding { display: none !important; }
+  .eyebrow { display: none !important; }
 
   .home-mascot { width: 60px; }
-  .home-mascot-anim { width: 60px; height: auto; }
-  .home-mascot-container { margin-bottom: 0; }
+  .home-mascot-anim { width: 60px !important; height: auto !important; }
+  .home-mascot-container { margin-bottom: 0 !important; height: auto !important; }
 
-  .home-shell { padding: 8px; }
-  .home-header { gap: 2px; }
-  .home-header h1 { font-size: clamp(1.5rem, 6vw, 2rem); margin: 0; }
+  .home-shell { padding: 8px !important; }
+  .home-header { gap: 2px !important; }
+  .home-header h1 { font-size: clamp(1.5rem, 6vw, 2rem) !important; margin: 0 !important; }
 
   .tutorial-mobile-trigger { margin: 4px 0; }
 
-  .home-cards-wrapper { margin-top: 0; gap: 0; }
+  .home-cards-wrapper { margin-top: 0 !important; gap: 0; }
   .home-card { padding: 10px 14px; }
   .card-header { margin-bottom: 4px; }
   .card-description { display: none; }
+
+  /* Prime Suspect theme overrides need !important to beat [data-theme] specificity */
+  [data-theme="primesuspect"] .home-steps { display: none !important; }
+  [data-theme="primesuspect"] .home-tagline { display: none !important; }
+  [data-theme="primesuspect"] .eyebrow { display: none !important; }
+  [data-theme="primesuspect"] .home-mascot-container { height: 60px !important; margin-bottom: 0 !important; }
+  [data-theme="primesuspect"] .home-mascot-container img { width: 60px !important; }
+  [data-theme="primesuspect"] .home-header h1 { font-size: 1.5rem !important; margin: 0 !important; }
+  [data-theme="primesuspect"] .home-shell { padding: 8px !important; gap: 4px !important; }
 
   .home-title {
     font-size: clamp(1.5rem, 6vw, 2rem);
