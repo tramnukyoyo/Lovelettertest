@@ -3,10 +3,32 @@ import { SERVERS, GAME_NAMESPACE } from '../config/servers';
 import type { Region } from '../config/servers';
 import { detectFastestRegion } from './regionService';
 
+// Connection status toast — pure DOM, no React dependency
+function showConnectionToast(message: string, type: 'info' | 'warning' | 'success') {
+  const id = 'gb-connection-toast';
+  let el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement('div');
+    el.id = id;
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 20px;border-radius:24px;font:600 14px/1.4 Inter,system-ui,sans-serif;color:#fff;pointer-events:none;transition:opacity .3s;opacity:0;text-align:center;max-width:90vw;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)';
+    document.body.appendChild(el);
+  }
+  const colors = { info: 'rgba(59,130,246,.9)', warning: 'rgba(217,119,6,.9)', success: 'rgba(22,163,74,.9)' };
+  el.style.background = colors[type];
+  el.textContent = message;
+  el.style.opacity = '1';
+  if ((el as any)._hideTimer) clearTimeout((el as any)._hideTimer);
+  if (type === 'success') {
+    (el as any)._hideTimer = setTimeout(() => { el!.style.opacity = '0'; }, 3000);
+  }
+}
+
 class SocketService {
   private socket: Socket | null = null;
   private currentRegion: Region = 'eu';
   private reconnectAttempts = 0;
+  private wasDisconnected = false;
+  private serverRestarting = false;
   private maxReconnectAttempts = 15; // Increased from 5 for better mobile support
   private listenersSetup = false;
 
@@ -55,6 +77,11 @@ class SocketService {
     this.socket.on('connect', () => {
       console.log('[Socket] Connected:', this.socket?.id);
       this.reconnectAttempts = 0;
+      if (this.wasDisconnected) {
+        showConnectionToast(this.serverRestarting ? 'Game restored!' : 'Reconnected!', 'success');
+        this.wasDisconnected = false;
+        this.serverRestarting = false;
+      }
 
       // Check for automatic state recovery (Socket.IO v4.5+)
       if ((this.socket as any).recovered) {
@@ -90,7 +117,14 @@ class SocketService {
       }
     });
 
+    this.socket.on('server:restarting' as any, () => {
+      this.serverRestarting = true;
+      showConnectionToast('Server updating, please wait...', 'info');
+    });
+
     this.socket.on('disconnect', (reason) => {
+      this.wasDisconnected = true;
+      if (!this.serverRestarting) showConnectionToast('Connection lost... reconnecting', 'warning');
       console.log('[Socket] Disconnected:', reason);
       if (reason === 'io server disconnect') {
         // Server disconnected us, attempt reconnection
