@@ -313,6 +313,15 @@ class SocketService {
   getCurrentRegion(): Region {
     return this.currentRegion;
   }
+
+  reportError(message: string, context?: Record<string, unknown>): void {
+    if (!this.socket?.connected) return;
+    this.socket.emit('game:report-error', {
+      gameName: GAME_NAMESPACE.replace('/', ''),
+      errorMessage: message,
+      errorContext: context ? JSON.stringify(context) : undefined,
+    });
+  }
 }
 
 export default new SocketService();
