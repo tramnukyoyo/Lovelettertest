@@ -3,6 +3,7 @@ import { STORAGE_KEYS } from '../config/storageKeys';
 import { SERVERS, GAME_NAMESPACE, isCapacitor } from '../config/servers';
 import type { Region } from '../config/servers';
 import { detectFastestRegion } from './regionService';
+import { trackGameError, trackReconnect } from './analyticsService';
 
 class SocketService {
   private socket: Socket | null = null;
@@ -11,6 +12,7 @@ class SocketService {
   private maxReconnectAttempts = 15;
   private listenersSetup = false;
   private wasDisconnected = false;
+  private lastStateVersion = 0; // Desync detection
 
   // Store listener references for cleanup
   private visibilityListener: (() => void) | null = null;
@@ -97,14 +99,34 @@ class SocketService {
 
     this.socket.on('reconnect', (attemptNumber: number) => {
       console.log(`[Socket] Reconnected after ${attemptNumber} attempts`);
+      trackReconnect(true, 'socket.io');
     });
 
     this.socket.on('reconnect_failed', () => {
       console.error('[Socket] Reconnection failed after all attempts');
+      trackReconnect(false, 'socket.io');
     });
 
-    this.socket.on('error', (error) => {
+    this.socket.on('error', (error: any) => {
       console.error('[Socket] Error:', error);
+      trackGameError(error?.message || String(error));
+    });
+
+    // Desync detection — request resync if state versions jump
+    this.socket.on('roomStateUpdated', (data: any) => {
+      if (data?._stateVersion) {
+        const expected = this.lastStateVersion + 1;
+        if (this.lastStateVersion > 0 && data._stateVersion > expected) {
+          console.warn(`[Socket] State desync detected: expected v${expected}, got v${data._stateVersion} (${data._stateVersion - expected} missed)`);
+          // Don't request resync — this IS the resync (latest state). Just log it.
+        }
+        this.lastStateVersion = data._stateVersion;
+      }
+    });
+
+    // Reset version tracking on disconnect
+    this.socket.on('disconnect', () => {
+      this.lastStateVersion = 0;
     });
 
     // Setup browser event listeners (only once)
@@ -246,6 +268,19 @@ class SocketService {
 
   isConnected(): boolean {
     return this.socket?.connected ?? false;
+  }
+
+  /** Request a full state resync from the server (e.g. after suspected desync). */
+  requestResync(): void {
+    if (this.socket?.connected) {
+      console.log('[Socket] Requesting state resync from server');
+      this.socket.emit('client:request-resync');
+    }
+  }
+
+  /** Get the last received state version (for desync detection). */
+  getLastStateVersion(): number {
+    return this.lastStateVersion;
   }
 
   getCurrentRegion(): Region {

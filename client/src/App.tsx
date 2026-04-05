@@ -27,6 +27,8 @@ import type { SiteNotification } from './components/ui/SiteNotificationToast';
 import KickToast from './components/ui/KickToast';
 import ReconnectOverlay from './components/core/ReconnectOverlay';
 import socketService from './services/socketService';
+import { initAnalytics } from './services/analyticsService';
+import { initErrorReporter } from './services/errorReporter';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
 import { getTranslation, getCurrentLanguage } from './utils/translations';
@@ -145,6 +147,8 @@ function AppContent() {
   const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);
   const [restoreInfo, setRestoreInfo] = useState<{ phase: string; connectedCount: number; totalPlayers: number } | null>(null);
+
+  useEffect(() => { initAnalytics(); initErrorReporter(); }, []);
 
   // Safety timeout: force-resolve loading state after 10s to prevent infinite LoadingScreen
   useEffect(() => {
