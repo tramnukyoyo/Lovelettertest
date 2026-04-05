@@ -20,6 +20,7 @@
     "emoji-picker-react": "^4.13.3",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.462.0",
+    "posthog-js": "^1.364.7",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "socket.io-client": "^4.8.1",
