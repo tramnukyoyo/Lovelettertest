@@ -484,7 +484,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             onLeave={() => {
               if (confirm('Are you sure you want to leave the room?')) {
                 socket.emit('player:leave', {});
-                window.location.href = '/primesuspect/heartsgambit/';
+                window.location.href = import.meta.env.BASE_URL || '/';
               }
             }}
             onHowToPlay={() => setIsTutorialOpen(true)}

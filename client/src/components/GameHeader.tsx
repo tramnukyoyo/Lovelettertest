@@ -114,7 +114,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
     // Clear reconnection data before leaving to prevent auto-rejoin
     socketService.clearReconnectionData();
     sessionStorage.removeItem('gameSessionToken');
-    window.location.href = window.location.pathname;
+    window.location.href = import.meta.env.BASE_URL || '/';
   };
 
   return (
