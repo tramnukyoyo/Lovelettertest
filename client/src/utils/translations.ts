@@ -825,9 +825,7 @@ export const translations = {
 
     // Victory / Round End
     'victory.victory': 'Victory!',
-    'victory.roundOver': 'Round Over',
     'victory.winner': 'Winner',
-    'victory.newGame': 'New Game',
     'victory.nextRound': 'Next Round',
 
     // Drawer titles (App.tsx)
@@ -1775,9 +1773,7 @@ export const translations = {
 
     // Victory / Round End
     'victory.victory': 'Sieg!',
-    'victory.roundOver': 'Runde vorbei',
     'victory.winner': 'Gewinner',
-    'victory.newGame': 'Neues Spiel',
     'victory.nextRound': 'Nächste Runde',
 
     // Drawer titles (App.tsx)
@@ -2724,9 +2720,7 @@ export const translations = {
 
     // Victory / Round End
     'victory.victory': 'Victoria!',
-    'victory.roundOver': 'Ronda terminada',
     'victory.winner': 'Ganador',
-    'victory.newGame': 'Nuevo juego',
     'victory.nextRound': 'Siguiente ronda',
 
     // Drawer titles (App.tsx)
