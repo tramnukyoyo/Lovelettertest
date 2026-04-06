@@ -22,9 +22,14 @@ const SimpleLanguageSelector: React.FC<SimpleLanguageSelectorProps> = () => {
     setLanguageState(lang);
     setCurrentLanguage(lang);
     setIsOpen(false);
-    // Reload to apply language change
-    window.location.reload();
   };
+
+  // Sync language state when changed from another component
+  useEffect(() => {
+    const sync = () => setLanguageState(getCurrentLanguage());
+    window.addEventListener('languagechange', sync);
+    return () => window.removeEventListener('languagechange', sync);
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {

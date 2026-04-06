@@ -143,6 +143,14 @@ function VideoSettingsManager() {
 function AppContent() {
   const mobileNav = useMobileNavigation();
 
+  // Force re-render when language changes (no page reload needed)
+  const [, setLangVersion] = useState(0);
+  useEffect(() => {
+    const onLangChange = () => setLangVersion(v => v + 1);
+    window.addEventListener('languagechange', onLangChange);
+    return () => window.removeEventListener('languagechange', onLangChange);
+  }, []);
+
   // Detect GameBuddies launch synchronously (memoized to run once)
   const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);

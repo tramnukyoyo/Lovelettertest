@@ -2890,6 +2890,10 @@ export const getCurrentLanguage = (): Language => {
 // Set language in localStorage
 // Updates both local and platform keys for consistency
 export const setCurrentLanguage = (language: Language): void => {
+  const previous = localStorage.getItem(LOCAL_LANGUAGE_KEY);
   localStorage.setItem(LOCAL_LANGUAGE_KEY, language);
   localStorage.setItem(GAMEBUDDIES_LANGUAGE_KEY, language);
+  if (previous !== language) {
+    window.dispatchEvent(new Event('languagechange'));
+  }
 }; 
