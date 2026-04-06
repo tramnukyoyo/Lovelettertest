@@ -947,6 +947,12 @@ export const translations = {
     'passPlay.youAreEliminated': 'You are eliminated',
     'passPlay.actionSubmitted': 'Action submitted!',
 
+    // Reconnect Overlay
+    'reconnect.title': 'Game Restored',
+    'reconnect.playersReconnected': '{connected}/{total} reconnected',
+    'reconnect.resumeGame': 'Resume Game',
+    'reconnect.waitingForHost': 'Waiting for host to resume...',
+
   },
   de: {
     // App
@@ -1895,6 +1901,12 @@ export const translations = {
     'passPlay.youAreEliminated': 'Du bist ausgeschieden',
     'passPlay.actionSubmitted': 'Aktion eingereicht!',
 
+    // Reconnect Overlay
+    'reconnect.title': 'Spiel wiederhergestellt',
+    'reconnect.playersReconnected': '{connected}/{total} verbunden',
+    'reconnect.resumeGame': 'Spiel fortsetzen',
+    'reconnect.waitingForHost': 'Warte auf den Host...',
+
   },
   es: {
     // App
@@ -2841,6 +2853,12 @@ export const translations = {
     'passPlay.yourHand': 'Tu mano:',
     'passPlay.youAreEliminated': 'Has sido eliminado',
     'passPlay.actionSubmitted': 'Accion enviada!',
+
+    // Reconnect Overlay
+    'reconnect.title': 'Partida restaurada',
+    'reconnect.playersReconnected': '{connected}/{total} reconectados',
+    'reconnect.resumeGame': 'Continuar partida',
+    'reconnect.waitingForHost': 'Esperando al anfitrion...',
 
   }
 };

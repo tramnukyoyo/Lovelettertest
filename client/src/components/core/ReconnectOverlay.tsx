@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 import './ReconnectOverlay.css';
 
 interface ReconnectOverlayProps {
@@ -22,6 +23,7 @@ const ReconnectOverlay: React.FC<ReconnectOverlayProps> = ({
   onResume,
 }) => {
   const [dismissing, setDismissing] = useState(false);
+  const lang = getCurrentLanguage();
 
   const handleResume = () => {
     setDismissing(true);
@@ -40,25 +42,25 @@ const ReconnectOverlay: React.FC<ReconnectOverlayProps> = ({
     <div className={`reconnect-overlay${dismissing ? ' dismissing' : ''}`}>
       <div className="reconnect-card">
         <div className="reconnect-icon">🔄</div>
-        <div className="reconnect-title">Game Restored</div>
+        <div className="reconnect-title">{getTranslation('reconnect.title', lang)}</div>
         <div className="reconnect-phase">{phase}</div>
 
         <div className="reconnect-players">
           <div className="reconnect-player-dots">{dots}</div>
           <span className="reconnect-count">
-            {connectedCount}/{totalPlayers} reconnected
+            {getTranslation('reconnect.playersReconnected', lang).replace('{connected}', String(connectedCount)).replace('{total}', String(totalPlayers))}
           </span>
         </div>
 
         <div className="reconnect-action">
           {isHost ? (
             <button className="reconnect-resume-btn" onClick={handleResume}>
-              Resume Game
+              {getTranslation('reconnect.resumeGame', lang)}
             </button>
           ) : (
             <div className="reconnect-waiting">
               <div className="reconnect-waiting-spinner" />
-              Waiting for host to resume...
+              {getTranslation('reconnect.waitingForHost', lang)}
             </div>
           )}
         </div>
