@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Users, Crown, ArrowLeft, Settings } from 'lucide-react';
 import type { Lobby, Player } from '../types';
-import type { GameBuddiesSession } from '../services/gameBuddiesSession';
+import { clearSession, type GameBuddiesSession } from '../services/gameBuddiesSession';
 import { SettingsModal } from './SettingsModalNoir';
 import socketService from '../services/socketService';
 import GameBuddiesReturnButton from './GameBuddiesReturnButton';
@@ -111,9 +111,11 @@ const GameHeader: React.FC<GameHeaderProps> = ({ lobby, gameBuddiesSession }) =>
   };
 
   const handleLeave = () => {
-    // Clear reconnection data before leaving to prevent auto-rejoin
+    // Clear ALL session data to prevent auto-rejoin on page reload
     socketService.clearReconnectionData();
+    clearSession();
     sessionStorage.removeItem('gameSessionToken');
+    socketService.disconnect();
     window.location.href = import.meta.env.BASE_URL || '/';
   };
 

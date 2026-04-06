@@ -20,6 +20,8 @@ import CardInspectorModal, { type InspectorCard } from './CardInspectorModal';
 import MobileGameMenu from './MobileGameMenu';
 import MobileChatDrawer from './MobileChatDrawer';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
+import { clearSession } from '../../services/gameBuddiesSession';
+import socketService from '../../services/socketService';
 import { VictoryScreen } from './VictoryScreen';
 import PassPlayToggle from '../lobby/PassPlayToggle';
 import BotControls from '../lobby/BotControls';
@@ -483,7 +485,10 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             linkCopied={copyFeedback}
             onLeave={() => {
               if (confirm('Are you sure you want to leave the room?')) {
-                socket.emit('player:leave', {});
+                socketService.clearReconnectionData();
+                clearSession();
+                sessionStorage.removeItem('gameSessionToken');
+                socketService.disconnect();
                 window.location.href = import.meta.env.BASE_URL || '/';
               }
             }}
