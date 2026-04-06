@@ -6,3 +6,11 @@ export const SERVERS: Record<Region, string> = {
 };
 
 export const GAME_NAMESPACE = '/primesuspect';
+
+export function isCapacitor(): boolean {
+  return window.location.origin === 'https://localhost';
+}
+
+export function isDevelopment(): boolean {
+  return import.meta.env.DEV;
+}
