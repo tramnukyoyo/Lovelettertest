@@ -255,22 +255,27 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
     clonedTrack.enabled = true;
     const meterStream = new MediaStream([clonedTrack]);
 
-    try {
-      audioContextRef.current = new AudioContext();
+    let cancelled = false;
+    let ctx: AudioContext | null = null;
 
-      // Resume if suspended (browser autoplay policy)
-      if (audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
+    try {
+      ctx = new AudioContext();
+      audioContextRef.current = ctx;
+
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
       }
 
-      const source = audioContextRef.current.createMediaStreamSource(meterStream);
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      analyserRef.current.fftSize = 256;
-      source.connect(analyserRef.current);
+      const source = ctx.createMediaStreamSource(meterStream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyserRef.current = analyser;
 
-      const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
       const updateLevel = () => {
+        if (cancelled || !ctx || ctx.state === 'closed') return;
         if (analyserRef.current) {
           analyserRef.current.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
@@ -285,11 +290,13 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
     }
 
     return () => {
+      cancelled = true;
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
+      analyserRef.current = null;
+      if (ctx && ctx.state !== 'closed') {
+        ctx.close().catch(() => {});
       }
       clonedTrack.stop();
     };
