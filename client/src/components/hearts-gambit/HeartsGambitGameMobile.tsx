@@ -139,6 +139,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
   const amEliminated = me?.isEliminated || false;
   const waitingToDraw = isMyTurn && lobby.gameData?.turnPhase === 'draw';
+  const drawPendingRef = useRef(false);
+  if (!waitingToDraw) drawPendingRef.current = false;
   const mustPlayAccomplice = myHand.includes(7) && (myHand.includes(5) || myHand.includes(6));
   const selectedCard = selectedCardIndex !== null ? myHand[selectedCardIndex] : null;
   const currentTokens = me?.tokens || 0;
@@ -562,7 +564,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             </span>
             <button
               onClick={() => {
-                if (waitingToDraw) {
+                if (waitingToDraw && !drawPendingRef.current) {
+                  drawPendingRef.current = true;
                   playDrawSound();
                   if (ppActionHandler) {
                     ppActionHandler('draw', { source: 'deck' });

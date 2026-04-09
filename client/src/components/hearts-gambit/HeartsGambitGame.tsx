@@ -150,6 +150,8 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
   // Use server state for draw phase
   const waitingToDraw = isMyTurn && lobby.gameData?.turnPhase === 'draw';
+  const drawPendingRef = useRef(false);
+  if (!waitingToDraw) drawPendingRef.current = false;
 
   // Check if player must play Accomplice (has 7 with 5 or 6)
   const mustPlayAccomplice = myHand.includes(7) && (myHand.includes(5) || myHand.includes(6));
@@ -575,7 +577,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 </h3>
                 <div
                     className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}`}
-                    onClick={() => { if (waitingToDraw && socket.connected) { playDrawSound(); socket.emit('player:draw', {}); } }}
+                    onClick={() => { if (waitingToDraw && socket.connected && !drawPendingRef.current) { drawPendingRef.current = true; playDrawSound(); socket.emit('player:draw', {}); } }}
                 >
                   {Array.from({ length: Math.min(lobby.gameData.deckCount, 5) }).map((_, i) => (
                     <div
