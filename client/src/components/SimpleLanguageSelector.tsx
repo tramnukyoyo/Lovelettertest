@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { GB, DE, ES } from 'country-flag-icons/react/3x2';
 import type { Language } from '../utils/translations';
 import { getCurrentLanguage, setCurrentLanguage, getTranslation } from '../utils/translations';
 
-const languageOptions: { code: Language; label: string; flag: string }[] = [
-  { code: 'en', label: 'English', flag: '\u{1F1EC}\u{1F1E7}' },
-  { code: 'de', label: 'Deutsch', flag: '\u{1F1E9}\u{1F1EA}' },
-  { code: 'es', label: 'Espanol', flag: '🇪🇸' },
+// Match country-flag-icons's own exported type shape — avoids SVGProps<SVGSVGElement>
+// vs HTMLSVGElement (HTMLElement & SVGElement) contravariance mismatch.
+type FlagComponent = typeof GB;
+
+const languageOptions: { code: Language; label: string; Flag: FlagComponent }[] = [
+  { code: 'en', label: 'English', Flag: GB },
+  { code: 'de', label: 'Deutsch', Flag: DE },
+  { code: 'es', label: 'Español', Flag: ES },
 ];
 
 interface SimpleLanguageSelectorProps {
@@ -47,6 +52,7 @@ const SimpleLanguageSelector: React.FC<SimpleLanguageSelectorProps> = () => {
   }, [isOpen]);
 
   const currentLang = languageOptions.find(l => l.code === language) || languageOptions[0];
+  const CurrentFlag = currentLang.Flag;
 
   return (
     <div className="language-selector">
@@ -56,23 +62,26 @@ const SimpleLanguageSelector: React.FC<SimpleLanguageSelectorProps> = () => {
         aria-label={t('languageSelector.selectLanguage')}
         title={t('languageSelector.language')}
       >
-        <span className="language-flag">{currentLang.flag}</span>
+        <CurrentFlag className="language-flag" title={currentLang.label} width={26} height={18} />
       </button>
 
       {isOpen && (
         <div className="language-dropdown">
           <div className="language-dropdown-header">{t('languageSelector.language')}</div>
-          {languageOptions.map((lang) => (
-            <button
-              key={lang.code}
-              className={`language-option ${language === lang.code ? 'active' : ''}`}
-              onClick={() => handleLanguageChange(lang.code)}
-            >
-              <span className="language-flag">{lang.flag}</span>
-              <span className="language-label">{lang.label}</span>
-              {language === lang.code && <span className="language-check">✓</span>}
-            </button>
-          ))}
+          {languageOptions.map((lang) => {
+            const LangFlag = lang.Flag;
+            return (
+              <button
+                key={lang.code}
+                className={`language-option ${language === lang.code ? 'active' : ''}`}
+                onClick={() => handleLanguageChange(lang.code)}
+              >
+                <LangFlag className="language-flag" title={lang.label} width={24} height={16} />
+                <span className="language-label">{lang.label}</span>
+                {language === lang.code && <span className="language-check">✓</span>}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
