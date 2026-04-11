@@ -174,13 +174,13 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
                 <p className="card-description">{joinMode ? t('home.joinRoomDescription') : t('home.createRoomDescription')}</p>
                 <form onSubmit={joinMode ? handleJoinSubmit : handleCreateSubmit} className="home-form">
                   <div className="form-group">
-                    <label>{t('home.yourName')}</label>
                     <input
                       type="text"
                       value={playerName}
                       onChange={(e) => setPlayerName(e.target.value)}
                       onKeyDown={typewriterKeyDown}
                       placeholder={t('home.enterYourName')}
+                      aria-label={t('home.yourName')}
                       maxLength={20}
                       required
                       className="home-input"

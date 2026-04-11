@@ -1038,19 +1038,6 @@
   font-style: italic !important;
 }
 
-/* Form label styled as a handwritten note above the field, not competing
-   with the input as a clickable element */
-[data-theme="primesuspect"] .card.home-card .form-group label {
-  display: block !important;
-  margin-bottom: 0.35rem !important;
-  font-size: 0.75rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
-  opacity: 0.75 !important;
-  cursor: default !important;
-  user-select: none !important;
-}
-
 
 /* Ensure ALL text in split/home cards is dark and readable */
 [data-theme="primesuspect"] .split-card *,
@@ -1078,8 +1065,7 @@
   font-weight: 600 !important;
 }
 
-[data-theme="primesuspect"] .split-card .form-group label,
-[data-theme="primesuspect"] .card.home-card .form-group label {
+[data-theme="primesuspect"] .split-card .form-group label {
   color: #2a2420 !important;
 }
 
