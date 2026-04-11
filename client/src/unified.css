@@ -13534,24 +13534,27 @@ button svg.lucide,
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: rgba(0, 217, 255, 0.1);
-  border: 1px solid rgba(0, 217, 255, 0.3);
+  background: rgba(233, 69, 96, 0.1);
+  border: 1px solid rgba(233, 69, 96, 0.4);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   pointer-events: auto;
   position: relative;
-  z-index: var(--z-filmstrip)1;
+  z-index: var(--z-filmstrip);
 }
 
 .language-selector-button:hover {
-  background: rgba(0, 217, 255, 0.2);
-  border-color: rgba(0, 217, 255, 0.5);
+  background: rgba(233, 69, 96, 0.2);
+  border-color: rgba(233, 69, 96, 0.6);
 }
 
 .language-selector-button .language-flag {
-  font-size: 1.25rem;
-  line-height: 1;
+  width: 26px;
+  height: 18px;
+  display: block;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .language-dropdown {
@@ -13559,10 +13562,10 @@ button svg.lucide,
   top: calc(100% + 8px);
   right: 0;
   min-width: 180px;
-  background: rgba(26, 26, 46, 0.98);
-  border: 1px solid rgba(0, 217, 255, 0.3);
+  background: rgba(15, 23, 42, 0.98);
+  border: 2px solid var(--primary, #e94560);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 217, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(233, 69, 96, 0.3);
   z-index: var(--z-mobile-toast);
   overflow: visible;
   animation: dropdownFadeIn 0.2s ease;
@@ -13586,9 +13589,9 @@ button svg.lucide,
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #00d9ff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 217, 255, 0.05);
+  color: var(--primary, #e94560);
+  border-bottom: 1px solid rgba(233, 69, 96, 0.3);
+  background: rgba(233, 69, 96, 0.08);
 }
 
 .language-option {
@@ -13599,7 +13602,7 @@ button svg.lucide,
   padding: 0.75rem 1rem;
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: var(--text-primary, #F8FAFC);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -13610,17 +13613,21 @@ button svg.lucide,
 }
 
 .language-option:hover {
-  background: rgba(0, 217, 255, 0.1);
+  background: rgba(233, 69, 96, 0.12);
 }
 
 .language-option.active {
-  background: rgba(0, 217, 255, 0.15);
-  color: #00d9ff;
+  background: rgba(233, 69, 96, 0.2);
+  color: var(--primary, #e94560);
 }
 
 .language-option .language-flag {
-  font-size: 1.2rem;
-  line-height: 1;
+  width: 24px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .language-option .language-label {
@@ -13628,7 +13635,7 @@ button svg.lucide,
 }
 
 .language-option .language-check {
-  color: #00d9ff;
+  color: var(--primary, #e94560);
   font-weight: 700;
 }
 
