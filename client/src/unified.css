@@ -13550,8 +13550,12 @@ button svg.lucide,
 }
 
 .language-selector-button .language-flag {
-  width: 26px;
-  height: 18px;
+  /* !important to override (a) the primesuspect-theme rule at ~3434 that sets
+     .header-right button svg to 1rem square, and (b) the mobile @media rule
+     at ~6456 that forces button svg to 24x24 !important. Both would squish
+     the 60x30 flag into a tiny square. */
+  width: 26px !important;
+  height: 18px !important;
   display: block;
   border-radius: 2px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
@@ -13622,8 +13626,9 @@ button svg.lucide,
 }
 
 .language-option .language-flag {
-  width: 24px;
-  height: 16px;
+  /* Same !important reasoning as .language-selector-button .language-flag above. */
+  width: 24px !important;
+  height: 16px !important;
   display: block;
   flex-shrink: 0;
   border-radius: 2px;
