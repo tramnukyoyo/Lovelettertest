@@ -995,20 +995,62 @@
   margin-top: 0 !important;
 }
 
-/* Input fields → Form fill-in lines */
+/* Input fields → Detective case-file text field
+   Styled as a visible "tag" so users immediately recognize it as a clickable
+   input (previous version was just a bottom border line, which read as
+   decoration — users tried clicking the label instead). */
 [data-theme="primesuspect"] .home-input {
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 2px solid #2a2420 !important;
-  border-radius: 0 !important;
+  background: rgba(255, 248, 225, 0.85) !important;
+  border: 2px solid #2a2420 !important;
+  border-radius: 3px !important;
   font-family: 'Courier Prime', monospace !important;
+  font-size: 1rem !important;
   color: #2a2420 !important;
-  padding: 0.5rem 0 !important;
+  padding: 0.65rem 0.75rem !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.18),
+    2px 2px 0 rgba(0, 0, 0, 0.25) !important;
+  cursor: text !important;
+  width: 100% !important;
+  transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.1s ease !important;
+}
+
+[data-theme="primesuspect"] .home-input:hover {
+  background: rgba(255, 250, 232, 0.95) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.18),
+    3px 3px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .home-input:focus,
+[data-theme="primesuspect"] .home-input:focus-visible {
+  outline: none !important;
+  background: #fff8e1 !important;
+  border-color: #8b5a2b !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.18),
+    0 0 0 3px rgba(218, 165, 32, 0.45),
+    2px 2px 0 rgba(0, 0, 0, 0.3) !important;
 }
 
 [data-theme="primesuspect"] .home-input::placeholder {
-  color: rgba(42, 36, 32, 0.6) !important;
+  color: rgba(42, 36, 32, 0.55) !important;
+  font-style: italic !important;
 }
+
+/* Form label styled as a handwritten note above the field, not competing
+   with the input as a clickable element */
+[data-theme="primesuspect"] .card.home-card .form-group label {
+  display: block !important;
+  margin-bottom: 0.35rem !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  opacity: 0.75 !important;
+  cursor: default !important;
+  user-select: none !important;
+}
+
 
 /* Ensure ALL text in split/home cards is dark and readable */
 [data-theme="primesuspect"] .split-card *,

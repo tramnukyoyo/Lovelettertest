@@ -167,11 +167,10 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateRoom, onJoinRoom, gameBuddi
 
           <div className="home-cards-wrapper">
             <div className="home-cards" ref={cardsRef}>
-              <div className="card home-card">
-                <div className="card-header">
-                  {joinMode ? <Users size={20} /> : <Plus size={20} />}
-                  <h2>{joinMode ? t('home.joinRoom') : t('home.createRoom')}</h2>
-                </div>
+              <div
+                className="card home-card"
+                aria-label={joinMode ? t('home.joinRoom') : t('home.createRoom')}
+              >
                 <p className="card-description">{joinMode ? t('home.joinRoomDescription') : t('home.createRoomDescription')}</p>
                 <form onSubmit={joinMode ? handleJoinSubmit : handleCreateSubmit} className="home-form">
                   <div className="form-group">
