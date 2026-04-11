@@ -13529,24 +13529,47 @@ button svg.lucide,
 }
 
 .language-selector-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: rgba(233, 69, 96, 0.1);
-  border: 1px solid rgba(233, 69, 96, 0.4);
-  border-radius: 8px;
+  /* !important everywhere to defeat the global button{} rule at ~line 7340
+     which injects padding: 0.95rem 1.6rem + overflow: hidden + border-radius: 18px
+     + text-transform/font-size/family onto every button. Without these
+     overrides the 40x40 button has a NEGATIVE inner width after
+     padding/border, so the 26x18 flag gets clipped to a ~5px tall strip
+     and looks like a thin line. */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: rgba(233, 69, 96, 0.1) !important;
+  border: 1px solid rgba(233, 69, 96, 0.4) !important;
+  border-radius: 8px !important;
   cursor: pointer;
   transition: all 0.2s ease;
   pointer-events: auto;
   position: relative;
   z-index: var(--z-filmstrip);
+  transform: none !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: normal !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.language-selector-button::before {
+  /* The global button::before adds a radial-gradient overlay that would
+     visually cover our flag. Disable it on the language selector. */
+  display: none !important;
 }
 
 .language-selector-button:hover {
-  background: rgba(233, 69, 96, 0.2);
-  border-color: rgba(233, 69, 96, 0.6);
+  background: rgba(233, 69, 96, 0.2) !important;
+  border-color: rgba(233, 69, 96, 0.6) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .language-selector-button .language-flag {
