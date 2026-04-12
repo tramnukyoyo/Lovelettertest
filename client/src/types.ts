@@ -20,6 +20,7 @@ export interface BasePlayer {
   avatarUrl?: string;
   id?: string; // Added to match server
   isPassPlayPlayer?: boolean;
+  isSpectator?: boolean;
 }
 
 export interface BaseSettings {

@@ -6,6 +6,7 @@ import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import { Eye, ChevronRight } from 'lucide-react';
 import type { Lobby } from '../types';
 import type { Socket } from 'socket.io-client';
+import SpectatorBanner from '../components/core/SpectatorBanner';
 
 interface GamePageProps {
   lobby: Lobby;
@@ -115,13 +116,20 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
     );
   }
 
+  const isSpectator = lobby.players.find(p => p.socketId === lobby.mySocketId)?.isSpectator || false;
+
   // Internal game state routing - handles all game phases
   switch (lobby.state) {
     // Prime Suspect States
     case 'LOBBY':
     case 'PLAYING':
     case 'ENDED':
-      return <HeartsGambitGame lobby={lobby} socket={socket} />;
+      return (
+        <>
+          {isSpectator && <SpectatorBanner />}
+          <HeartsGambitGame lobby={lobby} socket={socket} />
+        </>
+      );
 
     default:
       return <div>Unknown game state: {lobby.state}</div>;

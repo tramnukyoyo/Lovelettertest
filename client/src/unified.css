@@ -16886,3 +16886,41 @@ button svg.lucide,
   transform: scale(0.96);
 }
 
+
+/* ============================================================================
+   SPECTATOR MODE
+   ============================================================================ */
+
+.spectator-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm, 0.5rem);
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-md, 1rem);
+  background: rgba(0, 217, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+  color: var(--gb-cyan, #00d9ff);
+  font-family: var(--font-hand, sans-serif);
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  text-align: center;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.spectator-view {
+  pointer-events: none;
+  user-select: none;
+}
+
+.player-spectator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  font-size: 0.7rem;
+  color: var(--gb-cyan, #00d9ff);
+  opacity: 0.8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spectator-banner { transition: none; }
+}
