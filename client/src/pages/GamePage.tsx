@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import HeartsGambitGame from '../components/hearts-gambit/HeartsGambitGame';
 import HeartsGambitGameMobile from '../components/hearts-gambit/HeartsGambitGameMobile';
 import { usePassPlay } from '../hooks/usePassPlay';
@@ -118,6 +118,18 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
 
   const isSpectator = lobby.players.find(p => p.socketId === lobby.mySocketId)?.isSpectator || false;
 
+  // Spectator: view as player
+  const viewingAs = (lobby as any).viewingAs
+    ? lobby.players.find(p => p.socketId === (lobby as any).viewingAs)
+    : null;
+  const handleResetView = useCallback(() => {
+    socket.emit('spectator:view-as', { targetSocketId: null });
+  }, [socket]);
+  const handleSpectatorPlayerClick = useCallback((targetSocketId: string) => {
+    if (!isSpectator) return;
+    socket.emit('spectator:view-as', { targetSocketId });
+  }, [isSpectator, socket]);
+
   // Internal game state routing - handles all game phases
   switch (lobby.state) {
     // Prime Suspect States
@@ -126,7 +138,12 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
     case 'ENDED':
       return (
         <>
-          {isSpectator && <SpectatorBanner />}
+          {isSpectator && (
+            <SpectatorBanner
+              viewingAs={viewingAs ? { name: viewingAs.name } : null}
+              onResetView={handleResetView}
+            />
+          )}
           <HeartsGambitGame lobby={lobby} socket={socket} />
         </>
       );

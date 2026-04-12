@@ -12,6 +12,9 @@ interface PlayerListProps {
   socket: Socket;
   currentTurnPlayerId?: string | null;
   showSkipButton?: boolean;
+  isSpectator?: boolean;
+  viewingAsSocketId?: string | null;
+  onPlayerClick?: (socketId: string) => void;
 }
 
 const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
@@ -65,6 +68,9 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
   socket,
   currentTurnPlayerId,
   showSkipButton = false,
+  isSpectator = false,
+  viewingAsSocketId,
+  onPlayerClick,
 }) => {
   const me = players.find(p => p.socketId === mySocketId);
   const isHost = me?.isHost || false;
@@ -110,7 +116,8 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
           return (
             <div
               key={player.id || player.socketId}
-              className={`player-item ${isMe ? 'is-me' : ''} ${isActive ? 'is-active' : ''} ${isHostPlayer ? 'is-host' : ''} ${isDisconnected ? 'disconnected-player' : ''}`}
+              className={`player-item ${isMe ? 'is-me' : ''} ${isActive ? 'is-active' : ''} ${isHostPlayer ? 'is-host' : ''} ${isDisconnected ? 'disconnected-player' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''}`}
+              onClick={() => isSpectator && !isMe && onPlayerClick?.(player.socketId)}
             >
               {renderAvatar(player)}
 
@@ -168,7 +175,9 @@ const PlayerList = React.memo<PlayerListProps>(PlayerListComponent, (prevProps, 
     prevProps.mySocketId === nextProps.mySocketId &&
     prevProps.roomCode === nextProps.roomCode &&
     prevProps.currentTurnPlayerId === nextProps.currentTurnPlayerId &&
-    prevProps.showSkipButton === nextProps.showSkipButton
+    prevProps.showSkipButton === nextProps.showSkipButton &&
+    prevProps.isSpectator === nextProps.isSpectator &&
+    prevProps.viewingAsSocketId === nextProps.viewingAsSocketId
   );
 });
 

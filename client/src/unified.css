@@ -16924,3 +16924,29 @@ button svg.lucide,
 @media (prefers-reduced-motion: reduce) {
   .spectator-banner { transition: none; }
 }
+
+/* Spectator: clickable player rows */
+.spectator-player-clickable {
+  cursor: pointer;
+}
+.spectator-player-clickable:hover {
+  background: rgba(0, 217, 255, 0.08);
+}
+.spectator-player-active {
+  background: rgba(0, 217, 255, 0.12);
+  border-left: 2px solid var(--gb-cyan, #00d9ff);
+}
+.spectator-reset-btn {
+  background: none;
+  border: none;
+  color: var(--gb-cyan, #00d9ff);
+  cursor: pointer;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+  pointer-events: auto;
+}
+.spectator-reset-btn:hover {
+  opacity: 1;
+}

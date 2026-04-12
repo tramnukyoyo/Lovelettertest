@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Video, VideoOff } from 'lucide-react';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import WebcamDisplay from './WebcamDisplay';
@@ -18,6 +18,14 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children, lobby, socket }) => {
   const t = (key: string) => getTranslation(key as any, language);
   const [isWebcamHidden, setIsWebcamHidden] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
+
+  // Spectator: view as player
+  const myPlayer = lobby.players.find(p => p.socketId === lobby.mySocketId);
+  const isSpectator = myPlayer?.isSpectator || false;
+  const handleSpectatorPlayerClick = useCallback((targetSocketId: string) => {
+    if (!isSpectator) return;
+    socket.emit('spectator:view-as', { targetSocketId });
+  }, [isSpectator, socket]);
 
   return (
     <div className="app-layout">
@@ -70,6 +78,9 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children, lobby, socket }) => {
               mySocketId={lobby.mySocketId}
               roomCode={lobby.code}
               socket={socket}
+              isSpectator={isSpectator}
+              viewingAsSocketId={(lobby as any).viewingAs}
+              onPlayerClick={handleSpectatorPlayerClick}
             />
           </div>
 
