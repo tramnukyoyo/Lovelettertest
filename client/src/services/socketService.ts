@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import msgpackParser from 'socket.io-msgpack-parser';
 import { STORAGE_KEYS } from '../config/storageKeys';
 import { SERVERS, GAME_NAMESPACE, isCapacitor } from '../config/servers';
 import type { Region } from '../config/servers';
@@ -46,6 +47,7 @@ class SocketService {
       reconnectionAttempts: this.maxReconnectAttempts,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
+      parser: msgpackParser,
       transports: ['websocket', 'polling'],
       timeout: 20000,
       forceNew: false,
