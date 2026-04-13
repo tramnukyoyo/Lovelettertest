@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserMinus } from 'lucide-react';
+import { UserMinus, Eye } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import type { Player } from '../types';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
@@ -126,6 +126,12 @@ const PlayerListComponent: React.FC<PlayerListProps> = ({
                   <span className="player-name">{player.name}</span>
                   <div className="player-badges">
                     {isHostPlayer && <span className="badge-host">{t('playerList.host')}</span>}
+                    {player.isSpectator && (
+                      <span className="player-spectator-badge">
+                        <Eye className="w-3 h-3" />
+                        Spectator
+                      </span>
+                    )}
                     {isMe && <span className="badge-you">{t('playerList.you')}</span>}
                     {isActive && <span className="badge-active">{t('playerList.active')}</span>}
                     {player.premiumTier === 'lifetime' && (
