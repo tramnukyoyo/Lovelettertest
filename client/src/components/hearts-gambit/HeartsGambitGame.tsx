@@ -221,6 +221,39 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
     return () => { socket.off('error', handleError); };
   }, [socket]);
 
+  // Spectator: emit selection state so spectators can see what we're doing
+  useEffect(() => {
+    if (isSpectator || isBroadcastMirror) return;
+    socket.emit('player:ui-state', { selectedCardIndex, targetId, guessCard });
+  }, [selectedCardIndex, targetId, guessCard, isSpectator, isBroadcastMirror, socket]);
+
+  // Spectator: receive viewed player's selection state
+  useEffect(() => {
+    if (!isSpectator) return;
+    // Apply initial uiState from lobby data when switching view
+    const uiState = (me as any)?.uiState;
+    if (uiState) {
+      setSelectedCardIndex(uiState.selectedCardIndex);
+      setTargetId(uiState.targetId);
+      setGuessCard(uiState.guessCard);
+    } else {
+      setSelectedCardIndex(null);
+      setTargetId(null);
+      setGuessCard(null);
+    }
+  }, [isSpectator, viewingAsSocketId]);
+
+  useEffect(() => {
+    if (!isSpectator) return;
+    const handler = (data: { selectedCardIndex: number | null; targetId: string | null; guessCard: number | null }) => {
+      setSelectedCardIndex(data.selectedCardIndex);
+      setTargetId(data.targetId);
+      setGuessCard(data.guessCard as CardType | null);
+    };
+    socket.on('spectator:ui-state', handler);
+    return () => { socket.off('spectator:ui-state', handler); };
+  }, [isSpectator, socket]);
+
   const handlePlayCard = () => {
     if (!selectedCard) return;
 

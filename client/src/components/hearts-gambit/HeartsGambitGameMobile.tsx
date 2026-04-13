@@ -203,6 +203,38 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     return () => { socket.off('error', handleError); };
   }, [socket]);
 
+  // Spectator: emit selection state so spectators can see what we're doing
+  useEffect(() => {
+    if (isSpectator || isPP) return;
+    socket.emit('player:ui-state', { selectedCardIndex, targetId, guessCard });
+  }, [selectedCardIndex, targetId, guessCard, isSpectator, isPP, socket]);
+
+  // Spectator: receive viewed player's selection state
+  useEffect(() => {
+    if (!isSpectator) return;
+    const uiState = (me as any)?.uiState;
+    if (uiState) {
+      setSelectedCardIndex(uiState.selectedCardIndex);
+      setTargetId(uiState.targetId);
+      setGuessCard(uiState.guessCard);
+    } else {
+      setSelectedCardIndex(null);
+      setTargetId(null);
+      setGuessCard(null);
+    }
+  }, [isSpectator, viewingAsSocketId]);
+
+  useEffect(() => {
+    if (!isSpectator) return;
+    const handler = (data: { selectedCardIndex: number | null; targetId: string | null; guessCard: number | null }) => {
+      setSelectedCardIndex(data.selectedCardIndex);
+      setTargetId(data.targetId);
+      setGuessCard(data.guessCard as any);
+    };
+    socket.on('spectator:ui-state', handler);
+    return () => { socket.off('spectator:ui-state', handler); };
+  }, [isSpectator, socket]);
+
   // Reset all play state
   const resetPlayState = useCallback(() => {
     setSelectedCardIndex(null);
