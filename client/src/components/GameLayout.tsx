@@ -4,6 +4,7 @@ import { getTranslation, getCurrentLanguage } from '../utils/translations';
 import WebcamDisplay from './WebcamDisplay';
 import PlayerList from './PlayerList';
 import ChatWindow from './ChatWindow';
+import SpectatorBanner from './core/SpectatorBanner';
 import type { Lobby } from '../types';
 import type { Socket } from 'socket.io-client';
 
@@ -22,10 +23,16 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children, lobby, socket }) => {
   // Spectator: view as player
   const myPlayer = lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isSpectator = myPlayer?.isSpectator || false;
+  const viewingAs = (lobby as any).viewingAs
+    ? lobby.players.find(p => p.socketId === (lobby as any).viewingAs)
+    : null;
   const handleSpectatorPlayerClick = useCallback((targetSocketId: string) => {
     if (!isSpectator) return;
     socket.emit('spectator:view-as', { targetSocketId });
   }, [isSpectator, socket]);
+  const handleResetView = useCallback(() => {
+    socket.emit('spectator:view-as', { targetSocketId: null });
+  }, [socket]);
 
   return (
     <div className="app-layout">
@@ -60,6 +67,14 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children, lobby, socket }) => {
           </>
         )}
       </button>
+
+      {/* Spectator Banner */}
+      {isSpectator && (
+        <SpectatorBanner
+          viewingAs={viewingAs ? { name: viewingAs.name } : null}
+          onResetView={handleResetView}
+        />
+      )}
 
       {/* Main Container */}
       <div className="main-container">
