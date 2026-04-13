@@ -106,10 +106,14 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
-  const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
-  const isMyTurn = lobby.gameData?.currentTurn === me?.id;
+  const viewingAsSocketId = (lobby as any).viewingAs as string | undefined;
+  const isSpectator = !!lobby.players.find(p => p.socketId === lobby.mySocketId)?.isSpectator;
+  const me = viewingAsSocketId
+    ? lobby.players.find(p => p.socketId === viewingAsSocketId)
+    : lobby.players.find(p => p.socketId === lobby.mySocketId);
+  const isMyTurn = !isSpectator && lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
-  const otherPlayers = lobby.players.filter(p => p.id !== me?.id);
+  const otherPlayers = lobby.players.filter(p => p.id !== me?.id && !p.isSpectator);
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
   const amEliminated = me?.isEliminated || false;
   const discardEvents: DiscardEvent[] | null = lobby.gameData?.discardPile?.length ? (lobby.gameData.discardPile as DiscardEvent[]) : null;

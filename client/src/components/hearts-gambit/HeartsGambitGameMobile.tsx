@@ -128,12 +128,16 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   });
 
   // Derived game state
+  const viewingAsSocketId = (lobby as any).viewingAs as string | undefined;
+  const isSpectator = !!lobby.players.find(p => p.socketId === lobby.mySocketId)?.isSpectator;
   const me = ppActivePlayerId
     ? lobby.players.find(p => p.id === ppActivePlayerId)
-    : lobby.players.find(p => p.socketId === lobby.mySocketId);
-  const isMyTurn = lobby.gameData?.currentTurn === me?.id;
+    : viewingAsSocketId
+      ? lobby.players.find(p => p.socketId === viewingAsSocketId)
+      : lobby.players.find(p => p.socketId === lobby.mySocketId);
+  const isMyTurn = !isSpectator && lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
-  const otherPlayers = lobby.players.filter(p => p.id !== me?.id);
+  const otherPlayers = lobby.players.filter(p => p.id !== me?.id && !p.isSpectator);
   // Server already masks opponent hands correctly in serializeRoom (sends 0 for hidden, real values for Butler-revealed)
   const displayOtherPlayers = otherPlayers;
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
