@@ -286,6 +286,13 @@ function AppContent() {
     clearKickMessage,
   } = useGameBuddiesClient({ registerGameEvents });
 
+  // Spectator: allow clicking players in sidebar to view their perspective
+  const isSpectator = !!lobby?.players?.find((p: any) => p.socketId === lobby.mySocketId)?.isSpectator;
+  const handleSpectatorPlayerClick = useCallback((targetSocketId: string) => {
+    if (!isSpectator || !socket) return;
+    socket.emit('spectator:view-as', { targetSocketId });
+  }, [isSpectator, socket]);
+
   const renderPage = () => {
     // Show loading screen when coming from GameBuddies but not connected yet
     if (isLoadingFromGameBuddies && !isConnected && !loadingTimedOut) {
@@ -405,6 +412,9 @@ function AppContent() {
                         mySocketId={lobby.mySocketId}
                         roomCode={lobby.code}
                         socket={socket}
+                        isSpectator={isSpectator}
+                        viewingAsSocketId={(lobby as any).viewingAs}
+                        onPlayerClick={handleSpectatorPlayerClick}
                       />
                       <ChatWindow
                         messages={messages}
@@ -460,6 +470,9 @@ function AppContent() {
                       mySocketId={lobby.mySocketId}
                       roomCode={lobby.code}
                       socket={socket}
+                      isSpectator={isSpectator}
+                      viewingAsSocketId={(lobby as any).viewingAs}
+                      onPlayerClick={handleSpectatorPlayerClick}
                     />
                   )}
                   {mobileNav.drawerContent === 'video' && (
