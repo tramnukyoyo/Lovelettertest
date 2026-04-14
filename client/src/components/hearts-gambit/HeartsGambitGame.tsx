@@ -799,7 +799,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
         {/* Context Actions Menu (Floating above game; avoids section clipping) */}
         <AnimatePresence mode="wait">
-          {isMyTurn && selectedCard && !waitingToDraw && (
+          {(isMyTurn || isSpectator) && selectedCard && !waitingToDraw && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -810,6 +810,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 shadow-2xl border border-[rgba(var(--accent-color-rgb),0.30)] z-40
                 w-[560px] max-w-[calc(100%-2.5rem)]
                 ${selectedCard === 1 ? 'flex flex-col gap-3' : 'flex items-center gap-4'}
+                ${isSpectator ? 'pointer-events-none opacity-95' : ''}
               `}
             >
               {/* Row 1: Playing + Target */}

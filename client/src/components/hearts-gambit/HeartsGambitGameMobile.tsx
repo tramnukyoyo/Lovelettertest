@@ -206,8 +206,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   // Spectator: emit selection state so spectators can see what we're doing
   useEffect(() => {
     if (isSpectator || isPP) return;
-    socket.emit('player:ui-state', { selectedCardIndex, targetId, guessCard });
-  }, [selectedCardIndex, targetId, guessCard, isSpectator, isPP, socket]);
+    socket.emit('player:ui-state', { selectedCardIndex, targetId, guessCard, playStep });
+  }, [selectedCardIndex, targetId, guessCard, playStep, isSpectator, isPP, socket]);
 
   // Spectator: receive viewed player's selection state
   useEffect(() => {
@@ -217,19 +217,23 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       setSelectedCardIndex(uiState.selectedCardIndex);
       setTargetId(uiState.targetId);
       setGuessCard(uiState.guessCard);
+      if (uiState.playStep) setPlayStep(uiState.playStep as PlayStep);
     } else {
       setSelectedCardIndex(null);
       setTargetId(null);
       setGuessCard(null);
+      setPlayStep('IDLE');
     }
   }, [isSpectator, viewingAsSocketId]);
 
   useEffect(() => {
     if (!isSpectator) return;
-    const handler = (data: { selectedCardIndex: number | null; targetId: string | null; guessCard: number | null }) => {
+    const handler = (data: { selectedCardIndex: number | null; targetId: string | null; guessCard: number | null; playStep?: string | null }) => {
       setSelectedCardIndex(data.selectedCardIndex);
       setTargetId(data.targetId);
       setGuessCard(data.guessCard as any);
+      if (data.playStep) setPlayStep(data.playStep as PlayStep);
+      else setPlayStep('IDLE');
     };
     socket.on('spectator:ui-state', handler);
     return () => { socket.off('spectator:ui-state', handler); };
@@ -776,13 +780,13 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
       {/* Floating Confirm/Cancel - tiny buttons, bottom right corner */}
       <AnimatePresence>
-        {playStep === 'SELECTED' && selectedCard !== null && isMyTurn && !waitingToDraw && lobby.state !== 'LOBBY' && (
+        {playStep === 'SELECTED' && selectedCard !== null && (isMyTurn || isSpectator) && !waitingToDraw && lobby.state !== 'LOBBY' && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={{ position: 'fixed', bottom: '1%', right: '1%', zIndex: 100 }}
-            className="flex gap-[0.5vw]"
+            className={`flex gap-[0.5vw] ${isSpectator ? 'pointer-events-none opacity-95' : ''}`}
           >
             <button
               onClick={handleConfirmSelection}
@@ -813,7 +817,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="hg-noir-modal p-4 w-[min(280px,90vw)]"
+              className={`hg-noir-modal p-4 w-[min(280px,90vw)] ${isSpectator ? 'pointer-events-none' : ''}`}
             >
               <h3 className="text-center text-base font-bold text-[var(--royal-gold)] mb-3 uppercase tracking-wider"
                   style={{ fontFamily: 'var(--font-typewriter)' }}>
@@ -892,7 +896,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="hg-noir-modal p-4 w-[min(300px,92vw)]"
+              className={`hg-noir-modal p-4 w-[min(300px,92vw)] ${isSpectator ? 'pointer-events-none' : ''}`}
             >
               <h3 className="text-center text-base font-bold text-[var(--royal-gold)] mb-3 uppercase tracking-wider"
                   style={{ fontFamily: 'var(--font-typewriter)' }}>
@@ -942,7 +946,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="hg-noir-modal p-3 w-[min(220px,85vw)]"
+              className={`hg-noir-modal p-3 w-[min(220px,85vw)] ${isSpectator ? 'pointer-events-none' : ''}`}
             >
               {/* Card preview with noir glow - show guessed card for Inspector */}
               <div className="flex justify-center mb-2">
