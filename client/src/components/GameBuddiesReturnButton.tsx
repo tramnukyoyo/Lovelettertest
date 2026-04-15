@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
-import PortalCloseOverlay from './PortalCloseOverlay';
 
 interface Player {
   id: string;
@@ -72,6 +71,11 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
       socket.off('gamebuddies:lobby-redirect', handleLobbyRedirect);
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (showPortal) handlePortalComplete();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPortal]);
 
   const handlePortalComplete = () => {
     // Set returning flag for WelcomeBackOverlay
@@ -145,39 +149,9 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
     </span>
   );
 
-  const portalOverlay = (
-    <PortalCloseOverlay
-      isVisible={showPortal}
-      isGroupReturn={isGroupReturn}
-      players={[]}
-      onComplete={handlePortalComplete}
-      duration={3000}
-      logoUrl="https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/primesuspect.webp"
-    />
-  );
-
   // Icon variant for compact header display
   if (variant === 'icon') {
     return (
-      <>
-        {portalOverlay}
-        <button
-          onClick={handleReturn}
-          disabled={isReturning}
-          className="game-header-gb-btn"
-          title={title}
-        >
-          <ArrowLeft size={16} />
-          {labelContent}
-        </button>
-      </>
-    );
-  }
-
-  // Button variant for lobby display
-  return (
-    <>
-      {portalOverlay}
       <button
         onClick={handleReturn}
         disabled={isReturning}
@@ -187,7 +161,20 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
         <ArrowLeft size={16} />
         {labelContent}
       </button>
-    </>
+    );
+  }
+
+  // Button variant for lobby display
+  return (
+    <button
+      onClick={handleReturn}
+      disabled={isReturning}
+      className="game-header-gb-btn"
+      title={title}
+    >
+      <ArrowLeft size={16} />
+      {labelContent}
+    </button>
   );
 };
 
