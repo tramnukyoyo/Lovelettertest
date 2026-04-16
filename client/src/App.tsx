@@ -21,7 +21,6 @@ import { backgroundMusic } from './utils/backgroundMusic';
 import { soundEffects } from './utils/soundEffects';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
 import InstallPrompt from './components/InstallPrompt';
-import LoadingScreen from './components/LoadingScreen';
 import SiteNotificationToast from './components/ui/SiteNotificationToast';
 import type { SiteNotification } from './components/ui/SiteNotificationToast';
 import KickToast from './components/ui/KickToast';
@@ -151,22 +150,12 @@ function AppContent() {
     return () => window.removeEventListener('languagechange', onLangChange);
   }, []);
 
-  // Detect GameBuddies launch synchronously (memoized to run once)
-  const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
-  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
   const [restoreInfo, setRestoreInfo] = useState<{ phase: string; connectedCount: number; totalPlayers: number } | null>(null);
 
-  useEffect(() => { initAnalytics(); initErrorReporter(); }, []);
+  // Detect GameBuddies launch synchronously (memoized to run once)
+  const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
 
-  // Safety timeout: force-resolve loading state after 10s to prevent infinite LoadingScreen
-  useEffect(() => {
-    if (!isLoadingFromGameBuddies || loadingTimedOut) return;
-    const timeout = setTimeout(() => {
-      console.warn('[App] Session resolution timeout — forcing resolved');
-      setLoadingTimedOut(true);
-    }, 5000);
-    return () => clearTimeout(timeout);
-  }, [isLoadingFromGameBuddies, loadingTimedOut]);
+  useEffect(() => { initAnalytics(); initErrorReporter(); }, []);
 
   const registerGameEvents = useCallback(
     (socket: Socket, helpers: RegisterGameEventsHelpers) => {
@@ -294,9 +283,9 @@ function AppContent() {
   }, [isSpectator, socket]);
 
   const renderPage = () => {
-    // Show loading screen when coming from GameBuddies but not connected yet
-    if (isLoadingFromGameBuddies && !isConnected && !loadingTimedOut) {
-      return <LoadingScreen message={getTranslation('app.launchingGame', getCurrentLanguage())} />;
+    // When coming from GameBuddies, render nothing until lobby is ready
+    if (isLoadingFromGameBuddies && !lobby) {
+      return null;
     }
 
     if (!isConnected) {
@@ -308,13 +297,6 @@ function AppContent() {
           </p>
         </div>
       );
-    }
-
-    // Show loading screen when coming from GameBuddies but room not created yet
-    // Keep showing until lobby is created (gameBuddiesSession may still be resolving)
-    if (isLoadingFromGameBuddies && !lobby && !kickMessage && !loadingTimedOut) {
-      console.log('[App] Showing LoadingScreen - waiting for GameBuddies room join');
-      return <LoadingScreen message={getTranslation('app.launchingGame', getCurrentLanguage())} />;
     }
 
     if (!lobby) {
