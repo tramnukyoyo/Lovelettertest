@@ -33,20 +33,12 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   const language = getCurrentLanguage();
   const t = (key: string) => getTranslation(key as any, language);
   const [isReturning, setIsReturning] = useState(false);
-  const [showPortal, setShowPortal] = useState(false);
-  const [isGroupReturn, setIsGroupReturn] = useState(false);
-  const [returnUrl, setReturnUrl] = useState('https://gamebuddies.io');
-  const [returnPlayerName, setReturnPlayerName] = useState('');
 
   // Handle return redirect from server (for non-host players)
   useEffect(() => {
-    const handleReturnRedirect = (data: { returnUrl: string; playerNames?: Record<string, string> }) => {
-      console.log('[GameBuddies] Received return-redirect:', data);
-      setReturnUrl(data.returnUrl);
-      setIsGroupReturn(true);
-      const myName = data.playerNames?.[socket?.id || ''] || '';
-      if (myName) setReturnPlayerName(myName);
-      setShowPortal(true);
+    const handleReturnRedirect = (data: { returnUrl: string }) => {
+      if (!data.returnUrl) return;
+      window.location.replace(data.returnUrl);
     };
 
     socket.on('gamebuddies:return-redirect', handleReturnRedirect);
@@ -59,10 +51,8 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   // Listen for lobby redirect (standalone → GB.io flow)
   useEffect(() => {
     const handleLobbyRedirect = (data: { redirectUrl: string }) => {
-      console.log('[GameBuddies] Received lobby-redirect:', data);
-      setReturnUrl(data.redirectUrl);
-      setIsGroupReturn(false);
-      setShowPortal(true);
+      if (!data.redirectUrl) return;
+      window.location.replace(data.redirectUrl);
     };
 
     socket.on('gamebuddies:lobby-redirect', handleLobbyRedirect);
@@ -72,68 +62,20 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
     };
   }, [socket]);
 
-  useEffect(() => {
-    if (showPortal) handlePortalComplete();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showPortal]);
-
-  const handlePortalComplete = () => {
-    // Set returning flag for WelcomeBackOverlay
-    sessionStorage.setItem('gamebuddies_returning', JSON.stringify({
-      fromGame: true,
-      roomCode,
-      playerName: sessionStorage.getItem('gamebuddies_playerName') || returnPlayerName || '',
-      isGroupReturn,
-      timestamp: Date.now(),
-    }));
-
-    // Append ?returning=true for cross-domain detection (sessionStorage doesn't cross domains)
-    try {
-      const url = new URL(returnUrl);
-      url.searchParams.set('returning', 'true');
-      const pName = sessionStorage.getItem('gamebuddies_playerName') || returnPlayerName || '';
-      if (pName) url.searchParams.set('returningPlayer', pName);
-      console.log('[GameBuddies] Redirecting with returning=true:', url.toString());
-      window.location.href = url.toString();
-    } catch {
-      window.location.href = returnUrl;
-    }
-  };
-
   const handleReturn = () => {
     if (isReturning) return;
+    setIsReturning(true);
 
     if (isStandalone) {
-      console.log('[GameBuddies] Standalone mode: creating GB lobby');
       socket.emit('gamebuddies:create-lobby', { roomCode, streamerMode });
       return;
     }
 
-    console.log('[GameBuddies] Return clicked', { isHost });
-    setIsReturning(true);
-
-    // Get return URL from session
-    const storedReturnUrl = sessionStorage.getItem('gamebuddies_returnUrl') ||
-      `https://gamebuddies.io/lobby/${roomCode}`;
-    setReturnUrl(storedReturnUrl);
-
-    if (isHost) {
-      setIsGroupReturn(true);
-      socket.emit('gamebuddies:return', {
-        roomCode,
-        mode: 'group',
-        reason: 'Host initiated return'
-      });
-    } else {
-      setIsGroupReturn(false);
-      socket.emit('gamebuddies:return', {
-        roomCode,
-        mode: 'individual',
-        reason: 'Player returning to lobby'
-      });
-    }
-
-    setShowPortal(true);
+    socket.emit('gamebuddies:return', {
+      roomCode,
+      mode: isHost ? 'group' : 'individual',
+      reason: 'user_initiated'
+    });
   };
 
   const title = isStandalone
