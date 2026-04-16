@@ -110,6 +110,16 @@ export function parseGameBuddiesSession(): GameBuddiesSession | null {
     return null;
   }
 
+  // If a pending session with a real token exists in storage, don't overwrite it
+  // with a tokenless URL-based session (happens when ?session= was cleaned but ?room= remains)
+  const stored = loadSession();
+  if (stored?.sessionToken && stored?.pendingResolution) {
+    if (!stored.roomCode && roomCode) stored.roomCode = roomCode;
+    if (!stored.playerName && playerName) stored.playerName = playerName;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(stored));
+    return null; // Preserve sessionToken for resolution
+  }
+
   return {
     roomCode: roomCode!,
     playerName: playerName || undefined,
