@@ -16950,3 +16950,31 @@ button svg.lucide,
 .spectator-reset-btn:hover {
   opacity: 1;
 }
+
+/* ============================================================================
+ * SECTION X — Accessibility & Ultra-Small Devices (added 2026-04-17)
+ * ============================================================================
+ * Cross-game additions:
+ *  - Honour `prefers-reduced-motion` for animations and transitions.
+ *  - Provide a baseline layout for ultra-small (<360px) devices.
+ * ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 359px) {
+  html {
+    font-size: 14px;
+  }
+  body {
+    overflow-x: hidden;
+  }
+}
