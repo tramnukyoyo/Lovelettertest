@@ -114,6 +114,14 @@ class SocketService {
       trackGameError(error?.message || String(error));
     });
 
+    // Server-side precondition rejections (see GameBuddieGamesServer rejectAction helper).
+    // Previously these were silent `return;` calls that left clients hanging. Now they
+    // arrive explicitly AND are written to game_client_errors on the server.
+    this.socket.on('action:rejected', (payload: { event: string; reason: string; roomCode?: string; context?: unknown; ts?: number }) => {
+      console.warn('[Socket] action:rejected', payload);
+      trackGameError(`[action:rejected] ${payload?.event}: ${payload?.reason}`);
+    });
+
     // Desync detection — request resync if state versions jump
     this.socket.on('roomStateUpdated', (data: any) => {
       if (data?._stateVersion) {
