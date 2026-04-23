@@ -70,7 +70,13 @@ function translateGameMessage(rawMessage: string): string {
  */
 function hasGameBuddiesSessionToken(): boolean {
   const params = new URLSearchParams(window.location.search);
-  return !!(params.get('session') || params.get('room') || params.get('gbRoomCode'));
+  if (params.get('session')) return true;
+  const hasRoom = !!(params.get('room') || params.get('gbRoomCode'));
+  const hasPlayerContext = !!(
+    params.get('name') || params.get('playerName') ||
+    params.get('playerId') || params.get('role')
+  );
+  return hasRoom && hasPlayerContext;
 }
 
 // ========================================
