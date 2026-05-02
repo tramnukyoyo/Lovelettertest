@@ -21,6 +21,10 @@ import HeartsGambitGameMobile from './HeartsGambitGameMobile';
 import { VictoryScreen } from './VictoryScreen';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 import BotControls from '../lobby/BotControls';
+import { GameExplainer, GameExplainerHelpButton } from '../lobby/GameExplainer';
+import { primeSuspectDemoSpec } from '../lobby/GameExplainer/demos/PrimeSuspectDemo';
+import '../lobby/GameExplainer/GameExplainer.css';
+import { GAME_META } from '../../config/gameMeta';
 
 interface HeartsGambitGameProps {
   lobby: Lobby;
@@ -656,8 +660,20 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
             {/* Waiting State */}
             {lobby.state === 'LOBBY' && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center flex-col gap-4 z-20 backdrop-blur-sm rounded-xl">
-                    <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">{t('game.waitingForPlayers')}</h2>
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center flex-col gap-4 z-20 backdrop-blur-sm rounded-xl overflow-y-auto py-4">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-2xl font-bold text-[var(--parchment)] tracking-wide">{t('game.waitingForPlayers')}</h2>
+                      <GameExplainerHelpButton gameId={GAME_META.id} ariaLabel={t('tutorial.howToPlay')} />
+                    </div>
+
+                    {/* How-to-play explainer (auto-opens once, ambient sidebar afterwards) */}
+                    <div className="w-full max-w-md px-4">
+                      <GameExplainer
+                        gameId={GAME_META.id}
+                        demoSpec={primeSuspectDemoSpec}
+                        t={(key: string) => getTranslation(key as any, language)}
+                      />
+                    </div>
 
                     {/* Bot Controls */}
                     {me?.isHost && lobby.settings?.gameType !== 'pass-play' && (
@@ -746,10 +762,10 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 <button
                   onClick={() => setIsRulesOpen(true)}
                   className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.25)] hover:bg-[rgba(var(--accent-color-rgb),0.4)] text-[var(--parchment)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
-                  title="Rules"
+                  title={t('rules.button')}
                 >
                   <ScrollText size={16} />
-                  Rules
+                  {t('rules.button')}
                 </button>
                 <button
                   onClick={() => setIsTutorialOpen(true)}

@@ -116,7 +116,7 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
     {
       id: 'rules',
       icon: ScrollText,
-      label: 'Rules',
+      label: t('rules.button'),
       action: onRules ? () => handleMenuItemClick(onRules) : undefined,
       show: !!onRules,
     },

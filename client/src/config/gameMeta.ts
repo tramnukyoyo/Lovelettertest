@@ -1,4 +1,5 @@
 export const GAME_META = {
+  id: 'prime-suspect',
   name: 'Prime Suspect',
   namePrefix: 'Prime',
   nameAccent: 'Suspect',
