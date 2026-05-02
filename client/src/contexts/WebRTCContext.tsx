@@ -625,13 +625,28 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       
       // Notify server that we're ready for video and send our connection type
       if (socket && roomCode) {
-        socket.emit('webrtc:enable-video', { 
-          roomCode, 
-          peerId: userId, 
-          connectionType: connectionType 
+        socket.emit('webrtc:enable-video', {
+          roomCode,
+          peerId: userId,
+          connectionType: connectionType
         });
+
+        // Late-joiner sync: ask server who is already in video chat so we can
+        // initiate offers to anyone we missed before our local stream was ready.
+        socket.emit('webrtc:get-active-peers', { roomCode });
+
+        // Re-announce after 2s to catch peers whose join happened in the same tick.
+        setTimeout(() => {
+          if (socket.connected) {
+            socket.emit('webrtc:enable-video', {
+              roomCode,
+              peerId: userId,
+              connectionType: connectionType
+            });
+          }
+        }, 2000);
       }
-      
+
       // Show user what type of connection they have
       const statusMessage = `Video chat enabled (${connectionType})${!hasVideo ? ' - You can see others but your camera is not available' : ''}${!hasAudio ? ' - Audio not available' : ''}`;
       console.log(`[WebRTC] ${statusMessage}`);
@@ -1216,6 +1231,13 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       }
     };
 
+    // Late-joiner sync: server sends us the list of peers already in video chat.
+    const handleActivePeers = ({ peerIds }: { peerIds: string[] }) => {
+      for (const peerId of peerIds) {
+        handlePeerEnabledVideo({ peerId });
+      }
+    };
+
     socket.on('webrtc:peer-enabled-video', handlePeerEnabledVideo);
     socket.on('webrtc:peer-disabled-video', handlePeerDisabledVideo);
     socket.on('webrtc:peer-left', handlePeerLeft);
@@ -1223,6 +1245,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
     socket.on('webrtc:offer', handleOffer);
     socket.on('webrtc:answer', handleAnswer);
     socket.on('webrtc:ice-candidate', handleIceCandidate);
+    socket.on('webrtc:active-peers', handleActivePeers);
 
     return () => {
       if (!socket) return;
@@ -1233,6 +1256,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       socket.off('webrtc:offer', handleOffer);
       socket.off('webrtc:answer', handleAnswer);
       socket.off('webrtc:ice-candidate', handleIceCandidate);
+      socket.off('webrtc:active-peers', handleActivePeers);
       videoPeersRef.current.clear();
     };
   }, [socket, roomCode, userId, createPeerConnection, createOffer]);
