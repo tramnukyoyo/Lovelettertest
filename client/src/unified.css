@@ -6129,6 +6129,26 @@ canvas {
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.26);
 }
 
+/* Active speaker — glowing cyan ring driven by hark */
+.webcam-display.is-speaking,
+.sb-webcam-tile.is-speaking {
+  border-color: var(--gb-cyan, #00d9ff);
+  box-shadow: 0 0 0 2px var(--gb-cyan, #00d9ff), 0 0 18px rgba(0, 217, 255, 0.55);
+  transition: box-shadow 0.12s ease-out, border-color 0.12s ease-out;
+}
+.webcam-display:not(.is-speaking),
+.sb-webcam-tile:not(.is-speaking) {
+  transition: box-shadow 0.25s ease-in, border-color 0.25s ease-in;
+}
+@media (prefers-reduced-motion: reduce) {
+  .webcam-display.is-speaking,
+  .sb-webcam-tile.is-speaking,
+  .webcam-display:not(.is-speaking),
+  .sb-webcam-tile:not(.is-speaking) {
+    transition: none;
+  }
+}
+
 .webcam-video-container {
   position: relative;
   width: 100%;

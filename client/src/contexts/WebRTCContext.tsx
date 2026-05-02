@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useState, useRef } from 'react';
+import hark from 'hark';
+import SimplePeer from 'simple-peer';
 import type { ReactNode } from 'react';
 import { useWebcamConfig } from '../config/WebcamConfig.tsx';
 import { VirtualBackgroundService, DEFAULT_BACKGROUNDS } from '../services/virtualBackgroundService';
@@ -18,7 +20,7 @@ import {
 interface WebRTCState {
   localStream: MediaStream | null;
   remoteStreams: Map<string, MediaStream>;
-  peerConnections: Map<string, RTCPeerConnection>;
+  peerConnections: Map<string, SimplePeer.Instance>;
   connectionStates: Map<string, string>; // Track negotiation states per peer
   peerConnectionTypes: Map<string, string>; // Track peer connection types (video+audio, audio only, etc.)
   isWebcamActive: boolean;
@@ -61,7 +63,7 @@ type WebRTCAction =
   | { type: 'SET_CONNECTION_TYPE'; payload: 'has-camera' | 'no-camera' | null }
   | { type: 'ADD_REMOTE_STREAM'; payload: { peerId: string; stream: MediaStream } }
   | { type: 'REMOVE_REMOTE_STREAM'; payload: string }
-  | { type: 'ADD_PEER_CONNECTION'; payload: { peerId: string; connection: RTCPeerConnection } }
+  | { type: 'ADD_PEER_CONNECTION'; payload: { peerId: string; connection: SimplePeer.Instance } }
   | { type: 'REMOVE_PEER_CONNECTION'; payload: string }
   | { type: 'SET_CONNECTION_STATE'; payload: { peerId: string; state: string } }
   | { type: 'SET_PEER_CONNECTION_TYPE'; payload: { peerId: string; connectionType: string } }
@@ -172,7 +174,7 @@ function webrtcReducer(state: WebRTCState, action: WebRTCAction): WebRTCState {
       const updatedConnectionTypes = new Map(state.peerConnectionTypes);
       const connection = updatedConnections.get(action.payload);
       if (connection) {
-        connection.close();
+        try { connection.destroy(); } catch { /* noop */ }
         updatedConnections.delete(action.payload);
       }
       updatedStates.delete(action.payload);
@@ -283,7 +285,9 @@ function webrtcReducer(state: WebRTCState, action: WebRTCAction): WebRTCState {
       };
     
     case 'RESET_STATE':
-      state.peerConnections.forEach(connection => connection.close());
+      state.peerConnections.forEach(connection => {
+        try { connection.destroy(); } catch { /* noop */ }
+      });
       if (state.localStream) {
         state.localStream.getTracks().forEach(track => track.stop());
       }
@@ -312,7 +316,15 @@ const getHighQualityAudioConstraints = (deviceId?: string): MediaTrackConstraint
   return baseConstraints;
 };
 
+// hark sensitivity. -65dB picks up normal speech without triggering on keyboard taps.
+const HARK_THRESHOLD = -65;
+const HARK_INTERVAL = 100;
+
 interface WebRTCContextState extends Omit<WebRTCState, 'availableDevices'> {
+  // Active speakers — peer IDs whose mic level is currently above threshold.
+  // Includes own socket id when local mic is hot.
+  speakingPeers: Set<string>;
+  isLocalSpeaking: boolean;
   enableVideoChat: () => Promise<void>;
   prepareVideoChat: () => Promise<void>;
   confirmVideoChat: () => Promise<void>;
@@ -373,150 +385,144 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
   // Use refs to store current state for callbacks
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  // Active-speaker detection (hark) — kept separate from the reducer so we
+  // don't have to thread it through every dispatch site.
+  const [speakingPeers, setSpeakingPeers] = useState<Set<string>>(new Set());
+  const harksRef = useRef<Map<string, hark.Harker>>(new Map());
+  const localHarkRef = useRef<hark.Harker | null>(null);
+
+  const addSpeaker = useCallback((id: string) => {
+    setSpeakingPeers(prev => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }, []);
+  const removeSpeaker = useCallback((id: string) => {
+    setSpeakingPeers(prev => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+  const stopHark = useCallback((peerId: string) => {
+    const speech = harksRef.current.get(peerId);
+    if (speech) {
+      try { speech.stop(); } catch { /* noop */ }
+      harksRef.current.delete(peerId);
+    }
+    removeSpeaker(peerId);
+  }, [removeSpeaker]);
+  const attachHark = useCallback((peerId: string, stream: MediaStream) => {
+    if (!stream.getAudioTracks().length) return;
+    stopHark(peerId);
+    try {
+      const speech = hark(stream, { interval: HARK_INTERVAL, threshold: HARK_THRESHOLD, play: false });
+      speech.on('speaking', () => addSpeaker(peerId));
+      speech.on('stopped_speaking', () => removeSpeaker(peerId));
+      harksRef.current.set(peerId, speech);
+    } catch (err) {
+      console.error(`[WebRTC] Failed to attach hark for ${peerId}:`, err);
+    }
+  }, [addSpeaker, removeSpeaker, stopHark]);
   
-  // Store pending ICE candidates
-  const pendingCandidates = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
+  // simple-peer handles ICE-candidate queueing internally — no manual pending store needed.
   // Track peers who have enabled video (even before we enable ours)
   const videoPeersRef = useRef<Set<string>>(new Set());
 
-  const createPeerConnection = useCallback((peerId: string): RTCPeerConnection => {
-    console.log(`[WebRTC] Creating peer connection for ${peerId}`);
-    
-    // Check if connection already exists
-    const existingConnection = stateRef.current.peerConnections.get(peerId);
-    if (existingConnection) {
-      const state = existingConnection.connectionState;
-      if (state !== 'closed' && state !== 'failed') {
-        console.log(`[WebRTC] Reusing existing connection to ${peerId} (${state})`);
-        return existingConnection;
-      } else {
-        console.log(`[WebRTC] Cleaning up old connection to ${peerId}`);
-        existingConnection.close();
-      }
+  // simple-peer keeps the underlying RTCPeerConnection on `_pc` (private but stable across versions).
+  // Used by the camera/mic/virtualBg/audioProcessor/faceAvatar code paths that need direct
+  // access to senders for `replaceTrack`.
+  const pcOf = (peer: SimplePeer.Instance): RTCPeerConnection | undefined =>
+    (peer as unknown as { _pc?: RTCPeerConnection })._pc;
+
+  const createPeerConnection = useCallback((peerId: string, initiator: boolean): SimplePeer.Instance => {
+    console.log(`[WebRTC] Creating peer connection for ${peerId} (initiator=${initiator})`);
+
+    // Reuse if already alive
+    const existing = stateRef.current.peerConnections.get(peerId);
+    if (existing && !existing.destroyed) {
+      console.log(`[WebRTC] Reusing existing connection to ${peerId}`);
+      return existing;
+    }
+    if (existing && existing.destroyed) {
+      try { existing.destroy(); } catch { /* noop */ }
     }
 
     dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'new' } });
 
-    const peerConnection = new RTCPeerConnection({
-      iceServers: getICEServers(), // Mobile-optimized with TURN support
-      iceTransportPolicy: 'all',
-      bundlePolicy: 'max-bundle',
-      rtcpMuxPolicy: 'require'
+    const localStream = stateRef.current.localStream;
+    const peer = new SimplePeer({
+      initiator,
+      stream: localStream ?? undefined,
+      trickle: true,
+      config: {
+        iceServers: getICEServers(),
+        iceTransportPolicy: 'all',
+        bundlePolicy: 'max-bundle',
+        rtcpMuxPolicy: 'require'
+      }
     });
 
-    // Add local stream tracks if available
-    if (stateRef.current.localStream) {
-      const tracks = stateRef.current.localStream.getTracks();
-      if (tracks.length > 0) {
-        tracks.forEach(track => {
-          peerConnection.addTrack(track, stateRef.current.localStream!);
-        });
-        console.log(`[WebRTC] Added ${tracks.length} local tracks for ${peerId}`);
-      } else {
-        console.log(`[WebRTC] Local stream exists but has no tracks for ${peerId}`);
-      }
-    } else {
-      // Even without local media, we can still receive remote streams
-      console.log(`[WebRTC] No local stream available for ${peerId}, but can still receive remote streams`);
+    // Mobile-specific RTCPeerConnection tweaks (simple-peer keeps the underlying pc on _pc)
+    const pc = pcOf(peer);
+    if (pc) {
+      setH264CodecPreference(pc, peerId);
+      addEnhancedDiagnostics(pc, peerId);
     }
 
-    // Apply iOS H.264 codec preference for iOS compatibility
-    setH264CodecPreference(peerConnection, peerId);
+    peer.on('signal', (signal: SimplePeer.SignalData) => {
+      if (!socket || !roomCode) return;
+      if (signal.type === 'offer') {
+        socket.emit('webrtc:offer', { roomCode, toPeerId: peerId, offer: signal });
+      } else if (signal.type === 'answer') {
+        socket.emit('webrtc:answer', { roomCode, toPeerId: peerId, answer: signal });
+      } else if ('candidate' in signal && signal.candidate) {
+        socket.emit('webrtc:ice-candidate', { roomCode, toPeerId: peerId, candidate: signal.candidate });
+      }
+    });
 
-    // Add enhanced diagnostics for better mobile debugging
-    addEnhancedDiagnostics(peerConnection, peerId);
-
-    // Handle remote stream
-    peerConnection.ontrack = (event) => {
+    peer.on('stream', (stream: MediaStream) => {
       console.log(`[WebRTC] Received remote stream from ${peerId}`);
-      if (event.streams[0]) {
-        dispatch({ type: 'ADD_REMOTE_STREAM', payload: { peerId, stream: event.streams[0] } });
-      }
-    };
+      dispatch({ type: 'ADD_REMOTE_STREAM', payload: { peerId, stream } });
+    });
 
-    // Handle ICE candidates
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate && socket) {
-        console.log(`[WebRTC] Sending ICE candidate to ${peerId}`);
-        socket.emit('webrtc:ice-candidate', {
-          roomCode,
-          toPeerId: peerId,
-          candidate: event.candidate
-        });
-      }
-    };
+    peer.on('track', (_track: MediaStreamTrack, stream: MediaStream) => {
+      // Defensive: some browsers fire 'track' without a follow-up 'stream'.
+      dispatch({ type: 'ADD_REMOTE_STREAM', payload: { peerId, stream } });
+    });
 
-    // Handle connection state changes
-    peerConnection.onconnectionstatechange = () => {
-      console.log(`[WebRTC] Connection state with ${peerId}: ${peerConnection.connectionState}`);
-      
-      if (peerConnection.connectionState === 'connected') {
-        console.log(`[WebRTC] Successfully connected to ${peerId}!`);
-        dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'connected' } });
-        // Clear pending candidates once connected
-        pendingCandidates.current.delete(peerId);
-      } else if (peerConnection.connectionState === 'connecting') {
-        console.log(`[WebRTC] Connecting to ${peerId}...`);
-        dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'connecting' } });
-      } else if (peerConnection.connectionState === 'failed' || 
-                 peerConnection.connectionState === 'closed') {
-        console.log(`[WebRTC] Connection to ${peerId} failed/closed`);
-        dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: peerId });
-        dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
-        pendingCandidates.current.delete(peerId);
-      }
-    };
+    peer.on('connect', () => {
+      console.log(`[WebRTC] Successfully connected to ${peerId}!`);
+      dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'connected' } });
+    });
 
-    // Handle signaling state changes
-    peerConnection.onsignalingstatechange = () => {
-      console.log(`[WebRTC] Signaling state with ${peerId}: ${peerConnection.signalingState}`);
-    };
+    peer.on('close', () => {
+      console.log(`[WebRTC] Connection to ${peerId} closed`);
+      dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: peerId });
+      dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
+    });
 
-    dispatch({ type: 'ADD_PEER_CONNECTION', payload: { peerId, connection: peerConnection } });
+    peer.on('error', (err: Error) => {
+      console.error(`[WebRTC] Peer error for ${peerId}:`, err);
+      dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: peerId });
+      dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
+    });
 
-    // Process any pending ICE candidates
-    const pending = pendingCandidates.current.get(peerId);
-    if (pending && pending.length > 0) {
-      console.log(`[WebRTC] Processing ${pending.length} pending ICE candidates for ${peerId}`);
-      pendingCandidates.current.set(peerId, []);
-    }
+    dispatch({ type: 'ADD_PEER_CONNECTION', payload: { peerId, connection: peer } });
 
-    return peerConnection;
+    return peer;
   }, [socket, roomCode]);
 
   const createOffer = useCallback(async (peerId: string) => {
-    console.log(`[WebRTC] Creating offer for ${peerId}`);
-    const peerConnection = createPeerConnection(peerId);
-    
-    try {
-      dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'creating-offer' } });
-      
-      // Create offer with specific options to handle various connection types
-      const offerOptions = {
-        offerToReceiveAudio: true,
-        offerToReceiveVideo: true
-      };
-      
-      console.log(`[WebRTC] Creating offer for ${peerId} with options:`, offerOptions);
-      const offer = await peerConnection.createOffer(offerOptions);
-      console.log(`[WebRTC] Offer created for ${peerId}, setting local description...`);
-      await peerConnection.setLocalDescription(offer);
-      console.log(`[WebRTC] Local description set for ${peerId}`);
-      
-      if (socket && peerConnection.localDescription) {
-        console.log(`[WebRTC] Sending offer to ${peerId}`);
-        socket.emit('webrtc:offer', {
-          roomCode,
-          toPeerId: peerId,
-          offer: peerConnection.localDescription
-        });
-        dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'offer-sent' } });
-      }
-    } catch (error) {
-      console.error(`[WebRTC] Error creating offer for ${peerId}:`, error);
-      dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'failed' } });
-    }
-  }, [createPeerConnection, socket, roomCode]);
+    // simple-peer auto-creates and sends the offer via 'signal' when initiator=true.
+    console.log(`[WebRTC] Initiating peer connection (will offer) for ${peerId}`);
+    dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'offer-sent' } });
+    createPeerConnection(peerId, true);
+  }, [createPeerConnection]);
 
   const enableVideoChat = useCallback(async () => {
     try {
@@ -866,7 +872,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
 
         // Update all peer connections with the new video track
         state.peerConnections.forEach((peerConnection) => {
-          const sender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
+          const sender = pcOf(peerConnection)?.getSenders().find(s => s.track?.kind === 'video');
           if (sender) {
             sender.replaceTrack(newVideoTrack).catch(err => {
               console.error('[WebRTC] Failed to replace video track:', err);
@@ -923,7 +929,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       // Close existing connections
       state.peerConnections.forEach((connection, peerId) => {
         console.log(`[WebRTC] Closing connection to ${peerId} for refresh`);
-        connection.close();
+        try { connection.destroy(); } catch { /* noop */ }
         dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
       });
       
@@ -996,8 +1002,8 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
           dispatch({ type: 'SET_LOCAL_STREAM', payload: stream });
 
           // Update all peer connections with new stream (only if any exist)
-          state.peerConnections.forEach(async (pc) => {
-            const senders = pc.getSenders();
+          state.peerConnections.forEach(async (peer) => {
+            const senders = pcOf(peer)?.getSenders() ?? [];
 
             // Replace video track
             const videoSender = senders.find(s => s.track?.kind === 'video');
@@ -1062,8 +1068,8 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
           dispatch({ type: 'SET_LOCAL_STREAM', payload: stream });
 
           // Update all peer connections with new stream (only if any exist)
-          state.peerConnections.forEach(async (pc) => {
-            const senders = pc.getSenders();
+          state.peerConnections.forEach(async (peer) => {
+            const senders = pcOf(peer)?.getSenders() ?? [];
 
             // Replace audio track
             const audioSender = senders.find(s => s.track?.kind === 'audio');
@@ -1124,7 +1130,6 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       console.log('[WebRTC] Peer disabled video:', peerId);
       dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: peerId });
       dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
-      pendingCandidates.current.delete(peerId);
       videoPeersRef.current.delete(peerId);
     };
 
@@ -1132,7 +1137,6 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       console.log('[WebRTC] Peer left:', peerId);
       dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: peerId });
       dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: peerId });
-      pendingCandidates.current.delete(peerId);
       videoPeersRef.current.delete(peerId);
     };
 
@@ -1149,13 +1153,12 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       const oldConnection = stateRef.current.peerConnections.get(oldPeerId);
       if (oldConnection) {
         console.log('[WebRTC] Closing old peer connection:', oldPeerId);
-        oldConnection.close();
+        try { oldConnection.destroy(); } catch { /* noop */ }
         dispatch({ type: 'REMOVE_PEER_CONNECTION', payload: oldPeerId });
       }
 
       // Remove old remote stream
       dispatch({ type: 'REMOVE_REMOTE_STREAM', payload: oldPeerId });
-      pendingCandidates.current.delete(oldPeerId);
 
       // If we have video enabled, initiate connection to the new peer ID
       if (stateRef.current.isVideoEnabled && stateRef.current.localStream) {
@@ -1169,115 +1172,47 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       }
     };
 
-    const handleOffer = async ({ fromPeerId, offer }: { fromPeerId: string; offer: RTCSessionDescriptionInit }) => {
+    const handleOffer = ({ fromPeerId, offer }: { fromPeerId: string; offer: SimplePeer.SignalData }) => {
       console.log('[WebRTC] Received offer from:', fromPeerId);
-
+      let peer = stateRef.current.peerConnections.get(fromPeerId);
+      if (!peer || peer.destroyed) {
+        peer = createPeerConnection(fromPeerId, false);
+      }
+      dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId: fromPeerId, state: 'answering' } });
       try {
-        // Always accept offers - the other peer has decided to initiate
-        let peerConnection = stateRef.current.peerConnections.get(fromPeerId);
-        
-        // Create new connection or reuse existing
-        if (!peerConnection || peerConnection.connectionState === 'closed' || peerConnection.connectionState === 'failed') {
-          peerConnection = createPeerConnection(fromPeerId);
-        }
-
-        // Set remote description and create answer
-        dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId: fromPeerId, state: 'answering' } });
-        
-        console.log(`[WebRTC] Setting remote description for offer from ${fromPeerId}...`);
-        await peerConnection.setRemoteDescription(offer);
-        console.log(`[WebRTC] Remote description set, creating answer for ${fromPeerId}...`);
-        const answer = await peerConnection.createAnswer();
-        console.log(`[WebRTC] Answer created for ${fromPeerId}, setting local description...`);
-        await peerConnection.setLocalDescription(answer);
-        console.log(`[WebRTC] Local description set for answer to ${fromPeerId}`);
-        
-        if (socket && peerConnection.localDescription) {
-          console.log(`[WebRTC] Sending answer to ${fromPeerId}`);
-          socket.emit('webrtc:answer', {
-            roomCode,
-            toPeerId: fromPeerId,
-            answer: peerConnection.localDescription
-          });
-          dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId: fromPeerId, state: 'answer-sent' } });
-        }
-
-        // Process any pending ICE candidates
-        const pending = pendingCandidates.current.get(fromPeerId) || [];
-        for (const candidate of pending) {
-          try {
-            await peerConnection.addIceCandidate(candidate);
-            console.log(`[WebRTC] Added pending ICE candidate for ${fromPeerId}`);
-          } catch (err) {
-            console.error(`[WebRTC] Error adding pending ICE candidate for ${fromPeerId}:`, err);
-          }
-        }
-        pendingCandidates.current.delete(fromPeerId);
-        
-      } catch (error) {
-        console.error('[WebRTC] Error handling offer:', error);
+        peer.signal(offer);
+      } catch (err) {
+        console.error('[WebRTC] Error applying offer:', err);
         dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId: fromPeerId, state: 'failed' } });
       }
     };
 
-    const handleAnswer = async ({ fromPeerId, answer }: { fromPeerId: string; answer: RTCSessionDescriptionInit }) => {
+    const handleAnswer = ({ fromPeerId, answer }: { fromPeerId: string; answer: SimplePeer.SignalData }) => {
       console.log('[WebRTC] Received answer from:', fromPeerId);
-      
-      const peerConnection = stateRef.current.peerConnections.get(fromPeerId);
-      if (!peerConnection) {
-        console.warn(`[WebRTC] No peer connection found for ${fromPeerId} when handling answer`);
+      const peer = stateRef.current.peerConnections.get(fromPeerId);
+      if (!peer || peer.destroyed) {
+        console.warn(`[WebRTC] No live peer for ${fromPeerId} when handling answer`);
         return;
       }
-
+      dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId: fromPeerId, state: 'answer-received' } });
       try {
-        console.log(`[WebRTC] Received answer from ${fromPeerId}, setting remote description...`);
-        await peerConnection.setRemoteDescription(answer);
-        console.log(`[WebRTC] Successfully set remote description for answer from ${fromPeerId}`);
-        dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId: fromPeerId, state: 'answer-received' } });
-        
-        // Process any pending ICE candidates
-        const pending = pendingCandidates.current.get(fromPeerId) || [];
-        for (const candidate of pending) {
-          try {
-            await peerConnection.addIceCandidate(candidate);
-            console.log(`[WebRTC] Added pending ICE candidate for ${fromPeerId}`);
-          } catch (err) {
-            console.error(`[WebRTC] Error adding pending ICE candidate for ${fromPeerId}:`, err);
-          }
-        }
-        pendingCandidates.current.delete(fromPeerId);
-        
-      } catch (error) {
-        console.error('[WebRTC] Error handling answer:', error);
+        peer.signal(answer);
+      } catch (err) {
+        console.error('[WebRTC] Error applying answer:', err);
         dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId: fromPeerId, state: 'failed' } });
       }
     };
 
-    const handleIceCandidate = async ({ fromPeerId, candidate }: { fromPeerId: string; candidate: RTCIceCandidateInit }) => {      
-      const peerConnection = stateRef.current.peerConnections.get(fromPeerId);
-      
-      if (!peerConnection) {
-        // Store candidate for later if connection doesn't exist yet
-        console.log(`[WebRTC] Storing ICE candidate for ${fromPeerId} (no connection yet)`);
-        const pending = pendingCandidates.current.get(fromPeerId) || [];
-        pending.push(candidate);
-        pendingCandidates.current.set(fromPeerId, pending);
+    const handleIceCandidate = ({ fromPeerId, candidate }: { fromPeerId: string; candidate: RTCIceCandidateInit }) => {
+      const peer = stateRef.current.peerConnections.get(fromPeerId);
+      if (!peer || peer.destroyed) {
+        // simple-peer queues internally; drop orphan ICE candidates that arrive before the offer.
         return;
       }
-
       try {
-        if (peerConnection.remoteDescription) {
-          await peerConnection.addIceCandidate(candidate);
-          console.log(`[WebRTC] Added ICE candidate from ${fromPeerId}`);
-        } else {
-          // Store candidate for later if remote description not set
-          console.log(`[WebRTC] Storing ICE candidate for ${fromPeerId} (no remote description)`);
-          const pending = pendingCandidates.current.get(fromPeerId) || [];
-          pending.push(candidate);
-          pendingCandidates.current.set(fromPeerId, pending);
-        }
-      } catch (error) {
-        console.error('[WebRTC] Error adding ICE candidate:', error);
+        peer.signal({ candidate } as SimplePeer.SignalData);
+      } catch (err) {
+        console.error('[WebRTC] Error applying ICE candidate:', err);
       }
     };
 
@@ -1427,7 +1362,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
         // Update all peer connections with new track
         console.log('[WebRTC] Updating', state.peerConnections.size, 'peer connections with new track...');
         state.peerConnections.forEach((peerConnection) => {
-          const sender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
+          const sender = pcOf(peerConnection)?.getSenders().find(s => s.track?.kind === 'video');
           if (sender && virtualStream.getVideoTracks()[0]) {
             sender.replaceTrack(virtualStream.getVideoTracks()[0]).catch(console.error);
           }
@@ -1476,7 +1411,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       
       // Update all peer connections with the new camera track
       state.peerConnections.forEach((peerConnection) => {
-        const sender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
+        const sender = pcOf(peerConnection)?.getSenders().find(s => s.track?.kind === 'video');
         if (sender && newStream.getVideoTracks()[0]) {
           sender.replaceTrack(newStream.getVideoTracks()[0]).catch(console.error);
         }
@@ -1564,7 +1499,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       // Update all peer connections with the processed audio track
       console.log('[WebRTC] Updating peer connections...');
       state.peerConnections.forEach((peerConnection) => {
-        const audioSender = peerConnection.getSenders().find(s => s.track?.kind === 'audio');
+        const audioSender = pcOf(peerConnection)?.getSenders().find(s => s.track?.kind === 'audio');
         if (audioSender && processedAudioTracks[0]) {
           audioSender.replaceTrack(processedAudioTracks[0]).catch(console.error);
         }
@@ -1665,7 +1600,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       // Update all peer connections with the avatar video track
       console.log('[WebRTC] Updating peer connections...');
       state.peerConnections.forEach((peerConnection) => {
-        const videoSender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
+        const videoSender = pcOf(peerConnection)?.getSenders().find(s => s.track?.kind === 'video');
         if (videoSender && avatarVideoTracks[0]) {
           videoSender.replaceTrack(avatarVideoTracks[0]).catch(console.error);
         }
@@ -1714,8 +1649,71 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
     };
   }, []);
 
+  // Local hark — drive own speaking indicator
+  useEffect(() => {
+    const sock = (config && config.getSocket && config.getSocket()) || null;
+    if (!state.localStream || !sock?.id) return;
+
+    if (localHarkRef.current) {
+      try { localHarkRef.current.stop(); } catch { /* noop */ }
+      localHarkRef.current = null;
+    }
+
+    if (!state.localStream.getAudioTracks().length) return;
+
+    const myId = sock.id;
+    try {
+      const speech = hark(state.localStream, { interval: HARK_INTERVAL, threshold: HARK_THRESHOLD, play: false });
+      speech.on('speaking', () => addSpeaker(myId));
+      speech.on('stopped_speaking', () => removeSpeaker(myId));
+      localHarkRef.current = speech;
+    } catch (err) {
+      console.error('[WebRTC] Failed to attach local hark:', err);
+    }
+
+    return () => {
+      if (localHarkRef.current) {
+        try { localHarkRef.current.stop(); } catch { /* noop */ }
+        localHarkRef.current = null;
+      }
+      removeSpeaker(myId);
+    };
+  }, [state.localStream, config, addSpeaker, removeSpeaker]);
+
+  // Remote hark — attach to each remote stream when it appears
+  useEffect(() => {
+    state.remoteStreams.forEach((stream, peerId) => {
+      if (!harksRef.current.has(peerId)) {
+        attachHark(peerId, stream);
+      }
+    });
+    Array.from(harksRef.current.keys()).forEach(peerId => {
+      if (!state.remoteStreams.has(peerId)) {
+        stopHark(peerId);
+      }
+    });
+  }, [state.remoteStreams, attachHark, stopHark]);
+
+  // Cleanup all harks on unmount
+  useEffect(() => {
+    return () => {
+      harksRef.current.forEach(speech => { try { speech.stop(); } catch { /* noop */ } });
+      harksRef.current.clear();
+      if (localHarkRef.current) {
+        try { localHarkRef.current.stop(); } catch { /* noop */ }
+      }
+    };
+  }, []);
+
+  const isLocalSpeaking = (() => {
+    const sock = (config && config.getSocket && config.getSocket()) || null;
+    return !!sock?.id && speakingPeers.has(sock.id);
+  })();
+
   const contextValue: WebRTCContextState = {
     ...state,
+    speakingPeers,
+    isLocalSpeaking,
     enableVideoChat,
     prepareVideoChat,
     confirmVideoChat,

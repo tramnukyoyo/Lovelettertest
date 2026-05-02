@@ -46,7 +46,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
   teams = [],
   mySocketId
 }) => {
-  const { localStream, remoteStreams, isVideoEnabled, isVideoPrepairing } = useWebRTC();
+  const { localStream, remoteStreams, speakingPeers, isVideoEnabled, isVideoPrepairing } = useWebRTC();
   const { isFilmstripExpanded, toggleFilmstrip, isStreamerBroadcastOpen } = useVideoUI();
 
   // Helper to get player's team color
@@ -215,11 +215,13 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
               {localStream && (() => {
                 const dims = getVideoDimensions(filmstripHeight);
                 const localTeamColor = mySocketId ? getPlayerTeamColor(mySocketId) : undefined;
+                const localIsSpeaking = !!mySocketId && speakingPeers.has(mySocketId);
                 return (
                   <WebcamDisplay
                     player={{ id: 'local', name: localPlayerName || 'You' }}
                     stream={localStream}
                     isLocal
+                  isSpeaking={localIsSpeaking}
                     size="small"
                     style={{ width: `${dims.width}px`, height: `${dims.height}px` }}
                     teamColor={localTeamColor}
@@ -238,6 +240,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
                       stream={getStreamForPlayer(player.id)}
                       isLocal={false}
                       isTurn={player.id === currentTurnPlayerId}
+                      isSpeaking={speakingPeers.has(player.id)}
                       size="small"
                       style={{ width: `${dims.width}px`, height: `${dims.height}px` }}
                       teamColor={playerTeamColor}

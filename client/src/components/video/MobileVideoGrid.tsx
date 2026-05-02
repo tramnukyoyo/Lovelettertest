@@ -38,6 +38,8 @@ const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
   const {
     localStream,
     remoteStreams,
+    speakingPeers,
+    isLocalSpeaking,
     isVideoEnabled,
     isAudioEnabled,
     toggleVideo,
@@ -114,6 +116,7 @@ const MobileVideoGrid: React.FC<MobileVideoGridProps> = ({
             player={player}
             stream={getStreamForPlayer(player.id)}
             isTurn={player.id === currentTurnPlayerId}
+            isSpeaking={speakingPeers.has(player.id)}
             size="medium"
             teamColor={getPlayerTeamColor(player.id)}
           />

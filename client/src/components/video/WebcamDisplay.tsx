@@ -16,6 +16,7 @@ interface WebcamDisplayProps {
   isMuted?: boolean;
   isHost?: boolean;
   isTurn?: boolean;
+  isSpeaking?: boolean;
   showName?: boolean;
   size?: 'small' | 'medium' | 'large';
   className?: string;
@@ -30,6 +31,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
   isMuted = false,
   isHost = false,
   isTurn = false,
+  isSpeaking = false,
   showName = true,
   size = 'medium',
   className = '',
@@ -101,7 +103,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
 
   return (
     <div
-      className={`webcam-display ${size} ${isTurn ? 'is-turn' : ''} ${teamColor ? 'has-team' : ''} ${className}`}
+      className={`webcam-display ${size} ${isTurn ? 'is-turn' : ''} ${isSpeaking ? 'is-speaking' : ''} ${teamColor ? 'has-team' : ''} ${className}`}
       style={combinedStyle}
     >
       {/* Video Element */}

@@ -1,11 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   // Base path matches DB ID for GameBuddies reverse proxy
   base: '/primesuspect/',
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Polyfill Buffer/process/events for simple-peer in the browser
+    nodePolyfills({
+      include: ['buffer', 'process', 'events', 'stream', 'util'],
+      globals: { Buffer: true, global: true, process: true },
+    }),
+  ],
   server: {
     port: 5180,
     host: true,

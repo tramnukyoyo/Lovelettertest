@@ -32,7 +32,7 @@ const StreamerWebcamGrid: React.FC<StreamerWebcamGridProps> = ({
   strip = false,
   height,
 }) => {
-  const { localStream, remoteStreams } = useWebRTC();
+  const { localStream, remoteStreams, speakingPeers, isLocalSpeaking } = useWebRTC();
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
   const localPlayer: WebcamPlayer | null = (localPlayerName || mySocketId)
