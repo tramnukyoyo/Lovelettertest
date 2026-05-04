@@ -9,6 +9,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Lobby } from '../../types';
 import type { Socket } from 'socket.io-client';
+import { trackGameAction } from '../../services/analyticsService';
 
 interface VoiceModeInputProps {
   lobby: Lobby;
@@ -59,6 +60,7 @@ const VoiceModeInput: React.FC<VoiceModeInputProps> = ({ lobby, socket }) => {
 
     // Emit vote to server
     socket.emit('game:voice-vote', { vote });
+    trackGameAction('voice_vote', { vote });
   };
 
   const handleDisputeRevote = (vote: VoteState) => {
@@ -68,6 +70,7 @@ const VoiceModeInput: React.FC<VoiceModeInputProps> = ({ lobby, socket }) => {
 
     // Emit revote to server
     socket.emit('game:voice-dispute-revote', { vote });
+    trackGameAction('voice_dispute_revote', { vote });
   };
 
   // Phase: Voting (show match/no-match buttons immediately)
