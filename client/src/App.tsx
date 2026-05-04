@@ -26,7 +26,7 @@ import type { SiteNotification } from './components/ui/SiteNotificationToast';
 import KickToast from './components/ui/KickToast';
 import ReconnectOverlay from './components/core/ReconnectOverlay';
 import socketService from './services/socketService';
-import { initAnalytics } from './services/analyticsService';
+import { initAnalytics, trackPhaseEntered, trackGameStarted, trackGameFinished, trackPhaseFromRoomState } from './services/analyticsService';
 import { initErrorReporter } from './services/errorReporter';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import type { Lobby } from './types';
@@ -166,6 +166,7 @@ function AppContent() {
   const registerGameEvents = useCallback(
     (socket: Socket, helpers: RegisterGameEventsHelpers) => {
       const handleRoomStateUpdated = (updatedLobby: Lobby) => {
+        trackPhaseFromRoomState(updatedLobby); // PostHog phase tracking
         console.log('[handleRoomStateUpdated] messages count:', updatedLobby.messages?.length,
           'first raw:', updatedLobby.messages?.[0]?.message?.slice(0, 80));
         if (updatedLobby.messages) {

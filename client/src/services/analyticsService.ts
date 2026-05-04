@@ -81,3 +81,52 @@ export function trackReconnect(success: boolean, method: string): void {
 export function trackGameError(errorMessage: string): void {
   trackEvent('game_error_shown', { error_message: errorMessage });
 }
+
+/** Track every phase transition. Call from a useEffect that watches phase. */
+export function trackPhaseEntered(phase: string, extra?: Record<string, unknown>): void {
+  trackEvent("game_phase_entered", { phase, ...extra });
+}
+
+/** Track game start signal (host pressed start, game began). */
+export function trackGameStarted(extra?: Record<string, unknown>): void {
+  trackEvent("game_started", { ...extra });
+}
+
+/** Track a generic in-game action (vote, draw, submit, etc.). */
+export function trackGameAction(action: string, extra?: Record<string, unknown>): void {
+  trackEvent("game_action", { action, ...extra });
+}
+
+// ── Universal phase tracker ────────────────────────────────────────
+// Maintains a private singleton state. Call from your roomStateUpdated
+// handler with the full state payload — it auto-detects the phase across
+// the various shapes used by different games (data.gameData.phase,
+// data.gameState.phase, data.state, data.phase) and emits PostHog events:
+//   game_phase_entered  (every transition, with from/to)
+//   game_started        (lobby → non-lobby)
+//   game_finished       (entering finished/ended/game_over)
+const _phaseTracker: { current: string | undefined; startTime: number | null } = {
+  current: undefined,
+  startTime: null,
+};
+
+export function trackPhaseFromRoomState(data: unknown): void {
+  if (!data || typeof data !== "object") return;
+  const d = data as Record<string, any>;
+  const newPhase: string | undefined =
+    d?.gameData?.phase ?? d?.gameState?.phase ?? d?.state ?? d?.phase;
+  if (!newPhase) return;
+  if (newPhase === _phaseTracker.current) return;
+  const prev = _phaseTracker.current;
+  trackEvent("game_phase_entered", { phase: newPhase, from: prev ?? null, room_code: d?.code });
+  if (prev === "lobby" && newPhase !== "lobby") {
+    _phaseTracker.startTime = Date.now();
+    trackEvent("game_started", { room_code: d?.code });
+  }
+  if ((newPhase === "finished" || newPhase === "ended" || newPhase === "game_over") && _phaseTracker.startTime) {
+    const dur = Math.round((Date.now() - _phaseTracker.startTime) / 1000);
+    trackGameFinished(1, dur, { room_code: d?.code });
+    _phaseTracker.startTime = null;
+  }
+  _phaseTracker.current = newPhase;
+}
