@@ -3,9 +3,6 @@
  *
  * Fixes mobile video issues with TURN servers, H.264 codec, and optimized constraints.
  * TURN credentials loaded from VITE_METERED_* environment variables.
- *
- * USAGE:
- * import { getICEServers, getVideoConstraints, setH264CodecPreference } from './webrtcMobileFixes';
  */
 
 // ============================================================================
@@ -14,7 +11,6 @@
 
 /**
  * Detect if the current device is mobile
- * @returns True if mobile device
  */
 export function isMobileDevice(): boolean {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -23,20 +19,113 @@ export function isMobileDevice(): boolean {
 /**
  * Detect if the current device is iOS (iPhone, iPad)
  * iOS Safari only supports H.264 codec, not VP8/VP9
- * @returns True if iOS device
  */
 export function isIOSDevice(): boolean {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPad Pro
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
 // ============================================================================
 // ICE SERVERS (STUN + TURN)
 // ============================================================================
 
+// Cache Cloudflare-minted ICE servers between page loads. CF mints with 24h TTL,
+// we re-fetch when within 1h of expiry. Keeps server load to ~1 req per user per
+// day rather than per peer-connection.
+const CF_CACHE_KEY = 'gb_cf_ice_servers_v1';
+type CfCache = { iceServers: RTCIceServer[]; expiresAt: number };
+
+let cfRuntimeCache: CfCache | null = null;
+let cfFetchInFlight: Promise<void> | null = null;
+
+function loadCfCacheFromStorage(): CfCache | null {
+  try {
+    const raw = localStorage.getItem(CF_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CfCache;
+    if (!parsed?.iceServers || typeof parsed.expiresAt !== 'number') return null;
+    if (parsed.expiresAt - Date.now() < 60 * 60 * 1000) return null; // <1h left → ignore
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function getMeteredFallback(): RTCIceServer | null {
+  const turnUsername = import.meta.env.VITE_METERED_USERNAME;
+  const turnPassword = import.meta.env.VITE_METERED_PASSWORD;
+  if (!turnUsername || !turnPassword) return null;
+  return {
+    urls: [
+      'turn:a.relay.metered.ca:80',
+      'turn:a.relay.metered.ca:80?transport=tcp',
+      'turn:a.relay.metered.ca:443',
+      'turn:a.relay.metered.ca:443?transport=tcp',
+      'turns:a.relay.metered.ca:443',
+    ],
+    username: turnUsername,
+    credential: turnPassword,
+  };
+}
+
 /**
- * Get ICE servers configuration (STUN + TURN)
- * TURN credentials loaded from environment variables
+ * Pre-fetch Cloudflare TURN credentials from our server. Call once on app boot.
+ * Returns immediately; populates the runtime cache + localStorage in the background.
+ * If our server is down or CF is unconfigured, we silently fall back to Metered+STUN.
+ */
+export function prefetchTurnCredentials(backendUrl?: string): Promise<void> {
+  if (cfFetchInFlight) return cfFetchInFlight;
+
+  // Hot cache already populated this session
+  if (cfRuntimeCache && cfRuntimeCache.expiresAt - Date.now() > 60 * 60 * 1000) {
+    return Promise.resolve();
+  }
+
+  // Try storage first (synchronous, no network)
+  const stored = loadCfCacheFromStorage();
+  if (stored) {
+    cfRuntimeCache = stored;
+    return Promise.resolve();
+  }
+
+  const base = backendUrl || import.meta.env.VITE_BACKEND_URL || '';
+  const url = base ? `${base.replace(/\/$/, '')}/api/turn-credentials` : '/api/turn-credentials';
+
+  cfFetchInFlight = fetch(url, { credentials: 'omit' })
+    .then(async (resp) => {
+      if (!resp.ok) {
+        // 503 = CF not configured on server; quiet log
+        if (resp.status !== 503) {
+          console.warn(`[WebRTC] TURN credential fetch returned ${resp.status}`);
+        }
+        return;
+      }
+      const data = (await resp.json()) as { iceServers: RTCIceServer[]; ttl?: number };
+      if (!Array.isArray(data.iceServers) || data.iceServers.length === 0) return;
+      const ttlMs = (data.ttl ?? 24 * 3600) * 1000;
+      const cache: CfCache = { iceServers: data.iceServers, expiresAt: Date.now() + ttlMs };
+      cfRuntimeCache = cache;
+      try { localStorage.setItem(CF_CACHE_KEY, JSON.stringify(cache)); } catch { /* quota or private mode */ }
+      console.log('[WebRTC] ✅ Cloudflare TURN credentials cached');
+    })
+    .catch((err) => {
+      console.warn('[WebRTC] TURN credential fetch failed (will use Metered fallback):', err?.message || err);
+    })
+    .finally(() => {
+      cfFetchInFlight = null;
+    });
+
+  return cfFetchInFlight;
+}
+
+/**
+ * Get ICE servers configuration. Priority order:
+ *   1. Google STUN (always — free, public, fastest path discovery)
+ *   2. Cloudflare TURN (if cached) — primary relay
+ *   3. Metered TURN (if env vars set) — fallback relay
+ *
+ * Sync return: peers created before prefetch finishes still get STUN+Metered;
+ * peers created after CF cache is populated get the full set.
  */
 export function getICEServers(): RTCIceServer[] {
   const servers: RTCIceServer[] = [
@@ -44,27 +133,46 @@ export function getICEServers(): RTCIceServer[] {
     { urls: 'stun:stun1.l.google.com:19302' },
   ];
 
-  const turnUsername = import.meta.env.VITE_METERED_USERNAME;
-  const turnPassword = import.meta.env.VITE_METERED_PASSWORD;
+  if (cfRuntimeCache && cfRuntimeCache.expiresAt > Date.now()) {
+    servers.push(...cfRuntimeCache.iceServers);
+  }
 
-  if (turnUsername && turnPassword) {
-    servers.push({
-      urls: [
-        'turn:a.relay.metered.ca:80',
-        'turn:a.relay.metered.ca:80?transport=tcp',
-        'turn:a.relay.metered.ca:443',
-        'turn:a.relay.metered.ca:443?transport=tcp',
-        'turns:a.relay.metered.ca:443',
-      ],
-      username: turnUsername,
-      credential: turnPassword,
-    });
-    console.log('[WebRTC] ✅ TURN servers configured - Mobile cellular support enabled');
-  } else {
-    console.warn('[WebRTC] ⚠️ No TURN servers configured - Set VITE_METERED_USERNAME and VITE_METERED_PASSWORD');
+  const metered = getMeteredFallback();
+  if (metered) servers.push(metered);
+
+  if (!cfRuntimeCache && !metered) {
+    console.warn('[WebRTC] ⚠️ No TURN servers configured — cellular/CGNAT players will fail to connect');
   }
 
   return servers;
+}
+
+// ============================================================================
+// BANDWIDTH CONTROL
+// ============================================================================
+
+/**
+ * Cap the upload bitrate of a peer connection's video sender. Without this,
+ * Chrome/Firefox happily push 1.5–2 Mbps per stream which adds up fast on
+ * TURN-relayed legs (mesh topology = N-1 streams uploaded per peer).
+ *
+ * Applied per peer after the connection establishes. Audio is left alone —
+ * only ~50 kbps and we want voice to stay clear.
+ */
+export async function setMaxVideoBitrate(pc: RTCPeerConnection, kbps: number): Promise<void> {
+  const senders = pc.getSenders().filter(s => s.track?.kind === 'video');
+  for (const sender of senders) {
+    try {
+      const params = sender.getParameters();
+      if (!params.encodings || params.encodings.length === 0) {
+        params.encodings = [{}];
+      }
+      params.encodings[0].maxBitrate = kbps * 1000;
+      await sender.setParameters(params);
+    } catch (err) {
+      console.warn(`[WebRTC] Failed to cap video bitrate to ${kbps}kbps:`, err);
+    }
+  }
 }
 
 // ============================================================================
@@ -73,20 +181,11 @@ export function getICEServers(): RTCIceServer[] {
 
 /**
  * Get mobile-optimized video constraints
- *
- * Mobile devices need lower resolution/framerate for:
- * - Cellular bandwidth limitations
- * - Battery life
- * - CPU performance
- *
- * @param deviceId - Optional camera device ID
- * @returns Video constraints object
  */
 export function getVideoConstraints(deviceId?: string): MediaTrackConstraints {
   const baseConstraints: MediaTrackConstraints = deviceId ? { deviceId: { exact: deviceId } } : {};
 
   if (isMobileDevice()) {
-    // Mobile: Lower quality for cellular bandwidth & battery
     return {
       ...baseConstraints,
       width: { ideal: 480, max: 640 },
@@ -94,7 +193,6 @@ export function getVideoConstraints(deviceId?: string): MediaTrackConstraints {
       frameRate: { ideal: 15, max: 24 }
     };
   } else {
-    // Desktop: Higher quality
     return {
       ...baseConstraints,
       width: { ideal: 640, max: 1280 },
@@ -106,8 +204,6 @@ export function getVideoConstraints(deviceId?: string): MediaTrackConstraints {
 
 /**
  * Get high-quality audio constraints with noise suppression
- * @param deviceId - Optional microphone device ID
- * @returns Audio constraints object
  */
 export function getAudioConstraints(deviceId?: string): MediaTrackConstraints {
   return {
@@ -126,19 +222,11 @@ export function getAudioConstraints(deviceId?: string): MediaTrackConstraints {
 
 /**
  * Set H.264 codec preference for iOS compatibility
- *
- * iOS Safari only supports H.264 codec. If desktop sends VP8/VP9,
- * iOS users won't see the video.
- *
- * @param peerConnection - The peer connection
- * @param peerId - Peer ID for logging
  */
 export function setH264CodecPreference(peerConnection: RTCPeerConnection, peerId: string): void {
-  if (!isIOSDevice()) {
-    return; // Only needed on iOS
-  }
+  if (!isIOSDevice()) return;
 
-  console.log(`[WebRTC] 📱 iOS device detected, setting H.264 codec preference for ${peerId}`);
+  console.log(`[WebRTC] iOS device detected, setting H.264 codec preference for ${peerId}`);
 
   try {
     const transceivers = peerConnection.getTransceivers();
@@ -146,7 +234,6 @@ export function setH264CodecPreference(peerConnection: RTCPeerConnection, peerId
       if (transceiver.sender.track?.kind === 'video') {
         const capabilities = RTCRtpSender.getCapabilities('video');
         if (capabilities && capabilities.codecs) {
-          // Separate H.264 codecs from others
           const h264Codecs = capabilities.codecs.filter(codec =>
             codec.mimeType.toLowerCase().includes('h264')
           );
@@ -154,143 +241,38 @@ export function setH264CodecPreference(peerConnection: RTCPeerConnection, peerId
             !codec.mimeType.toLowerCase().includes('h264')
           );
 
-          // Prioritize H.264 for iOS compatibility
           if (h264Codecs.length > 0) {
             const preferredCodecs = [...h264Codecs, ...otherCodecs];
             transceiver.setCodecPreferences(preferredCodecs);
-            console.log(`[WebRTC] ✅ H.264 codec set as preferred for ${peerId} (found ${h264Codecs.length} H.264 codecs)`);
-          } else {
-            console.warn(`[WebRTC] ⚠️ No H.264 codecs found for ${peerId}, iOS compatibility may be limited`);
           }
         }
       }
     });
   } catch (error) {
     console.warn(`[WebRTC] Failed to set H.264 codec preference for ${peerId}:`, error);
-    // Non-fatal error, continue with default codecs
   }
 }
 
 /**
  * Add enhanced diagnostics to peer connection
- * Logs ICE candidate types, connection states, and warnings
- *
- * @param peerConnection - The peer connection
- * @param peerId - Peer ID for logging
  */
 export function addEnhancedDiagnostics(peerConnection: RTCPeerConnection, peerId: string): void {
-  // ICE candidate logging with type detection
-  const originalOnIceCandidate = peerConnection.onicecandidate;
-  peerConnection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
-    if (event.candidate) {
-      // Determine candidate type (host/srflx/relay)
-      const candidateType = event.candidate.candidate.includes('typ host') ? 'host' :
-                            event.candidate.candidate.includes('typ srflx') ? 'srflx (STUN)' :
-                            event.candidate.candidate.includes('typ relay') ? 'relay (TURN)' : 'unknown';
-
-      console.log(`[WebRTC] 🔗 ICE candidate [${candidateType}] for ${peerId}`);
-
-      // Log relay candidates specially (indicates TURN server is working)
-      if (candidateType.includes('relay')) {
-        console.log(`[WebRTC] ✅ TURN relay candidate generated - Mobile cellular support active`);
-      }
-    } else {
-      console.log(`[WebRTC] ICE gathering complete for ${peerId}`);
-    }
-
-    // Call original handler if it exists
-    if (originalOnIceCandidate) {
-      originalOnIceCandidate.call(peerConnection, event);
-    }
-  };
-
-  // ICE connection state logging
   peerConnection.oniceconnectionstatechange = () => {
     const iceState = peerConnection.iceConnectionState;
-    console.log(`[WebRTC] 🧊 ICE connection state with ${peerId}: ${iceState}`);
+    console.log(`[WebRTC] ICE connection state with ${peerId}: ${iceState}`);
 
-    if (iceState === 'connected' || iceState === 'completed') {
-      console.log(`[WebRTC] ✅ ICE connection established with ${peerId}`);
-    } else if (iceState === 'failed') {
-      console.error(`[WebRTC] ❌ ICE connection failed with ${peerId} - Check TURN server credentials or network`);
-    } else if (iceState === 'disconnected') {
-      console.warn(`[WebRTC] ⚠️ ICE connection disconnected with ${peerId} - May reconnect automatically`);
+    if (iceState === 'failed') {
+      console.error(`[WebRTC] ICE connection failed with ${peerId}`);
     }
   };
 
-  // ICE gathering state logging
   peerConnection.onicegatheringstatechange = () => {
-    const gatheringState = peerConnection.iceGatheringState;
-    console.log(`[WebRTC] 🔍 ICE gathering state with ${peerId}: ${gatheringState}`);
-
-    if (gatheringState === 'complete') {
-      // Check if relay candidates were gathered
-      const stats = peerConnection.getStats();
-      stats.then(report => {
-        let hasRelay = false;
-        report.forEach(stat => {
-          if (stat.type === 'local-candidate' && (stat as any).candidateType === 'relay') {
-            hasRelay = true;
-          }
-        });
-        if (hasRelay) {
-          console.log(`[WebRTC] ✅ TURN relay candidates available for ${peerId}`);
-        } else if (isMobileDevice()) {
-          console.warn(`[WebRTC] ⚠️ No TURN relay candidates for ${peerId} - Mobile connection may fail!`);
-        }
-      }).catch(err => {
-        console.warn(`[WebRTC] Could not check ICE candidates:`, err);
-      });
-    }
+    console.log(`[WebRTC] ICE gathering state with ${peerId}: ${peerConnection.iceGatheringState}`);
   };
 
-  // Connection state logging
   peerConnection.onconnectionstatechange = () => {
     console.log(`[WebRTC] Connection state with ${peerId}: ${peerConnection.connectionState}`);
-
-    if (peerConnection.connectionState === 'connected') {
-      console.log(`[WebRTC] ✅ Successfully connected to ${peerId}!`);
-    } else if (peerConnection.connectionState === 'failed' ||
-               peerConnection.connectionState === 'closed') {
-      console.log(`[WebRTC] Connection to ${peerId} failed/closed`);
-    }
   };
-}
-
-/**
- * Create a peer connection with all mobile fixes applied
- *
- * @param peerId - Peer ID for logging
- * @param localStream - Optional local media stream to add
- * @returns Configured peer connection
- */
-export function setupPeerConnectionWithFixes(peerId: string, localStream?: MediaStream): RTCPeerConnection {
-  console.log(`[WebRTC] Creating peer connection for ${peerId} with mobile fixes`);
-
-  // Create peer connection with optimized configuration
-  const peerConnection = new RTCPeerConnection({
-    iceServers: getICEServers(),
-    iceTransportPolicy: 'all',      // Try all connection types
-    bundlePolicy: 'max-bundle',     // Optimize bandwidth
-    rtcpMuxPolicy: 'require'        // Reduce port usage
-  });
-
-  // Add local stream tracks if provided
-  if (localStream) {
-    const tracks = localStream.getTracks();
-    tracks.forEach(track => {
-      peerConnection.addTrack(track, localStream);
-    });
-    console.log(`[WebRTC] Added ${tracks.length} local tracks for ${peerId}`);
-  }
-
-  // Apply iOS H.264 codec preference
-  setH264CodecPreference(peerConnection, peerId);
-
-  // Add enhanced diagnostics
-  addEnhancedDiagnostics(peerConnection, peerId);
-
-  return peerConnection;
 }
 
 // ============================================================================
@@ -311,9 +293,6 @@ export interface GetUserMediaOptions {
 /**
  * Get user media with mobile-optimized constraints
  * Tries multiple combinations: video+audio, audio-only, video-only
- *
- * @param options - Options for media stream
- * @returns Object with stream and capability flags
  */
 export async function getUserMediaWithFallback(options: GetUserMediaOptions = {}): Promise<GetUserMediaResult> {
   const { cameraId, microphoneId } = options;
@@ -327,7 +306,7 @@ export async function getUserMediaWithFallback(options: GetUserMediaOptions = {}
     });
     const hasVideo = stream.getVideoTracks().length > 0;
     const hasAudio = stream.getAudioTracks().length > 0;
-    console.log('[WebRTC] ✅ Video + Audio enabled');
+    console.log('[WebRTC] Video + Audio enabled');
     return { stream, hasVideo, hasAudio };
   } catch (error) {
     console.log('[WebRTC] Video + Audio failed, trying audio-only...', error);
@@ -339,7 +318,7 @@ export async function getUserMediaWithFallback(options: GetUserMediaOptions = {}
       audio: getAudioConstraints(microphoneId)
     });
     const hasAudio = stream.getAudioTracks().length > 0;
-    console.log('[WebRTC] ✅ Audio-only enabled');
+    console.log('[WebRTC] Audio-only enabled');
     return { stream, hasVideo: false, hasAudio };
   } catch (error) {
     console.log('[WebRTC] Audio failed, trying video-only...', error);
@@ -351,25 +330,24 @@ export async function getUserMediaWithFallback(options: GetUserMediaOptions = {}
       video: getVideoConstraints(cameraId)
     });
     const hasVideo = stream.getVideoTracks().length > 0;
-    console.log('[WebRTC] ✅ Video-only enabled');
+    console.log('[WebRTC] Video-only enabled');
     return { stream, hasVideo, hasAudio: false };
   } catch (error) {
-    console.log('[WebRTC] ❌ All media access failed', error);
+    console.log('[WebRTC] All media access failed', error);
   }
 
-  // All attempts failed
   return { stream: null, hasVideo: false, hasAudio: false };
 }
 
-// Default export for convenience
 export default {
   isMobileDevice,
   isIOSDevice,
   getICEServers,
+  prefetchTurnCredentials,
+  setMaxVideoBitrate,
   getVideoConstraints,
   getAudioConstraints,
   setH264CodecPreference,
   addEnhancedDiagnostics,
-  setupPeerConnectionWithFixes,
   getUserMediaWithFallback
 };

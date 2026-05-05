@@ -11,6 +11,8 @@ import { FaceAvatarService, DEFAULT_AVATAR_CONFIG } from '../services/faceAvatar
 import type { FaceAvatarConfig } from '../services/faceAvatarService';
 import {
   getICEServers,
+  prefetchTurnCredentials,
+  setMaxVideoBitrate,
   getVideoConstraints,
   getAudioConstraints,
   setH264CodecPreference,
@@ -498,6 +500,8 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
     peer.on('connect', () => {
       console.log(`[WebRTC] Successfully connected to ${peerId}!`);
       dispatch({ type: 'SET_CONNECTION_STATE', payload: { peerId, state: 'connected' } });
+      const pcInner = (peer as unknown as { _pc?: RTCPeerConnection })._pc;
+      if (pcInner) setMaxVideoBitrate(pcInner, 350).catch(() => { /* noop */ });
     });
 
     peer.on('close', () => {
@@ -1108,6 +1112,11 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       }, 100);
     }
   }, [state.localStream, state.selectedDevices.cameraId, state.isMicrophoneMuted, state.isWebcamActive, state.peerConnections]);
+
+  // Pre-fetch Cloudflare TURN credentials (sync from cache, refresh in bg)
+  useEffect(() => {
+    prefetchTurnCredentials().catch(() => { /* logged inside */ });
+  }, []);
 
   // Socket event handlers for WebRTC signaling
   useEffect(() => {
