@@ -206,13 +206,35 @@ export class FaceAvatarService {
       gltf.scene.traverse((object: any) => {
         if (object.isMesh) {
           object.frustumCulled = false;
-          
+
           // Collect morph target meshes
           if (object.morphTargetDictionary && object.morphTargetInfluences) {
             this.morphTargetMeshes.push(object);
-            console.log('[FaceAvatar] Found morph targets:', 
+            console.log('[FaceAvatar] Found morph targets:',
               Object.keys(object.morphTargetDictionary));
           }
+
+          // Walk every material — log hasMap so a "white raccoon" self-diagnoses,
+          // fix sRGB colorspace on baseColor/emissive textures, and tame
+          // envMapIntensity so IBL doesn't wash gray fur to near-white.
+          const matAny = object.material;
+          const mats = Array.isArray(matAny) ? matAny : matAny ? [matAny] : [];
+          mats.forEach((mat: any, idx: number) => {
+            console.log(
+              `[FaceAvatar] mesh="${object.name}" mat[${idx}]="${mat.name}"`,
+              'type:', mat.type,
+              'hasMap:', !!mat.map,
+              'mapSize:', mat.map ? `${mat.map.image?.width}x${mat.map.image?.height}` : 'n/a',
+              'color:', mat.color?.getHexString?.(),
+              'metalness:', mat.metalness,
+              'roughness:', mat.roughness,
+              'envMapIntensity:', mat.envMapIntensity,
+            );
+            if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
+            if (mat.emissiveMap) mat.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+            mat.envMapIntensity = 0.3;
+            mat.needsUpdate = true;
+          });
         }
       });
       
