@@ -33,7 +33,7 @@ declare const MediaStreamTrackGenerator: {
 };
 
 export interface FaceAvatarConfig {
-  avatarType: 'raccoon' | 'robot' | 'alien' | 'cat' | 'panda' | 'pug' | 'bunny' | 'custom' | 'sphere' | 'cube' | 'ring' | 'triangle';
+  avatarType: 'raccoon' | 'metahuman' | 'robot' | 'alien' | 'cat' | 'panda' | 'pug' | 'bunny' | 'custom' | 'sphere' | 'cube' | 'ring' | 'triangle';
   avatarColor: string;
   avatarSize: number;
   trackingSmoothing: number;
@@ -150,7 +150,7 @@ export class FaceAvatarService {
 
   private async loadAvatar(): Promise<void> {
     // Check if it's a GLB avatar type
-    const glbAvatarTypes = ['raccoon', 'robot', 'alien', 'cat', 'panda', 'pug', 'bunny', 'custom'];
+    const glbAvatarTypes = ['raccoon', 'metahuman', 'robot', 'alien', 'cat', 'panda', 'pug', 'bunny', 'custom'];
     
     if (glbAvatarTypes.includes(this.config.avatarType)) {
       await this.loadGLTFAvatar();
@@ -168,6 +168,9 @@ export class FaceAvatarService {
     switch (this.config.avatarType) {
       case 'raccoon':
         modelUrl = baseUrl + 'models/raccoon_head.glb';
+        break;
+      case 'metahuman':
+        modelUrl = baseUrl + 'models/metahuman_head.glb';
         break;
       case 'robot':
         modelUrl = baseUrl + 'models/robot_head.glb';
@@ -424,7 +427,8 @@ export class FaceAvatarService {
         
         // Apply transformation matrix
         const matrix = new THREE.Matrix4().fromArray(result.facialTransformationMatrixes[0].data);
-        matrix.scale(new THREE.Vector3(this.config.avatarSize, this.config.avatarSize, this.config.avatarSize));
+        const s = this.config.avatarSize * (this.config.avatarType === 'metahuman' ? 1.2 : 1);
+        matrix.scale(new THREE.Vector3(s, s, s));
         
         if (this.avatarModel) {
           this.avatarModel.scene.matrix.copy(matrix);
