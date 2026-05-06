@@ -232,7 +232,6 @@ export class FaceAvatarService {
             );
             if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
             if (mat.emissiveMap) mat.emissiveMap.colorSpace = THREE.SRGBColorSpace;
-            mat.envMapIntensity = 0.3;
             mat.needsUpdate = true;
           });
         }
