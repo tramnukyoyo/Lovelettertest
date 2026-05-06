@@ -622,9 +622,12 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                     {[
                       { id: 'raccoon', emoji: '\u{1F99D}', label: copy.deviceSettings.raccoon },
                       { id: 'metahuman', emoji: '\u{1F9D1}', label: copy.deviceSettings.metahuman },
+                      { id: 'cat', emoji: '\u{1F431}', label: copy.deviceSettings.cat },
+                      { id: 'panda', emoji: '\u{1F43C}', label: 'Panda' },
+                      { id: 'pug', emoji: '\u{1F436}', label: 'Pug' },
+                      { id: 'bunny', emoji: '\u{1F430}', label: 'Bunny' },
                       { id: 'robot', emoji: '\u{1F916}', label: copy.deviceSettings.robot, soon: true },
                       { id: 'alien', emoji: '\u{1F47D}', label: copy.deviceSettings.alien, soon: true },
-                      { id: 'cat', emoji: '\u{1F431}', label: copy.deviceSettings.cat, soon: true },
                     ].map(avatar => (
                       <button
                         key={avatar.id}

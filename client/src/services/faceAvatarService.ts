@@ -33,7 +33,7 @@ declare const MediaStreamTrackGenerator: {
 };
 
 export interface FaceAvatarConfig {
-  avatarType: 'raccoon' | 'robot' | 'alien' | 'cat' | 'custom' | 'sphere' | 'cube' | 'ring' | 'triangle';
+  avatarType: 'raccoon' | 'robot' | 'alien' | 'cat' | 'panda' | 'pug' | 'bunny' | 'custom' | 'sphere' | 'cube' | 'ring' | 'triangle';
   avatarColor: string;
   avatarSize: number;
   trackingSmoothing: number;
@@ -150,7 +150,7 @@ export class FaceAvatarService {
 
   private async loadAvatar(): Promise<void> {
     // Check if it's a GLB avatar type
-    const glbAvatarTypes = ['raccoon', 'robot', 'alien', 'cat', 'custom'];
+    const glbAvatarTypes = ['raccoon', 'robot', 'alien', 'cat', 'panda', 'pug', 'bunny', 'custom'];
     
     if (glbAvatarTypes.includes(this.config.avatarType)) {
       await this.loadGLTFAvatar();
@@ -176,7 +176,16 @@ export class FaceAvatarService {
         modelUrl = baseUrl + 'models/alien_head.glb';
         break;
       case 'cat':
-        modelUrl = baseUrl + 'models/cat_head.glb';
+        modelUrl = baseUrl + 'models/cat.glb';
+        break;
+      case 'panda':
+        modelUrl = baseUrl + 'models/panda.glb';
+        break;
+      case 'pug':
+        modelUrl = baseUrl + 'models/pug.glb';
+        break;
+      case 'bunny':
+        modelUrl = baseUrl + 'models/bunny.glb';
         break;
       case 'custom':
         modelUrl = this.config.customModelUrl || baseUrl + 'models/raccoon_head.glb';
