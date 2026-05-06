@@ -58,35 +58,21 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
 
 
   // Privacy settings (persisted in localStorage)
-  const [joinMuted, setJoinMuted] = useState(() =>
-    localStorage.getItem('joinMuted') === 'true'
-  );
-  const [joinCameraOff, setJoinCameraOff] = useState(() =>
-    localStorage.getItem('joinCameraOff') === 'true'
-  );
+  const [joinMuted, setJoinMuted] = useState(false);
+  const [joinCameraOff, setJoinCameraOff] = useState(false);
 
   // Virtual background settings (always default to disabled)
   const [virtualBgEnabled, setVirtualBgEnabled] = useState(false);
   const [virtualBgType, setVirtualBgType] = useState<'blur' | 'image'>('blur');
-  const [virtualBgImage, setVirtualBgImage] = useState<string>(() =>
-    localStorage.getItem('virtualBgImage') || ''
-  );
+  const [virtualBgImage, setVirtualBgImage] = useState<string>('');
 
   // Audio settings
-  const [noiseSuppressionEnabled, setNoiseSuppressionEnabled] = useState(() =>
-    localStorage.getItem('noiseSuppressionEnabled') !== 'false'
-  );
-  const [noiseThreshold, setNoiseThreshold] = useState(() =>
-    parseInt(localStorage.getItem('noiseThreshold') || '30', 10)
-  );
+  const [noiseSuppressionEnabled, setNoiseSuppressionEnabled] = useState(true);
+  const [noiseThreshold, setNoiseThreshold] = useState(30);
 
   // Avatar settings
-  const [avatarEnabled, setAvatarEnabled] = useState(() =>
-    localStorage.getItem('avatarEnabled') === 'true'
-  );
-  const [avatarType, setAvatarType] = useState(() =>
-    localStorage.getItem('avatarType') || 'raccoon'
-  );
+  const [avatarEnabled, setAvatarEnabled] = useState(false);
+  const [avatarType, setAvatarType] = useState('raccoon');
 
   // Audio level visualization
   const [audioLevel, setAudioLevel] = useState(0);
