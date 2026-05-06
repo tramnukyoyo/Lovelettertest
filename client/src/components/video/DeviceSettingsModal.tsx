@@ -621,6 +621,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                   <div className="avatar-options">
                     {[
                       { id: 'raccoon', emoji: '\u{1F99D}', label: copy.deviceSettings.raccoon },
+                      { id: 'metahuman', emoji: '\u{1F9D1}', label: copy.deviceSettings.metahuman },
                       { id: 'robot', emoji: '\u{1F916}', label: copy.deviceSettings.robot, soon: true },
                       { id: 'alien', emoji: '\u{1F47D}', label: copy.deviceSettings.alien, soon: true },
                       { id: 'cat', emoji: '\u{1F431}', label: copy.deviceSettings.cat, soon: true },
