@@ -294,9 +294,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
     { id: 'audio', label: copy.deviceSettings.audio, icon: <Volume2 size={16} /> },
   ];
 
-  if (showAvatarTab) {
-    tabs.push({ id: 'avatar', label: copy.deviceSettings.avatar, icon: <User size={16} /> });
-  }
+  tabs.push({ id: 'avatar', label: copy.deviceSettings.avatar, icon: <User size={16} /> });
 
   // Use portal to render at document.body level, escaping any stacking context issues
   return createPortal(
