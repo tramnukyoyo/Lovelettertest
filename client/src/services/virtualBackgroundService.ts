@@ -60,7 +60,11 @@ export interface VirtualBackgroundConfig {
   useAdaptiveKernels?: boolean;
 }
 
-export const DEFAULT_BACKGROUNDS: { name: string; url: string }[] = [];
+export const DEFAULT_BACKGROUNDS: { name: string; url: string }[] = [
+  { name: 'bg1', url: import.meta.env.BASE_URL + 'backgrounds/1.webp' },
+  { name: 'bg2', url: import.meta.env.BASE_URL + 'backgrounds/2.webp' },
+  { name: 'bg3', url: import.meta.env.BASE_URL + 'backgrounds/3.webp' },
+];
 
 export class VirtualBackgroundService {
   private config: VirtualBackgroundConfig;

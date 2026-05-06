@@ -497,8 +497,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
                           setVirtualBgImage(bg.url);
                         }}
                       >
-                        <img src={bg.url} alt={bg.name} />
-                        <span>{bg.name}</span>
+                        <img src={bg.url} alt="" />
                       </button>
                     ))}
                   </div>
