@@ -6,7 +6,7 @@
  * - Devices: Camera/mic selection, privacy options
  * - Background: Virtual background with blur and images
  * - Audio: Noise suppression settings
- * - Avatar: 3D face avatar (hidden, activated by secret code)
+ * - Avatar: 3D face avatar
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -56,9 +56,6 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [activeTab, setActiveTab] = useState<TabId>('devices');
 
-  // Secret code for avatar tab
-  const [secretBuffer, setSecretBuffer] = useState('');
-  const [showAvatarTab, setShowAvatarTab] = useState(false);
 
   // Privacy settings (persisted in localStorage)
   const [joinMuted, setJoinMuted] = useState(() =>
@@ -70,11 +67,9 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
 
   // Virtual background settings (always default to disabled)
   const [virtualBgEnabled, setVirtualBgEnabled] = useState(false);
-  const [virtualBgType, setVirtualBgType] = useState<'blur' | 'image'>(() =>
-    (localStorage.getItem('virtualBgType') as 'blur' | 'image') || 'blur'
-  );
+  const [virtualBgType, setVirtualBgType] = useState<'blur' | 'image'>('blur');
   const [virtualBgImage, setVirtualBgImage] = useState<string>(() =>
-    localStorage.getItem('virtualBgImage') || DEFAULT_BACKGROUNDS[0].url
+    localStorage.getItem('virtualBgImage') || ''
   );
 
   // Audio settings
@@ -222,26 +217,6 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
     localStorage.setItem('avatarType', avatarType);
   }, [avatarType]);
 
-  // Secret code detection
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      const newBuffer = (secretBuffer + e.key).slice(-4);
-      setSecretBuffer(newBuffer);
-
-      if (newBuffer.toLowerCase() === 'face') {
-        setShowAvatarTab(true);
-        setActiveTab('avatar');
-      }
-    };
-
-    if (isOpen) {
-      window.addEventListener('keypress', handleKeyPress);
-    }
-
-    return () => {
-      window.removeEventListener('keypress', handleKeyPress);
-    };
-  }, [isOpen, secretBuffer]);
 
   // Audio level meter
   useEffect(() => {
@@ -598,8 +573,8 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
             </div>
           )}
 
-          {/* AVATAR TAB - Desktop only (Hidden until secret code) */}
-          {!isMobile && activeTab === 'avatar' && showAvatarTab && (
+          {/* AVATAR TAB - Desktop only */}
+          {!isMobile && activeTab === 'avatar' && (
             <div className="device-settings-avatar">
               {/* Avatar Toggle */}
               <label className="privacy-toggle feature-toggle">

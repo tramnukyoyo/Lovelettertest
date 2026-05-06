@@ -627,29 +627,10 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       dispatch({ type: 'SET_MICROPHONE_MUTED', payload: !hasAudio || true }); // Start muted if we have audio
       dispatch({ type: 'SET_CONNECTION_TYPE', payload: connectionType as 'has-camera' | 'no-camera' });
       
-      // Notify server that we're ready for video and send our connection type
-      if (socket && roomCode) {
-        socket.emit('webrtc:enable-video', {
-          roomCode,
-          peerId: userId,
-          connectionType: connectionType
-        });
-
-        // Late-joiner sync: ask server who is already in video chat so we can
-        // initiate offers to anyone we missed before our local stream was ready.
-        socket.emit('webrtc:get-active-peers', { roomCode });
-
-        // Re-announce after 2s to catch peers whose join happened in the same tick.
-        setTimeout(() => {
-          if (socket.connected) {
-            socket.emit('webrtc:enable-video', {
-              roomCode,
-              peerId: userId,
-              connectionType: connectionType
-            });
-          }
-        }, 2000);
-      }
+      // Note: legacy `enableVideoChat` no longer broadcasts. Peer broadcast
+      // is gated until the user clicks "Join Video Chat" in DeviceSettingsModal,
+      // which calls confirmVideoChat() — that's the only path that emits
+      // `webrtc:enable-video`.
 
       // Show user what type of connection they have
       const statusMessage = `Video chat enabled (${connectionType})${!hasVideo ? ' - You can see others but your camera is not available' : ''}${!hasAudio ? ' - Audio not available' : ''}`;
@@ -675,13 +656,8 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children }) => {
       dispatch({ type: 'SET_MICROPHONE_MUTED', payload: true });
       dispatch({ type: 'SET_CONNECTION_TYPE', payload: 'no-camera' });
       
-      if (socket && roomCode) {
-        socket.emit('webrtc:enable-video', { 
-          roomCode, 
-          peerId: userId, 
-          connectionType: 'no-camera' 
-        });
-      }
+      // Note: legacy enableVideoChat does not broadcast — peer announce
+      // is gated to confirmVideoChat().
       
       alert('Could not access camera or microphone, but you can still see other players. Check your browser permissions if you want to share your camera/microphone.');
     }

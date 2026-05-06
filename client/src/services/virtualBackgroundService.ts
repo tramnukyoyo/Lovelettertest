@@ -60,12 +60,7 @@ export interface VirtualBackgroundConfig {
   useAdaptiveKernels?: boolean;
 }
 
-export const DEFAULT_BACKGROUNDS = [
-  { name: 'Office', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&h=720&fit=crop&crop=center' },
-  { name: 'Nature', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&h=720&fit=crop&crop=center' },
-  { name: 'Library', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1280&h=720&fit=crop&crop=center' },
-  { name: 'Coffee Shop', url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1280&h=720&fit=crop&crop=center' },
-];
+export const DEFAULT_BACKGROUNDS: { name: string; url: string }[] = [];
 
 export class VirtualBackgroundService {
   private config: VirtualBackgroundConfig;
