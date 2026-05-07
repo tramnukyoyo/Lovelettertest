@@ -110,6 +110,11 @@ const _phaseTracker: { current: string | undefined; startTime: number | null } =
   startTime: null,
 };
 
+// primesuspect uses uppercase GameState ('LOBBY' | 'PLAYING' | 'ENDED'),
+// so the default lowercase aliases never matched and no events fired.
+const LOBBY_ALIASES = new Set(["lobby", "LOBBY"]);
+const END_ALIASES = new Set(["finished", "ended", "game_over", "ENDED"]);
+
 export function trackPhaseFromRoomState(data: unknown): void {
   if (!data || typeof data !== "object") return;
   const d = data as Record<string, any>;
@@ -119,12 +124,12 @@ export function trackPhaseFromRoomState(data: unknown): void {
   if (newPhase === _phaseTracker.current) return;
   const prev = _phaseTracker.current;
   trackEvent("game_phase_entered", { phase: newPhase, from: prev ?? null, room_code: d?.code });
-  if (prev === "lobby" && newPhase !== "lobby") {
+  if (prev !== undefined && LOBBY_ALIASES.has(prev) && !LOBBY_ALIASES.has(newPhase)) {
     _phaseTracker.startTime = Date.now();
     trackEvent("game_started", { room_code: d?.code });
   }
-  if ((newPhase === "finished" || newPhase === "ended" || newPhase === "game_over") && _phaseTracker.startTime) {
-    const dur = Math.round((Date.now() - _phaseTracker.startTime) / 1000);
+  if (END_ALIASES.has(newPhase)) {
+    const dur = _phaseTracker.startTime ? Math.round((Date.now() - _phaseTracker.startTime) / 1000) : 0;
     trackGameFinished(1, dur, { room_code: d?.code });
     _phaseTracker.startTime = null;
   }
