@@ -54,7 +54,9 @@ export function initAnalytics(): void {
 /** Fire a custom event to PostHog. No-op if not initialized or no consent. */
 export function trackEvent(name: string, properties?: Record<string, unknown>): void {
   if (!initialized || !hasConsent()) return;
-  posthog.capture(name, { game: GAME_META.name, ...properties });
+  // Emit `game` as the slug (id) so dashboards can group cleanly. Fall back to
+  // display name only if id was never declared on this game's GAME_META.
+  posthog.capture(name, { game: (GAME_META as any).id || GAME_META.name, ...properties });
 }
 
 /** Convenience: track a share action. */
