@@ -7,10 +7,16 @@ import { Eye, ChevronRight } from 'lucide-react';
 import type { Lobby } from '../types';
 import type { Socket } from 'socket.io-client';
 import SpectatorBanner from '../components/core/SpectatorBanner';
+import { XpToast } from '../components/ui/XpToast';
 
 interface GamePageProps {
   lobby: Lobby;
   socket: Socket;
+}
+
+interface XpReward {
+  reward: { totalXp: number; summary: string; breakdown: any };
+  progress: { newLevel: number; previousLevel: number; leveledUp: boolean; percentage: number };
 }
 
 const PPProgressDots: React.FC<{ currentIndex: number; total: number }> = ({ currentIndex, total }) => (
@@ -27,7 +33,14 @@ const PPProgressDots: React.FC<{ currentIndex: number; total: number }> = ({ cur
 const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
   const [showPassModal, setShowPassModal] = useState(false);
   const [prevTurn, setPrevTurn] = useState<string | undefined>();
+  const [xpReward, setXpReward] = useState<XpReward | null>(null);
   const language = getCurrentLanguage();
+
+  useEffect(() => {
+    const handleReward = (data: XpReward) => setXpReward(data);
+    socket.on('player:reward', handleReward);
+    return () => { socket.off('player:reward', handleReward); };
+  }, [socket]);
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
   const pp = usePassPlay({
@@ -145,6 +158,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, socket }) => {
             />
           )}
           <HeartsGambitGame lobby={lobby} socket={socket} />
+          <XpToast reward={xpReward} onClose={() => setXpReward(null)} />
         </>
       );
 
