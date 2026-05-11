@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
+import '../../styles/XpToast.css';
 
 interface XpReward {
   reward: {
