@@ -4029,15 +4029,17 @@
 [data-theme="primesuspect"] {
   --hg-header-height: 66px;
   /* Dynamic card sizing using dvh for responsive scaling (accounts for mobile address bar) */
-  /* Lowered minimums to allow cards to shrink when filmstrip is maximized */
-  --hg-card-height: clamp(70px, 22dvh, 240px);
-  --hg-card-width: clamp(47px, 14.7dvh, 160px);
+  /* Max clamps reduced ~25% (240→180, 160→120) so cards on wide/tall
+     monitors (2560×1440, 4K) render at the same visual size they used
+     to have at 75% browser zoom. */
+  --hg-card-height: clamp(70px, 22dvh, 180px);
+  --hg-card-width: clamp(47px, 14.7dvh, 120px);
 }
 
 /* When filmstrip is active, scale cards much more aggressively */
 html.has-filmstrip [data-theme="primesuspect"] {
-  --hg-card-height: clamp(55px, 13vh, 180px);
-  --hg-card-width: clamp(37px, 8.7vh, 120px);
+  --hg-card-height: clamp(55px, 13vh, 135px);
+  --hg-card-width: clamp(37px, 8.7vh, 90px);
 }
 
 /* Small viewports */
@@ -4257,10 +4259,10 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   }
 }
 
-/* Tooltip card size */
+/* Tooltip card size — reduced 25% to match desktop card scale */
 [data-theme="primesuspect"] .hg-tooltip-card {
-  --hg-card-width: 180px;
-  --hg-card-height: 252px;
+  --hg-card-width: 135px;
+  --hg-card-height: 189px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
 }
 
@@ -4279,10 +4281,10 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 /* Discard pile card size - inherits dynamic sizing from root */
 /* (No size override - uses --hg-card-width/height from [data-theme="primesuspect"]) */
 
-/* Guard card selection size (larger to show full text) */
+/* Guard card selection size (larger to show full text) — reduced 25% */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-guard-select-card {
-  --hg-card-width: 140px;
-  --hg-card-height: 210px;
+  --hg-card-width: 105px;
+  --hg-card-height: 158px;
 }
 
 [data-theme="primesuspect"] .hg-dynamic-card.hg-guard-select-card .card-description {
@@ -4290,10 +4292,10 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   font-size: 8px;
 }
 
-/* Inspector popup card size (large for full text visibility) */
+/* Inspector popup card size (large for full text visibility) — reduced 25% */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card {
-  --hg-card-width: 280px;
-  --hg-card-height: 420px;
+  --hg-card-width: 210px;
+  --hg-card-height: 315px;
 }
 
 [data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-value {

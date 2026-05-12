@@ -110,6 +110,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
+
   const viewingAsSocketId = (lobby as any).viewingAs as string | undefined;
   const isSpectator = !!lobby.players.find(p => p.socketId === lobby.mySocketId)?.isSpectator;
   const me = viewingAsSocketId
@@ -386,7 +387,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
       <div className="w-full h-full rounded-none overflow-hidden shadow-2xl flex flex-col flex-1 min-h-0 relative">
 
         {/* TOP SECTION: Opponents Area - Dark Table Surface */}
-        <div className="relative flex-[3] min-h-0 p-4 flex items-center justify-center gap-8 overflow-hidden">
+        <div className="relative flex-[3] min-h-0 p-3 flex items-center justify-center gap-6 overflow-hidden translate-x-[66px]">
 
           {otherPlayers.map(player => (
              <div
@@ -406,9 +407,9 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 }}
              >
                 {/* Player Info - Dark Theme */}
-                <div className="hg-panel hg-candlelight flex items-center gap-3 p-2 rounded-xl w-48 mb-2 relative backdrop-blur-sm">
+                <div className="hg-panel hg-candlelight flex items-center gap-2 p-1.5 rounded-xl w-36 mb-1.5 relative backdrop-blur-sm">
                     {/* Circular Avatar with Gradient Border */}
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden shrink-0 relative">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden shrink-0 relative">
                         <div className="w-full h-full rounded-full bg-[var(--velvet-dark)] overflow-hidden flex items-center justify-center">
                             <img
                               src={player.avatarUrl || FALLBACK_AVATAR_URL}
@@ -501,7 +502,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
           {/* Center Area: Deck & Discard - No Border */}
           <div className="flex-1 flex flex-row items-center justify-center gap-20 relative">
-            <div className="flex flex-row items-center justify-center gap-20 translate-x-[132px] translate-y-10">
+            <div className="flex flex-row items-center justify-center gap-20 translate-x-[182px] translate-y-10">
               {/* Discard Pile */}
               <div className="flex flex-col items-center relative">
                  <h3 className="text-sm font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-2">
@@ -719,13 +720,13 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
         {/* BOTTOM SECTION: Player Area */}
         <div className={`
-          bg-[rgba(0,0,0,0.20)] flex-[3] min-h-0 p-4 relative flex flex-col overflow-hidden transition-all border-t border-[rgba(var(--accent-color-rgb),0.10)]
+          bg-[rgba(0,0,0,0.20)] flex-[3] min-h-0 p-3 relative flex flex-col overflow-hidden transition-all border-t border-[rgba(var(--accent-color-rgb),0.10)]
           ${amEliminated ? 'opacity-50 grayscale' : ''}
           ${isMyTurn && !amEliminated ? 'ring-2 ring-[var(--royal-gold)] ring-inset shadow-[inset_0_0_30px_rgba(var(--accent-color-rgb),0.28)]' : ''}
         `}>
             <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[rgba(var(--accent-color-rgb),0.18)] via-[rgba(var(--accent-color-rgb),0.45)] to-[rgba(var(--accent-color-rgb),0.18)] ${isMyTurn ? 'animate-pulse' : ''}`}></div>
 
-            <div className="flex items-center gap-4 mb-4 z-10 relative">
+            <div className="flex items-center gap-3 mb-3 z-10 relative">
               <motion.span
                 className="bg-[var(--royal-crimson)] text-[var(--parchment)] text-xs font-black px-3 py-1 rounded-full uppercase"
                 animate={tokensIncreased ? {
@@ -778,7 +779,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
               </div>
             </div>
 
-            <div className="w-full flex justify-center items-end flex-1 min-h-0 pb-2 gap-4">
+            <div className="w-full flex justify-center items-end flex-1 min-h-0 pb-2 gap-4 translate-x-[60px]">
                {/* My Hand */}
                <AnimatePresence>
                    {displayedHand.map((card, idx) => {

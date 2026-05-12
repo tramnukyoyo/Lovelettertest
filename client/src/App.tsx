@@ -280,7 +280,16 @@ function AppContent() {
     createRoom,
     joinRoom,
     clearKickMessage,
+    clearError,
   } = useGameBuddiesClient({ registerGameEvents });
+
+  // Auto-dismiss error after 8s so it doesn't linger forever (e.g. "Room not found").
+  // User can also dismiss manually via the close button.
+  useEffect(() => {
+    if (!error) return;
+    const id = setTimeout(() => clearError(), 8000);
+    return () => clearTimeout(id);
+  }, [error, clearError]);
 
   // Spectator: allow clicking players in sidebar to view their perspective
   const isSpectator = !!lobby?.players?.find((p: any) => p.socketId === lobby.mySocketId)?.isSpectator;
@@ -385,11 +394,6 @@ function AppContent() {
 
                 <div className="flex flex-col lg:flex-row flex-1 min-h-0 lg:h-full">
                   <div className="flex-1 p-0 pb-20 lg:pb-0 overflow-y-auto main-scroll-area">
-                    {error && (
-                      <div className="error-message bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-lg" style={{ margin: '20px auto', maxWidth: '600px' }}>
-                        {error}
-                      </div>
-                    )}
                     {renderPage()}
                   </div>
 
@@ -510,13 +514,24 @@ function AppContent() {
         </WebcamConfigProvider>
       ) : (
         <>
-          {error && (
-            <div className="error-message bg-orange-500/20 border border-orange-500 text-orange-200 p-4 rounded-lg m-6 max-w-2xl mx-auto">
-              {error}
-            </div>
-          )}
           {renderPage()}
         </>
+      )}
+      {/* Floating error toast — fixed position so it doesn't shift layout, dismissible. */}
+      {error && (
+        <div
+          role="alert"
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-[100000] bg-red-500/95 border border-red-400 text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 max-w-md"
+        >
+          <span className="flex-1">{error}</span>
+          <button
+            onClick={clearError}
+            aria-label="Dismiss error"
+            className="text-white/80 hover:text-white text-xl leading-none px-2 -mr-1"
+          >
+            ×
+          </button>
+        </div>
       )}
       {/* Reconnect overlay - shown when game is restored after server restart */}
       {restoreInfo && (
