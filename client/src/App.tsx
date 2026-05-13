@@ -179,6 +179,14 @@ function AppContent() {
           };
           console.log('[handleRoomStateUpdated] first translated:', updatedLobby.messages[0]?.message?.slice(0, 80));
         }
+        // SCALE-FIX (2026-05-13): inject mySocketId fallback locally so the
+        // gameserver can flip omitMySocketIdFromBroadcast = true and save
+        // O(N) per broadcast. socket.id is always the right value for the
+        // local socket — it's what the server would have sent anyway.
+        updatedLobby = {
+          ...updatedLobby,
+          mySocketId: updatedLobby.mySocketId ?? socket.id,
+        };
         helpers.setLobbyState(updatedLobby);
       };
 
