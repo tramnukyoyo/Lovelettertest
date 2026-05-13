@@ -38,7 +38,7 @@ export const cardDatabase: CardData[] = [
     value: 1,
     type: "Law",
     description: "Accuse someone directly - if correct, they're arrested.",
-    image: "/primesuspect/images/1.webp",
+    image: `${import.meta.env.BASE_URL}images/1.webp`,
     copies: 5
   },
   {
@@ -47,7 +47,7 @@ export const cardDatabase: CardData[] = [
     value: 2,
     type: "Staff",
     description: "You've seen everything - look at another player's card.",
-    image: "/primesuspect/images/2.webp",
+    image: `${import.meta.env.BASE_URL}images/2.webp`,
     copies: 2
   },
   {
@@ -56,7 +56,7 @@ export const cardDatabase: CardData[] = [
     value: 3,
     type: "Civilian",
     description: "Confrontation: Compare alibis - the weaker one breaks down.",
-    image: "/primesuspect/images/3.webp",
+    image: `${import.meta.env.BASE_URL}images/3.webp`,
     copies: 2
   },
   {
@@ -65,7 +65,7 @@ export const cardDatabase: CardData[] = [
     value: 4,
     type: "Civilian",
     description: "Protection from accusation for one round.",
-    image: "/primesuspect/images/4.webp",
+    image: `${import.meta.env.BASE_URL}images/4.webp`,
     copies: 2
   },
   {
@@ -74,7 +74,7 @@ export const cardDatabase: CardData[] = [
     value: 5,
     type: "Criminal",
     description: "Force someone to reveal their alibi (discard & draw new).",
-    image: "/primesuspect/images/5.webp",
+    image: `${import.meta.env.BASE_URL}images/5.webp`,
     copies: 2
   },
   {
@@ -83,7 +83,7 @@ export const cardDatabase: CardData[] = [
     value: 6,
     type: "Spy",
     description: "Swap your identity with another guest.",
-    image: "/primesuspect/images/6.webp",
+    image: `${import.meta.env.BASE_URL}images/6.webp`,
     copies: 1
   },
   {
@@ -92,7 +92,7 @@ export const cardDatabase: CardData[] = [
     value: 7,
     type: "Dangerous",
     description: "Knows too much - must reveal when with Blackmailer or Double Agent.",
-    image: "/primesuspect/images/7.webp",
+    image: `${import.meta.env.BASE_URL}images/7.webp`,
     copies: 1
   },
   {
@@ -101,7 +101,7 @@ export const cardDatabase: CardData[] = [
     value: 8,
     type: "Guilty",
     description: "The highest card - but beware if you're exposed!",
-    image: "/primesuspect/images/8.webp",
+    image: `${import.meta.env.BASE_URL}images/8.webp`,
     copies: 1
   }
 ];
