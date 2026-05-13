@@ -5,7 +5,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   // Base path matches DB ID for GameBuddies reverse proxy
-  base: '/primesuspect/',
+  base: process.env.VITE_BASE_PATH ?? '/primesuspect/',
   plugins: [
     react(),
     // Polyfill Buffer/process/events for simple-peer in the browser
