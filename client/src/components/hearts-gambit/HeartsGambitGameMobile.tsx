@@ -26,6 +26,10 @@ import { VictoryScreen } from './VictoryScreen';
 import PassPlayToggle from '../lobby/PassPlayToggle';
 import BotControls from '../lobby/BotControls';
 import { usePassPlay } from '../../hooks/usePassPlay';
+import { GameExplainer, GameExplainerHelpButton } from '../lobby/GameExplainer';
+import { primeSuspectDemoSpec } from '../lobby/GameExplainer/demos/PrimeSuspectDemo';
+import '../lobby/GameExplainer/GameExplainer.css';
+import { GAME_META } from '../../config/gameMeta';
 
 interface HeartsGambitGameMobileProps {
   lobby: Lobby;
@@ -673,10 +677,22 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       {/* Waiting overlay - FIXED to cover full screen (never shown in PP mode) */}
       {lobby.state === 'LOBBY' && !isPP && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-2 z-[100] backdrop-blur-sm overflow-y-auto py-2 hg-lobby-overlay">
-          <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
+            <GameExplainerHelpButton gameId={GAME_META.id} ariaLabel={t('tutorial.howToPlay')} />
+          </div>
           <p className="text-sm text-[var(--parchment-dark)]">
             {t('lobby.playersJoined').replace('{current}', String(lobby.players.length)).replace('{max}', '4')}
           </p>
+
+          {/* How-to-play explainer (auto-opens once, ambient sidebar afterwards) */}
+          <div className="w-[min(92vw,360px)] px-2">
+            <GameExplainer
+              gameId={GAME_META.id}
+              demoSpec={primeSuspectDemoSpec}
+              t={(key: string) => getTranslation(key as any, language)}
+            />
+          </div>
 
           {/* Room code with copy button */}
           <div className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.2)] border border-[rgba(var(--accent-color-rgb),0.4)] rounded-xl px-4 py-2">

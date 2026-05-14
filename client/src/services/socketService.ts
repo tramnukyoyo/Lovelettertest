@@ -48,7 +48,7 @@ class SocketService {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       parser: msgpackParser,
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
       timeout: 20000,
       forceNew: false,
       multiplex: true,
