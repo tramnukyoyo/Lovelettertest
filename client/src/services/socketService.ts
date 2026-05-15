@@ -18,6 +18,11 @@ class SocketService {
   // v22 delta broadcast — baseline for applying roomStateDelta patches
   private lastFullState: any = null;
 
+  // v23 Phase B — cached overlay patch (json-patch describing how to turn
+  // public state into this player's personal view). Server emits roomStatePrivate
+  // only when private fields actually change; we re-apply this on every public
+  // update so app code sees the merged personal state.
+  private lastPrivateOverlayPatch: any[] | null = null;
   // Store listener references for cleanup
   private visibilityListener: (() => void) | null = null;
   private onlineListener: (() => void) | null = null;
@@ -137,6 +142,16 @@ class SocketService {
       }
       // v22 — cache full state for roomStateDelta patches
       this.lastFullState = data;
+      // v23 Phase B — re-apply cached private overlay so app code sees merged personal view
+      if (this.lastPrivateOverlayPatch && this.lastPrivateOverlayPatch.length > 0) {
+        try {
+          applyPatch(data, this.lastPrivateOverlayPatch, false, true);
+        } catch (err) {
+          console.error('[Socket] private overlay re-apply failed on roomStateUpdated:', err);
+          this.lastPrivateOverlayPatch = null;
+          this.socket?.emit('client:request-resync', { reason: 'overlay-reapply-failed' });
+        }
+      }
     });
       // v22 — store full state as baseline for future roomStateDelta patches
       // (no-op if data is undefined; handler is called via socket.io)
@@ -158,9 +173,18 @@ class SocketService {
       }
       try {
         const result = applyPatch(this.lastFullState, delta.patch, false, false);
-        const newState = result.newDocument as any;
+        let newState = result.newDocument as any;
         if (delta.mySocketId) newState.mySocketId = delta.mySocketId;
         newState._stateVersion = delta._stateVersion;
+        // v23 Phase B — re-apply cached private overlay on the new public state
+        if (this.lastPrivateOverlayPatch && this.lastPrivateOverlayPatch.length > 0) {
+          try {
+            applyPatch(newState, this.lastPrivateOverlayPatch, false, true);
+          } catch (err) {
+            console.error('[Socket] private overlay re-apply failed on roomStateDelta:', err);
+            this.lastPrivateOverlayPatch = null;
+          }
+        }
         this.lastFullState = newState;
         this.lastStateVersion = delta._stateVersion;
         // Re-dispatch as roomStateUpdated so app code sees a normal full state
@@ -175,6 +199,38 @@ class SocketService {
         this.socket?.emit('client:request-resync', { reason: 'patch-error' });
       }
     });
+    // v23 Phase B — Private overlay events. Server sends overlay as a json-patch
+    // describing how to turn public state into THIS player's personal view.
+    // Cached and re-applied on every public update; server skips emit when patch
+    // unchanged. Empty patch = clear signal.
+    this.socket.on('roomStatePrivate', (msg: any) => {
+      const newPatch = Array.isArray(msg?.overlayPatch) ? msg.overlayPatch : [];
+      this.lastPrivateOverlayPatch = newPatch.length > 0 ? newPatch : null;
+      if (!this.lastFullState) {
+        // No baseline yet — overlay applies on first public arrival.
+        return;
+      }
+      try {
+        let newState: any = this.lastFullState;
+        if (this.lastPrivateOverlayPatch) {
+          newState = applyPatch(this.lastFullState, this.lastPrivateOverlayPatch, false, false).newDocument;
+        }
+        if (msg._stateVersion) newState._stateVersion = msg._stateVersion;
+        this.lastFullState = newState;
+        const listeners = this.socket?.listeners('roomStateUpdated') || [];
+        for (const cb of listeners) {
+          try { (cb as any)(newState); } catch (err) {
+            console.error('[Socket] roomStateUpdated listener error after private:', err);
+          }
+        }
+      } catch (err) {
+        console.error('[Socket] roomStatePrivate apply failed:', err);
+        this.lastPrivateOverlayPatch = null;
+        this.socket?.emit('client:request-resync', { reason: 'private-patch-error' });
+      }
+    });
+
+
 
 
 
@@ -182,6 +238,7 @@ class SocketService {
     this.socket.on('disconnect', () => {
       this.lastStateVersion = 0;
       this.lastFullState = null;
+      this.lastPrivateOverlayPatch = null;
     });
 
     // Setup browser event listeners (only once)
