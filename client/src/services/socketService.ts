@@ -7,6 +7,25 @@ import type { Region } from '../config/servers';
 import { detectFastestRegion } from './regionService';
 import { trackGameError, trackReconnect } from './analyticsService';
 
+
+// Capture URL routing hint at MODULE LOAD time. HomePage's useEffect runs
+// `window.history.replaceState({}, '', window.location.pathname)` to clean
+// up the address bar — and that fires BEFORE socketService.connect() awaits
+// region detection and runs. By the time connect() reads window.location.search,
+// the `?invite=` is already gone, the cluster master sees no roomCode hint, and
+// IP-hashes the join to a random worker → "room not found" for cross-IP joiners.
+// Module-level evaluation runs once during initial bundle parse, before React
+// even mounts. The browser address bar still gets stripped by HomePage (cosmetic
+// behavior preserved); only the WebSocket connection URL gains the routing hint.
+const _initialRoutingRoomCode: string | undefined = (() => {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    return p.get('room') || p.get('invite') || undefined;
+  } catch {
+    return undefined;
+  }
+})();
+
 class SocketService {
   private socket: Socket | null = null;
   private currentRegion: Region = 'eu';
@@ -55,11 +74,12 @@ class SocketService {
     // owns the room. Without this, joiners from a different IP than the
     // host land on a different worker (rooms live in per-worker memory)
     // and see "room not found" (BC4HB3 incident).
-    const _urlParams = new URLSearchParams(window.location.search);
     const _routingRoomCode =
-      _urlParams.get('room') ||
-      _urlParams.get('invite') ||
+
+      _initialRoutingRoomCode ||
+
       sessionStorage.getItem('lastRoomCode') ||
+
       undefined;
     this.socket = io(`${serverUrl}${GAME_NAMESPACE}`, {
       ...(_routingRoomCode ? { query: { roomCode: _routingRoomCode.toUpperCase() } } : {}),
