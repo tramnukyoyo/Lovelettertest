@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import msgpackParser from 'socket.io-msgpack-parser';
+import { applyPatch } from 'fast-json-patch';
 import { STORAGE_KEYS } from '../config/storageKeys';
 import { SERVERS, GAME_NAMESPACE, isCapacitor } from '../config/servers';
 import type { Region } from '../config/servers';
@@ -14,6 +15,8 @@ class SocketService {
   private listenersSetup = false;
   private wasDisconnected = false;
   private lastStateVersion = 0; // Desync detection
+  // v22 delta broadcast — baseline for applying roomStateDelta patches
+  private lastFullState: any = null;
 
   // Store listener references for cleanup
   private visibilityListener: (() => void) | null = null;
@@ -132,11 +135,53 @@ class SocketService {
         }
         this.lastStateVersion = data._stateVersion;
       }
+      // v22 — cache full state for roomStateDelta patches
+      this.lastFullState = data;
     });
+      // v22 — store full state as baseline for future roomStateDelta patches
+      // (no-op if data is undefined; handler is called via socket.io)
+    // v22 delta broadcast — apply JSON Patch RFC 6902 to last known full
+    // state. Server emits this for high-frequency state changes when the
+    // patch is smaller than 50% of the full state. Saves ~60-75% bandwidth
+    // + frees server CPU.
+    this.socket.on('roomStateDelta', (delta: any) => {
+      if (!this.lastFullState) {
+        console.warn('[Socket] roomStateDelta received with no baseline — requesting resync');
+        this.socket?.emit('client:request-resync', { reason: 'no-baseline' });
+        return;
+      }
+      const expected = this.lastStateVersion + 1;
+      if (this.lastStateVersion > 0 && delta._stateVersion !== expected) {
+        console.warn(`[Socket] roomStateDelta version gap: expected v${expected}, got v${delta._stateVersion} — requesting resync`);
+        this.socket?.emit('client:request-resync', { reason: 'version-gap' });
+        return;
+      }
+      try {
+        const result = applyPatch(this.lastFullState, delta.patch, false, false);
+        const newState = result.newDocument as any;
+        if (delta.mySocketId) newState.mySocketId = delta.mySocketId;
+        newState._stateVersion = delta._stateVersion;
+        this.lastFullState = newState;
+        this.lastStateVersion = delta._stateVersion;
+        // Re-dispatch as roomStateUpdated so app code sees a normal full state
+        const listeners = this.socket?.listeners('roomStateUpdated') || [];
+        for (const cb of listeners) {
+          try { (cb as any)(newState); } catch (err) {
+            console.error('[Socket] roomStateUpdated listener error after delta:', err);
+          }
+        }
+      } catch (err) {
+        console.error('[Socket] applyPatch failed:', err);
+        this.socket?.emit('client:request-resync', { reason: 'patch-error' });
+      }
+    });
+
+
 
     // Reset version tracking on disconnect
     this.socket.on('disconnect', () => {
       this.lastStateVersion = 0;
+      this.lastFullState = null;
     });
 
     // Setup browser event listeners (only once)
