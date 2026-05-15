@@ -50,7 +50,19 @@ class SocketService {
 
     console.log(`[Socket] Connecting to ${region.toUpperCase()} server:`, serverUrl + GAME_NAMESPACE);
 
+    // Cluster-routing hint (2026-05-15): include roomCode in connection
+    // URL so the gameserver cluster master can route us to the worker that
+    // owns the room. Without this, joiners from a different IP than the
+    // host land on a different worker (rooms live in per-worker memory)
+    // and see "room not found" (BC4HB3 incident).
+    const _urlParams = new URLSearchParams(window.location.search);
+    const _routingRoomCode =
+      _urlParams.get('room') ||
+      _urlParams.get('invite') ||
+      sessionStorage.getItem('lastRoomCode') ||
+      undefined;
     this.socket = io(`${serverUrl}${GAME_NAMESPACE}`, {
+      ...(_routingRoomCode ? { query: { roomCode: _routingRoomCode.toUpperCase() } } : {}),
       reconnection: true,
       reconnectionAttempts: this.maxReconnectAttempts,
       reconnectionDelay: 1000,
