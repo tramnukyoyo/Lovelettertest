@@ -325,6 +325,12 @@ class SocketService {
         if (!this.socket?.connected) {
           console.log('[Socket] Connection lost while backgrounded, reconnecting...');
           this.socket?.connect();
+        } else if (stored.sessionToken && stored.roomCode) {
+          // Server-side state may have been GC'd while backgrounded. Fire a full
+          // session:reconnect to rebind the socket via sessionToken (hot-restores
+          // the room from snapshot if it's no longer in memory).
+          console.log('[Socket] Page visible — firing session:reconnect to rebind state');
+          this.socket.emit('session:reconnect', { sessionToken: stored.sessionToken });
         } else if (stored.roomCode) {
           console.log('[Socket] Sending heartbeat to server');
           this.socket.emit('client:heartbeat', {
