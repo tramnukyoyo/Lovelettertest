@@ -390,7 +390,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
     }));
     setInspectorCards(cards);
     setInspectorIndex(index);
-    setInspectorTitle('Your Hand');
+    setInspectorTitle(t('game.yourHand'));
     setIsInspectorOpen(true);
   }, [myHand, isMyTurn, waitingToDraw, amEliminated]);
   void _openHandInspector;
@@ -404,17 +404,17 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           card,
           source: 'opponent',
           label: getTranslatedCardName(card as any, language),
-          meta: `${player.name}'s card`,
+          meta: t('game.playerCard').replace('{name}', player.name),
         });
       }
     }
     if (cards.length === 0) {
-      setToast({ message: `${player.name}'s cards are hidden`, type: 'error' });
+      setToast({ message: t('game.playerCardsHidden').replace('{name}', player.name), type: 'error' });
       return;
     }
     setInspectorCards(cards);
     setInspectorIndex(0);
-    setInspectorTitle(`${player.name}'s Cards`);
+    setInspectorTitle(t('game.playerCards').replace('{name}', player.name));
     setIsInspectorOpen(true);
   }, []);
 
@@ -427,7 +427,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         card,
         source: 'evidence',
         label: getTranslatedCardName(card as any, language),
-        meta: 'Removed at start',
+        meta: t('game.removedAtStart'),
       });
     });
 
@@ -530,7 +530,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             onCopyLink={copyRoomLink}
             linkCopied={copyFeedback}
             onLeave={() => {
-              if (confirm('Are you sure you want to leave the room?')) {
+              if (confirm(t('game.areYouSureLeave'))) {
                 socketService.clearReconnectionData();
                 clearSession();
                 sessionStorage.removeItem('gameSessionToken');
@@ -575,7 +575,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             <button
               onClick={openDiscardInspector}
               className="relative hg-mobile-discard-card flex items-center justify-center overflow-visible translate-x-[3vw]"
-              aria-label="Open evidence locker"
+              aria-label={t('evidence.openEvidenceLocker')}
             >
               {/* Top card - no stack effect on mobile */}
               {lastDiscardEvent ? (
@@ -589,7 +589,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                   className="hg-mobile-evidence-card"
                 />
               ) : (
-                <span className="text-xs text-[var(--parchment-dark)]">Empty</span>
+                <span className="text-xs text-[var(--parchment-dark)]">{t('game.empty')}</span>
               )}
 
               {/* Count badge */}
@@ -604,7 +604,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           {/* Case File (Deck) */}
           <div className="flex flex-col items-center translate-y-[3dvh]">
             <span className="font-bold text-[var(--royal-gold)] uppercase tracking-wider mb-0.5 block translate-x-[1.5vw] whitespace-nowrap" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
-              Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
+              {t('game.caseFile')} <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
             </span>
             <button
               onClick={() => {
@@ -621,7 +621,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               className={`relative hg-mobile-deck-card ${
                 waitingToDraw ? 'cursor-pointer animate-pulse' : 'cursor-default'
               }`}
-              aria-label={waitingToDraw ? 'Draw a card' : 'Deck'}
+              aria-label={waitingToDraw ? t('game.drawACard') : t('game.deck')}
             >
               {/* Stack effect */}
               {Array.from({ length: Math.min(lobby.gameData.deckCount, 4) }).map((_, i) => (
@@ -864,7 +864,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                       {player.name}
                     </span>
                     {player.isImmune && (
-                      <span className="text-[10px] text-yellow-400 mt-0.5">Protected</span>
+                      <span className="text-[10px] text-yellow-400 mt-0.5">{t('cardInspector.protected')}</span>
                     )}
                   </button>
                 ))}
@@ -881,7 +881,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                         <User size={20} color="var(--parchment)" />
                       </div>
                     </div>
-                    <span className="text-xs text-[var(--parchment)] font-medium">Yourself</span>
+                    <span className="text-xs text-[var(--parchment)] font-medium">{t('cardInspector.yourself')}</span>
                   </button>
                 )}
               </div>
@@ -892,7 +892,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 className="hg-modal-btn hg-noir-cancel-btn w-full flex items-center justify-center gap-2"
               >
                 <ArrowLeft size={16} />
-                Cancel
+                {t('common.cancel')}
               </button>
             </motion.div>
           </motion.div>
@@ -981,7 +981,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 {guessCard ? (
                   <>
                     <div className="text-[9px] text-[var(--parchment-dark)] uppercase tracking-wide">
-                      Playing Inspector
+                      {t('game.playingInspector')}
                     </div>
                     <div className="text-xs font-bold text-[var(--royal-gold)] uppercase tracking-wider"
                          style={{ fontFamily: 'var(--font-typewriter)' }}>
@@ -996,10 +996,10 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 )}
                 {targetId && (
                   <div className="text-[10px] text-[var(--parchment)]">
-                    Target: <span className="font-bold">
+                    {t('game.targetPrefix')} <span className="font-bold">
                       {targetId === me?.id
-                        ? 'Yourself'
-                        : otherPlayers.find(p => p.id === targetId)?.name || 'Unknown'}
+                        ? t('cardInspector.yourself')
+                        : otherPlayers.find(p => p.id === targetId)?.name || t('game.unknown')}
                     </span>
                   </div>
                 )}

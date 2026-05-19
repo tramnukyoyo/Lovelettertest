@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Info, CheckCircle, AlertTriangle, AlertCircle, X } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 export interface SiteNotification {
   id: string;
@@ -31,6 +32,8 @@ const BG_MAP: Record<string, string> = {
 
 const SiteNotificationToast: React.FC<SiteNotificationToastProps> = ({ notification, onClose }) => {
   const [visible, setVisible] = useState(false);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
 
   useEffect(() => {
     if (notification) {
@@ -90,7 +93,7 @@ const SiteNotificationToast: React.FC<SiteNotificationToastProps> = ({ notificat
       <button
         onClick={handleClose}
         type="button"
-        aria-label="Close notification"
+        aria-label={t('kickToast.closeNotification')}
         style={{
           background: 'rgba(255,255,255,0.2)',
           border: 'none',

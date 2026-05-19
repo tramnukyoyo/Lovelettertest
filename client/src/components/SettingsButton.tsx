@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SettingsModal } from './SettingsModalNoir';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 /**
  * Settings Button - Floating Action Button (FAB)
@@ -7,6 +8,8 @@ import { SettingsModal } from './SettingsModalNoir';
  */
 export const SettingsButton: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -17,8 +20,8 @@ export const SettingsButton: React.FC = () => {
       <button
         className="settings-fab"
         onClick={openModal}
-        aria-label="Settings"
-        title="Settings"
+        aria-label={t('header.settings')}
+        title={t('header.settings')}
       >
         <svg
           className="settings-icon"

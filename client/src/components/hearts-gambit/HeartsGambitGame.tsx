@@ -144,7 +144,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
   const buildZoomCardsFromTimeline = (events: DiscardEventWithOrder[]) => {
     return events.map((evt) => {
-      const actionLabel = evt.kind === 'forced-discard' ? 'Compelled Discard' : 'Played';
+      const actionLabel = evt.kind === 'forced-discard' ? t('game.compelledDiscard') : t('game.played');
 
       return {
         key: `zoom-${evt.playerId}-${evt.timestamp}-${evt.card}`,
@@ -281,14 +281,14 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
     // Only validate target if NOT all protected (or if we failed to set self-target)
     if (needsTarget && !finalTargetId && !allOpponentsProtected) {
-      setToast({ message: "Please select a target player.", type: 'error' });
+      setToast({ message: t('game.selectTargetPlayer'), type: 'error' });
       return;
     }
     if (needsGuess && !guessCard && !allOpponentsProtected) {
       // If playing against no one, do we need a guess? Server says "if (!target) return 'no effect'".
       // So guess is irrelevant if target is null.
       if (!allOpponentsProtected) {
-          setToast({ message: "Please guess a card.", type: 'error' });
+          setToast({ message: t('game.guessACard'), type: 'error' });
           return;
       }
     }
@@ -512,7 +512,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   className="relative hg-discard-card flex items-center justify-center overflow-visible cursor-pointer"
                   role="button"
                   tabIndex={0}
-                  aria-label="Open evidence locker"
+                  aria-label={t('evidence.openEvidenceLocker')}
                   onClick={() => setIsDiscardViewerOpen(true)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') setIsDiscardViewerOpen(true);
@@ -529,7 +529,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                             <img
                               key={`discard-stack-${i}`}
                               src={CARD_BACK_IMAGE}
-                              alt="Evidence stack"
+                              alt={t('evidence.evidenceStack')}
                               className="absolute inset-0 w-full h-full object-cover rounded-xl shadow-2xl opacity-30"
                               style={{
                                 transform: `translate(${(i + 1) * 2}px, ${-(i + 1) * 2}px) rotate(${(i % 2 ? -1 : 1) * (i + 1)}deg)`,
@@ -630,7 +630,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                         zIndex: i
                       }}
                     >
-                      <img src={CARD_BACK_IMAGE} alt="Case File" className="w-full h-full object-cover rounded-xl shadow-2xl" />
+                      <img src={CARD_BACK_IMAGE} alt={t('game.caseFile')} className="w-full h-full object-cover rounded-xl shadow-2xl" />
                     </div>
                   ))}
 
@@ -871,7 +871,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                           targetId ? 'text-[var(--royal-gold-light)]' : 'text-[var(--royal-crimson-light)] animate-pulse'
                         }`}
                       >
-                        {targetId ? lobby.players.find(p => p.id === targetId)?.name : 'Select a player above'}
+                        {targetId ? lobby.players.find(p => p.id === targetId)?.name : t('game.selectPlayerAbove')}
                       </span>
                     )}
                   </div>
@@ -1290,7 +1290,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   }}
                   role="dialog"
                   aria-modal="true"
-                  aria-label="Evidence inspector"
+                  aria-label={t('evidence.evidenceInspector')}
                 >
                   <motion.div
                     className="hg-panel hg-candlelight w-full max-w-[640px] rounded-2xl overflow-hidden"

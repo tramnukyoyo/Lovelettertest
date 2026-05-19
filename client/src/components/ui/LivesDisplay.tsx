@@ -1,4 +1,5 @@
 import React from 'react';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface LivesDisplayProps {
   livesRemaining: number;
@@ -6,6 +7,8 @@ interface LivesDisplayProps {
 }
 
 export const LivesDisplay: React.FC<LivesDisplayProps> = ({ livesRemaining, maxLives }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
   const hearts = [];
 
   // Create hearts array (filled and empty)
@@ -30,7 +33,7 @@ export const LivesDisplay: React.FC<LivesDisplayProps> = ({ livesRemaining, maxL
 
   return (
     <div className={`lives-display ${isLowLives ? 'low-lives' : ''} ${isCriticalLives ? 'critical-lives' : ''}`}>
-      <div className="lives-label">Shared Lives:</div>
+      <div className="lives-label">{t('lives.shared')}</div>
       <div className="hearts-container">
         {hearts}
       </div>

@@ -12,6 +12,7 @@ import { useVideoUI } from './adapters';
 import WebcamDisplay from './WebcamDisplay';
 import type { WebcamPlayer } from './adapters';
 import type { Team } from './adapters';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 // Filmstrip resize constants
 const MIN_HEIGHT = 80;
@@ -48,6 +49,8 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
 }) => {
   const { localStream, remoteStreams, speakingPeers, isVideoEnabled, isVideoPrepairing } = useWebRTC();
   const { isFilmstripExpanded, toggleFilmstrip, isStreamerBroadcastOpen } = useVideoUI();
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
 
   // Helper to get player's team color
   const getPlayerTeamColor = (playerId: string): string | undefined => {
@@ -177,7 +180,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
       <div
         className={`video-filmstrip collapsed ${className}`}
         onClick={toggleFilmstrip}
-        title="Click to show videos"
+        title={t('videoFilmstrip.clickToShow')}
       >
         <div className="filmstrip-resize-handle" />
       </div>
@@ -200,14 +203,14 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
           onMouseDown={handleResizeStart}
           onTouchStart={handleResizeStart}
           onDoubleClick={toggleFilmstrip}
-          title="Drag to resize, double-click to collapse"
+          title={t('videoFilmstrip.dragToResize')}
         />
 
         {/* Video feeds */}
         <div className="video-filmstrip-feeds">
           {players.length === 0 && !localStream ? (
             <div className="video-filmstrip-empty">
-              <p>No video feeds available</p>
+              <p>{t('videoFilmstrip.noVideoFeeds')}</p>
             </div>
           ) : (
             <>
@@ -218,7 +221,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
                 const localIsSpeaking = !!mySocketId && speakingPeers.has(mySocketId);
                 return (
                   <WebcamDisplay
-                    player={{ id: 'local', name: localPlayerName || 'You' }}
+                    player={{ id: 'local', name: localPlayerName || t('videoFilmstrip.you') }}
                     stream={localStream}
                     isLocal
                   isSpeaking={localIsSpeaking}

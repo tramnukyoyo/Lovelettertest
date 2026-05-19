@@ -8,6 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { UserMinus, X } from 'lucide-react';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface KickToastProps {
   message: string | null;
@@ -15,6 +16,8 @@ interface KickToastProps {
 }
 
 const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
   const [visible, setVisible] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onCloseRef = useRef(onClose);
@@ -71,14 +74,14 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
         <UserMinus size={24} />
       </div>
       <div className="kick-toast-content">
-        <span className="kick-toast-title">Kicked from Room</span>
+        <span className="kick-toast-title">{t('kickToast.kickedFromRoom')}</span>
         <span className="kick-toast-message">{message}</span>
       </div>
       <button
         className="kick-toast-close"
         onClick={handleClose}
         type="button"
-        aria-label="Close notification"
+        aria-label={t('kickToast.closeNotification')}
       >
         <X size={16} />
       </button>

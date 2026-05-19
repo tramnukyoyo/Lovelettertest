@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface TimerDisplayProps {
   timeRemaining: number;
@@ -18,6 +19,8 @@ const getCSSVariables = () => {
 };
 
 export const TimerDisplay: React.FC<TimerDisplayProps> = ({ timeRemaining, totalTime }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
   // Calculate percentage for circular progress
   const percentage = (timeRemaining / totalTime) * 100;
   const circumference = 2 * Math.PI * 45; // radius = 45
@@ -84,7 +87,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({ timeRemaining, total
           fill={colors.textSecondary}
           style={{ fontFamily: 'var(--font-body, Space Grotesk), sans-serif' }}
         >
-          seconds
+          {t('timer.seconds')}
         </text>
       </svg>
     </div>

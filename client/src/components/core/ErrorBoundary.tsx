@@ -6,6 +6,7 @@
 
 import React, { Component, type ErrorInfo } from 'react';
 import { reportError } from '../../services/errorReporter';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface Props {
   children: React.ReactNode;
@@ -71,12 +72,14 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      const language = getCurrentLanguage();
+      const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
       return (
         <div className="error-boundary">
           <div className="error-boundary-content">
-            <h1 className="error-boundary-title">Something went wrong</h1>
+            <h1 className="error-boundary-title">{t('errorBoundary.somethingWentWrong')}</h1>
             <p className="error-boundary-message">
-              We're sorry, but something unexpected happened.
+              {t('errorBoundary.errorOccurred')}
             </p>
             {this.state.error && (
               <pre className="error-boundary-details">
@@ -88,13 +91,13 @@ class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleRefresh}
                 className="error-boundary-btn primary"
               >
-                Refresh Page
+                {t('errorBoundary.reload')}
               </button>
               <button
                 onClick={this.handleGoHome}
                 className="error-boundary-btn secondary"
               >
-                Go Home
+                {t('common.back')}
               </button>
             </div>
           </div>

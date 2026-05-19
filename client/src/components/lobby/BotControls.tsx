@@ -9,6 +9,7 @@ import React, { useCallback } from 'react';
 import { Bot, Trash2, UserPlus } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import type { Player } from '../../types';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface BotControlsProps {
   roomCode: string;
@@ -25,6 +26,8 @@ const BotControls: React.FC<BotControlsProps> = ({
   maxPlayers,
   socket,
 }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
   const botPlayers = players.filter(p => p.isBot);
 
   const handleAddBot = useCallback(() => {
@@ -46,7 +49,7 @@ const BotControls: React.FC<BotControlsProps> = ({
         type="button"
       >
         <UserPlus size={16} />
-        Add Bot
+        {t('botControls.addBot')}
       </button>
 
       {botPlayers.length > 0 && (
@@ -58,7 +61,7 @@ const BotControls: React.FC<BotControlsProps> = ({
               <button
                 className="bot-remove-btn"
                 onClick={() => bot.id && handleRemoveBot(bot.id)}
-                title="Remove bot"
+                title={t('botControls.removeBot')}
                 type="button"
               >
                 <Trash2 size={14} />

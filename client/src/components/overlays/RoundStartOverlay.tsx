@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { soundEffects } from '../../utils/soundEffects';
 import { COUNTDOWN_TIMINGS, COUNTDOWN_TOTAL_DURATION_MS } from '../../constants/timing';
 import { logger } from '../../utils/logger';
+import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 
 interface RoundStartOverlayProps {
   roundNumber: number;
@@ -11,6 +12,8 @@ interface RoundStartOverlayProps {
 
 export const RoundStartOverlay: React.FC<RoundStartOverlayProps> = ({ roundNumber, onComplete }) => {
   const [displayNumber, setDisplayNumber] = useState<number | string>(3);
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../../utils/translations').translations.en, language);
 
   useEffect(() => {
     // Play countdown sound at start
@@ -46,13 +49,13 @@ export const RoundStartOverlay: React.FC<RoundStartOverlayProps> = ({ roundNumbe
       <div className="round-start-content">
         {/* Round label */}
         <div className="round-label">
-          Round {roundNumber}
+          {t('roundStart.round').replace('{n}', String(roundNumber))}
         </div>
 
         {/* Animated countdown or GO! */}
         {displayNumber === 'GO!' ? (
           <div key="go" className="go-text">
-            GO!
+            {t('roundStart.go')}
           </div>
         ) : (
           <div key={displayNumber} className="countdown-number">

@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { backgroundMusic } from '../utils/backgroundMusic';
 import { soundEffects } from '../utils/soundEffects';
+import { getTranslation, getCurrentLanguage } from '../utils/translations';
 
 const STORAGE_KEYS = {
   MUSIC_ENABLED: 'heartsgambit-background-music-enabled',
@@ -16,6 +17,8 @@ const STORAGE_KEYS = {
 };
 
 const MuteButton: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const language = getCurrentLanguage();
+  const t = (key: string) => getTranslation(key as keyof typeof import('../utils/translations').translations.en, language);
   const [isMuted, setIsMuted] = useState(() => {
     try {
       const music = localStorage.getItem(STORAGE_KEYS.MUSIC_ENABLED);
@@ -55,8 +58,8 @@ const MuteButton: React.FC<{ className?: string }> = ({ className = '' }) => {
     <button
       onClick={toggle}
       className={`game-header-mute-btn ${isMuted ? 'muted' : ''} ${className}`}
-      title={isMuted ? 'Unmute' : 'Mute'}
-      aria-label={isMuted ? 'Unmute game audio' : 'Mute game audio'}
+      title={isMuted ? t('mute.unmute') : t('mute.mute')}
+      aria-label={isMuted ? t('mute.unmuteGameAudio') : t('mute.muteGameAudio')}
     >
       {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
     </button>

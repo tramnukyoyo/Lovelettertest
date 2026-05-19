@@ -34,7 +34,7 @@ const GameExplainerSidebar: React.FC<Props> = ({ gameId, demoSpec, t }) => {
           onActivate();
         }
       }}
-      title="Tap for full guide"
+      title={t('gameExplainer.tapForFullGuide')}
     >
       <div
         className="game-explainer-sidebar-stage"
