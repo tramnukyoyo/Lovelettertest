@@ -7,6 +7,14 @@ export const SERVERS: Record<Region, string> = {
 
 export const GAME_NAMESPACE = '/primesuspect';
 
+/**
+ * Discord Activity engine.io path. Inside Discord the iframe is served from
+ * `<app_id>.discordsays.com`; the game socket must route through the proxy under
+ * `/.proxy/gs` (Discord strips `/gs` → shared gameserver). The `/primesuspect` namespace
+ * stays in the io() URL; this is only the engine.io transport path.
+ */
+export const DISCORD_SOCKET_PATH = '/.proxy/gs/socket.io';
+
 export function isCapacitor(): boolean {
   return window.location.origin === 'https://localhost';
 }

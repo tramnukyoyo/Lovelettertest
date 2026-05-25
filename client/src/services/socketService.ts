@@ -2,8 +2,9 @@ import { io, Socket } from 'socket.io-client';
 import msgpackParser from 'socket.io-msgpack-parser';
 import { applyPatch } from 'fast-json-patch';
 import { STORAGE_KEYS } from '../config/storageKeys';
-import { SERVERS, GAME_NAMESPACE, isCapacitor } from '../config/servers';
+import { SERVERS, GAME_NAMESPACE, DISCORD_SOCKET_PATH, isCapacitor } from '../config/servers';
 import type { Region } from '../config/servers';
+import { isDiscordActivity } from './discordActivity';
 import { detectFastestRegion } from './regionService';
 import { trackGameError, trackReconnect } from './analyticsService';
 
@@ -56,7 +57,16 @@ class SocketService {
     let serverUrl: string;
     let region: Region = 'eu';
 
-    if (isCapacitor()) {
+    const inDiscord = isDiscordActivity();
+
+    if (inDiscord) {
+      // Discord Activity — connect through the discordsays.com proxy (same origin).
+      // Skip region probing (latency probes to onrender hosts can't resolve through
+      // the sandbox). The transport routes to the gameserver via DISCORD_SOCKET_PATH
+      // below; the /primesuspect namespace stays in the io() URL.
+      console.log('[Socket] Discord Activity detected, connecting via proxy');
+      serverUrl = window.location.origin;
+    } else if (isCapacitor()) {
       // Capacitor - use hardcoded DDF server
       console.log('[Socket] Capacitor detected, using DDF server');
       serverUrl = 'https://ddf-server.onrender.com';
@@ -83,6 +93,8 @@ class SocketService {
       undefined;
     this.socket = io(`${serverUrl}${GAME_NAMESPACE}`, {
       ...(_routingRoomCode ? { query: { roomCode: _routingRoomCode.toUpperCase() } } : {}),
+      // Discord Activity: route the engine.io transport through the proxy.
+      ...(inDiscord ? { path: DISCORD_SOCKET_PATH } : {}),
       reconnection: true,
       reconnectionAttempts: this.maxReconnectAttempts,
       reconnectionDelay: 1000,

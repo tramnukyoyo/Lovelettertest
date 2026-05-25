@@ -2,6 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type { Socket } from 'socket.io-client';
 import { getTranslation, getCurrentLanguage } from '../utils/translations';
+import { isDiscordActivity } from '../services/discordActivity';
+
+// Inside a Discord Activity the game runs in a nested iframe under the platform;
+// navigating to the absolute gamebuddies.io return URL is frame-src/CSP-blocked.
+// Post to the platform parent, which tears the iframe down + re-shows the lobby.
+function returnViaDiscordParent(): boolean {
+  if (isDiscordActivity() && typeof window !== 'undefined' && window.parent && window.parent !== window) {
+    try {
+      window.parent.postMessage({ type: 'gb:return-to-lobby' }, window.location.origin);
+      return true;
+    } catch { /* cross-origin parent (standalone) — fall through */ }
+  }
+  return false;
+}
 
 interface Player {
   id: string;
@@ -37,6 +51,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   // Handle return redirect from server (for non-host players)
   useEffect(() => {
     const handleReturnRedirect = (data: { returnUrl: string }) => {
+      if (returnViaDiscordParent()) return;
       if (!data.returnUrl) return;
       window.location.replace(data.returnUrl);
     };
@@ -51,6 +66,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   // Listen for lobby redirect (standalone → GB.io flow)
   useEffect(() => {
     const handleLobbyRedirect = (data: { redirectUrl: string }) => {
+      if (returnViaDiscordParent()) return;
       if (!data.redirectUrl) return;
       window.location.replace(data.redirectUrl);
     };

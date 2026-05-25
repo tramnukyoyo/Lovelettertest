@@ -20,6 +20,7 @@ import {
   PhoneOff
 } from 'lucide-react';
 import { getBroadcastCopy } from './broadcastCopy';
+import { isDiscordActivity } from '../../services/discordActivity';
 
 interface VideoControlClusterProps {
   // Three-state flow
@@ -63,6 +64,9 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
   // State 1: NOT JOINED - Show "Join Video" button
   // ============================================================================
   if (!isVideoEnabled && !isVideoPrepairing) {
+    // Inside a Discord Activity, webcam capture is unavailable in the sandboxed
+    // iframe — hide the "Join Video" CTA entirely.
+    if (isDiscordActivity()) return null;
     return (
       <div className={`video-control-cluster ${className}`}>
         <button

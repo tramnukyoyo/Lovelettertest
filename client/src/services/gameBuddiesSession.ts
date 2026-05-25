@@ -1,3 +1,5 @@
+import { isDiscordActivity } from './discordActivity';
+
 export type GameBuddiesSession = {
   roomCode: string;
   playerName?: string;
@@ -201,58 +203,46 @@ export async function resolveSessionToken(sessionToken: string): Promise<{
 } | null> {
   try {
     console.log(`[GameBuddies Client] Resolving session token: ${sessionToken.substring(0, 8)}...`);
-    console.log(`[GameBuddies Client] Current window.location.origin: ${window.location.origin}`);
-    console.log(`[GameBuddies Client] Current window.location.href: ${window.location.href}`);
 
-    // Call GameBuddies API directly instead of going through ClueScale server proxy
-    // This reduces latency and removes unnecessary proxy hop
-    // GameBuddies has CORS configured to allow all .onrender.com domains
-    const baseUrl = 'https://gamebuddies.io';
-    console.log(`[GameBuddies Client] Using GameBuddies API directly: ${baseUrl}`);
+    // Inside a Discord Activity the origin is *.discordsays.com and absolute
+    // gamebuddies.io fetches are CSP-blocked. Use same-origin candidates that route
+    // through Discord's URL mappings (the accepted form — bare `/api/...` via the root
+    // mapping vs explicit `/.proxy/api/...` — varies, so try each). Normal web is served
+    // FROM gamebuddies.io so the single absolute candidate is correct there.
+    const inDiscord = isDiscordActivity();
+    const candidates = inDiscord
+      ? [
+          `/api/game-sessions/${sessionToken}`,
+          `/.proxy/api/game-sessions/${sessionToken}`,
+        ]
+      : [`https://gamebuddies.io/api/game-sessions/${sessionToken}`];
 
-    const fullUrl = `${baseUrl}/api/game-sessions/${sessionToken}`;
-    console.log(`[GameBuddies Client] Fetching URL: ${fullUrl}`);
-
-    // Add detailed debugging about the fetch request
-    console.log(`[GameBuddies Client] Request details:`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      mode: 'cors',
-      credentials: 'include'
-    });
-
-    const response = await fetch(fullUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      mode: 'cors',
-      credentials: 'include' // Changed from 'same-origin' to support cross-origin requests
-    });
-
-    console.log(`[GameBuddies Client] Response status: ${response.status} ${response.statusText}`);
-    console.log(`[GameBuddies Client] Response headers:`, Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      console.error('[GameBuddies] Failed to resolve session token:', response.status, response.statusText);
-      console.error('[GameBuddies] Response URL:', response.url);
-
-      // Try to read the error body for more info
+    let data: { success?: boolean; session?: any } | null = null;
+    for (const url of candidates) {
       try {
-        const errorText = await response.text();
-        console.error('[GameBuddies] Error response body:', errorText);
-      } catch (e) {
-        console.error('[GameBuddies] Could not read error response body:', e);
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          mode: inDiscord ? 'same-origin' : 'cors',
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          console.warn(`[GameBuddies] session resolve ${url} → HTTP ${response.status}, trying next`);
+          continue;
+        }
+        data = await response.json();
+        break;
+      } catch (err) {
+        console.warn(`[GameBuddies] session resolve ${url} failed (CSP/network), trying next:`, err);
+        continue;
       }
+    }
 
+    if (!data) {
+      console.error('[GameBuddies] Failed to resolve session token (all candidates exhausted)');
       return null;
     }
 
-    const data = await response.json();
     console.log(`[GameBuddies Client] Response data:`, data);
 
     if (data.success && data.session) {
