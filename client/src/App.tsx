@@ -24,6 +24,8 @@ import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
 import InstallPrompt from './components/InstallPrompt';
 import SiteNotificationToast from './components/ui/SiteNotificationToast';
 import type { SiteNotification } from './components/ui/SiteNotificationToast';
+import AdminMessageToast from './components/ui/AdminMessageToast';
+import type { AdminMessage } from './components/ui/AdminMessageToast';
 import KickToast from './components/ui/KickToast';
 import ReconnectOverlay from './components/core/ReconnectOverlay';
 import socketService from './services/socketService';
@@ -158,6 +160,7 @@ function AppContent() {
   }, []);
 
   const [restoreInfo, setRestoreInfo] = useState<{ phase: string; connectedCount: number; totalPlayers: number } | null>(null);
+  const [adminMessage, setAdminMessage] = useState<AdminMessage | null>(null);
 
   // SCALE-FIX (2026-05-13 tier 3): shadow last full lobby + version so the
   // roomStateDelta handler can apply JSON Patches against the current state.
@@ -286,6 +289,12 @@ function AppContent() {
       socket.on('game:resumed', onGameResumed);
       socket.on('player:reconnected', onPlayerReconnected);
 
+      // Admin sent this in-game player a message (from the gamebuddies.io admin panel).
+      const onAdminMessage = (data: AdminMessage) => {
+        setAdminMessage(data);
+      };
+      socket.on('admin:message', onAdminMessage);
+
       return () => {
         socket.off('roomStateUpdated', handleRoomStateUpdated);
         socket.off('timer:update', handleTimerUpdate);
@@ -297,6 +306,7 @@ function AppContent() {
         socket.off('game:restored', onGameRestored);
         socket.off('game:resumed', onGameResumed);
         socket.off('player:reconnected', onPlayerReconnected);
+        socket.off('admin:message', onAdminMessage);
       };
     },
     []
@@ -578,6 +588,12 @@ function AppContent() {
       )}
       {/* Kick Toast */}
       <KickToast message={kickMessage} onClose={clearKickMessage} />
+      {/* Admin → in-game player message + reply */}
+      <AdminMessageToast
+        message={adminMessage}
+        onReply={(threadId, body) => socketService.getSocket()?.emit('admin:message:reply', { threadId, body })}
+        onClose={() => setAdminMessage(null)}
+      />
     </div>
   );
 }
