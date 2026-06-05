@@ -7,6 +7,7 @@ import type { Region } from '../config/servers';
 import { isDiscordActivity } from './discordActivity';
 import { detectFastestRegion } from './regionService';
 import { trackGameError, trackReconnect } from './analyticsService';
+import { resolveSessionToken } from './gameBuddiesSession';
 
 
 // Capture URL routing hint at MODULE LOAD time. HomePage's useEffect runs
@@ -48,6 +49,46 @@ class SocketService {
   private onlineListener: (() => void) | null = null;
   private offlineListener: (() => void) | null = null;
 
+  /**
+   * Resolve the room code from the GameBuddies session token BEFORE the socket
+   * opens, so the cluster routing hint is present without ever putting the room
+   * code in the page URL (streamer-safe). Only used when the URL carries no
+   * ?room=/?invite= hint — i.e. the platform→game handoff, which passes only
+   * ?session=. Bounded by a short timeout so a slow/down session API never
+   * blocks the connection; on failure we connect without the hint.
+   */
+  private async resolveRoutingRoomCode(): Promise<string | undefined> {
+    let token: string | undefined;
+    try {
+      token = new URLSearchParams(window.location.search).get('session') || undefined;
+    } catch { /* ignore */ }
+    if (!token) {
+      try {
+        const pending = JSON.parse(sessionStorage.getItem('gamebuddies:session') || 'null');
+        token = pending?.sessionToken || undefined;
+      } catch { /* ignore */ }
+    }
+    if (!token) {
+      token = sessionStorage.getItem('gameSessionToken') || undefined;
+    }
+    if (!token) return undefined;
+
+    try {
+      const resolved = await Promise.race([
+        resolveSessionToken(token),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500)),
+      ]);
+      const roomCode = resolved?.roomCode;
+      if (roomCode) {
+        sessionStorage.setItem('lastRoomCode', roomCode);
+        return roomCode;
+      }
+    } catch (err) {
+      console.warn('[Socket] Pre-connect room-code resolve failed; connecting without routing hint:', err);
+    }
+    return undefined;
+  }
+
   async connect(): Promise<Socket> {
     if (this.socket?.connected) {
       return this.socket;
@@ -84,13 +125,16 @@ class SocketService {
     // owns the room. Without this, joiners from a different IP than the
     // host land on a different worker (rooms live in per-worker memory)
     // and see "room not found" (BC4HB3 incident).
-    const _routingRoomCode =
+    let _routingRoomCode: string | undefined =
 
       _initialRoutingRoomCode ||
 
       sessionStorage.getItem('lastRoomCode') ||
 
       undefined;
+    if (!_routingRoomCode) {
+      _routingRoomCode = await this.resolveRoutingRoomCode();
+    }
     this.socket = io(`${serverUrl}${GAME_NAMESPACE}`, {
       ...(_routingRoomCode ? { query: { roomCode: _routingRoomCode.toUpperCase() } } : {}),
       // Discord Activity: route the engine.io transport through the proxy.
