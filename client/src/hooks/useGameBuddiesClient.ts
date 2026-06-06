@@ -428,6 +428,8 @@ export function useGameBuddiesClient(
 
     const onChatMessage = (message: ChatMessage) => pushChatMessage(message);
 
+    const onChatBlocked = () => pushChatMessage({ id: `sys-blocked-${Date.now()}`, playerId: 'system', playerName: 'System', message: 'Your message wasn’t sent — please keep it friendly.', timestamp: Date.now(), isSystem: true });
+
     const onError = (data: { message: string; code?: string }) => {
       const isNotInRoom = data.code === 'NOT_IN_ROOM' || data.message === 'Not in a room';
       if (isNotInRoom) {
@@ -487,6 +489,7 @@ export function useGameBuddiesClient(
     socket.on('game:started', onGameStarted);
     socket.on('game:ended', onGameEnded);
     socket.on('chat:message', onChatMessage);
+    socket.on('chat:blocked', onChatBlocked);
     socket.on('error', onError);
     socket.on('player:kicked', onKicked);
 
@@ -528,6 +531,7 @@ export function useGameBuddiesClient(
         socketRef.removeAllListeners('game:started');
         socketRef.removeAllListeners('game:ended');
         socketRef.removeAllListeners('chat:message');
+        socketRef.removeAllListeners('chat:blocked');
         socketRef.removeAllListeners('error');
         socketRef.removeAllListeners('player:kicked');
       }
