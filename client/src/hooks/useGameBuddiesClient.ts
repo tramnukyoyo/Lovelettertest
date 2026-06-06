@@ -429,6 +429,17 @@ export function useGameBuddiesClient(
     const onChatMessage = (message: ChatMessage) => pushChatMessage(message);
 
     const onError = (data: { message: string; code?: string }) => {
+      const isNotInRoom = data.code === 'NOT_IN_ROOM' || data.message === 'Not in a room';
+      if (isNotInRoom) {
+        const sessionToken = sessionStorage.getItem('gameSessionToken');
+        if (sessionToken) {
+          socketService.getSocket()?.emit('session:reconnect', { sessionToken });
+          // clear the visible error and stop here
+          setError('');
+          return;
+        }
+      }
+
       const pendingSession = pendingLaunchSessionRef.current;
       const shouldRetryJoin =
         !!pendingSession &&

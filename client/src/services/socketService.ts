@@ -32,7 +32,10 @@ class SocketService {
   private socket: Socket | null = null;
   private currentRegion: Region = 'eu';
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 15;
+  // Infinity: never stop retrying. A cold cluster/Render boot can exceed the old
+  // 15-attempt (~70s) budget and strand in-room users with no recovery. Keep
+  // retrying with capped backoff instead.
+  private maxReconnectAttempts = Infinity;
   private listenersSetup = false;
   private wasDisconnected = false;
   private lastStateVersion = 0; // Desync detection
@@ -130,6 +133,13 @@ class SocketService {
       _initialRoutingRoomCode ||
 
       sessionStorage.getItem('lastRoomCode') ||
+
+      // Cluster fix: fall back to the persisted reconnect room code, set by
+      // persistReconnectionData() on every room create/join, so a same-tab
+      // reconnect after a server reboot ALWAYS carries the worker-routing hint
+      // and lands on the worker that owns the room instead of IP-hashing to a
+      // random worker (room_closed / cross-worker split-brain). No network call.
+      sessionStorage.getItem(STORAGE_KEYS.SESSION.ROOM_CODE) ||
 
       undefined;
     if (!_routingRoomCode) {
@@ -346,6 +356,9 @@ class SocketService {
     sessionStorage.setItem(STORAGE_KEYS.SESSION.ROOM_CODE, roomCode);
     sessionStorage.setItem(STORAGE_KEYS.SESSION.PLAYER_NAME, playerName);
     sessionStorage.setItem(STORAGE_KEYS.SESSION.SESSION_TOKEN, sessionToken);
+    // Cluster routing hint: keep lastRoomCode in sync so a reconnect after a
+    // server reboot routes to the worker that owns this room (see connect()).
+    sessionStorage.setItem('lastRoomCode', roomCode);
   }
 
   getStoredReconnectionData(): {
@@ -367,6 +380,8 @@ class SocketService {
     sessionStorage.removeItem(STORAGE_KEYS.SESSION.ROOM_CODE);
     sessionStorage.removeItem(STORAGE_KEYS.SESSION.PLAYER_NAME);
     sessionStorage.removeItem(STORAGE_KEYS.SESSION.SESSION_TOKEN);
+    // Drop the cluster routing hint too so a fresh connect doesn't route by a stale code.
+    sessionStorage.removeItem('lastRoomCode');
   }
 
   // ===== Browser Event Listeners =====

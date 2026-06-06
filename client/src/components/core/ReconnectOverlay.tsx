@@ -3,7 +3,7 @@
  * Displays reconnection progress and a resume button for the host.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getTranslation, getCurrentLanguage } from '../../utils/translations';
 import './ReconnectOverlay.css';
 
@@ -23,6 +23,12 @@ const ReconnectOverlay: React.FC<ReconnectOverlayProps> = ({
   onResume,
 }) => {
   const [dismissing, setDismissing] = useState(false);
+  const [waitedTooLong, setWaitedTooLong] = useState(false);
+  useEffect(() => {
+    if (isHost) { setWaitedTooLong(false); return; }
+    const id = setTimeout(() => setWaitedTooLong(true), 25000);
+    return () => clearTimeout(id);
+  }, [isHost]);
   const lang = getCurrentLanguage();
 
   const handleResume = () => {
@@ -61,6 +67,11 @@ const ReconnectOverlay: React.FC<ReconnectOverlayProps> = ({
             <div className="reconnect-waiting">
               <div className="reconnect-waiting-spinner" />
               {getTranslation('reconnect.waitingForHost', lang)}
+              {waitedTooLong && (
+                <button className="reconnect-resume-btn" style={{ marginTop: '0.75rem' }} onClick={() => window.location.reload()} aria-label="Reload page" title="Reload">
+                  🔄
+                </button>
+              )}
             </div>
           )}
         </div>
