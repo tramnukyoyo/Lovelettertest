@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense, useMemo } from 'react';
 import type { Socket } from 'socket.io-client';
-import { applyPatch, type Operation } from 'fast-json-patch';
 import HomePage from './pages/HomePage';
 import GamePage from './pages/GamePage';
 import ChatWindow from './components/ChatWindow';
@@ -165,7 +164,6 @@ function AppContent() {
   // SCALE-FIX (2026-05-13 tier 3): shadow last full lobby + version so the
   // roomStateDelta handler can apply JSON Patches against the current state.
   const lastLobbyRef = useRef<Lobby | null>(null);
-  const lastVersionRef = useRef<number>(0);
 
   // Detect GameBuddies launch synchronously (memoized to run once)
   const isLoadingFromGameBuddies = useMemo(() => hasGameBuddiesSessionToken(), []);
@@ -177,8 +175,6 @@ function AppContent() {
       const applyAndSetLobby = (next: Lobby) => {
         const withMyId = { ...next, mySocketId: next.mySocketId ?? socket.id };
         lastLobbyRef.current = withMyId;
-        const v = (withMyId as Lobby & { _v?: number })._v;
-        if (typeof v === 'number') lastVersionRef.current = v;
         helpers.setLobbyState(withMyId);
       };
 
@@ -197,26 +193,10 @@ function AppContent() {
       };
 
       // SCALE-FIX (tier 3 — 2026-05-13): JSON Patch (RFC 6902) delta updates.
-      const handleRoomStateDelta = (delta: { _stateVersion: number; patch: Operation[] }) => {
-        const current = lastLobbyRef.current;
-        const incomingV = delta?._stateVersion ?? 0;
-        const lastV = lastVersionRef.current;
-        if (!current) { try { (socket as any).emit('client:request-resync'); } catch {} return; }
-        if (lastV > 0 && incomingV <= lastV) return;
-        if (lastV > 0 && incomingV > lastV + 1) {
-          try { (socket as any).emit('client:request-resync'); } catch {}
-          return;
-        }
-        try {
-          const next = applyPatch(current, delta.patch, true, false).newDocument as Lobby;
-          lastVersionRef.current = incomingV;
-          applyAndSetLobby(next);
-        } catch (err) {
-          console.warn('[App] roomStateDelta patch apply failed, requesting resync:', err);
-          try { (socket as any).emit('client:request-resync'); } catch {}
-        }
-      };
-      socket.on('roomStateDelta' as any, handleRoomStateDelta);
+      // roomStateDelta (RFC-6902) is applied centrally in services/socketService.ts,
+      // which re-dispatches the merged full state as 'roomStateUpdated' (handled above).
+      // App.tsx must NOT also apply the delta — double-applying corrupted list state and
+      // tracked version from the wrong field. (Audit 2026-06 XC-01/XC-02.)
 
       const handleTimerUpdate = (data: { timeRemaining: number }) => {
         helpers.patchLobby((prev) => {
