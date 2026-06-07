@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import msgpackParser from 'socket.io-msgpack-parser';
-import { applyPatch } from 'fast-json-patch';
+import { applyPatch, deepClone } from 'fast-json-patch';
 import { STORAGE_KEYS } from '../config/storageKeys';
 import { SERVERS, GAME_NAMESPACE, DISCORD_SOCKET_PATH, isCapacitor } from '../config/servers';
 import type { Region } from '../config/servers';
@@ -47,6 +47,12 @@ class SocketService {
   // only when private fields actually change; we re-apply this on every public
   // update so app code sees the merged personal state.
   private lastPrivateOverlayPatch: any[] | null = null;
+  // Reference to our OWN internal `roomStateUpdated` handler so the delta /
+  // private re-dispatch loop can exclude it. Re-feeding the merged dispatch
+  // state into the internal handler would re-pollute lastFullState (it would
+  // `deepClone` the merged view back into the pure-public baseline) and break
+  // subsequent positional array deltas. audit 2026-06.
+  private internalRoomStateHandler: ((data: any) => void) | null = null;
   // Store listener references for cleanup
   private visibilityListener: (() => void) | null = null;
   private onlineListener: (() => void) | null = null;
@@ -228,8 +234,11 @@ class SocketService {
       trackGameError(`[action:rejected] ${payload?.event}: ${payload?.reason}`);
     });
 
-    // Desync detection — request resync if state versions jump
-    this.socket.on('roomStateUpdated', (data: any) => {
+    // Desync detection — request resync if state versions jump.
+    // Named + stored so the delta/private re-dispatch loop can EXCLUDE it
+    // (re-feeding the merged dispatch state here would re-pollute the pure
+    // baseline; audit 2026-06).
+    const internalRoomStateHandler = (data: any) => {
       if (data?._stateVersion) {
         const expected = this.lastStateVersion + 1;
         if (this.lastStateVersion > 0 && data._stateVersion > expected) {
@@ -238,9 +247,17 @@ class SocketService {
         }
         this.lastStateVersion = data._stateVersion;
       }
-      // v22 — cache full state for roomStateDelta patches
-      this.lastFullState = data;
-      // v23 Phase B — re-apply cached private overlay so app code sees merged personal view
+      // v22 — cache the full state as the PURE-PUBLIC baseline for future
+      // roomStateDelta patches. CRITICAL (audit 2026-06, hearts-gambit hand dup):
+      // keep a CLONE that does NOT have the private overlay baked in — the server
+      // diffs deltas against the pure-public state and its array patches use
+      // positional indices (e.g. `remove /hand/1`). A merged baseline would make
+      // those positional ops land on real values and corrupt arrays (3 cards /
+      // duplicate card).
+      this.lastFullState = deepClone(data);
+      // v23 Phase B — re-apply cached private overlay so app code sees the merged
+      // personal view. Mutate `data` (NOT lastFullState) in place so subsequent
+      // roomStateUpdated listeners receive the merged view; lastFullState stays pure.
       if (this.lastPrivateOverlayPatch && this.lastPrivateOverlayPatch.length > 0) {
         try {
           applyPatch(data, this.lastPrivateOverlayPatch, false, true);
@@ -250,7 +267,9 @@ class SocketService {
           this.socket?.emit('client:request-resync', { reason: 'overlay-reapply-failed' });
         }
       }
-    });
+    };
+    this.internalRoomStateHandler = internalRoomStateHandler;
+    this.socket.on('roomStateUpdated', internalRoomStateHandler);
       // v22 — store full state as baseline for future roomStateDelta patches
       // (no-op if data is undefined; handler is called via socket.io)
     // v22 delta broadcast — apply JSON Patch RFC 6902 to last known full
@@ -270,28 +289,22 @@ class SocketService {
         return;
       }
       try {
+        // The patch is computed by the server against the PURE-PUBLIC state, so
+        // it must be applied to our pure-public baseline.
         const result = applyPatch(this.lastFullState, delta.patch, false, false);
-        let newState = result.newDocument as any;
-        if (delta.mySocketId) newState.mySocketId = delta.mySocketId;
-        newState._stateVersion = delta._stateVersion;
-        // v23 Phase B — re-apply cached private overlay on the new public state
-        if (this.lastPrivateOverlayPatch && this.lastPrivateOverlayPatch.length > 0) {
-          try {
-            applyPatch(newState, this.lastPrivateOverlayPatch, false, true);
-          } catch (err) {
-            console.error('[Socket] private overlay re-apply failed on roomStateDelta:', err);
-            this.lastPrivateOverlayPatch = null;
-          }
-        }
-        this.lastFullState = newState;
+        const newPublic = result.newDocument as any;
+        if (delta.mySocketId) newPublic.mySocketId = delta.mySocketId;
+        newPublic._stateVersion = delta._stateVersion;
+        // Keep the pure-public state as the next baseline — do NOT bake the
+        // overlay in (else the next positional array delta would misalign and
+        // corrupt arrays like a player's hand). audit 2026-06.
+        this.lastFullState = newPublic;
         this.lastStateVersion = delta._stateVersion;
-        // Re-dispatch as roomStateUpdated so app code sees a normal full state
-        const listeners = this.socket?.listeners('roomStateUpdated') || [];
-        for (const cb of listeners) {
-          try { (cb as any)(newState); } catch (err) {
-            console.error('[Socket] roomStateUpdated listener error after delta:', err);
-          }
-        }
+        // Build the merged personal view on a CLONE and re-dispatch to APP
+        // listeners only (NOT our internal handler — that would re-pollute the
+        // pure baseline).
+        const dispatch = this.applyOverlayForDispatch(newPublic);
+        this.dispatchMergedState(dispatch);
       } catch (err) {
         console.error('[Socket] applyPatch failed:', err);
         this.socket?.emit('client:request-resync', { reason: 'patch-error' });
@@ -304,23 +317,23 @@ class SocketService {
     this.socket.on('roomStatePrivate', (msg: any) => {
       const newPatch = Array.isArray(msg?.overlayPatch) ? msg.overlayPatch : [];
       this.lastPrivateOverlayPatch = newPatch.length > 0 ? newPatch : null;
+      // Reconcile the version counter — the server bumps ONE shared _stateVersion
+      // per broadcast and may emit ONLY an overlay (public unchanged); without
+      // this, the next public delta looks like a version gap and triggers a
+      // spurious resync. audit 2026-06.
+      if (typeof msg?._stateVersion === 'number' && msg._stateVersion > this.lastStateVersion) {
+        this.lastStateVersion = msg._stateVersion;
+      }
       if (!this.lastFullState) {
         // No baseline yet — overlay applies on first public arrival.
         return;
       }
+      // Derive the merged view on a CLONE for dispatch — NEVER write it back to
+      // lastFullState, which must stay the pure-public baseline (audit 2026-06).
       try {
-        let newState: any = this.lastFullState;
-        if (this.lastPrivateOverlayPatch) {
-          newState = applyPatch(this.lastFullState, this.lastPrivateOverlayPatch, false, false).newDocument;
-        }
-        if (msg._stateVersion) newState._stateVersion = msg._stateVersion;
-        this.lastFullState = newState;
-        const listeners = this.socket?.listeners('roomStateUpdated') || [];
-        for (const cb of listeners) {
-          try { (cb as any)(newState); } catch (err) {
-            console.error('[Socket] roomStateUpdated listener error after private:', err);
-          }
-        }
+        const dispatch = this.applyOverlayForDispatch(this.lastFullState);
+        if (msg._stateVersion) dispatch._stateVersion = msg._stateVersion;
+        this.dispatchMergedState(dispatch);
       } catch (err) {
         console.error('[Socket] roomStatePrivate apply failed:', err);
         this.lastPrivateOverlayPatch = null;
@@ -502,6 +515,50 @@ class SocketService {
   /** Get the last received state version (for desync detection). */
   getLastStateVersion(): number {
     return this.lastStateVersion;
+  }
+
+  /**
+   * Get the cached pure-public baseline (the state the server computes deltas
+   * against). The private overlay is NOT baked into this — it is applied to a
+   * clone only when dispatching. Exposed for tests / debugging.
+   */
+  getLastFullState(): any {
+    return this.lastFullState;
+  }
+
+  /**
+   * Produce the merged personal view for dispatch WITHOUT mutating the pure
+   * baseline. Returns the input unchanged when there is no overlay; otherwise
+   * applies the cached overlay patch to a clone. On failure, clears the overlay
+   * and asks for a resync. audit 2026-06 (keeps lastFullState pure-public).
+   */
+  private applyOverlayForDispatch(pureState: any): any {
+    if (!this.lastPrivateOverlayPatch || this.lastPrivateOverlayPatch.length === 0) {
+      return pureState;
+    }
+    try {
+      return applyPatch(pureState, this.lastPrivateOverlayPatch, false, false).newDocument;
+    } catch (err) {
+      console.error('[Socket] private overlay apply (dispatch) failed:', err);
+      this.lastPrivateOverlayPatch = null;
+      this.socket?.emit('client:request-resync', { reason: 'overlay-apply-failed' });
+      return pureState;
+    }
+  }
+
+  /**
+   * Re-dispatch a merged state to all `roomStateUpdated` listeners EXCEPT our
+   * own internal handler (feeding the merged view back would re-pollute the
+   * pure-public baseline). audit 2026-06.
+   */
+  private dispatchMergedState(state: any): void {
+    const listeners = this.socket?.listeners('roomStateUpdated') || [];
+    for (const cb of listeners) {
+      if (cb === this.internalRoomStateHandler) continue;
+      try { (cb as any)(state); } catch (err) {
+        console.error('[Socket] roomStateUpdated listener error (re-dispatch):', err);
+      }
+    }
   }
 
   getCurrentRegion(): Region {
