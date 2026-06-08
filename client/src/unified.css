@@ -5303,7 +5303,7 @@ body::after {
     border: 2px solid var(--border-default);
     border-radius: var(--border-wobbly-sm);
     box-shadow: 2px 2px 0px 0px rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
+    /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
   }
 
   .card:hover {
@@ -8590,8 +8590,8 @@ button svg.lucide,
   box-sizing: border-box;
   padding: 0.75rem 1.5rem;
   background: rgba(13, 15, 26, 0.15);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
   border-bottom: 2px solid rgba(var(--accent-color-rgb), 0.3);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   position: fixed;
@@ -8748,8 +8748,8 @@ button svg.lucide,
   height: 66px;
   box-sizing: border-box;
   background: rgba(13, 15, 26, 0.2);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
   border-bottom: 2px solid rgba(var(--accent-color-rgb), 0.4);
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
   position: fixed;
@@ -11263,8 +11263,8 @@ button svg.lucide,
 
 .tutorial-sidebar {
   background: rgba(12, 14, 28, 0.45);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
   border: 1px solid rgba(var(--accent-color-rgb), 0.2);
   border-radius: 18px;
   padding: 1.5rem 1.5rem 1.75rem;
@@ -14050,8 +14050,8 @@ button svg.lucide,
 
 .split-card {
   background: rgba(12, 14, 28, 0.45);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
   border: 1px solid rgba(var(--accent-color-rgb), 0.2);
   border-radius: 18px;
   padding: 1.35rem 1.35rem 1.65rem;
@@ -15634,8 +15634,8 @@ button svg.lucide,
 
 .split-card {
   background: rgba(12, 14, 28, 0.45);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
+  /* backdrop-filter blur removed (B13 audit 2026-06: GPU perf) */
   border: 1px solid rgba(var(--accent-color-rgb), 0.2);
   border-radius: 18px;
   padding: 1.35rem 1.35rem 1.65rem;
