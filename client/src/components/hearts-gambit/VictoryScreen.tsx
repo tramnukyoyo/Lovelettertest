@@ -202,7 +202,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                 onClick={handleTryAnotherGame}
                 className="w-full mt-3 px-6 py-3 bg-gradient-to-r from-[var(--royal-crimson)] to-[var(--royal-crimson-dark)] hover:from-[var(--royal-crimson-light)] hover:to-[var(--royal-crimson)] text-white font-black rounded-xl text-sm sm:text-base shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider min-h-[48px]"
               >
-                Try Another Game
+                {t('lobby.returnAll')}
               </button>
             )}
           </motion.div>

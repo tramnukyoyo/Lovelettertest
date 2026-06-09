@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GB, DE, ES } from 'country-flag-icons/react/3x2';
+import { GB, DE, ES, BR, PT } from 'country-flag-icons/react/3x2';
 import type { Language } from '../utils/translations';
 import { getCurrentLanguage, setCurrentLanguage, getTranslation } from '../utils/translations';
 
@@ -11,6 +11,8 @@ const languageOptions: { code: Language; label: string; Flag: FlagComponent }[] 
   { code: 'en', label: 'English', Flag: GB },
   { code: 'de', label: 'Deutsch', Flag: DE },
   { code: 'es', label: 'Español', Flag: ES },
+  { code: 'pt-BR', label: 'Português (BR)', Flag: BR },
+  { code: 'pt-PT', label: 'Português (PT)', Flag: PT },
 ];
 
 interface SimpleLanguageSelectorProps {
