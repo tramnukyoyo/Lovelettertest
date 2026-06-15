@@ -1,0 +1,169 @@
+/* SECTION 12: ANIMATIONS & KEYFRAMES */
+
+@layer components {
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% { transform: scale(1.05) translateY(-5px); }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(var(--secondary-rgb), 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(var(--secondary-rgb), 0.8); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(0.5deg); }
+  75% { transform: rotate(-0.5deg); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   PIXEL PRAIRIE SETPIECES — bluffalo* prefix (keyframe names are global).
+   Ported from mockups/round2/mockup-d-pixel-prairie.html.
+   ============================================================================ */
+
+/* Staggered entrance — set animation-delay via --d inline or nth-child.
+   Backwards fill only (not both): final frame equals natural state, so the
+   animation releases the transform after it ends — hover transforms on
+   cards/buttons keep working. */
+@keyframes bluffaloRise {
+  0%   { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Truth celebration: card slams down from above */
+@keyframes bluffaloTruthLand {
+  0%   { opacity: 0; transform: scale(1.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Truth banner sway (absolutely-positioned, centered via left:50%) */
+@keyframes bluffaloTruthBanner {
+  0%, 100% { transform: translateX(-50%) rotate(-2deg) scale(1); }
+  50%      { transform: translateX(-50%) rotate(2deg)  scale(1.06); }
+}
+
+/* Inline stamp sway (no translateX — for in-flow chips/badges) */
+@keyframes bluffaloStampSway {
+  0%, 100% { transform: rotate(-2deg) scale(1); }
+  50%      { transform: rotate(2deg)  scale(1.06); }
+}
+
+/* Sun-ray burst behind the truth card */
+@keyframes bluffaloBurstSpin {
+  0%, 100% { transform: scale(1)    rotate(0deg); opacity: 0.5; }
+  50%      { transform: scale(1.12) rotate(6deg); opacity: 0.85; }
+}
+
+/* "BLUFF" stamp slam onto busted lies */
+@keyframes bluffaloStampIn {
+  0%   { opacity: 0; transform: rotate(7deg) scale(2.6); }
+  100% { opacity: 1; transform: rotate(7deg) scale(1); }
+}
+
+/* Busted lie card drops in */
+@keyframes bluffaloLieDrop {
+  0%   { opacity: 0; transform: translateY(-22px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating score popup (+500) */
+@keyframes bluffaloScoreFloat {
+  0%   { opacity: 0; transform: translateY(8px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  62%  { opacity: 1; transform: translateY(-18px); }
+  100% { opacity: 0; transform: translateY(-28px); }
+}
+
+/* Pixel confetti rain */
+@keyframes bluffaloConfettiFall {
+  0%   { transform: translateY(0)     rotate(0deg);   opacity: 0; }
+  6%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(560px) rotate(290deg); opacity: 0; }
+}
+
+/* Voter avatars hop in celebration */
+@keyframes bluffaloVoterHop {
+  0%, 70%, 100% { transform: translateY(0); }
+  80%           { transform: translateY(-6px); }
+  90%           { transform: translateY(0); }
+}
+
+/* Mascot idle bob */
+@keyframes bluffaloIdleBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* Vote lock-in: quick press + amber ring flash */
+@keyframes bluffaloLockIn {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(0.97); }
+  70%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Reduced motion: kill decorative loops; entrances resolve instantly */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

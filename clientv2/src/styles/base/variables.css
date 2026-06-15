@@ -1,0 +1,249 @@
+/* ============================================================================
+   PRIME SUSPECT — "NOIR, UPGRADED" THEME (clientv2)
+   Royal crimson + gold + warm aubergine-charcoal velvet, candlelit. Kept the
+   detective identity but lifted for readability: warm dark ground (not
+   near-black), high-contrast parchment text, VISIBLE gold borders, gold TEXT
+   uses the bright #e7cc7a. Engraved Cinzel display + legible Libre Franklin
+   body + Special Elite typewriter stamps. Pink/cyan kept ONLY for the
+   GameBuddies.io wordmark.
+   Spec: mockups/v3/v3-e-noir-upgraded.html
+   ============================================================================ */
+
+:root {
+  /* Z-INDEX CONSTANTS (unchanged from shell) */
+  --z-background: -2;
+  --z-background-grid: -1;
+  --z-content: 1;
+  --z-webcam: 10;
+  --z-game: 20;
+  --z-filmstrip: 100;
+  --z-theme-toggle: 995;
+  --z-settings-fab: 996;
+  --z-chat-drawer-backdrop: 997;
+  --z-mobile-drawer: 998;
+  --z-mobile-fab-cluster: 999;
+  --z-mobile-nav: 1000;
+  --z-mobile-menu: 9000;
+  --z-mobile-menu-backdrop: 8999;
+  --z-orientation-prompt: 9997;
+  --z-settings-modal-backdrop: 9998;
+  --z-settings-modal: 9999;
+  --z-round-start-overlay: 10000;
+  --z-mobile-toast: 10001;
+  --z-skip-link: 10002;
+
+  /* SPACING */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  --spacing-fluid-xs: clamp(0.125rem, 0.5vw, 0.25rem);
+  --spacing-fluid-sm: clamp(0.25rem, 1vw, 0.5rem);
+  --spacing-fluid-md: clamp(0.5rem, 2vw, 1rem);
+  --spacing-fluid-lg: clamp(0.75rem, 3vw, 1.5rem);
+  --spacing-fluid-xl: clamp(1rem, 4vw, 2rem);
+
+  --gap-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --gap-sm: clamp(0.5rem, 1vw, 0.75rem);
+  --gap-md: clamp(0.75rem, 1.5vw, 1rem);
+  --gap-lg: clamp(1rem, 2vw, 1.5rem);
+  --gap-xl: clamp(1.5rem, 3vw, 2rem);
+
+  --padding-section: clamp(1rem, 4vw, 2.5rem);
+  --padding-card: clamp(0.75rem, 2vw, 1.5rem);
+
+  /* RADII — paper deduction has soft, modest rounding (NOT pixel-zero) */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+
+  --safe-bottom: max(var(--spacing-md), env(safe-area-inset-bottom));
+  --safe-left: max(var(--spacing-md), env(safe-area-inset-left));
+  --safe-right: max(var(--spacing-md), env(safe-area-inset-right));
+  --safe-top: max(var(--spacing-md), env(safe-area-inset-top));
+  --viewport-height: 100dvh;
+  --viewport-width: 100dvw;
+
+  /* ========================================================================
+     PRIME SUSPECT — OLD ROYAL JEWEL PALETTE (restored)
+     Royal crimson + gold + velvet-dark with parchment text. The new shell
+     aliases below are re-pointed at these so the whole client reads royal.
+     ======================================================================== */
+  --royal-crimson: #6a1623;
+  --royal-crimson-light: #8a2233;
+  --royal-crimson-dark: #3d0c13;
+  --royal-gold: #d2b25a;
+  --royal-gold-light: #e7cc7a;
+  --royal-gold-dark: #a77e22;
+  /* Lifted warm aubergine-charcoal ground (mockup E) — NOT near-black, so panels
+     and text breathe. */
+  --velvet-dark: #1c151b;
+  --velvet-darker: #120d11;
+  --velvet-panel: #2c2029;   /* warm velvet panel base */
+  --velvet-raise: #34262f;   /* raised velvet */
+  --velvet-card: #3d2c36;    /* card / input raise */
+  --parchment: #f6f0e6;
+  --parchment-dark: #d9cfbe;
+
+  /* Legacy chalk aliases re-pointed to royal so any stragglers read correctly */
+  --chalk-pink: var(--royal-crimson);
+  --chalk-purple: var(--royal-crimson);
+
+  --primary: var(--royal-crimson);
+  --primary-light: var(--royal-crimson-light);
+  --primary-dark: var(--royal-crimson-dark);
+  --primary-rgb: 106, 22, 35;
+
+  --secondary: var(--royal-gold);
+  --secondary-light: var(--royal-gold-light);
+  --secondary-glow: rgba(210, 178, 90, 0.4);
+  --secondary-rgb: 210, 178, 90;
+
+  /* Title-accent shadow tone used by the shared home.css (.home-title-accent).
+     In the noir theme this is a deep crimson so the gold accent reads as
+     engraved rather than the original prairie teal. */
+  --sky-teal: var(--royal-crimson-dark);
+
+  /* GameBuddies wordmark identity — kept (pink/cyan ONLY for the wordmark) */
+  --gb-pink: #e94560;
+  --gb-cyan: #00d9ff;
+
+  /* Bluffalo-named accent slots remapped to the royal identity */
+  --gb-gold: var(--royal-gold);     /* host / gold accent */
+  --gb-truth: #7bff8d;              /* green = confirmed */
+  --gb-lie: #ff6b6b;                /* red = accuse/false */
+  --gb-cream: var(--parchment);     /* parchment cream */
+  --gb-deep-orange: var(--royal-crimson-light);
+  --gb-lavender: var(--royal-gold);
+  --gb-purple: var(--velvet-dark);
+  --gb-purple-deep: var(--velvet-darker);
+
+  /* Status colors */
+  --success-400: #7bff8d;
+  --success-500: #4cc66a;
+  --success-600: #34a853;
+
+  --danger-400: #ff8f8f;
+  --danger-500: #ff6b6b;
+  --danger-600: #e05252;
+
+  --warning-400: #ffd479;
+  --warning-500: #f5b942;
+  --warning-600: #d99a1e;
+
+  --gold-400: #ffe39a;
+  --gold-500: #ffd479;
+  --gold-600: #e0b455;
+
+  /* App surfaces — warm velvet ground (mockup E: rgba(36,27,34,0.66)) */
+  --paper-void: var(--velvet-darker);
+  --bg-dark: var(--velvet-dark);
+  --bg-darker: var(--velvet-darker);
+  --bg-card: rgba(36, 27, 34, 0.66);
+  --bg-card-hover: rgba(52, 38, 47, 0.74);
+
+  --panel-bg: rgba(36, 27, 34, 0.66);
+  --panel-bg-hover: rgba(52, 38, 47, 0.74);
+  --panel-border: rgba(210, 178, 90, 0.38);   /* gold edge — visible */
+  --panel-border-strong: var(--royal-gold);
+
+  --bg-primary: var(--velvet-dark);
+  --bg-secondary: var(--velvet-darker);
+  --bg-tertiary: #241b22;
+  --bg-quaternary: #160f15;
+  --text-primary: var(--parchment);
+  --text-secondary: rgba(246, 240, 230, 0.90);
+  --text-accent: var(--royal-gold-light);
+  --border-color: rgba(210, 178, 90, 0.30);
+  --card-bg: rgba(36, 27, 34, 0.66);
+
+  /* Accent system — royal gold */
+  --accent-color: var(--royal-gold);
+  --accent-color-rgb: 210, 178, 90;
+  --accent-hover: var(--royal-gold-light);
+  --accent-glow: rgba(210, 178, 90, 0.35);
+  --accent-primary: var(--accent-color);
+  --accent-primary-rgb: var(--accent-color-rgb);
+
+  /* Gradient system (buttons stay SOLID) */
+  --gradient-start: var(--royal-crimson);
+  --gradient-end: var(--royal-crimson-dark);
+  --gradient-button: var(--btn-face);
+  --gradient-spotlight: radial-gradient(ellipse at 50% 0%, rgba(210,178,90,0.12), transparent 58%);
+
+  /* Shadows — HARD pressed-tactile, no blur (pencil-stamp feel) */
+  --shadow-sm: 3px 3px 0 rgba(0, 0, 0, 0.55);
+  --shadow-md: 5px 5px 0 rgba(0, 0, 0, 0.55);
+  --shadow-lg: 9px 9px 0 rgba(0, 0, 0, 0.5);
+  --shadow-glow-gold: 0 0 0 4px rgba(255, 212, 121, 0.22);
+  --shadow-glow-truth: 0 0 0 4px rgba(123, 255, 141, 0.25);
+  --shadow-glow-lie: 0 0 0 4px rgba(255, 107, 107, 0.22);
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-expo: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast: 0.15s var(--ease-out-expo);
+  --transition: 0.28s var(--ease-out-expo);
+  --transition-slow: 0.5s var(--ease-drawer);
+
+  /* FONTS — engraved display serif + clean legible body + typewriter stamps (Noir, Upgraded / mockup E) */
+  --font-title: 'Cinzel', 'Georgia', serif;
+  --font-body: 'Libre Franklin', system-ui, sans-serif;
+  --font-heading: var(--font-title);
+  --font-hand: 'Special Elite', cursive;          /* typewritten accents */
+  --font-marker: 'Special Elite', 'Courier New', monospace;
+  --font-mono: 'Special Elite', 'Courier New', monospace;
+  --font-typewriter: 'Special Elite', 'Courier New', monospace;
+
+  /* Legacy alias tokens used by shared component CSS */
+  --text-muted: rgba(246, 240, 230, 0.72);
+  --input-bg: rgba(0, 0, 0, 0.5);
+  --input-border: rgba(210, 178, 90, 0.25);
+  --hover-bg: rgba(0, 0, 0, 0.6);
+  --bg-overlay: rgba(0, 0, 0, 0.6);
+  --danger: #ff6b6b;
+  --success: #7bff8d;
+
+  /* Header */
+  --header-height: 66px;
+  --header-height-mobile: 48px;
+
+  /* Sidebar */
+  --sidebar-width: 320px;
+  --sidebar-width-collapsed: 0px;
+
+  /* Filmstrip */
+  --filmstrip-height: 120px;
+  --filmstrip-height-collapsed: 40px;
+
+  /* ========================================================================
+     PRESSED-TACTILE TOKENS
+     ======================================================================== */
+  --px: 4px;
+  --px-border: rgba(210, 178, 90, 0.25);
+  --px-border-dark: var(--velvet-darker);
+  --px-bevel-light: rgba(246, 240, 230, 0.08);
+  --px-bevel-dark: rgba(0, 0, 0, 0.55);
+  --btn-face: var(--royal-crimson);
+  --btn-shadow: rgba(0, 0, 0, 0.55);
+
+  /* Stage backdrop — "Noir, Upgraded" (mockup E): a WARM CANDLELIT INTERIOR,
+     not a cold pixel night scene. A soft warm spotlight pool pooled top-centre,
+     a candle glow + faint crimson warmth mid, gentle corner shadow, all on the
+     lifted warm aubergine-charcoal ground so panels and text stay readable.
+     Painted on .gb-scene (z-index -3) by PaperDeductionBackdrop (.gb-backdrop). */
+  --stage-backdrop:
+    radial-gradient(60% 50% at 50% 12%, rgba(231, 204, 122, 0.12) 0%, rgba(214, 170, 90, 0.05) 34%, transparent 62%),
+    radial-gradient(80% 60% at 50% 40%, rgba(138, 34, 51, 0.12) 0%, transparent 70%),
+    radial-gradient(70% 60% at 16% 92%, rgba(0, 0, 0, 0.30) 0%, transparent 50%),
+    radial-gradient(70% 60% at 84% 92%, rgba(0, 0, 0, 0.30) 0%, transparent 50%),
+    linear-gradient(165deg, #241b22 0%, #1c151b 58%, #160f15 100%);
+}

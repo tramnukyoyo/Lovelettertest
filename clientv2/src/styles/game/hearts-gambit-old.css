@@ -1,0 +1,80 @@
+/* ============================================================================
+   PRIME SUSPECT (Heart's Gambit) — OLD ROYAL-NOIR LOOK RESTORE
+   Ported verbatim from the old client's src/unified.css. Restores the
+   generated background image + candlelit panels on a velvet-dark ground.
+   Imported AFTER the shell/paper-deduction styles so it wins.
+   ============================================================================ */
+
+/* TRANSPARENT shell — the animated PaperDeductionBackdrop (.gb-backdrop,
+   z-index -2) paints the full noir scene behind everything. An opaque velvet
+   ground here would paint OVER the negative-z scenery and hide it. */
+[data-theme="primesuspect"] body,
+[data-theme="primesuspect"] .app-root {
+  background: transparent !important;
+}
+
+/* Candlelit panels (old .hg-panel + .hg-candlelight::before) — warm velvet
+   surface + visible gold border + candle glow (mockup E: Noir, Upgraded). */
+[data-theme="primesuspect"] .hg-panel {
+  position: relative;
+  background:
+    radial-gradient(900px at 30% 18%, rgba(246, 240, 230, 0.07), transparent 56%),
+    linear-gradient(135deg, rgba(52, 38, 47, 0.82), rgba(36, 27, 34, 0.62));
+  border: 1px solid rgba(var(--accent-color-rgb), 0.40);
+  box-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(231, 204, 122, 0.08),
+    inset 0 0 0 1px rgba(210, 178, 90, 0.16);
+}
+
+[data-theme="primesuspect"] .hg-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.10;
+  mix-blend-mode: overlay;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 7px
+    );
+}
+
+[data-theme="primesuspect"] .hg-panel.hg-candlelight::before {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.22;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(900px at 25% 10%, rgba(246, 240, 230, 0.10), transparent 55%),
+    radial-gradient(700px at 80% 18%, rgba(var(--accent-color-rgb), 0.08), transparent 60%);
+  animation: hgCandleFlicker 12s ease-in-out infinite;
+}
+
+@keyframes hgCandleFlicker {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.20; }
+  33% { transform: translate3d(-6px, 4px, 0); opacity: 0.24; }
+  66% { transform: translate3d(7px, -5px, 0); opacity: 0.18; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .hg-panel.hg-candlelight::before {
+    animation: none !important;
+  }
+}
+
+/* Mobile/tablet: drop fixed attachment for scroll performance ----------------*/
+@media (max-width: 926px) {
+  [data-theme="primesuspect"] body,
+  [data-theme="primesuspect"] .app-root {
+    background-attachment: scroll;
+  }
+}

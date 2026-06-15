@@ -1,0 +1,180 @@
+/* ============================================================================
+   PRIME SUSPECT — in-game set-piece reskin (Paper Deduction)
+   Themed detective-table classes from mockups/v2-e-paper-deduction.html.
+   These are additive helpers; the game's own DOM (HeartsGambitGame) keeps its
+   logic untouched — this layer only re-skins surfaces to feel like a tactile
+   deduction table. Avatars/spinners keep border-radius:50%.
+   ============================================================================ */
+
+/* Deduction grid / case-file board */
+.ps-grid-card {
+  background: var(--bg-secondary);
+  border: 3px solid var(--px-border-dark);
+  box-shadow: var(--shadow-lg), inset 0 0 0 1px var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem 1rem;
+  max-width: 660px;
+  width: 100%;
+}
+.ps-grid-title {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ps-grid-title::before { content: '▣'; color: var(--chalk-purple); }
+.ps-grid { width: 100%; border-collapse: collapse; font-family: var(--font-body); }
+.ps-grid th, .ps-grid td { border: 1px solid var(--panel-border); text-align: center; padding: 0.35rem 0.2rem; }
+.ps-grid thead th { background: var(--bg-darker); color: var(--chalk-purple); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.ps-grid thead th:first-child { background: transparent; border: none; }
+.ps-grid tbody th { background: var(--bg-darker); color: var(--text-primary); font-size: 0.74rem; font-weight: 700; text-align: left; padding-left: 0.6rem; white-space: nowrap; }
+.ps-grid tbody th.me { color: var(--chalk-pink); }
+.ps-grid td { font-size: 1rem; background: rgba(0, 0, 0, 0.12); cursor: pointer; }
+.ps-mark-yes { color: var(--gb-truth); font-weight: 900; }
+.ps-mark-no { color: var(--gb-lie); font-weight: 900; }
+.ps-mark-q { color: var(--gb-gold); }
+
+/* Tactile card hand */
+.ps-stage-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; width: 100%; }
+.ps-hand { display: flex; align-items: flex-end; justify-content: center; gap: 0.7rem; padding-top: 0.3rem; }
+.ps-card {
+  width: 110px;
+  height: 150px;
+  border-radius: var(--radius-md);
+  position: relative;
+  background: var(--gb-cream);
+  color: var(--bg-darker);
+  border: 2px solid var(--px-border-dark);
+  box-shadow: var(--shadow-md);
+  padding: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 140ms var(--ease-out-expo), box-shadow 140ms var(--ease-out-expo);
+  cursor: pointer;
+}
+.ps-card.sel { transform: translateY(-14px); box-shadow: var(--shadow-lg), 0 0 0 3px var(--chalk-pink); border-color: var(--primary-dark); }
+
+/* Themed timer bar + prompt */
+.cc-timerbar { width: 100%; max-width: 620px; height: 14px; background: var(--bg-darker); border: 2px solid var(--px-border-dark); border-radius: var(--radius-full); overflow: hidden; box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.4); }
+.cc-timerbar > span { display: block; height: 100%; background: repeating-linear-gradient(45deg, var(--chalk-pink) 0 10px, var(--primary-dark) 10px 20px); }
+.cc-round-badge { font-family: var(--font-body); font-weight: 700; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gb-gold); padding: 0.3rem 0.8rem; background: var(--bg-darker); border: 2px solid var(--panel-border); box-shadow: 2px 2px 0 var(--px-border-dark); border-radius: var(--radius-sm); }
+.cc-prompt-card { padding: 0.3rem 1.2rem; text-align: center; }
+.cc-prompt-card h2 { font-family: var(--font-title); font-weight: 900; font-size: 1.6rem; color: var(--gb-cream); line-height: 1.1; }
+.cc-prompt-sub { font-family: var(--font-hand); font-size: 1.15rem; color: var(--text-secondary); }
+
+/* Themed action buttons */
+.cc-act-row { display: flex; gap: 0.7rem; }
+.cc-btn { display: flex; align-items: center; gap: 0.45rem; padding: 0.7rem 1.3rem; font-family: var(--font-title); font-weight: 900; font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; border: none; border-radius: var(--radius-sm); }
+.cc-btn.ghost { background: var(--bg-darker); color: var(--text-secondary); border: 2px solid var(--panel-border); box-shadow: 0 4px 0 var(--px-border-dark); }
+.cc-btn.primary { background: var(--btn-face); color: #2a132a; box-shadow: 0 5px 0 var(--px-border-dark), inset 0 2px 0 rgba(255, 255, 255, 0.35); }
+.cc-btn.danger { background: var(--gb-lie); color: #2a0d0d; box-shadow: 0 5px 0 var(--px-border-dark), inset 0 2px 0 rgba(255, 255, 255, 0.3); }
+.cc-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--px-border-dark); }
+
+/* ============================================================================
+   LIVE RETROFIT — set-piece surfaces wired onto the real HeartsGambitGame DOM
+   (deduction note board overlay + tactile hand frame around DynamicCard).
+   Presentation only; all marks are derived read-only from public game state.
+   ============================================================================ */
+
+/* Deduction note board — floating overlay version (top-right of table) */
+.ps-board-overlay {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 20;
+  width: min(340px, 42vw);
+  max-height: 64%;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(6px);
+}
+.ps-board-overlay .ps-grid-card {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0.7rem 0.7rem 0.8rem;
+}
+.ps-board-scroll {
+  overflow: auto;
+  min-height: 0;
+}
+.ps-board-overlay .ps-grid th,
+.ps-board-overlay .ps-grid td { padding: 0.3rem 0.18rem; }
+.ps-board-overlay .ps-grid thead th { position: sticky; top: 0; z-index: 1; }
+.ps-grid tbody th .ps-row-sub {
+  display: block;
+  font-weight: 600;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.ps-grid tbody tr.out th,
+.ps-grid tbody tr.out td { opacity: 0.5; }
+.ps-grid tbody tr.out th { text-decoration: line-through; }
+.ps-board-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.55rem;
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.ps-board-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+
+/* Tactile hand frame — wraps each DynamicCard with the paper-detective shell */
+.ps-hand-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 0.9rem; flex-wrap: wrap; }
+.ps-hand-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: var(--gb-cream);
+  border: 2px solid var(--px-border-dark);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 0.4rem 0.4rem 0.45rem;
+  transition: transform 140ms var(--ease-out-expo), box-shadow 140ms var(--ease-out-expo);
+  min-width: 44px;
+}
+.ps-hand-slot.is-selectable { cursor: pointer; }
+.ps-hand-slot.is-selectable:hover { transform: translateY(-6px); }
+.ps-hand-slot.sel {
+  transform: translateY(-14px);
+  box-shadow: var(--shadow-lg), 0 0 0 3px var(--chalk-pink);
+  border-color: var(--primary-dark);
+}
+.ps-hand-slot.is-disabled { opacity: 0.7; cursor: not-allowed; }
+.ps-hand-kind {
+  font-family: var(--font-body);
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--primary-dark);
+  margin-bottom: 0.3rem;
+}
+.ps-hand-slot.attack .ps-hand-kind { color: #c0392b; }
+.ps-hand-slot.bluff .ps-hand-kind { color: #8a4fbf; }
+.ps-hand-slot.investigate .ps-hand-kind { color: #2f6f9f; }
+.ps-hand-slot.guilty .ps-hand-kind { color: #8a1c1c; }
+
+@media (max-width: 1023px) {
+  .ps-board-overlay { position: static; width: 100%; max-height: none; margin-bottom: 0.6rem; }
+  .ps-board-scroll { overflow-x: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-hand-slot { transition: none !important; }
+}

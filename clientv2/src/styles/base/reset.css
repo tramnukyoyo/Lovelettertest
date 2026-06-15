@@ -1,0 +1,74 @@
+/* Bluffalo — Base reset with game show stage theme */
+
+@layer base {
+  html {
+    /* transparent: the noir scene lives on .gb-backdrop (PaperDeductionBackdrop,
+       z-index -2). An opaque html/body background would paint over all of it. */
+    background: transparent;
+    height: 100dvh;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-body);
+    /* transparent: the sky lives on .prairie-sky (PrairieBackdrop) — an
+       opaque body background would paint over all negative-z scenery */
+    background: transparent;
+    height: 100dvh;
+    overflow: hidden;
+    color: var(--text-primary);
+  }
+
+  #root {
+    min-height: 100vh;
+    background: transparent;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+  }
+
+  a {
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+
+  a:hover { color: var(--accent-hover); }
+}
+
+/* Proportional viewport scaling */
+:root {
+  --zoom-factor: 1;
+  --vh-adjusted: 100vh;
+  --dvh-adjusted: 100dvh;
+}
+
+/* Stage spotlight glow (replaces template grid) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--gradient-spotlight);
+  pointer-events: none;
+  z-index: var(--z-background-grid);
+}
+
+/* Scrollbars — Gold/Purple theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-border) var(--bg-darker);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-darker); border-radius: var(--radius-md); }
+::-webkit-scrollbar-thumb {
+  background: var(--panel-border);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--bg-darker);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--primary); box-shadow: var(--shadow-glow-gold); }
+::-webkit-scrollbar-corner { background: var(--bg-darker); }

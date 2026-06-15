@@ -1,0 +1,362 @@
+/**
+ * Streamer Broadcast Window — Bluffalo Pixel Prairie Theme
+ *
+ * Game-specific theme scoped to .bluffalo-broadcast (on streamer-broadcast-root).
+ * The shared shell (streamer.css) is fully tokenized via --str-* variables;
+ * this file sets the prairie values plus a handful of pixel-art refinements
+ * the token system can't express (display font, hard shadows, solid title).
+ */
+
+/* ── Theme tokens: navy/cyan shell → warm prairie brown + amber ─────────── */
+.bluffalo-broadcast {
+  /* Surfaces */
+  --str-bg-root: #1d1009;
+  --str-bg-root-rgb: 29, 16, 9;
+  --str-bg-panel: #2a1a10;
+  --str-bg-panel-rgb: 42, 26, 16;
+  --str-bg-elev: #3b2417;
+
+  /* Accent: neon cyan → sunset amber */
+  --str-accent: #ffb648;
+  --str-accent-rgb: 255, 182, 72;
+  --str-accent-bright: #ffd084;
+
+  /* Text: cool white → warm cream */
+  --str-text: #f7e7c5;
+  --str-text-rgb: 247, 231, 197;
+  --str-text-muted: #cda57e;
+
+  /* Type + shape: Segoe/rounded → Nunito/pixel-square */
+  --str-font: 'Nunito', system-ui, sans-serif;
+  --str-radius: 0;
+  --str-radius-pill: 0;
+}
+
+/* ── Scenery: the popup renders PrairieBackdrop (fixed, negative z-index),
+   so shell surfaces go transparent to reveal the same sky/sun/mesas the
+   game has. Panels and cards stay opaque brown for readability. ─────────── */
+.bluffalo-broadcast.streamer-broadcast-root { background: transparent; }
+.bluffalo-broadcast .streamer-broadcast-area { background: transparent; }
+
+/* ── Display font: pixel type on titles, badges, HUD labels ─────────────── */
+.bluffalo-broadcast .streamer-broadcast-title,
+.bluffalo-broadcast .streamer-settings-title,
+.bluffalo-broadcast .streamer-settings-section-title,
+.bluffalo-broadcast .streamer-stage-title,
+.bluffalo-broadcast .streamer-game-title,
+.bluffalo-broadcast .streamer-gameover-title,
+.bluffalo-broadcast .streamer-preview-label,
+.bluffalo-broadcast .streamer-overlay-label,
+.bluffalo-broadcast .streamer-countdown-badge,
+.bluffalo-broadcast .streamer-hud-pill,
+.bluffalo-broadcast .gb-phase-badge {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+/* ── Brand title: gradient text → solid amber (pixel theme: no gradients) ── */
+.bluffalo-broadcast .streamer-broadcast-title-accent {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: var(--str-accent);
+}
+
+/* ── Pixel chrome: soft neon glows → hard zero-blur edges ───────────────── */
+.bluffalo-broadcast .streamer-broadcast-preview {
+  border: 2px solid #6b4226;
+  box-shadow: 4px 4px 0 rgba(20, 10, 4, 0.55);
+  background: transparent;
+}
+
+.bluffalo-broadcast .streamer-settings-panel {
+  border-color: #6b4226;
+}
+
+.bluffalo-broadcast .sb-webcam-tile {
+  border: 2px solid #6b4226;
+  box-shadow: 2px 2px 0 rgba(20, 10, 4, 0.55);
+}
+
+/* Speaking ring is cream — distinct from the amber turn indicator */
+.bluffalo-broadcast .sb-webcam-tile.is-speaking {
+  border-color: var(--gb-cream, #f7e7c5);
+}
+
+.bluffalo-broadcast .streamer-preview-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 182, 72, 0.12);
+  color: #ffb648;
+}
+
+.bluffalo-broadcast .streamer-preview-tag {
+  padding: 1px 6px;
+  background: #ffb648;
+  color: #1d1009;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: 1px 1px 0 #160b04;
+}
+
+/* ── Merged top bar: brand left, status + pills right ────────────────────── */
+.bluffalo-broadcast .streamer-broadcast-header.branded {
+  border-bottom: 2px solid #6b4226;
+  background: rgba(20, 10, 4, 0.62);
+}
+
+.bluffalo-broadcast .streamer-broadcast-header-group {
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.bluffalo-broadcast .streamer-broadcast-status-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Stage separation: hard pixel edge instead of glow */
+.bluffalo-broadcast .streamer-grid-stage {
+  border-top: 2px solid var(--str-accent, #ffb648);
+}
+
+/* 3-2-1-GO! badge in pixel chrome */
+.bluffalo-broadcast .streamer-countdown-badge {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  border: 2px solid #ffb648;
+  box-shadow: 6px 6px 0 rgba(20, 10, 4, 0.55);
+  color: #ffb648;
+}
+
+/* ── Lobby waiting hero (no cams connected yet) ──────────────────────────── */
+.bluffalo-broadcast .streamer-lobby-waiting {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.bluffalo-broadcast .streamer-lobby-waiting-mascot {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(4px 4px 0 rgba(20, 10, 4, 0.55));
+}
+
+.bluffalo-broadcast .streamer-lobby-waiting-title {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  font-size: 22px;
+  color: var(--str-text, #f7e7c5);
+  letter-spacing: 0.05em;
+  animation: bluffaloWaitingBlink 2.4s steps(2) infinite;
+}
+
+@keyframes bluffaloWaitingBlink {
+  50% { opacity: 0.65; }
+}
+
+.bluffalo-broadcast .streamer-lobby-waiting-code {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  font-size: 15px;
+  padding: 4px 12px;
+  color: #1d1009;
+  background: #ffb648;
+  box-shadow: 2px 2px 0 #160b04;
+  letter-spacing: 0.12em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bluffalo-broadcast .streamer-lobby-waiting-title { animation: none; }
+}
+
+/* ── Lock CTA: the primary action in setup mode ──────────────────────────── */
+.bluffalo-broadcast .streamer-lock-btn {
+  background: #ffb648;
+  border: none;
+  color: #1d1009;
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 #160b04;
+}
+
+.bluffalo-broadcast .streamer-lock-btn:hover {
+  background: #ffd084;
+  box-shadow: 2px 2px 0 #160b04;
+}
+
+/* ── Locked-mode gear strip: visible amber pixel tab ─────────────────────── */
+.bluffalo-broadcast .streamer-gear-strip {
+  background: #1d1009;
+  border-left: 2px solid #6b4226;
+}
+
+.bluffalo-broadcast .streamer-gear-icon {
+  color: rgba(255, 182, 72, 0.45);
+}
+
+.bluffalo-broadcast .streamer-gear-strip:hover .streamer-gear-icon {
+  color: #ffb648;
+}
+
+/* ── Webcam name plates in pixel type ────────────────────────────────────── */
+.bluffalo-broadcast .sb-webcam-name,
+.bluffalo-broadcast .sb-strip-name,
+.bluffalo-broadcast .sb-spotlight-name {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Bluffalo game stage (sbx-*) — real round content in the broadcast
+   ════════════════════════════════════════════════════════════════════════ */
+.bluffalo-broadcast .sbx-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  overflow: hidden;
+}
+
+.bluffalo-broadcast .sbx-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Question card — uses the game's .bluffalo-question-card chrome; these are
+   broadcast-only adjustments (category line, no shrink). */
+.bluffalo-broadcast .sbx-question-card {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.bluffalo-broadcast .sbx-question-cat {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb648;
+  margin-bottom: 6px;
+}
+
+/* Status line + per-player progress chips */
+.bluffalo-broadcast .sbx-status-row {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #cda57e;
+  flex-shrink: 0;
+}
+
+.bluffalo-broadcast .sbx-progress-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-content: flex-start;
+  overflow: hidden;
+}
+
+.bluffalo-broadcast .sbx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #3b2417;
+  border: 1px solid #6b4226;
+  box-shadow: 2px 2px 0 rgba(20, 10, 4, 0.55);
+  font-size: 13px;
+  font-weight: 700;
+  color: #f7e7c5;
+}
+
+.bluffalo-broadcast .sbx-chip-state { font-family: monospace; }
+.bluffalo-broadcast .sbx-chip.done .sbx-chip-state { color: #4cc66a; }
+.bluffalo-broadcast .sbx-chip.waiting .sbx-chip-state {
+  color: #cda57e;
+  animation: sbxBlink 1.2s steps(2) infinite;
+}
+
+@keyframes sbxBlink { 50% { opacity: 0.3; } }
+
+/* Answers flow left-to-right and wrap to new rows when out of space.
+   Cards are the GAME's .bluffalo-option-card / .bluffalo-reveal-card —
+   width:100% there is overridden so cards size to content. */
+.bluffalo-broadcast .sbx-options-flow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  align-items: stretch;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.bluffalo-broadcast .sbx-options-flow > * {
+  width: auto;
+  flex: 0 1 auto;
+  min-width: 200px;
+  max-width: 460px;
+}
+
+/* Non-interactive in the broadcast: kill button affordances */
+.bluffalo-broadcast .sbx-static {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Standings — uses the game's .bluffalo-leaderboard classes; just bound it */
+.bluffalo-broadcast .sbx-board-width {
+  width: min(560px, 92%);
+  flex: 0 1 auto;
+}
+
+/* Winner card */
+.bluffalo-broadcast .sbx-winner {
+  text-align: center;
+  padding: 16px 32px;
+  background: rgba(255, 182, 72, 0.12);
+  border: 2px solid #ffb648;
+  box-shadow: 4px 4px 0 rgba(20, 10, 4, 0.55);
+}
+
+.bluffalo-broadcast .sbx-winner-label {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #cda57e;
+}
+
+.bluffalo-broadcast .sbx-winner-name {
+  font-family: 'Pixelify Sans', 'Fredoka One', 'Trebuchet MS', sans-serif;
+  font-size: clamp(22px, 3vw, 32px);
+  color: #ffb648;
+  margin: 4px 0;
+}
+
+.bluffalo-broadcast .sbx-winner-score {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f7e7c5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bluffalo-broadcast .sbx-chip.waiting .sbx-chip-state { animation: none; }
+}

@@ -1,0 +1,5 @@
+/* SECTION 3: TYPOGRAPHY */
+
+.brand-gb .game { color: white; font-weight: 700; }
+.brand-gb .buddies { color: var(--gb-pink); font-weight: 700; }
+.brand-gb .io { color: var(--gb-cyan); font-weight: 700; }

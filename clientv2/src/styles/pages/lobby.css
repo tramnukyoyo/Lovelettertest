@@ -1,0 +1,909 @@
+/* SECTION 14: LOBBY PAGE SPECIFIC STYLES */
+
+.lobby-waiting-card {
+  position: relative;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background: var(--bg-secondary);
+  border: 2px solid transparent;
+  border-radius: 0;
+  text-align: center;
+  /* 2-ring pixel panel + amber top line */
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--px-border),
+    0 var(--px)             0 0 var(--px-border),
+    calc(-1 * var(--px)) 0  0 0 var(--px-border),
+    var(--px) 0             0 0 var(--px-border),
+    0 calc(-2 * var(--px)) 0 0 var(--px-border-dark),
+    0 calc(2 * var(--px))  0 0 var(--px-border-dark),
+    calc(-2 * var(--px)) 0  0 0 var(--px-border-dark),
+    calc(2 * var(--px)) 0   0 0 var(--px-border-dark),
+    inset 0 var(--px) 0 0 var(--primary);
+  overflow: hidden;
+}
+
+/* GameShell lobby panes: the waiting-card chrome fills its grid cell.
+   Cards scroll (scrollbar hidden — ScrollHint shows the ▾ affordance) so a
+   large filmstrip can never clip settings/demo: .lobby-waiting-card's
+   overflow:hidden would otherwise win the cascade over the .gs-pane ladder. */
+.gs-pane.lobby-waiting-card {
+  max-width: none;
+  margin: 0;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.gs-pane.lobby-waiting-card::-webkit-scrollbar { display: none; }
+
+/* Settings keep their intrinsic height; the demo preview flexes below them */
+.gs-pane .bluffalo-host-settings,
+.gs-pane .solo-invite-panel { flex-shrink: 0; width: 100%; }
+.gs-pane .solo-invite-panel { margin: 0; }
+
+.lobby-mascot {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  margin: calc(var(--px) + 0.25rem) auto 0.5rem;
+  display: block;
+  animation: bluffaloIdleBob 3s var(--ease-in-out-expo) infinite;
+}
+
+.lobby-waiting-header { margin-bottom: var(--spacing-lg); padding-top: var(--px); }
+
+.lobby-waiting-header h2 {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--gb-cream);
+  text-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.lobby-player-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-hand);
+}
+
+/* Mobile: the presence dock already shows every player as a chip — the
+   count + icon is redundant and wastes header space (e.g. iPhone SE) */
+@media (max-width: 1023px) {
+  .lobby-player-count { display: none; }
+}
+
+/* ----------------------------------------
+   Mobile invite-first lobby (≤767px):
+   card boxes dissolve into one full-width flow — invite hero on top,
+   settings folded into an accordion. Desktop layout untouched.
+   ---------------------------------------- */
+@media (max-width: 767px) {
+  .gs-pane.lobby-waiting-card {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-xs);
+  }
+}
+
+/* Collapsible section (mobile settings accordion) */
+.collapsible-section {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--px-border);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.collapsible-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-darker);
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.collapsible-section-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+
+.collapsible-section-chevron {
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
+}
+
+.collapsible-section.is-open .collapsible-section-chevron {
+  transform: rotate(180deg);
+}
+
+.collapsible-section-body {
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+}
+
+/* HostSettings already renders its own "Game Settings" heading — the
+   accordion header replaces it */
+.collapsible-section .bluffalo-settings-title { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .collapsible-section-chevron { transition: none; }
+}
+
+.lobby-room-code-section { margin-bottom: var(--spacing-lg); }
+
+.lobby-room-label {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.lobby-room-code-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: rgba(var(--primary-rgb), 0.1);
+  border: 2px solid var(--gb-pink);
+  border-radius: var(--radius-lg);
+}
+
+.lobby-room-code {
+  font-family: 'Orbitron', var(--font-marker), monospace;
+  font-size: 2.25rem;
+  color: var(--gb-pink);
+  letter-spacing: 0.3em;
+  font-weight: 700;
+}
+
+.lobby-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lobby-copy-btn:hover {
+  background: rgba(var(--secondary-rgb), 0.2);
+  border-color: var(--gb-cyan);
+  color: var(--gb-cyan);
+}
+
+.lobby-start-section { margin-top: var(--spacing-lg); }
+
+.lobby-start-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--btn-face);
+  border: none;
+  border-radius: 0;
+  color: var(--bg-darker);
+  font-family: var(--font-marker);
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out-expo), background 160ms var(--ease-out-expo);
+  /* px-btn recipe: dark ring + hard drop + bevels */
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--px-border-dark),
+    0 var(--px)             0 0 var(--px-border-dark),
+    calc(-1 * var(--px)) 0  0 0 var(--px-border-dark),
+    var(--px) 0             0 0 var(--px-border-dark),
+    0 calc(3 * var(--px))   0 calc(-1 * var(--px)) var(--btn-shadow),
+    inset 0 var(--px) 0 0 rgba(255, 255, 255, 0.38),
+    inset 0 calc(-1 * var(--px)) 0 0 rgba(20, 10, 4, 0.28);
+}
+
+.lobby-start-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.lobby-start-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lobby-start-hint {
+  margin-top: var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.lobby-waiting-host {
+  margin-top: var(--spacing-lg);
+  color: var(--text-secondary);
+  font-family: var(--font-hand);
+}
+
+.lobby-players-compact { margin: var(--spacing-lg) 0; }
+
+.lobby-game-area { margin-top: var(--spacing-xl); }
+
+/* Active States */
+.lobby-copy-btn:active { transform: scale(0.95); }
+
+.lobby-start-btn:active:not(:disabled) { transform: scale(0.98); }
+
+/* Focus Visible States */
+.lobby-copy-btn:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+}
+
+.lobby-start-btn:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+/* Copy Success Feedback */
+.lobby-copy-btn.copied,
+.lobby-copy-btn:has(svg.lucide-check) {
+  background: color-mix(in srgb, var(--gb-truth) 25%, transparent);
+  border-color: var(--success);
+  color: var(--success);
+  animation: lobbyPop 0.3s ease;
+}
+
+@keyframes lobbyPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Start Button Pulse (attention grabber when enabled).
+   Transform-based: a box-shadow keyframe would wipe the pixel ring stack. */
+.lobby-start-btn:not(:disabled) { animation: startPulse 2s var(--ease-in-out-expo) infinite; }
+
+@keyframes startPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.lobby-start-btn:hover:not(:disabled) { animation: none; }
+
+/* Mobile Portrait */
+@media (max-width: 767px) {
+  .lobby-waiting-card {
+    padding: var(--spacing-lg);
+    margin: 0 var(--spacing-sm);
+  }
+
+  .lobby-room-code {
+    font-size: 1.5rem;
+    letter-spacing: 0.2em;
+  }
+
+  .lobby-start-btn {
+    font-size: 1.125rem;
+    padding: var(--spacing-md);
+    min-height: 52px;
+  }
+}
+
+/* Mobile Small (< 375px) */
+@media (max-width: 374px) {
+  .lobby-waiting-card { padding: var(--spacing-md); }
+
+  .lobby-room-code { font-size: 1.25rem; }
+
+  .lobby-waiting-header h2 { font-size: 1.25rem; }
+}
+
+/* Mobile Landscape */
+@media (max-width: 926px) and (orientation: landscape) {
+  .lobby-waiting-card {
+    max-width: 380px;
+    padding: var(--spacing-md);
+  }
+
+  .lobby-waiting-header { margin-bottom: var(--spacing-sm); }
+
+  .lobby-waiting-header h2 {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .lobby-room-code-section { margin-bottom: var(--spacing-sm); }
+
+  .lobby-room-code-box { padding: var(--spacing-sm); }
+
+  .lobby-room-code { font-size: 1.25rem; }
+
+  .lobby-start-section { margin-top: var(--spacing-sm); }
+
+  .lobby-start-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .lobby-players-compact { display: none; }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lobby-waiting-card { max-width: 420px; }
+}
+
+/* Desktop Large (1536px+) */
+@media (min-width: 1536px) {
+  .lobby-waiting-card {
+    max-width: 560px;
+    padding: var(--spacing-2xl);
+  }
+
+  .lobby-waiting-header h2 { font-size: 1.75rem; }
+
+  .lobby-room-code { font-size: 2.5rem; }
+
+  .lobby-start-btn {
+    font-size: 1.5rem;
+    padding: var(--spacing-lg) var(--spacing-2xl);
+  }
+}
+
+/* ----------------------------------------
+   Solo Invite Panel
+   ---------------------------------------- */
+
+.solo-invite-panel {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-lg);
+  background: var(--panel-bg);
+  border: 2px solid var(--px-border);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--px-border-dark);
+  text-align: center;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.solo-invite-title {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  color: var(--accent-color);
+  margin-bottom: var(--spacing-md);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Room Code Tiles */
+.solo-invite-code-tiles {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+}
+
+.solo-invite-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 52px;
+  background: var(--primary);
+  border: 2px solid transparent;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--px-border-dark), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  font-family: var(--font-marker), monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bg-darker);
+}
+
+/* Action Buttons */
+.solo-invite-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.solo-invite-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.solo-invite-btn-copy {
+  background: var(--bg-darker);
+  border: 2px solid var(--primary);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  color: var(--primary);
+  font-weight: 700;
+  width: 100%;
+}
+
+.solo-invite-btn-copy:hover {
+  background: var(--primary);
+  color: var(--bg-darker);
+  transform: translateY(-1px);
+}
+
+.solo-invite-btn-share {
+  background: rgba(var(--accent-color-rgb), 0.1);
+  border: 2px solid rgba(var(--accent-color-rgb), 0.2);
+  color: var(--accent-color);
+  width: 100%;
+}
+
+.solo-invite-btn-share:hover {
+  background: rgba(var(--accent-color-rgb), 0.2);
+  border-color: var(--accent-color);
+}
+
+/* Hints */
+.solo-invite-hint {
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+  color: var(--accent-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.solo-invite-subtext {
+  font-family: var(--font-hand);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Mobile — invite-first flow: no nested panel box, BIGGER room code,
+   full-width 48px actions. The invite is the hero of the mobile lobby. */
+@media (max-width: 767px) {
+  .solo-invite-panel {
+    padding: var(--spacing-sm) 0;
+    margin: var(--spacing-sm) 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .solo-invite-tile {
+    width: 48px;
+    height: 58px;
+    font-size: 1.75rem;
+  }
+
+  .solo-invite-btn {
+    min-height: 48px;
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 374px) {
+  .solo-invite-tile {
+    width: 42px;
+    height: 52px;
+    font-size: 1.5rem;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .solo-invite-panel { animation: none; }
+}
+
+/* ----------------------------------------
+   Lobby QR Code
+   ---------------------------------------- */
+
+.lobby-qr-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lobby-qr-btn:hover {
+  background: rgba(var(--secondary-rgb), 0.2);
+  border-color: var(--gb-cyan);
+  color: var(--gb-cyan);
+}
+
+.lobby-qr-btn.active {
+  background: rgba(var(--secondary-rgb), 0.15);
+  border-color: var(--gb-cyan);
+  color: var(--gb-cyan);
+}
+
+.lobby-qr-container {
+  margin-top: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--bg-darker);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  animation: qrFadeIn 0.3s ease-out;
+}
+
+@keyframes qrFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.lobby-qr-image {
+  width: 180px;
+  height: 180px;
+  border-radius: var(--radius-md);
+}
+
+.lobby-qr-hint {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-family: var(--font-hand);
+}
+
+/* ----------------------------------------
+   Player Join Animation
+   ---------------------------------------- */
+
+.player-entering { animation: playerJoinPop 0.6s ease-out !important; }
+
+@keyframes playerJoinPop {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px) scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(4px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ----------------------------------------
+   Avatar Strip (mobile compact players)
+   ---------------------------------------- */
+
+.avatar-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-strip-item {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-left: -10px;
+  border: 2px solid var(--bg-primary);
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.avatar-strip-item:first-child { margin-left: 0; }
+
+.avatar-strip-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-strip-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gb-pink) 0%, var(--gb-cyan) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.avatar-strip-crown {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  width: 14px !important;
+  height: 14px !important;
+  color: var(--gold-400);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+.avatar-strip-more {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-left: -10px;
+  background: var(--bg-card-hover);
+  border: 2px solid var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------
+   Lobby Mini Chat (Desktop)
+   ---------------------------------------- */
+
+.lobby-mini-chat-wrapper {
+  max-width: 480px;
+  margin: var(--spacing-lg) auto 0;
+}
+
+.lobby-mini-chat {
+  background: var(--bg-secondary);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  max-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.mini-chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-height: 60px;
+}
+
+.mini-chat-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  opacity: 0.6;
+  padding: var(--spacing-sm) 0;
+}
+
+.mini-chat-msg {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.mini-chat-msg.system {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.mini-chat-msg.mine { justify-content: flex-end; }
+
+.mini-chat-sender {
+  font-weight: 600;
+  color: var(--gb-cyan);
+  font-size: 0.8rem;
+}
+
+.mini-chat-text { color: var(--text-primary); }
+
+.mini-chat-msg.mine .mini-chat-text { color: var(--gb-pink); }
+
+.mini-chat-time {
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.mini-chat-input-row {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.mini-chat-input {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 1rem; /* ≥16px — prevents iOS Safari zoom-on-focus */
+  transition: border-color 0.2s ease;
+}
+
+.mini-chat-input:focus {
+  outline: none;
+  border-color: var(--gb-cyan);
+}
+
+.mini-chat-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.mini-chat-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--btn-face);
+  border: none;
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  color: var(--bg-darker);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.mini-chat-send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mini-chat-expand {
+  background: none;
+  border: none;
+  color: var(--gb-cyan);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: var(--spacing-xs) 0 0;
+}
+
+.mini-chat-expand:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* ----------------------------------------
+   Nudge Host Button
+   ---------------------------------------- */
+
+.lobby-waiting-host-section {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.nudge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-hand);
+}
+
+.nudge-btn:hover:not(:disabled) {
+  border-color: var(--gb-cyan);
+  color: var(--gb-cyan);
+  background: rgba(var(--secondary-rgb), 0.08);
+}
+
+.nudge-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nudge-btn:active:not(:disabled) { transform: scale(0.97); }
+
+/* ----------------------------------------
+   Countdown Start Overlay
+   ---------------------------------------- */
+
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 20, 0.85);
+  border-radius: inherit;
+  z-index: 10;
+}
+
+.countdown-number {
+  font-family: var(--font-title, 'Orbitron', sans-serif);
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--gb-cyan);
+  text-shadow: 0 0 40px rgba(var(--secondary-rgb), 0.6);
+  animation: countdownPulse 1s ease-out;
+}
+
+@keyframes countdownPulse {
+  0% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  30% { opacity: 1; }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Mobile adjustments for new lobby features */
+@media (max-width: 767px) {
+  .lobby-qr-container { padding: var(--spacing-sm); }
+
+  .lobby-qr-image {
+    width: 140px;
+    height: 140px;
+  }
+
+  .countdown-number { font-size: 4rem; }
+}
+
+/* Landscape adjustments */
+@media (max-width: 926px) and (orientation: landscape) {
+  .lobby-qr-container { display: none; }
+
+  .lobby-mini-chat-wrapper { display: none; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .player-entering { animation: none !important; }
+
+  .countdown-number { animation: none; }
+
+  .lobby-qr-container { animation: none; }
+}

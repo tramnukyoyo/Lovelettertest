@@ -1,0 +1,171 @@
+/* SECTION 4: LAYOUT SYSTEM */
+
+/* App Root Container - the outermost wrapper */
+.app-root {
+  min-height: 100dvh;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* In-room context: app-root is a flex container for header + content + filmstrip */
+.app-root.in-room {
+  display: flex !important;
+  flex-direction: column !important;
+  height: var(--vh-adjusted, 100vh) !important;
+  height: var(--dvh-adjusted, 100dvh) !important;
+  overflow: auto !important;
+}
+
+/* App Layout Container - sits inside app-root */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Outside room context - app-layout fills viewport */
+.app-root:not(.in-room) .app-layout {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* In-room context: app-layout is a flex child that must shrink when filmstrip grows */
+.app-root.in-room .app-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1 !important;
+  min-height: 0 !important;
+  width: 100%;
+  overflow: hidden !important;
+}
+
+/* Filmstrip content adjustment - Mobile/tablet */
+@media (max-width: 63.9375rem) {
+  html.has-filmstrip .app-layout {
+    padding-bottom: calc(
+      var(--bottom-tab-bar-height, 0px)
+      + env(safe-area-inset-bottom, 0px)
+      + var(--filmstrip-safe-space, 0px)
+    );
+  }
+
+  html.has-filmstrip .app-root:not(.filmstrip-resizing) .app-layout { transition: padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+}
+
+/* Main content area */
+
+/* Main scrollable area */
+
+/* NOTE: a generic `.sidebar { width: var(--sidebar-width) }` block used to live
+   here. Nothing in the app uses a bare `sidebar` class as a layout sidebar —
+   but ChatWindow's mode class (`chat-window sidebar`) matched it, forcing the
+   rail chat to 320px inside the rail's 316px content box and clipping the send
+   button. Removed; do not reintroduce single-word generic layout classes. */
+
+/* Desktop-only class */
+.desktop-only { display: none; }
+
+@media (min-width: 1024px) {
+  .desktop-only { display: flex; }
+}
+
+/* Mobile-only class */
+.mobile-only { display: flex; }
+
+@media (min-width: 1024px) {
+  .mobile-only { display: none; }
+}
+
+/* Page layouts - Game/Lobby only */
+.lobby-page,
+.game-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* SECTION 4B: PAGE CONTENT LAYOUT */
+
+/* Game content wrapper - flex row with main + sidebar */
+.game-content-wrapper {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-root.in-room .game-content-wrapper {
+  display: flex !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 0 !important;
+}
+
+/* Main scroll area - scrollable main content */
+.main-scroll-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-md);
+}
+
+.app-root.in-room .main-scroll-area {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Lobby content wrapper - wrapper for proportional scaling */
+.lobby-content-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.app-root.in-room .lobby-content-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Right sidebar - Desktop sidebar (used in LobbyPage/GamePage) */
+.right-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--panel-border);
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .app-root.in-room .right-sidebar {
+    width: var(--sidebar-width) !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--panel-bg) !important;
+    overflow: hidden !important;
+    margin-left: auto !important;
+  }
+}
+
+/* Sidebar sections - used inside right-sidebar */

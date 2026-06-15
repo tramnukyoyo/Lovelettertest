@@ -1,0 +1,356 @@
+/* LoadingScreen — pixel prairie loading overlay */
+
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* Floating particles background */
+.loading-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Square pixel motes drifting upward */
+.loading-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 0;
+  bottom: -10%;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: particleFloat 4s linear infinite;
+}
+
+.loading-particle:nth-child(1) {
+  left: 10%;
+  background: var(--primary);
+  animation-delay: 0s;
+}
+.loading-particle:nth-child(2) {
+  left: 25%;
+  background: var(--secondary);
+  animation-delay: 0.5s;
+}
+.loading-particle:nth-child(3) {
+  left: 40%;
+  background: var(--secondary-light);
+  animation-delay: 1s;
+}
+.loading-particle:nth-child(4) {
+  left: 55%;
+  background: var(--success-400);
+  animation-delay: 1.5s;
+}
+.loading-particle:nth-child(5) {
+  left: 70%;
+  background: var(--gold-400);
+  animation-delay: 2s;
+}
+.loading-particle:nth-child(6) {
+  left: 85%;
+  background: var(--primary-dark);
+  animation-delay: 2.5s;
+}
+.loading-particle:nth-child(7) {
+  left: 15%;
+  background: var(--primary-light);
+  animation-delay: 3s;
+}
+.loading-particle:nth-child(8) {
+  left: 60%;
+  background: var(--secondary-light);
+  animation-delay: 3.5s;
+}
+
+.loading-content {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Mascot container with glow ring */
+.loading-mascot-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 32px;
+}
+
+/* Rotating pixel frames — squares stepping around the mascot */
+.loading-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 0;
+  border: 3px solid transparent;
+  will-change: transform;
+}
+
+.loading-ring-1 {
+  width: 160px;
+  height: 160px;
+  border-top-color: var(--primary);
+  border-right-color: var(--primary);
+  animation: ringRotate 3.2s steps(8) infinite;
+}
+
+.loading-ring-2 {
+  width: 188px;
+  height: 188px;
+  border-bottom-color: var(--secondary);
+  border-left-color: var(--secondary);
+  animation: ringRotate 4.8s steps(8) infinite reverse;
+}
+
+.loading-ring-3 { display: none; }
+
+/* Mascot with playful float */
+.loading-mascot {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  animation: mascotFloat 2s ease-in-out infinite;
+  border-radius: 0;
+  image-rendering: pixelated;
+  filter: drop-shadow(4px 4px 0 var(--px-border-dark));
+  will-change: transform;
+}
+
+/* Fallback mascot emoji */
+.loading-mascot-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  position: relative;
+  z-index: 2;
+  animation: mascotFloat 2s ease-in-out infinite;
+}
+
+/* (Soft radial glow removed — pixel theme has no blurred glows) */
+.loading-mascot-glow { display: none; }
+
+/* Game title — solid amber pixel type */
+.loading-title {
+  font-family: var(--font-title);
+  font-size: 1.75rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  color: var(--primary);
+  text-shadow: 3px 3px 0 var(--px-border-dark);
+}
+
+/* Status message */
+.loading-status {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  min-height: 24px;
+}
+
+.loading-status-text {
+  display: inline-block;
+  animation: textFadeIn 0.3s ease-out;
+}
+
+/* Progress container */
+.loading-progress-container {
+  width: 240px;
+  margin: 0 auto;
+}
+
+/* Progress bar track — chunky pixel frame */
+.loading-progress-track {
+  height: 16px;
+  background: var(--bg-darker);
+  border: 2px solid var(--px-border);
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark), inset 2px 2px 0 0 var(--px-bevel-dark);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Segmented amber block fill sweeping across in steps */
+.loading-progress-fill {
+  height: 100%;
+  width: 30%;
+  border-radius: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--primary) 0px,
+    var(--primary) 10px,
+    var(--primary-dark) 10px,
+    var(--primary-dark) 12px
+  );
+  animation: progressSlide 2s steps(12) infinite;
+  position: relative;
+}
+
+/* Hint text */
+.loading-hint {
+  margin-top: 32px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  animation: hintFade 4s ease-in-out infinite;
+}
+
+/* Fade out transition */
+.loading-screen.fade-out {
+  animation: fadeOut 0.4s ease-out forwards;
+}
+
+/* ========== KEYFRAMES ========== */
+
+@keyframes particleFloat {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0) scale(0.5);
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(30px) translateY(-120vh) scale(1);
+  }
+}
+
+@keyframes ringRotate {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes mascotFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+  75% {
+    transform: translateY(-12px) rotate(0deg);
+  }
+}
+
+@keyframes textFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progressSlide {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(250%); }
+  100% { transform: translateX(500%); }
+}
+
+@keyframes hintFade {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 480px) {
+  .loading-mascot-wrapper {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 24px;
+  }
+
+  .loading-ring-1 { width: 120px; height: 120px; }
+  .loading-ring-2 { width: 140px; height: 140px; }
+  .loading-ring-3 { width: 160px; height: 160px; }
+
+  .loading-mascot-glow {
+    width: 90px;
+    height: 90px;
+  }
+
+  .loading-mascot-fallback {
+    font-size: 3rem;
+  }
+
+  .loading-title {
+    font-size: 1.5rem;
+  }
+
+  .loading-status {
+    font-size: 0.875rem;
+  }
+
+  .loading-progress-container {
+    width: 200px;
+  }
+
+  .loading-hint {
+    font-size: 0.75rem;
+    padding: 0 16px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen,
+  .loading-particle,
+  .loading-ring-1,
+  .loading-ring-2,
+  .loading-ring-3,
+  .loading-mascot,
+  .loading-mascot-fallback,
+  .loading-mascot-glow,
+  .loading-title,
+  .loading-progress-fill,
+  .loading-progress-fill::after,
+  .loading-hint {
+    animation: none;
+  }
+
+  .loading-progress-fill {
+    width: 100%;
+    transform: none;
+  }
+}

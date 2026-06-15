@@ -1,0 +1,93 @@
+/* AdminMessageToast — themed entirely from the host game's unified.css variables
+   so the window matches whichever game it's dropped into. Every var() has a
+   sensible fallback so it still renders if a game is missing a token. */
+
+.gb-admsg {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: min(360px, 92vw);
+  background: var(--bg-secondary, #1e293b);
+  border: 2px solid var(--px-border, rgba(255, 255, 255, 0.12));
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--px-border-dark, rgba(0, 0, 0, 0.5));
+  z-index: var(--z-mobile-toast, 10001);
+  color: var(--text-primary, #f8fafc);
+  font-family: var(--font-hand, inherit);
+  overflow: hidden;
+  animation: gb-admsg-in 0.25s ease;
+}
+
+@keyframes gb-admsg-in {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gb-admsg { animation: none; }
+}
+
+.gb-admsg-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--panel-border, rgba(255, 255, 255, 0.08));
+  background: color-mix(in srgb, var(--gb-cyan, #00d9ff) 10%, transparent);
+}
+.gb-admsg-icon { color: var(--gb-cyan, #00d9ff); flex-shrink: 0; }
+.gb-admsg-from {
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-title, inherit);
+}
+.gb-admsg-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  display: flex;
+  padding: 2px;
+}
+.gb-admsg-close:hover { color: var(--text-primary, #fff); }
+
+.gb-admsg-body { padding: 12px 14px; }
+.gb-admsg-text {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-primary, #f8fafc);
+}
+.gb-admsg-sent { margin: 0; font-size: 0.85rem; color: var(--gb-cyan, #3fb950); }
+
+.gb-admsg-composer { display: flex; gap: 8px; }
+.gb-admsg-composer textarea {
+  flex: 1;
+  resize: none;
+  background: var(--bg-primary, #0d0f1a);
+  border: 2px solid var(--px-border, rgba(255, 255, 255, 0.12));
+  border-radius: 0;
+  color: var(--text-primary, #e2e8f0);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.gb-admsg-composer textarea:focus {
+  outline: none;
+  border-color: var(--gb-cyan, rgba(0, 217, 255, 0.5));
+}
+.gb-admsg-send {
+  background: var(--primary, #00d9ff);
+  border: none;
+  color: var(--bg-darker, #06121a);
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark, rgba(0, 0, 0, 0.5));
+  padding: 0 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.gb-admsg-send:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -1,0 +1,58 @@
+/**
+ * GameBuddies Shared Styles
+ *
+ * Import this file in main.tsx. For game-specific styles,
+ * add CSS files in the game/ directory and import them after this file.
+ */
+
+/* Base: fonts, Tailwind, variables, reset, typography */
+@import './base/fonts.css';
+@import './base/tailwind.css';
+@import './base/variables.css';
+@import './base/reset.css';
+@import './base/typography.css';
+
+/* Layout: app structure, filmstrip positioning */
+@import './layout/app-layout.css';
+@import './layout/filmstrip-layout.css';
+
+/* Components: buttons, cards, header, settings, error, return, utilities */
+@import './components/buttons.css';
+@import './components/cards.css';
+@import './components/header.css';
+@import './components/settings-modal.css';
+@import './components/error-boundary.css';
+@import './components/return-button.css';
+@import './components/utilities.css';
+@import './components/pixel.css';
+@import './components/decor.css';
+
+/* GameShell: universal viewport-fit layout (see src/shell/README.md) */
+@import './shell/shell.css';
+@import './shell/stage.css';
+
+/* Video: filmstrip, webcam, video controls */
+@import './video/video.css';
+
+/* Components that depend on video layout */
+@import './components/chat.css';
+@import './components/mobile-menu.css';
+
+/* Pages: home, lobby, game */
+@import './pages/home.css';
+@import './pages/lobby.css';
+@import './pages/game.css';
+
+/* Game-specific */
+@import './game/bluffalo.css';
+@import './game/bigscreen.css';
+/* Prime Suspect — restore the OLD royal-noir background + candlelit panels.
+   Imported after the paper-deduction game styles so it wins. */
+@import './game/hearts-gambit-old.css';
+
+/* Animations & features */
+@import './animations/animations.css';
+@import './features/pass-play.css';
+
+/* Responsive breakpoints (must be last to override) */
+@import './layout/responsive.css';

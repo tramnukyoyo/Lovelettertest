@@ -1,0 +1,1244 @@
+/**
+ * Bluffalo Game-Specific Styles
+ * RETRO GAME SHOW THEME — Purple stage, golden spotlights, lavender accents
+ */
+
+/* ============================================================================
+   PHASE CONTAINER
+   ============================================================================ */
+
+/* Phases are GameShell Scenes (.gs-scene supplies flex column, fluid
+   padding/gap, flex:1, min-height:0 — see styles/shell/stage.css).
+   This class only adds the Bluffalo framing: width cap + spotlight. */
+.bluffalo-phase {
+  position: relative;
+  align-items: center;
+  max-width: 880px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Spotlight glow behind phase containers */
+.bluffalo-phase::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 200px;
+  background: var(--gradient-spotlight);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================================================
+   ROUND BADGE
+   ============================================================================ */
+
+.bluffalo-round-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--gb-cream);
+  border: 1px solid transparent;
+  color: var(--bg-darker);
+  font-family: var(--font-title);
+  font-size: clamp(0.85rem, 0.8rem + 0.25vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+/* ============================================================================
+   CATEGORY BADGE
+   ============================================================================ */
+
+.bluffalo-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-md, 0.75rem);
+  background: var(--gb-cream);
+  border: 1px solid transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.bluffalo-category-icon {
+  font-size: 1.25rem;
+}
+
+.bluffalo-category-name {
+  color: var(--bg-darker);
+  font-family: var(--font-title);
+}
+
+/* ============================================================================
+   QUESTION CARD
+   ============================================================================ */
+
+.bluffalo-question-card {
+  position: relative;
+  width: 100%;
+  padding: 1.5rem 2rem;
+  border-radius: 0;
+  background: var(--panel-bg);
+  border: 1px solid transparent;
+  text-align: center;
+  /* 2-ring pixel panel (px-panel2 recipe) */
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--px-border),
+    0 var(--px)             0 0 var(--px-border),
+    calc(-1 * var(--px)) 0  0 0 var(--px-border),
+    var(--px) 0             0 0 var(--px-border),
+    0 calc(-2 * var(--px)) 0 0 var(--px-border-dark),
+    0 calc(2 * var(--px))  0 0 var(--px-border-dark),
+    calc(-2 * var(--px)) 0  0 0 var(--px-border-dark),
+    calc(2 * var(--px)) 0   0 0 var(--px-border-dark),
+    inset 0 var(--px) 0 0 var(--px-bevel-light),
+    inset 0 calc(-1 * var(--px)) 0 0 var(--px-bevel-dark);
+  animation: bluffaloFadeIn 280ms var(--ease-out-expo);
+  overflow: hidden;
+}
+
+/* Amber top-line highlight — chunky 4px pixel bar */
+.bluffalo-question-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--px);
+  background: var(--primary);
+}
+
+.bluffalo-question-card.compact {
+  padding: 1rem 1.5rem;
+}
+
+.bluffalo-question-text {
+  font-family: var(--font-title);
+  font-size: clamp(1.35rem, 1.1rem + 1.2vw, 2.25rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+.bluffalo-question-card.compact .bluffalo-question-text {
+  font-size: clamp(1.1rem, 0.95rem + 0.8vw, 1.75rem);
+}
+
+.bluffalo-phase-hint {
+  color: var(--gb-lavender);
+  font-size: 1rem;
+  font-style: italic;
+  animation: bluffaloPulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================================================
+   TIMER BAR
+   ============================================================================ */
+
+.bluffalo-timer-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-darker);
+  border-radius: 0;
+  overflow: hidden;
+  /* 2px hard pixel ring */
+  box-shadow:
+    0 -2px 0 0 var(--px-border-dark),
+    0 2px 0 0 var(--px-border-dark),
+    -2px 0 0 0 var(--px-border-dark),
+    2px 0 0 0 var(--px-border-dark);
+}
+
+.bluffalo-timer-fill {
+  height: 100%;
+  border-radius: 0;
+  background: var(--primary);
+  transition: width 1s linear;
+}
+
+.bluffalo-timer-fill.warning {
+  background: var(--primary-dark);
+}
+
+.bluffalo-timer-fill.critical {
+  background: var(--gb-lie);
+  animation: bluffaloPulse 0.5s ease-in-out infinite;
+}
+
+.bluffalo-timer-text {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   INPUT AREA (LIE INPUT)
+   ============================================================================ */
+
+.bluffalo-input-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  /* Fill the phase vertically and center the content cluster inside it — the
+     textarea itself has a fixed comfortable height, not a flex-grown one. */
+  flex: 1;
+  min-height: 0;
+}
+
+.bluffalo-input-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.25rem, 1.05rem + 1vw, 2rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 1px 1px 0 var(--bg-darker);
+  text-align: center;
+}
+
+.bluffalo-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.bluffalo-lie-field {
+  width: 100%;
+  /* Fluid with the stage: shrinks when filmstrip/rail squeeze the stage. */
+  height: clamp(120px, 30cqb, 220px);
+  min-height: 0;
+  padding: 1rem 1.125rem;
+  padding-bottom: 2rem;
+  border-radius: 0;
+  background: var(--bg-darker);
+  border: 2px solid var(--px-border);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.5rem);
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  box-shadow: inset 2px 2px 0 0 var(--px-bevel-dark);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.bluffalo-lie-field:focus {
+  border-color: var(--gb-gold);
+  box-shadow: inset 2px 2px 0 0 var(--px-bevel-dark), 0 0 0 3px var(--accent-glow);
+}
+
+.bluffalo-lie-field::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.bluffalo-char-count {
+  position: absolute;
+  right: 0.875rem;
+  bottom: 0.625rem;
+  font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.95rem);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* Error state on input */
+.bluffalo-lie-field.has-error {
+  border-color: var(--gb-lie);
+  box-shadow: var(--shadow-glow-lie);
+}
+
+.bluffalo-lie-error {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm, 0.5rem);
+  background: color-mix(in srgb, var(--gb-lie) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gb-lie) 30%, transparent);
+  color: var(--gb-lie);
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: bluffaloShake 0.4s ease-in-out;
+  width: 100%;
+}
+
+@keyframes bluffaloShake {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(-3px); }
+  60% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+/* ============================================================================
+   SUBMIT BUTTON
+   ============================================================================ */
+
+.bluffalo-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  border-radius: 0;
+  background: var(--btn-face);
+  color: var(--bg-darker);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-shadow: none;
+  transition: transform 160ms var(--ease-out-expo),
+              background 160ms var(--ease-out-expo);
+  /* px-btn recipe: dark ring + hard drop + bevels */
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--px-border-dark),
+    0 var(--px)             0 0 var(--px-border-dark),
+    calc(-1 * var(--px)) 0  0 0 var(--px-border-dark),
+    var(--px) 0             0 0 var(--px-border-dark),
+    0 calc(3 * var(--px))   0 calc(-1 * var(--px)) var(--btn-shadow),
+    inset 0 var(--px) 0 0 rgba(255, 255, 255, 0.38),
+    inset 0 calc(-1 * var(--px)) 0 0 rgba(20, 10, 4, 0.28);
+}
+
+.bluffalo-submit-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.bluffalo-submit-btn:active:not(:disabled) {
+  transform: translateY(3px);
+}
+
+.bluffalo-submit-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ============================================================================
+   SUBMITTED STATE
+   ============================================================================ */
+
+/* Solid panel card: the scene floats over the bright animated sunset
+   backdrop, so the confirmation texts need a dark surface to be readable.
+   Centering comes from .gs-scene-body.is-centered — no flex fill needed. */
+.bluffalo-submitted-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.75rem 2.25rem;
+  width: min(520px, 100%);
+  background: var(--panel-bg);
+  border: 2px solid var(--px-border);
+  box-shadow: 4px 4px 0 var(--px-border-dark);
+}
+
+.bluffalo-submitted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--gb-truth) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gb-truth) 30%, transparent);
+  color: var(--gb-truth);
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.bluffalo-check-icon {
+  font-size: 1.1rem;
+}
+
+.bluffalo-submitted-lie {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-style: italic;
+  font-size: clamp(1rem, 0.9rem + 0.4vw, 1.35rem);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.bluffalo-waiting-text {
+  color: var(--text-secondary);
+  font-size: clamp(0.9rem, 0.85rem + 0.25vw, 1.15rem);
+  animation: bluffaloPulse 2s ease-in-out infinite;
+}
+
+/* ============================================================================
+   VOTING OPTIONS
+   ============================================================================ */
+
+.bluffalo-voting-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.25rem, 1.05rem + 1vw, 2rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+/* Layout comes from .gs-option-grid (GameShell OptionGrid) — this class
+   remains as a theming hook only. */
+.bluffalo-options-grid {
+  width: 100%;
+}
+
+.bluffalo-option-card {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: 0;
+  background: var(--panel-bg);
+  border: 2px solid var(--px-border);
+  color: var(--text-primary);
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.4rem);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--px-border-dark);
+  transition: border-color 200ms cubic-bezier(0.23, 1, 0.32, 1),
+              background 200ms ease,
+              transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bluffalo-option-card:hover:not(.is-my-lie) {
+    border-color: var(--primary);
+    background: var(--panel-bg-hover);
+    transform: translateY(-2px);
+  }
+}
+
+.bluffalo-option-card:active:not(.is-my-lie) {
+  transform: translateY(1px);
+}
+
+.bluffalo-option-card.selected {
+  border-color: var(--primary);
+  background: var(--panel-bg-hover);
+  box-shadow: 3px 3px 0 var(--px-border-dark), var(--shadow-glow-gold);
+  animation: bluffaloLockIn 0.3s var(--ease-pop);
+}
+
+.bluffalo-option-card.is-my-lie {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-style: dashed;
+  position: relative;
+}
+
+.bluffalo-my-lie-tag {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.bluffalo-option-text {
+  font-weight: 500;
+}
+
+/* ============================================================================
+   REVEAL VIEW
+   ============================================================================ */
+
+.bluffalo-reveal-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.25rem, 1.05rem + 1vw, 2rem);
+  font-weight: 700;
+  color: var(--gb-gold);
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+/* Layout comes from .gs-option-grid (GameShell OptionGrid) — this class
+   remains as a theming hook only. */
+.bluffalo-reveal-options {
+  width: 100%;
+}
+
+.bluffalo-reveal-card {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: 0;
+  border: 2px solid var(--px-border);
+  background: var(--panel-bg);
+  box-shadow: 3px 3px 0 var(--px-border-dark);
+  animation: bluffaloLieDrop 0.5s var(--ease-pop) both;
+}
+
+/* Stagger the reveal cards — truth first, then the lies drop in */
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(1) { animation: bluffaloTruthLand 0.7s var(--ease-pop) both; }
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(2) { animation-delay: 0.55s; }
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(3) { animation-delay: 0.7s; }
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(4) { animation-delay: 0.85s; }
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(5) { animation-delay: 1s; }
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(6) { animation-delay: 1.15s; }
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(7) { animation-delay: 1.3s; }
+.bluffalo-reveal-options > .bluffalo-reveal-card:nth-child(8) { animation-delay: 1.45s; }
+
+.bluffalo-reveal-card.correct {
+  border-color: var(--gb-truth);
+  background: color-mix(in srgb, var(--gb-truth) 14%, var(--panel-bg));
+  box-shadow: 3px 3px 0 var(--px-border-dark), var(--shadow-glow-truth);
+}
+
+.bluffalo-reveal-card.lie {
+  border-color: var(--gb-lie);
+  background: color-mix(in srgb, var(--gb-lie) 8%, var(--panel-bg));
+}
+
+.bluffalo-reveal-card.lie .bluffalo-reveal-text {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--gb-lie) 75%, transparent);
+  text-decoration-thickness: 3px;
+}
+
+.bluffalo-reveal-card.my-vote {
+  box-shadow: 3px 3px 0 var(--px-border-dark), 0 0 0 2px var(--gb-gold), var(--shadow-glow-gold);
+}
+
+.bluffalo-reveal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bluffalo-reveal-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bluffalo-correct-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0;
+  background: var(--gb-truth);
+  color: #0c2412;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-2deg);
+  box-shadow: 3px 3px 0 var(--px-border-dark);
+  animation: bluffaloStampSway 1.6s var(--ease-in-out-expo) infinite;
+}
+
+.bluffalo-reveal-author {
+  margin-top: 0.375rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.bluffalo-reveal-voters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+
+.bluffalo-voter-chip {
+  padding: 0.2rem 0.6rem;
+  border-radius: 0;
+  background: var(--bg-darker);
+  border: 1px solid transparent;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--secondary-light);
+}
+
+/* ============================================================================
+   SCORE EVENTS
+   ============================================================================ */
+
+.bluffalo-score-events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.bluffalo-score-event {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm, 0.5rem);
+  background: rgba(var(--primary-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+  animation: bluffaloSlideIn 0.3s ease-out;
+}
+
+.bluffalo-score-points {
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--gb-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.bluffalo-score-reason {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.bluffalo-my-result {
+  margin-top: 0.5rem;
+}
+
+.bluffalo-result-correct {
+  color: var(--gb-truth);
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+.bluffalo-result-fooled {
+  color: var(--gb-lie);
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+/* ============================================================================
+   LEADERBOARD (SCORES)
+   ============================================================================ */
+
+.bluffalo-round-events {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.bluffalo-round-event {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-sm, 0.5rem);
+  background: rgba(var(--secondary-rgb), 0.06);
+  border: 1px solid rgba(var(--secondary-rgb), 0.1);
+  font-size: 0.85rem;
+}
+
+.bluffalo-event-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 80px;
+}
+
+.bluffalo-event-points {
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--gb-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.bluffalo-event-reason {
+  color: var(--text-secondary);
+}
+
+.bluffalo-leaderboard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  /* Player count is unbounded (999-cap rooms) — leaderboard is a sanctioned
+     internal scroller, like the chat log. */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.bluffalo-leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0;
+  background: var(--panel-bg);
+  border: 1px solid transparent;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  animation: bluffaloRise 0.4s var(--ease-out-expo) backwards;
+  transition: background var(--transition-fast);
+}
+
+/* Stagger the leaderboard rows on entry */
+.bluffalo-leaderboard-row:nth-child(1) { animation-delay: 0.05s; }
+.bluffalo-leaderboard-row:nth-child(2) { animation-delay: 0.13s; }
+.bluffalo-leaderboard-row:nth-child(3) { animation-delay: 0.21s; }
+.bluffalo-leaderboard-row:nth-child(4) { animation-delay: 0.29s; }
+.bluffalo-leaderboard-row:nth-child(5) { animation-delay: 0.37s; }
+.bluffalo-leaderboard-row:nth-child(6) { animation-delay: 0.45s; }
+.bluffalo-leaderboard-row:nth-child(7) { animation-delay: 0.53s; }
+.bluffalo-leaderboard-row:nth-child(8) { animation-delay: 0.61s; }
+
+.bluffalo-leaderboard-row:first-child {
+  background: color-mix(in srgb, var(--primary) 14%, var(--panel-bg));
+  border-color: var(--primary);
+}
+
+.bluffalo-leaderboard-row.is-me {
+  border-color: var(--primary);
+  box-shadow: 2px 2px 0 var(--px-border-dark), var(--shadow-glow-gold);
+}
+
+.bluffalo-rank {
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.bluffalo-rank svg {
+  color: var(--gb-gold);
+}
+
+.bluffalo-player-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bluffalo-player-score {
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--gb-gold);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+}
+
+.bluffalo-scores-actions {
+  margin-top: 0.5rem;
+}
+
+/* ============================================================================
+   GAME OVER
+   ============================================================================ */
+
+.bluffalo-gameover-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.75rem, 1.4rem + 2vw, 3.25rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+.bluffalo-winner-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-lg, 1rem);
+  background: linear-gradient(135deg,
+    rgba(var(--primary-rgb), 0.15),
+    rgba(var(--secondary-rgb), 0.1));
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  animation: bluffaloFadeIn 0.6s ease-out;
+  overflow: hidden;
+}
+
+/* Gold gradient border effect */
+.bluffalo-winner-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-lg, 1rem) + 2px);
+  background: var(--gradient-button);
+  z-index: -1;
+}
+
+/* Spotlight glow on winner card */
+.bluffalo-winner-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(ellipse at 50% 30%,
+    rgba(var(--primary-rgb), 0.2), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bluffalo-winner-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.bluffalo-sparkle {
+  color: var(--gb-gold);
+  animation: bluffaloPulse 1s ease-in-out infinite;
+}
+
+.bluffalo-trophy {
+  color: var(--gb-gold);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.bluffalo-winner-name {
+  font-family: var(--font-title);
+  font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+.bluffalo-winner-label {
+  color: var(--gb-gold);
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 1px 1px 0 var(--bg-darker);
+}
+
+.bluffalo-winner-score {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.bluffalo-final-standings {
+  width: 100%;
+  /* Unbounded list — sanctioned internal scroller inside the SceneBody. */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.bluffalo-standings-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gb-lavender);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bluffalo-standing-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md, 0.75rem);
+  background: rgba(var(--secondary-rgb), 0.08);
+  border: 1px solid rgba(var(--secondary-rgb), 0.12);
+  margin-bottom: 0.375rem;
+  transition: background var(--transition-fast);
+}
+
+.bluffalo-standing-row.first {
+  background: rgba(var(--primary-rgb), 0.1);
+  border-color: rgba(var(--primary-rgb), 0.25);
+}
+
+.bluffalo-standing-row.is-me {
+  background: rgba(var(--primary-rgb), 0.12);
+  border-color: rgba(var(--primary-rgb), 0.35);
+  box-shadow: var(--shadow-glow-gold);
+}
+
+.bluffalo-standing-rank {
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.bluffalo-standing-rank svg {
+  color: var(--gb-gold);
+}
+
+.bluffalo-standing-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bluffalo-standing-stats {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.bluffalo-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.bluffalo-standing-score {
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--gb-gold);
+  font-variant-numeric: tabular-nums;
+  min-width: 50px;
+  text-align: right;
+}
+
+.bluffalo-gameover-actions {
+  margin-top: 1rem;
+}
+
+/* ============================================================================
+   HOST SETTINGS (LOBBY)
+   ============================================================================ */
+
+.bluffalo-host-settings {
+  width: 100%;
+  padding: 0.25rem 0.25rem 0.5rem;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+}
+
+.bluffalo-settings-title {
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg-darker);
+  background: var(--gb-cream);
+  display: table;
+  margin: 0 auto 0.9rem;
+  padding: 0.25em 0.9em;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.bluffalo-setting-group {
+  margin-bottom: 0.8rem;
+}
+
+.bluffalo-setting-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.bluffalo-slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg-darker);
+  border-radius: 0;
+  box-shadow:
+    0 -2px 0 0 var(--px-border-dark),
+    0 2px 0 0 var(--px-border-dark),
+    -2px 0 0 0 var(--px-border-dark),
+    2px 0 0 0 var(--px-border-dark);
+  outline: none;
+  cursor: pointer;
+}
+
+.bluffalo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--gb-gold);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--px-border-dark), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  border: none;
+}
+
+.bluffalo-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--gb-gold);
+  cursor: pointer;
+  border: none;
+  box-shadow: 2px 2px 0 var(--px-border-dark), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+
+.bluffalo-slider-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+}
+
+.bluffalo-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0;
+  background: var(--bg-darker);
+  border: 2px solid var(--px-border);
+  box-shadow: inset 2px 2px 0 0 var(--px-bevel-dark);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem; /* ≥16px — prevents iOS Safari zoom-on-focus */
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.bluffalo-select:focus,
+.bluffalo-select:hover {
+  border-color: var(--gb-gold);
+}
+
+.bluffalo-select option {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Sparse-language warning shown in host settings when the chosen
+   language+category has fewer questions than the requested rounds. */
+.bluffalo-setting-warning {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md, 0.75rem);
+  background: rgba(var(--primary-rgb), 0.12);
+  border: 1px solid rgba(var(--primary-rgb), 0.4);
+  color: var(--primary);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+/* ============================================================================
+   READY BUTTON (LOBBY)
+   ============================================================================ */
+
+/* Non-host waiting state in lobby */
+.lobby-waiting-for-host {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.lobby-waiting-for-host p {
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+@keyframes bluffaloFadeIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes bluffaloSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes bluffaloPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.78; }
+}
+
+@keyframes bluffaloGlow {
+  0%, 100% { box-shadow: 0 0 0 4px var(--accent-glow); }
+  50% { box-shadow: 0 0 0 8px var(--accent-glow); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bluffalo-question-card,
+  .bluffalo-reveal-card,
+  .bluffalo-score-event,
+  .bluffalo-winner-card,
+  .bluffalo-phase-hint,
+  .bluffalo-timer-fill.critical,
+  .bluffalo-sparkle,
+  .bluffalo-waiting-text {
+    animation: none;
+  }
+
+  .bluffalo-option-card,
+  .bluffalo-submit-btn,
+  .bluffalo-leaderboard-row,
+  .bluffalo-standing-row,
+  .lobby-ready-btn {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  .bluffalo-phase {
+    padding: var(--spacing-sm, 0.75rem);
+    gap: var(--spacing-sm, 0.75rem);
+  }
+
+  .bluffalo-phase::before {
+    width: 140%;
+    height: 140px;
+    top: -20px;
+  }
+
+  .bluffalo-question-card {
+    padding: 1rem 1.25rem;
+  }
+
+  /* Font sizes for Bluffalo headings now use clamp() — mobile floor is the
+     clamp min, no override needed. */
+
+  .bluffalo-option-card {
+    padding: 0.875rem 1rem;
+  }
+
+  .bluffalo-winner-card {
+    padding: 1rem 1.25rem;
+  }
+
+  .bluffalo-standing-stats {
+    display: none;
+  }
+
+  .bluffalo-host-settings {
+    padding: 1rem;
+  }
+
+  .bluffalo-submit-btn {
+    width: 100%;
+  }
+}
+
+/* ============================================================================
+   PRE-GAME COUNTDOWN OVERLAY (3... 2... 1... GO!)
+   ============================================================================ */
+
+.bluffalo-countdown-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--bg-darker) 85%, transparent) 0%,
+    color-mix(in srgb, var(--bg-darker) 95%, transparent) 70%
+  );
+  z-index: 9999;
+  pointer-events: none;
+  animation: bluffaloCountdownFadeIn 200ms ease-out;
+}
+
+.bluffalo-countdown-number {
+  font-family: var(--font-title);
+  font-size: clamp(6rem, 4rem + 12vw, 14rem);
+  font-weight: 900;
+  color: var(--gb-gold);
+  text-shadow:
+    0 0 30px rgba(var(--primary-rgb), 0.8),
+    0 0 60px rgba(var(--primary-rgb), 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.6);
+  /* key={countdown} remounts the span each tick so the animation restarts */
+  animation: bluffaloCountdownPulse 900ms cubic-bezier(0.23, 1, 0.32, 1);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+@keyframes bluffaloCountdownFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bluffaloCountdownPulse {
+  0% {
+    transform: scale(2);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  25% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  85% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bluffalo-countdown-number {
+    animation: none;
+  }
+  .bluffalo-countdown-overlay {
+    animation: none;
+  }
+}

@@ -1,0 +1,333 @@
+/* SECTION 18: GAMEBUDDIES RETURN BUTTON */
+
+.gamebuddies-return-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-title);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.gamebuddies-return-btn svg { flex-shrink: 0; }
+
+/* Inline variant - subtle button for headers/menus */
+.gamebuddies-return-btn.inline {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  min-height: 36px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  background: transparent;
+  border-radius: var(--radius-sm);
+}
+
+.gamebuddies-return-btn.inline:hover {
+  color: var(--gb-cyan);
+  background: var(--bg-overlay);
+}
+
+.gamebuddies-return-btn.inline:active { transform: scale(0.98); }
+
+@keyframes returnBtnPulse {
+  0%, 100% {
+    box-shadow:
+      var(--shadow-glow-gold),
+      var(--shadow-sm);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(var(--primary-rgb), 0.35),
+      var(--shadow-sm);
+  }
+}
+
+/* Floating variant - fixed position button */
+.gamebuddies-return-btn.floating {
+  position: fixed;
+  bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0px));
+  left: calc(var(--spacing-lg) + env(safe-area-inset-left, 0px));
+  z-index: var(--z-floating);
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-height: 44px;
+  font-size: 0.875rem;
+  color: var(--bg-darker);
+  background: var(--gradient-button);
+  border-radius: 0;
+  box-shadow:
+    var(--shadow-glow-gold),
+    var(--shadow-sm);
+  animation: returnBtnPulse 4s ease-in-out infinite;
+}
+
+/* Pause pulse on hover for crisp interaction */
+.gamebuddies-return-btn.floating:hover {
+  animation-play-state: paused;
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 6px rgba(var(--primary-rgb), 0.35),
+    var(--shadow-md);
+}
+
+.gamebuddies-return-btn.floating:active { transform: translateY(0); }
+
+/* Mobile: Floating button adjustments */
+@media (max-width: 767px) {
+  .gamebuddies-return-btn.floating {
+    bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+    left: calc(var(--spacing-md) + env(safe-area-inset-left, 0px));
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 48px;
+    font-size: 0.8125rem;
+  }
+
+  /* Hide text on very small screens */
+  .gamebuddies-return-btn.floating span { display: none; }
+
+  .gamebuddies-return-btn.floating {
+    padding: var(--spacing-sm);
+    width: 48px;
+    border-radius: 50%;
+  }
+
+  .gamebuddies-return-btn.inline {
+    min-height: 44px;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* Show text on larger mobile screens */
+@media (min-width: 375px) and (max-width: 767px) {
+  .gamebuddies-return-btn.floating span { display: inline; }
+
+  .gamebuddies-return-btn.floating {
+    width: auto;
+    border-radius: 0;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* Landscape: Keep floating button accessible */
+@media (max-width: 1023px) and (orientation: landscape) {
+  .gamebuddies-return-btn.floating {
+    bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom, 0px));
+    left: calc(var(--spacing-sm) + env(safe-area-inset-left, 0px));
+    min-height: 40px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+}
+
+/* Two-line label layout for return button */
+.gb-return-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+.gb-return-main { font-size: inherit; }
+.gb-return-sub {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+/* End screen: the actions row floats over the bright sunset backdrop, so the
+   transparent inline variant is unreadable there — give it a solid panel. */
+.bluffalo-gameover-actions .gamebuddies-return-btn.inline {
+  color: var(--text-primary);
+  background: var(--panel-bg);
+  border: 2px solid var(--px-border);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.bluffalo-gameover-actions .gamebuddies-return-btn.inline:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--panel-bg-hover);
+}
+
+/* GAMEBUDDIES RETURN BUTTON ENHANCEMENTS */
+
+/* Focus-visible states for accessibility */
+.gamebuddies-return-btn.inline:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+  background: var(--bg-overlay);
+  color: var(--gb-cyan);
+}
+
+.gamebuddies-return-btn.floating:focus-visible {
+  outline: 2px solid var(--gb-cream);
+  outline-offset: 2px;
+  animation-play-state: paused;
+  box-shadow:
+    0 0 0 4px rgba(var(--primary-rgb), 0.3),
+    var(--shadow-md);
+}
+
+/* Floating button entrance animation */
+@keyframes floatingBtnEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.gamebuddies-return-btn.floating {
+  animation:
+    floatingBtnEnter 0.4s ease-out,
+    returnBtnPulse 4s ease-in-out 0.4s infinite;
+}
+
+/* Icon hover spin for inline variant */
+.gamebuddies-return-btn.inline svg { transition: transform 0.3s ease; }
+
+.gamebuddies-return-btn.inline:hover svg { transform: translateX(-2px); }
+
+/* Arrow animation for floating variant */
+.gamebuddies-return-btn.floating svg { transition: transform 0.2s ease; }
+
+.gamebuddies-return-btn.floating:hover svg { transform: translateX(-3px); }
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .gamebuddies-return-btn.floating {
+    bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+    left: calc(var(--spacing-md) + env(safe-area-inset-left, 0px));
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .gamebuddies-return-btn.inline { padding: var(--spacing-xs) var(--spacing-md); }
+}
+
+/* Large Desktop (>= 1536px) */
+@media (min-width: 1536px) {
+  .gamebuddies-return-btn.floating {
+    bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
+    left: calc(var(--spacing-xl) + env(safe-area-inset-left, 0px));
+    padding: var(--spacing-md) var(--spacing-lg);
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .gamebuddies-return-btn.floating svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .gamebuddies-return-btn.inline {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9375rem;
+    min-height: 40px;
+  }
+}
+
+/* Mobile Small (< 375px) - Icon only floating button */
+@media (max-width: 374px) {
+  .gamebuddies-return-btn.floating {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom, 0px));
+    left: calc(var(--spacing-sm) + env(safe-area-inset-left, 0px));
+  }
+
+  .gamebuddies-return-btn.floating span { display: none; }
+
+  .gamebuddies-return-btn.floating svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .gamebuddies-return-btn.inline {
+    min-height: 40px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8125rem;
+  }
+}
+
+/* Extreme landscape (very short viewport) */
+@media (max-height: 400px) and (orientation: landscape) {
+  .gamebuddies-return-btn.floating {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    bottom: calc(var(--spacing-xs) + env(safe-area-inset-bottom, 0px));
+    left: calc(var(--spacing-xs) + env(safe-area-inset-left, 0px));
+  }
+
+  .gamebuddies-return-btn.floating span { display: none; }
+
+  .gamebuddies-return-btn.floating svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .gamebuddies-return-btn.inline {
+    min-height: 32px;
+    font-size: 0.75rem;
+  }
+}
+
+/* SECTION 18.5: MUTE BUTTON */
+
+/* Utility icon button tier — matches the header settings button */
+.game-header-mute-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  background: var(--bg-darker);
+  border: 2px solid var(--px-border);
+  border-radius: 0;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  min-height: 40px;
+  box-shadow: 2px 2px 0 0 var(--px-border-dark);
+}
+
+.game-header-mute-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--panel-bg-hover);
+  transform: translateY(-2px);
+}
+
+.game-header-mute-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 0 var(--px-border-dark);
+}
+
+.game-header-mute-btn.muted {
+  color: var(--gb-lie);
+  border-color: var(--gb-lie);
+}
+
+.home-header-mobile-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+@media (max-width: 767px) {
+  .game-header-mute-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-header-mute-btn { transition: none; }
+}

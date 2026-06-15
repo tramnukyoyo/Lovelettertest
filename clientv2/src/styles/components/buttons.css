@@ -1,0 +1,192 @@
+/* SECTION 5: BUTTONS & INPUTS */
+
+@layer components {
+  /* Ghost button — transparent face + 2px hard pixel ring (the border) */
+  .btn {
+    @apply px-4 py-2 font-medium focus:outline-none;
+    font-family: var(--font-marker);
+    border: 2px solid var(--px-border);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+    box-shadow: 2px 2px 0 var(--px-border-dark);
+  }
+
+  .btn:hover {
+    border-color: var(--accent-color);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+  }
+
+  .btn:active { transform: translateY(2px); }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Solid pixel faces — variants */
+  .btn-primary {
+    background: var(--btn-face);
+    border-color: var(--px-border-dark);
+    color: var(--bg-darker);
+    box-shadow:
+      2px 2px 0 var(--px-border-dark),
+      inset 0 2px 0 0 rgba(255, 255, 255, 0.38),
+      inset 0 -2px 0 0 rgba(20, 10, 4, 0.28);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+    border-color: var(--px-border-dark);
+  }
+
+  .btn-secondary {
+    background: var(--secondary);
+    border-color: var(--px-border-dark);
+    color: #0d2a2b;
+    box-shadow:
+      2px 2px 0 var(--px-border-dark),
+      inset 0 2px 0 0 rgba(255, 255, 255, 0.38),
+      inset 0 -2px 0 0 rgba(20, 10, 4, 0.28);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--secondary-light);
+    border-color: var(--px-border-dark);
+  }
+
+  .btn-danger {
+    background: var(--gb-lie);
+    border-color: var(--px-border-dark);
+    color: var(--bg-darker);
+    box-shadow:
+      2px 2px 0 var(--px-border-dark),
+      inset 0 2px 0 0 rgba(255, 255, 255, 0.38),
+      inset 0 -2px 0 0 rgba(20, 10, 4, 0.28);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: var(--danger-400);
+    border-color: var(--px-border-dark);
+  }
+
+  /* Large CTA — full chunky px-btn ring + hard drop */
+  .btn-lg {
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--px-border-dark),
+      0 var(--px)             0 0 var(--px-border-dark),
+      calc(-1 * var(--px)) 0  0 0 var(--px-border-dark),
+      var(--px) 0             0 0 var(--px-border-dark),
+      0 calc(3 * var(--px))   0 calc(-1 * var(--px)) var(--btn-shadow),
+      inset 0 var(--px) 0 0 rgba(255, 255, 255, 0.38),
+      inset 0 calc(-1 * var(--px)) 0 0 rgba(20, 10, 4, 0.28);
+  }
+
+  .btn-lg:active { transform: translateY(3px); }
+
+  /* Icon button */
+
+  /* Input fields */
+  .input {
+    @apply w-full px-4 py-3 transition-all duration-200;
+    font-family: var(--font-hand);
+    background: var(--bg-tertiary);
+    border: 2px solid var(--panel-border);
+    border-radius: var(--border-wobbly-sm);
+    color: var(--text-primary);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .input::placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+}
+
+/* Floating Label Input Styles */
+.floating-label-container { width: 100%; }
+
+.floating-label-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.floating-label-input {
+  width: 100%;
+  padding: 1.25rem 1rem 0.75rem;
+  font-size: 1rem;
+  font-family: var(--font-hand);
+  border: 2px solid var(--px-border);
+  border-radius: 0;
+  background: var(--bg-darker);
+  box-shadow: inset 2px 2px 0 0 var(--px-bevel-dark);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.floating-label-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: inset 2px 2px 0 0 var(--px-bevel-dark), 0 0 0 3px var(--accent-glow);
+}
+
+.floating-label-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.floating-label-wrapper.floating .floating-label-input::placeholder { opacity: 1; }
+
+.floating-label {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  font-family: var(--font-hand);
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.floating-label.floating {
+  top: 0.25rem;
+  transform: translateY(0);
+  font-size: 0.75rem;
+  color: var(--accent-color);
+}
+
+.floating-label-wrapper.focused .floating-label { color: var(--accent-color); }
+
+.floating-label-wrapper.error .floating-label-input { border-color: var(--danger-500); }
+
+.floating-label-wrapper.error .floating-label { color: var(--danger-500); }
+
+.floating-label-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--danger-500);
+}
+
+.required-asterisk {
+  color: var(--danger-500);
+  margin-left: 0.25rem;
+}

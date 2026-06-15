@@ -1,0 +1,1050 @@
+/* SECTION 9: CHAT & PLAYER LIST */
+
+/* ----------------------------------------
+   Chat Window
+   ---------------------------------------- */
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--panel-bg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Mode variants */
+.chat-window.sidebar {
+  border-radius: 0;
+  background: transparent;
+}
+
+.chat-window.sidebar .chat-input-container { background: transparent; }
+
+.chat-window.floating {
+  position: fixed;
+  bottom: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 320px;
+  max-height: 400px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--panel-border);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-modal);
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--bg-card);
+}
+
+.chat-title {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.chat-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-close-btn:hover {
+  background: rgba(var(--primary-rgb), 0.2);
+  color: var(--gb-pink);
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* Empty state */
+.chat-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+}
+
+.chat-empty p {
+  margin: 0;
+  font-family: var(--font-hand);
+}
+
+.chat-empty-hint {
+  font-size: 0.875rem;
+  opacity: 0.7;
+  margin-top: var(--spacing-sm) !important;
+}
+
+/* Messages */
+.chat-message {
+  margin-bottom: var(--spacing-xs);
+  max-width: 85%;
+}
+
+.chat-message.mine { align-self: flex-end; }
+
+.chat-message.theirs { align-self: flex-start; }
+
+.chat-message.system {
+  align-self: center;
+  max-width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(var(--secondary-rgb), 0.1);
+  border: 1px solid rgba(var(--secondary-rgb), 0.35);
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.chat-message-sender {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-hand);
+  color: var(--gb-cyan);
+  margin-bottom: 0.125rem;
+}
+
+.chat-message-bubble {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--panel-bg);
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.chat-message.mine .chat-message-bubble {
+  background: var(--primary);
+  border-radius: 0;
+}
+
+.chat-message.mine .chat-message-text {
+  color: var(--bg-darker);
+  font-weight: 600;
+}
+
+.chat-message-text {
+  font-family: var(--font-hand);
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.chat-message-time {
+  display: block;
+  font-size: 0.625rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  opacity: 0.7;
+}
+
+.chat-message.mine .chat-message-time {
+  text-align: right;
+  color: rgba(20, 10, 4, 0.6); /* dark on amber bubble */
+}
+
+/* Legacy support */
+
+/* Input area */
+.chat-input-container {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-top: 1px solid var(--panel-border);
+  background: var(--bg-card);
+}
+
+.chat-input {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-darker);
+  border: 2px solid var(--px-border);
+  border-radius: 0;
+  box-shadow: inset 2px 2px 0 0 var(--px-bevel-dark);
+  color: var(--text-primary);
+  font-family: var(--font-hand);
+  font-size: 16px; /* Prevents iOS zoom */
+  min-height: 44px; /* Touch target */
+}
+
+.chat-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--gb-cyan);
+  box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.15);
+}
+
+.chat-send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: var(--btn-face);
+  border: none;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  color: var(--bg-darker);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.chat-send-btn:active:not(:disabled) { transform: translateY(2px); }
+
+/* Focus Visible States */
+.chat-close-btn:focus-visible,
+.chat-send-btn:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+}
+
+.chat-input:focus-visible {
+  outline: none; /* Already has border highlight */
+}
+
+/* New Message Animation */
+@keyframes chatMessageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-message { animation: chatMessageSlideIn 0.2s ease-out; }
+
+/* System Message Enhancement */
+.chat-message.system { animation: chatMessageSlideIn 0.3s ease-out; }
+
+/* Typing Indicator (future enhancement) */
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+/* Mobile Small (< 375px) */
+@media (max-width: 374px) {
+  .chat-header { padding: var(--spacing-xs) var(--spacing-sm); }
+
+  .chat-title { font-size: 0.95rem; }
+
+  .chat-message-bubble { padding: var(--spacing-xs) var(--spacing-sm); }
+
+  .chat-message-text { font-size: 0.875rem; }
+
+  .chat-input-container {
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+  }
+
+  .chat-send-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .chat-window.sidebar { max-height: 300px; }
+
+  .chat-messages { max-height: 200px; }
+}
+
+/* Desktop Large (1536px+) */
+@media (min-width: 1536px) {
+  .chat-header { padding: var(--spacing-md) var(--spacing-lg); }
+
+  .chat-title { font-size: 1.15rem; }
+
+  .chat-messages { padding: var(--spacing-md) var(--spacing-lg); }
+
+  .chat-message-bubble { padding: var(--spacing-sm) var(--spacing-lg); }
+
+  .chat-message-text { font-size: 1rem; }
+
+  .chat-input-container { padding: var(--spacing-md) var(--spacing-lg); }
+
+  .chat-input {
+    padding: var(--spacing-md);
+    font-size: 1rem;
+  }
+
+  .chat-send-btn {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ----------------------------------------
+   Player List
+   ---------------------------------------- */
+.player-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.player-list.compact {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  height: auto;
+  overflow: visible;
+  justify-content: center;
+}
+
+.player-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+
+.player-list-title {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.player-list-count {
+  font-family: var(--font-title);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  padding: 0.125rem 0.5rem;
+  background: var(--bg-darker);
+  border: 1px solid var(--px-border);
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+}
+
+.player-list-items {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: 0;
+  list-style: none;
+}
+
+/* Player item - TSX uses .player-list-item */
+.player-list-item,
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--panel-bg);
+  border-radius: 0;
+  border: 2px solid transparent;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  transition: all 0.2s ease;
+}
+
+.player-list-item:hover,
+.player-item:hover { background: var(--panel-bg-hover); }
+
+/* TSX uses is-me, CSS also supports self for backwards compat */
+.player-list-item.is-me,
+.player-item.self,
+.player-item.is-me {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--panel-bg));
+}
+
+.player-list-item.disconnected,
+.player-item.disconnected { opacity: 0.5; }
+
+/* Compact mode for player items */
+.player-list.compact .player-list-item,
+.player-list-item.compact {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-card-hover);
+  gap: var(--spacing-xs);
+}
+
+/* Player avatar */
+.player-avatar-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Square pixel frame — matches the PresenceDock .gs-chip-av squares */
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  background: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: white;
+  overflow: hidden;
+  border: 2px solid var(--px-border);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+}
+
+.player-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-avatar.placeholder {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.player-avatar.compact,
+.player-list.compact .player-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 0.625rem;
+}
+
+/* Player status indicator */
+.player-status {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  border: 2px solid var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-status.online {
+  background: var(--success-500);
+  color: white;
+}
+
+.player-status.offline,
+.player-status.disconnected {
+  background: var(--danger-500);
+  color: white;
+}
+
+/* Player info section */
+.player-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.player-name {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: 600;
+  font-family: var(--font-hand);
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-me-tag {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--gb-cyan);
+  opacity: 0.8;
+}
+
+/* Host badge - TSX uses player-host-badge */
+.player-host-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  background: rgba(var(--primary-rgb), 0.2);
+  border: 1px solid var(--gb-pink);
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  font-size: 0.625rem;
+  font-weight: 700;
+  font-family: var(--font-title);
+  color: var(--gb-pink);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.host-icon {
+  color: var(--gb-pink);
+  flex-shrink: 0;
+}
+
+/* Legacy badge support */
+
+.player-badge.host {
+  background: rgba(var(--primary-rgb), 0.2);
+  border-color: var(--gb-pink);
+  color: var(--gb-pink);
+}
+
+.player-badge.you {
+  background: rgba(var(--secondary-rgb), 0.2);
+  border-color: var(--gb-cyan);
+  color: var(--gb-cyan);
+}
+
+/* ----------------------------------------
+   Player badges & host controls
+   (previously only defined in dead unified.css — i.e. unstyled in prod)
+   ---------------------------------------- */
+
+/* Score chip — amber pixel counter */
+.player-score-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.125rem 0.5rem;
+  background: var(--bg-darker);
+  border: 1px solid var(--px-border);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  font-family: var(--font-title);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.03em;
+}
+
+/* Premium tier chips */
+.player-premium-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid;
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  font-family: var(--font-title);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.player-premium-badge.premium {
+  background: rgba(255, 215, 0, 0.12);
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+}
+
+.player-premium-badge.pro {
+  background: rgba(var(--secondary-rgb), 0.15);
+  border-color: var(--gb-cyan);
+  color: var(--gb-cyan);
+}
+
+.player-premium-badge.compact {
+  padding: 0.0625rem 0.3125rem;
+  font-size: 0.5rem;
+}
+
+/* Spectator chip — teal eye */
+.player-spectator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: fit-content;
+  padding: 0.125rem 0.5rem;
+  background: rgba(var(--secondary-rgb), 0.15);
+  border: 1px solid var(--gb-cyan);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  font-family: var(--font-title);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--gb-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Team chip (background color set inline per team) */
+.player-team-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--px-border-dark);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  font-family: var(--font-title);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: var(--bg-darker);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.player-team-badge.compact {
+  padding: 0.0625rem 0.3125rem;
+  font-size: 0.5rem;
+}
+
+/* Kick button — quiet until hovered, then lie-red */
+.kick-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  opacity: 0.55;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.kick-button:hover {
+  opacity: 1;
+  color: var(--gb-lie);
+  border-color: var(--gb-lie);
+  background: rgba(224, 82, 82, 0.12);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+}
+
+/* Inline kick confirmation pair */
+.kick-confirm-buttons {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.kick-confirm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--px-border);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  font-family: var(--font-title);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.kick-confirm-btn.confirm {
+  background: var(--gb-lie);
+  border-color: var(--gb-lie);
+  color: var(--gb-cream);
+}
+
+.kick-confirm-btn.confirm:hover { filter: brightness(1.15); }
+
+.kick-confirm-btn.cancel {
+  background: var(--bg-darker);
+  color: var(--text-secondary);
+}
+
+.kick-confirm-btn.cancel:hover { color: var(--text-primary); }
+
+/* Spectator view-as affordances */
+.spectator-player-clickable { cursor: pointer; }
+
+.spectator-player-clickable:hover {
+  box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 1px var(--gb-cyan);
+}
+
+.spectator-player-active {
+  border-color: var(--gb-cyan);
+  background: rgba(var(--secondary-rgb), 0.12);
+  box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 1px var(--gb-cyan);
+}
+
+/* ----------------------------------------
+   Chat & Player List Responsive
+   ---------------------------------------- */
+
+/* Mobile portrait */
+@media (max-width: 767px) {
+  .chat-window.floating {
+    right: var(--spacing-sm);
+    left: var(--spacing-sm);
+    bottom: var(--spacing-sm);
+    width: auto;
+    max-height: 50vh;
+  }
+
+  .chat-input {
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+
+  .player-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Mobile landscape */
+@media (max-width: 1023px) and (orientation: landscape) {
+  .chat-window.floating {
+    max-height: 40vh;
+    width: 280px;
+  }
+
+  .chat-messages { max-height: 30vh; }
+
+  .player-list-items { max-height: 25vh; }
+
+  .player-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  .player-list-item,
+  .player-item { padding: var(--spacing-xs) var(--spacing-sm); }
+}
+
+/* ----------------------------------------
+   PlayerList Enhanced States & Animations
+   ---------------------------------------- */
+
+/* Player entry animation - staggered reveal */
+@keyframes playerEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.player-list-item,
+.player-item { animation: playerEnter 0.25s ease-out backwards; }
+
+/* Staggered delays for first 8 players */
+.player-list-item:nth-child(1) { animation-delay: 0.05s; }
+.player-list-item:nth-child(2) { animation-delay: 0.1s; }
+.player-list-item:nth-child(3) { animation-delay: 0.15s; }
+.player-list-item:nth-child(4) { animation-delay: 0.2s; }
+.player-list-item:nth-child(5) { animation-delay: 0.25s; }
+.player-list-item:nth-child(6) { animation-delay: 0.3s; }
+.player-list-item:nth-child(7) { animation-delay: 0.35s; }
+.player-list-item:nth-child(8) { animation-delay: 0.4s; }
+
+/* Focus-visible for keyboard navigation */
+.player-list-item:focus-visible,
+.player-item:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+  background: rgba(var(--secondary-rgb), 0.15);
+}
+
+/* Active state for tactile feedback */
+.player-list-item:active,
+.player-item:active {
+  transform: scale(0.98);
+  background: var(--bg-card-hover);
+}
+
+/* is-me — hard amber ring, no soft glow (pixel discipline) */
+.player-list-item.is-me,
+.player-item.is-me {
+  box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 1px var(--primary);
+}
+
+/* Disconnected enhanced state */
+.player-list-item.disconnected,
+.player-item.disconnected { filter: grayscale(0.5); }
+
+.player-list-item.disconnected .player-avatar,
+.player-item.disconnected .player-avatar { border-color: rgba(239, 68, 68, 0.3); }
+
+/* Online status blink — stepped, pixel style */
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.player-status.online { animation: statusPulse 2s steps(2) infinite; }
+
+/* Offline status - no pulse, just static */
+.player-status.offline { animation: none; }
+
+/* Host badge shimmer — stepped brightness, no glow blur */
+@keyframes hostCrownShimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+}
+
+.player-host-badge svg,
+.host-icon { animation: hostCrownShimmer 2s steps(2) infinite; }
+
+/* Host badge hover effect */
+.player-list-item:hover .player-host-badge {
+  background: rgba(var(--primary-rgb), 0.3);
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+/* ----------------------------------------
+   PlayerList Tablet (768px - 1023px)
+   ---------------------------------------- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .player-list-header { padding: var(--spacing-sm); }
+
+  .player-list-title { font-size: 0.9375rem; }
+
+  .player-list-items {
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+  }
+
+  .player-list-item,
+  .player-item { padding: var(--spacing-xs) var(--spacing-sm); }
+
+  .player-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.875rem;
+  }
+
+  .player-name { font-size: 0.875rem; }
+
+  .player-host-badge {
+    padding: 0.1rem 0.375rem;
+    font-size: 0.5625rem;
+  }
+}
+
+/* ----------------------------------------
+   PlayerList Mobile Small (≤374px)
+   ---------------------------------------- */
+@media (max-width: 374px) {
+  .player-list-header { padding: var(--spacing-xs) var(--spacing-sm); }
+
+  .player-list-title { font-size: 0.8125rem; }
+
+  .player-list-count {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.375rem;
+  }
+
+  .player-list-items {
+    padding: var(--spacing-xs);
+    gap: 6px;
+  }
+
+  .player-list-item,
+  .player-item {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .player-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+    border-width: 1px;
+  }
+
+  .player-status {
+    width: 10px;
+    height: 10px;
+    border-width: 1.5px;
+  }
+
+  .player-name { font-size: 0.8125rem; }
+
+  .player-me-tag { font-size: 0.625rem; }
+
+  .player-host-badge {
+    padding: 0.1rem 0.25rem;
+    font-size: 0.5rem;
+    gap: 0.125rem;
+  }
+
+  .player-host-badge svg {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Compact mode extra small */
+  .player-list.compact .player-avatar,
+  .player-avatar.compact {
+    width: 20px;
+    height: 20px;
+    font-size: 0.5rem;
+  }
+}
+
+/* ----------------------------------------
+   PlayerList Desktop Large (≥1536px)
+   ---------------------------------------- */
+@media (min-width: 1536px) {
+  .player-list-header { padding: var(--spacing-md); }
+
+  .player-list-title { font-size: 1.125rem; }
+
+  .player-list-count {
+    font-size: 1rem;
+    padding: 0.25rem 0.625rem;
+  }
+
+  .player-list-items {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .player-list-item,
+  .player-item {
+    padding: var(--spacing-sm) var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .player-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1.125rem;
+    border-width: 3px;
+  }
+
+  .player-status {
+    width: 14px;
+    height: 14px;
+    border-width: 2.5px;
+  }
+
+  .player-status svg {
+    width: 8px;
+    height: 8px;
+  }
+
+  .player-name { font-size: 1.0625rem; }
+
+  .player-me-tag { font-size: 0.875rem; }
+
+  .player-host-badge {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.6875rem;
+    gap: 0.375rem;
+  }
+
+  .player-host-badge svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ----------------------------------------
+   PlayerList Mobile Landscape Enhanced
+   ---------------------------------------- */
+@media (max-width: 926px) and (orientation: landscape) {
+  .player-list { max-height: 100%; }
+
+  .player-list-header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-height: 36px;
+  }
+
+  .player-list-title { font-size: 0.8125rem; }
+
+  .player-list-items {
+    padding: var(--spacing-xs);
+    gap: 4px;
+  }
+
+  .player-list-item,
+  .player-item {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .player-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.6875rem;
+  }
+
+  .player-status {
+    width: 8px;
+    height: 8px;
+    border-width: 1px;
+  }
+
+  .player-name { font-size: 0.75rem; }
+
+  .player-host-badge {
+    padding: 0.05rem 0.25rem;
+    font-size: 0.5rem;
+  }
+}
+
+/* Safe area padding for notched devices in drawer mode */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-drawer .player-list-items { padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom)); }
+}

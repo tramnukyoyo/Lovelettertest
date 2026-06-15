@@ -1,0 +1,39 @@
+/* ============================================================================
+   PRIME SUSPECT — game style entrypoint (loaded LAST, after styles/index.css)
+
+   The self-contained game (HeartsGambitGame) was authored against the old
+   client's `unified.css` class library, so we bring it in here. The old
+   unified.css carries its OWN :root with the AI-look Patrick Hand / Gloria
+   Hallelujah fonts and a pink/cyan default theme — so we re-import the Paper
+   Deduction token surface AFTER it (last @import wins) to reclaim the theme.
+
+   Order matters:
+   1. unified.css        — the game's class library + its (overridden) :root
+   2. base/variables.css — Paper Deduction tokens reclaim the :root cascade
+   3. game/prime-suspect.css — in-game set-piece reskin (Phase 3)
+   ============================================================================ */
+
+@import './styles/prime-suspect-unified.css';
+@import './styles/base/variables.css';
+@import './styles/game/prime-suspect.css';
+/* In-game tactile noir kit (.ps-btn family, badges, action menu, case log,
+   card hover preview). Loaded AFTER prime-suspect-unified.css so it wins. */
+@import './styles/game/prime-suspect-ingame.css';
+
+/* Hard font enforcement: unified.css binds many elements to its own font
+   tokens via concrete font-family declarations. Re-point the token-driven
+   families so the Noir, Upgraded trio (Cinzel engraved display / Libre Franklin
+   body / Special Elite typewriter) always wins, even under the old
+   [data-theme="gamebuddies"] selector. */
+:root,
+[data-theme='gamebuddies'],
+[data-theme='primesuspect'] {
+  --font-title: 'Cinzel', 'Georgia', serif;
+  --font-heading: 'Cinzel', 'Georgia', serif;
+  --font-body: 'Libre Franklin', system-ui, sans-serif;
+  --font-hand: 'Special Elite', 'Courier New', monospace;
+  --font-marker: 'Special Elite', 'Courier New', monospace;
+  --font-mono: 'Special Elite', 'Courier New', monospace;
+  --font-typewriter: 'Special Elite', 'Courier New', monospace;
+  --hg-font-meta: 'Special Elite', 'Courier New', monospace;
+}

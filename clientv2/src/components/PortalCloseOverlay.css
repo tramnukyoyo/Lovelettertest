@@ -1,0 +1,530 @@
+/* Portal Close Overlay - Beautiful Return Transition */
+
+.portal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+
+  /* Animated gradient background */
+  background: var(--bg-primary);
+  background-size: 400% 400%;
+  animation: portalGradientShift 6s ease infinite;
+
+}
+
+.portal-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.portal-overlay.collapsing {
+  animation: portalVortex 0.5s ease-in forwards;
+}
+
+@keyframes portalGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes portalVortex {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Floating particles */
+.portal-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.portal-particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation: portalParticleConverge 3s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.portal-particle:nth-child(1) {
+  width: 8px; height: 8px;
+  background: var(--primary);
+  left: 10%; top: 20%;
+  animation-delay: 0s;
+}
+.portal-particle:nth-child(2) {
+  width: 6px; height: 6px;
+  background: var(--secondary);
+  left: 85%; top: 15%;
+  animation-delay: 0.3s;
+}
+.portal-particle:nth-child(3) {
+  width: 10px; height: 10px;
+  background: var(--secondary-light);
+  left: 15%; top: 75%;
+  animation-delay: 0.6s;
+}
+.portal-particle:nth-child(4) {
+  width: 7px; height: 7px;
+  background: var(--success-400);
+  left: 90%; top: 70%;
+  animation-delay: 0.9s;
+}
+.portal-particle:nth-child(5) {
+  width: 9px; height: 9px;
+  background: var(--gold-400);
+  left: 5%; top: 50%;
+  animation-delay: 1.2s;
+}
+.portal-particle:nth-child(6) {
+  width: 5px; height: 5px;
+  background: var(--primary-dark);
+  left: 95%; top: 45%;
+  animation-delay: 1.5s;
+}
+.portal-particle:nth-child(7) {
+  width: 8px; height: 8px;
+  background: var(--primary-light);
+  left: 25%; top: 10%;
+  animation-delay: 1.8s;
+}
+.portal-particle:nth-child(8) {
+  width: 6px; height: 6px;
+  background: var(--secondary-light);
+  left: 75%; top: 85%;
+  animation-delay: 2.1s;
+}
+
+@keyframes portalParticleConverge {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(1);
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc(50vw - 100%),
+      calc(50vh - 100%)
+    ) scale(0);
+  }
+}
+
+/* Ring container */
+.portal-ring-container {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Multi-layered glow effect */
+.portal-glow {
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--secondary-rgb), 0.4) 0%,
+    rgba(var(--secondary-rgb), 0.3) 30%,
+    rgba(var(--primary-rgb), 0.2) 50%,
+    transparent 70%
+  );
+  animation: portalGlowPulse 2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.portal-glow::before {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--primary-rgb), 0.3) 0%,
+    rgba(var(--secondary-rgb), 0.2) 40%,
+    transparent 60%
+  );
+  animation: portalGlowPulse 2s ease-in-out infinite reverse;
+  will-change: transform, opacity;
+}
+
+@keyframes portalGlowPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* Rotating outer rings */
+.portal-outer-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  will-change: transform;
+}
+
+.portal-outer-ring-1 {
+  width: 200px;
+  height: 200px;
+  border-top-color: var(--primary);
+  border-right-color: var(--secondary);
+  animation: portalRingRotate 4s linear infinite;
+}
+
+.portal-outer-ring-2 {
+  width: 230px;
+  height: 230px;
+  border-bottom-color: var(--secondary-light);
+  border-left-color: var(--success-400);
+  animation: portalRingRotate 5s linear infinite reverse;
+}
+
+.portal-outer-ring-3 {
+  width: 260px;
+  height: 260px;
+  border-top-color: rgba(var(--primary-rgb), 0.5);
+  border-right-color: rgba(var(--primary-rgb), 0.5);
+  animation: portalRingRotate 6s linear infinite;
+}
+
+@keyframes portalRingRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Main progress ring */
+.portal-ring {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  transform: rotate(-90deg);
+}
+
+.portal-ring-bg {
+  fill: none;
+  stroke: var(--px-bevel-light);
+  stroke-width: 8;
+}
+
+.portal-ring-progress {
+  fill: none;
+  stroke: url(#portalGradient);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 502.65;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+/* Logo in center */
+.portal-logo {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: portalLogoFloat 2s ease-in-out infinite;
+  z-index: 2;
+  will-change: transform;
+}
+
+.portal-logo img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 20px rgba(var(--secondary-rgb), 0.5));
+}
+
+.portal-logo-fallback {
+  font-size: 52px;
+  filter: drop-shadow(0 4px 20px rgba(var(--secondary-rgb), 0.5));
+}
+
+@keyframes portalLogoFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.05);
+  }
+}
+
+/* Countdown badge */
+.portal-countdown {
+  position: absolute;
+  bottom: -50px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  background: var(--secondary);
+  border-radius: 50%;
+  box-shadow:
+    0 4px 20px rgba(var(--secondary-rgb), 0.4),
+    inset 0 -2px 4px var(--px-bevel-dark),
+    inset 0 2px 4px var(--px-bevel-light);
+  animation: countdownPop 1s ease-in-out infinite;
+}
+
+@keyframes countdownPop {
+  0%, 100% { transform: scale(1); }
+  10% { transform: scale(1.15); }
+  20% { transform: scale(1); }
+}
+
+/* Message text */
+.portal-message {
+  margin-top: 48px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  background: var(--primary);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: portalMessageShimmer 3s ease-in-out infinite;
+}
+
+@keyframes portalMessageShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Player avatars for group return */
+.portal-players {
+  display: flex;
+  gap: 0;
+  margin-top: 24px;
+  animation: portalPlayersAppear 0.5s ease-out forwards;
+}
+
+@keyframes portalPlayersAppear {
+  0% {
+    transform: scale(0.5) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.portal-player-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid;
+  border-color: var(--secondary);
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-left: -12px;
+  box-shadow: 0 4px 16px rgba(var(--secondary-rgb), 0.3);
+  animation: playerAvatarBounce 0.5s ease-out backwards;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.portal-player-avatar:nth-child(1) {
+  margin-left: 0;
+  border-color: var(--primary);
+  animation-delay: 0s;
+}
+.portal-player-avatar:nth-child(2) {
+  border-color: var(--secondary);
+  animation-delay: 0.1s;
+}
+.portal-player-avatar:nth-child(3) {
+  border-color: var(--secondary-light);
+  animation-delay: 0.2s;
+}
+.portal-player-avatar:nth-child(4) {
+  border-color: var(--success-400);
+  animation-delay: 0.3s;
+}
+.portal-player-avatar:nth-child(5) {
+  border-color: var(--gold-400);
+  animation-delay: 0.4s;
+}
+.portal-player-avatar:nth-child(6) {
+  border-color: var(--primary-dark);
+  animation-delay: 0.5s;
+}
+
+@keyframes playerAvatarBounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.portal-player-avatar:hover {
+  transform: scale(1.1) translateY(-4px);
+  z-index: 10;
+}
+
+.portal-player-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Subtitle / hint text */
+.portal-subtitle {
+  margin-top: 16px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  animation: portalSubtitleFade 2s ease-in-out infinite;
+}
+
+@keyframes portalSubtitleFade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.9; }
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 480px) {
+  .portal-ring-container {
+    width: 180px;
+    height: 180px;
+  }
+
+  .portal-outer-ring-1 { width: 160px; height: 160px; }
+  .portal-outer-ring-2 { width: 190px; height: 190px; }
+  .portal-outer-ring-3 { width: 220px; height: 220px; }
+
+  .portal-ring {
+    width: 140px;
+    height: 140px;
+  }
+
+  .portal-ring-bg,
+  .portal-ring-progress {
+    stroke-width: 6;
+  }
+
+  .portal-ring-progress {
+    stroke-dasharray: 392.7;
+  }
+
+  .portal-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .portal-logo img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .portal-logo-fallback {
+    font-size: 40px;
+  }
+
+  .portal-countdown {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    bottom: -44px;
+  }
+
+  .portal-message {
+    font-size: 1.25rem;
+    margin-top: 40px;
+    padding: 0 16px;
+  }
+
+  .portal-player-avatar {
+    width: 36px;
+    height: 36px;
+    margin-left: -10px;
+    font-size: 14px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .portal-overlay {
+    transition: opacity 0.15s;
+    animation: none;
+    background-size: 100% 100%;
+  }
+
+  .portal-overlay.collapsing {
+    animation: simpleFade 0.2s ease-out forwards;
+  }
+
+  @keyframes simpleFade {
+    to { opacity: 0; }
+  }
+
+  .portal-glow,
+  .portal-glow::before,
+  .portal-logo,
+  .portal-outer-ring-1,
+  .portal-outer-ring-2,
+  .portal-outer-ring-3,
+  .portal-countdown,
+  .portal-message,
+  .portal-subtitle,
+  .portal-particle {
+    animation: none;
+  }
+
+  .portal-ring-progress {
+    transition: stroke-dashoffset 0.05s linear;
+  }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

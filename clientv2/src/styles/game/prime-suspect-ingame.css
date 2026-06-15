@@ -1,0 +1,2967 @@
+/* ============================================================================
+   PRIME SUSPECT — IN-GAME TACTILE NOIR KIT
+   ----------------------------------------------------------------------------
+   A cohesive "engraved gold-on-velvet" element kit for the in-game surfaces,
+   matching the quality of the lobby START button (.lobby-start-btn) and the
+   v3 "Noir, Upgraded" mockup (mockups/v3/v3-e-noir-upgraded.html).
+
+   Loaded LAST (imported at the end of prime-suspect.css, after
+   prime-suspect-unified.css + the set-piece reskin) so it wins the cascade.
+
+   Everything is token-driven (--royal-crimson / --royal-gold / --royal-gold-light
+   / --royal-gold-dark / --parchment / --parchment-dark / --velvet-*), scoped to
+   [data-theme="primesuspect"], and respects prefers-reduced-motion.
+   ============================================================================ */
+
+[data-theme="primesuspect"] {
+  /* candlelit depth shadows reused by the kit */
+  --ps-sh-raise:
+    0 2px 6px rgba(0, 0, 0, 0.45),
+    0 14px 30px rgba(0, 0, 0, 0.42);
+  --ps-sh-raise-lg:
+    0 8px 18px rgba(0, 0, 0, 0.5),
+    0 24px 52px rgba(0, 0, 0, 0.5);
+  --ps-glow-gold: 0 0 0 1px rgba(210, 178, 90, 0.36), 0 0 22px rgba(231, 204, 122, 0.14);
+  --ps-velvet-grain:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 5px);
+}
+
+/* ============================================================================
+   1 · BUTTON FAMILY — .ps-btn
+   Engraved gold label on velvet, layered 3D depth + inset highlight, hover
+   glow, press translateY. Mirrors the START button's tactile feel.
+   ============================================================================ */
+[data-theme="primesuspect"] .ps-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--royal-gold-light);
+  cursor: pointer;
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+[data-theme="primesuspect"] .ps-btn:focus-visible {
+  outline: 2px solid var(--royal-gold-light);
+  outline-offset: 2px;
+}
+
+/* PRIMARY — crimson slab with engraved gold (Confirm / Play / Accuse / Draw) */
+[data-theme="primesuspect"] .ps-btn--primary {
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  box-shadow:
+    0 4px 0 var(--royal-crimson-dark),
+    0 10px 22px rgba(61, 12, 19, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.28);
+}
+[data-theme="primesuspect"] .ps-btn--primary:hover {
+  filter: brightness(1.06);
+  box-shadow:
+    0 4px 0 var(--royal-crimson-dark),
+    0 10px 26px rgba(61, 12, 19, 0.6),
+    0 0 18px rgba(231, 204, 122, 0.22),
+    inset 0 1px 0 rgba(231, 204, 122, 0.3);
+}
+[data-theme="primesuspect"] .ps-btn--primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--royal-crimson-dark), inset 0 1px 0 rgba(231, 204, 122, 0.28);
+}
+
+/* GHOST — engraved bordered velvet (Legend / Rules / How-to + selectors) */
+[data-theme="primesuspect"] .ps-btn--ghost {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel));
+  color: var(--parchment);
+  border-color: rgba(210, 178, 90, 0.4);
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(231, 204, 122, 0.12);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+[data-theme="primesuspect"] .ps-btn--ghost:hover {
+  border-color: var(--royal-gold);
+  color: var(--royal-gold-light);
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.35),
+    0 0 16px rgba(231, 204, 122, 0.16),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18);
+}
+[data-theme="primesuspect"] .ps-btn--ghost:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(231, 204, 122, 0.12);
+}
+[data-theme="primesuspect"] .ps-btn--ghost.is-active {
+  border-color: var(--royal-gold);
+  color: var(--royal-crimson-dark);
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold));
+  box-shadow: 0 2px 8px rgba(231, 204, 122, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* SUBTLE — quiet text button (Cancel) */
+[data-theme="primesuspect"] .ps-btn--subtle {
+  background: transparent;
+  border-color: transparent;
+  color: var(--parchment-dark);
+  min-height: 38px;
+  box-shadow: none;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+[data-theme="primesuspect"] .ps-btn--subtle:hover {
+  color: var(--royal-gold-light);
+  background: rgba(210, 178, 90, 0.08);
+  border-color: rgba(210, 178, 90, 0.28);
+}
+[data-theme="primesuspect"] .ps-btn--subtle:active { transform: translateY(2px); }
+
+/* disabled state — shared across variants */
+[data-theme="primesuspect"] .ps-btn:disabled,
+[data-theme="primesuspect"] .ps-btn[disabled] {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* size helpers */
+[data-theme="primesuspect"] .ps-btn--sm { min-height: 34px; padding: 0.4rem 0.8rem; font-size: 0.76rem; }
+[data-theme="primesuspect"] .ps-btn--wide { width: 100%; }
+
+/* ============================================================================
+   2 · BADGES
+   ============================================================================ */
+
+/* Tokens badge → embossed gold COIN / wax-seal with the count */
+[data-theme="primesuspect"] .ps-token-coin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.7rem 0.28rem 0.34rem;
+  border-radius: 999px;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--royal-crimson-dark);
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold));
+  border: 1px solid var(--royal-gold-dark);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 3px rgba(167, 126, 34, 0.5);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+[data-theme="primesuspect"] .ps-token-coin .ps-token-disc {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fbeec0 0 28%, var(--royal-gold) 60%, var(--royal-gold-dark) 100%);
+  border: 1px solid rgba(120, 90, 30, 0.6);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  font-size: 0.62rem;
+  color: var(--royal-crimson-dark);
+  font-weight: 700;
+}
+[data-theme="primesuspect"] .ps-token-coin.is-pulse {
+  animation: psCoinPulse 0.6s var(--ease-out-expo, ease);
+}
+
+/* compact coin used inside opponent suspect cards */
+[data-theme="primesuspect"] .ps-token-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  color: var(--royal-gold-light);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-weight: 400;
+}
+[data-theme="primesuspect"] .ps-token-mini-disc {
+  display: grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 0.5rem;
+  color: var(--royal-crimson-dark);
+  background: radial-gradient(circle at 35% 30%, #fbeec0 0 28%, var(--royal-gold) 62%, var(--royal-gold-dark) 100%);
+  border: 1px solid rgba(120, 90, 30, 0.55);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+@keyframes psCoinPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+  45% { transform: scale(1.18); box-shadow: 0 0 22px rgba(231, 204, 122, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+}
+
+/* YOUR TURN → glowing engraved badge */
+[data-theme="primesuspect"] .ps-turn-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--royal-crimson-dark);
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold));
+  border: 1px solid var(--royal-gold-dark);
+  box-shadow: 0 2px 10px rgba(231, 204, 122, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: psTurnGlow 2.2s ease-in-out infinite;
+}
+@keyframes psTurnGlow {
+  0%, 100% { box-shadow: 0 2px 10px rgba(231, 204, 122, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+  50% { box-shadow: 0 2px 20px rgba(231, 204, 122, 0.75), 0 0 30px rgba(231, 204, 122, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+}
+
+/* status chips: draw / must-play / eliminated / shield */
+[data-theme="primesuspect"] .ps-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.72rem;
+  border-radius: 999px;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-weight: 400;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+[data-theme="primesuspect"] .ps-chip--draw {
+  color: var(--royal-gold-light);
+  background: rgba(106, 22, 35, 0.4);
+  border: 1px solid rgba(210, 178, 90, 0.5);
+  box-shadow: var(--ps-glow-gold);
+  animation: psBounce 1s ease-in-out infinite;
+}
+[data-theme="primesuspect"] .ps-chip--warn {
+  color: var(--royal-gold-light);
+  background: rgba(106, 22, 35, 0.45);
+  border: 1px solid rgba(210, 178, 90, 0.45);
+  animation: psTurnGlow 1.8s ease-in-out infinite;
+}
+[data-theme="primesuspect"] .ps-chip--elim {
+  color: var(--parchment);
+  background: linear-gradient(180deg, var(--royal-crimson), var(--royal-crimson-dark));
+  border: 1px solid rgba(210, 178, 90, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+@keyframes psBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* ============================================================================
+   3 · ACTION MENU — frame the floating .hg-context-actions as a "case board"
+   The component keeps its inline bg/border via Tailwind; we layer a richer
+   velvet + visible gold frame + header + wax seal on top.
+   ============================================================================ */
+[data-theme="primesuspect"] .hg-context-actions {
+  background:
+    linear-gradient(180deg, rgba(61, 44, 54, 0.97), rgba(44, 32, 41, 0.97)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.55) !important;
+  border-radius: var(--radius-md, 10px) !important;
+  box-shadow:
+    var(--ps-sh-raise-lg),
+    0 0 30px rgba(231, 204, 122, 0.08),
+    inset 0 0 0 1px rgba(210, 178, 90, 0.16) !important;
+  padding-top: 1.1rem !important;
+}
+/* engraved "ACTION" tab + wax seal */
+[data-theme="primesuspect"] .hg-context-actions::before {
+  content: 'ACTION';
+  position: absolute;
+  top: -11px;
+  left: 16px;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  color: var(--royal-crimson-dark);
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold));
+  padding: 3px 12px 4px;
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
+}
+[data-theme="primesuspect"] .hg-context-actions::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--royal-crimson-light) 0 40%, var(--royal-crimson) 60%, var(--royal-crimson-dark) 100%);
+  border: 1px solid rgba(231, 204, 122, 0.4);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.18);
+}
+
+/* Target / Guess selectors → engraved chips/dropdowns inside the menu */
+[data-theme="primesuspect"] .hg-context-actions select {
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-raise)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--parchment) !important;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+[data-theme="primesuspect"] .hg-context-actions select:focus {
+  outline: none;
+  border-color: var(--royal-gold) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(210, 178, 90, 0.2);
+}
+
+/* ============================================================================
+   4 · SELECTION / TURN HIGHLIGHTS
+   ============================================================================ */
+/* selected hand card → embossed gold frame + inner gold line */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-hand-card.selected {
+  box-shadow:
+    var(--ps-sh-raise-lg),
+    0 0 0 2px var(--royal-gold),
+    0 0 0 4px rgba(61, 12, 19, 0.6),
+    0 0 26px rgba(231, 204, 122, 0.42),
+    inset 0 0 0 1px rgba(231, 204, 122, 0.5) !important;
+}
+
+[data-theme="primesuspect"] .hg-opponent-card { transition: box-shadow 140ms ease; }
+
+/* current-turn opponent → stronger gold frame + candlelit glow */
+[data-theme="primesuspect"] .ps-opp-active {
+  box-shadow:
+    0 0 0 2px var(--royal-gold),
+    0 0 22px rgba(231, 204, 122, 0.4),
+    inset 0 0 18px rgba(231, 204, 122, 0.1);
+  border-radius: 0.75rem;
+  animation: psTurnGlow 2.4s ease-in-out infinite;
+}
+/* targeted opponent → deepen the gold ring with a crimson outer halo */
+[data-theme="primesuspect"] .ps-opp-targeted {
+  box-shadow:
+    0 0 0 4px var(--royal-gold),
+    0 0 0 6px rgba(61, 12, 19, 0.55),
+    0 0 26px rgba(231, 204, 122, 0.45);
+  border-radius: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .ps-opp-active { animation: none !important; }
+}
+
+/* ============================================================================
+   5 · CASE LOG — always-visible bottom-LEFT corner panel
+   Candlelit, gold-framed, typewritten header. Shows system events only.
+   ============================================================================ */
+[data-theme="primesuspect"] .ps-caselog {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 18;
+  width: 264px;
+  max-height: 210px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid rgba(210, 178, 90, 0.5);
+  background:
+    radial-gradient(680px at 25% 12%, rgba(246, 240, 230, 0.06), transparent 55%),
+    linear-gradient(180deg, rgba(52, 38, 47, 0.94), rgba(36, 27, 34, 0.92));
+  box-shadow:
+    var(--ps-sh-raise-lg),
+    0 0 26px rgba(231, 204, 122, 0.08),
+    inset 0 0 0 1px rgba(210, 178, 90, 0.16);
+  transform: rotate(-0.5deg);
+  backdrop-filter: blur(3px);
+}
+[data-theme="primesuspect"] .ps-caselog::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.5;
+  background: var(--ps-velvet-grain);
+}
+[data-theme="primesuspect"] .ps-caselog-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid rgba(210, 178, 90, 0.32);
+  background: rgba(0, 0, 0, 0.22);
+  position: relative;
+  z-index: 1;
+}
+[data-theme="primesuspect"] .ps-caselog-icon { color: var(--royal-gold-light); flex-shrink: 0; }
+[data-theme="primesuspect"] .ps-caselog-title {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-weight: 400;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--royal-gold-light);
+  flex: 1;
+}
+[data-theme="primesuspect"] .ps-caselog-count {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.62rem;
+  color: var(--parchment-dark);
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(210, 178, 90, 0.14);
+  border: 1px solid rgba(210, 178, 90, 0.32);
+}
+[data-theme="primesuspect"] .ps-caselog-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.5rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+  z-index: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(210, 178, 90, 0.4) transparent;
+}
+[data-theme="primesuspect"] .ps-caselog-body::-webkit-scrollbar { width: 6px; }
+[data-theme="primesuspect"] .ps-caselog-body::-webkit-scrollbar-thumb {
+  background: rgba(210, 178, 90, 0.4);
+  border-radius: 999px;
+}
+[data-theme="primesuspect"] .ps-caselog-line {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: rgba(246, 240, 230, 0.9);
+  padding-left: 0.6rem;
+  border-left: 2px solid rgba(210, 178, 90, 0.35);
+}
+[data-theme="primesuspect"] .ps-caselog-empty {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-style: italic;
+  font-size: 0.74rem;
+  color: rgba(246, 240, 230, 0.45);
+}
+
+/* keep the Case Log clear of the floating action menu / hand on shorter stages */
+@media (max-width: 1023px) {
+  [data-theme="primesuspect"] .ps-caselog { width: 220px; max-height: 168px; }
+}
+
+/* ============================================================================
+   6 · CARD HOVER PREVIEW — large card pinned TOP-RIGHT of the stage
+   ============================================================================ */
+[data-theme="primesuspect"] .ps-hover-preview {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  z-index: 30;
+  width: 268px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 0.9rem 0.9rem;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  background:
+    radial-gradient(700px at 70% 10%, rgba(231, 204, 122, 0.08), transparent 58%),
+    linear-gradient(180deg, rgba(61, 44, 54, 0.96), rgba(36, 27, 34, 0.95));
+  box-shadow:
+    var(--ps-sh-raise-lg),
+    0 0 34px rgba(231, 204, 122, 0.1),
+    inset 0 0 0 1px rgba(210, 178, 90, 0.18);
+}
+[data-theme="primesuspect"] .ps-hover-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.5;
+  background: var(--ps-velvet-grain);
+}
+[data-theme="primesuspect"] .ps-hover-preview-tab {
+  position: absolute;
+  top: -11px;
+  left: 18px;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--royal-crimson-dark);
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold));
+  padding: 3px 12px 4px;
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
+}
+[data-theme="primesuspect"] .ps-hover-preview-card {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+}
+/* large preview card — override size + un-clamp the description */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-hover-card {
+  --hg-card-width: 200px;
+  --hg-card-height: 300px;
+}
+[data-theme="primesuspect"] .hg-dynamic-card.hg-hover-card .card-description {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
+}
+[data-theme="primesuspect"] .ps-hover-preview-info {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
+}
+[data-theme="primesuspect"] .ps-hover-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+[data-theme="primesuspect"] .ps-hover-preview-value {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--royal-gold-light), var(--royal-gold-dark));
+  color: var(--royal-crimson-dark);
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 900;
+  font-size: 0.92rem;
+}
+[data-theme="primesuspect"] .ps-hover-preview-name {
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 800;
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
+  color: var(--royal-gold-light);
+}
+[data-theme="primesuspect"] .ps-hover-preview-type {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+  margin-bottom: 0.35rem;
+}
+[data-theme="primesuspect"] .ps-hover-preview-desc {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-weight: 500;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(246, 240, 230, 0.92);
+}
+
+/* On smaller / shorter desktop stages, shrink the preview so it never collides
+   with the opponents row. (Touch devices use long-press CardTooltip instead.) */
+@media (max-width: 1280px) {
+  [data-theme="primesuspect"] .ps-hover-preview { width: 232px; }
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-hover-card {
+    --hg-card-width: 168px;
+    --hg-card-height: 252px;
+  }
+}
+
+/* ============================================================================
+   7 · TACTILE BUTTON UPGRADE (global)
+   ----------------------------------------------------------------------------
+   The shared button kit forces flat gradient/solid fills on the prominent
+   buttons (home Create/Join `.home-btn`, the `.primary-cta` family, the generic
+   `.btn`, header buttons, the GameBuddies return button). Several of those use
+   `!important`, so we re-skin them HERE — this sheet loads last, and we match or
+   exceed the original specificity and re-assert `!important` so the tactile
+   crimson/gold "engraved on velvet" treatment (depth shadow + inset highlight +
+   hover glow + press translateY) wins, mirroring `.lobby-start-btn` / `.ps-btn`.
+   ============================================================================ */
+
+/* ---- Shared crimson tactile slab (Create / Join / primary CTAs / .btn) ---- */
+[data-theme="primesuspect"] .card.home-card .home-btn,
+[data-theme="primesuspect"] .home-btn.primary,
+[data-theme="primesuspect"] .home-btn.secondary,
+[data-theme="primesuspect"] .primary-cta,
+[data-theme="primesuspect"] .home-hero button.primary-cta,
+[data-theme="primesuspect"] .home-hero button.create-cta,
+[data-theme="primesuspect"] .home-hero button.join-cta {
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  border: 1px solid var(--royal-gold) !important;
+  border-radius: var(--radius-sm, 8px) !important;
+  color: var(--royal-gold-light) !important;
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+  transform: none !important;
+  box-shadow:
+    0 5px 0 var(--royal-crimson-dark),
+    0 14px 30px rgba(61, 12, 19, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.28) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease !important;
+}
+
+[data-theme="primesuspect"] .card.home-card .home-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .home-btn.primary:hover:not(:disabled),
+[data-theme="primesuspect"] .home-btn.secondary:hover:not(:disabled),
+[data-theme="primesuspect"] .primary-cta:hover:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.primary-cta:hover:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.create-cta:hover:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.join-cta:hover:not(:disabled) {
+  filter: brightness(1.06);
+  color: #fff0cf !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 6px 0 var(--royal-crimson-dark),
+    0 16px 34px rgba(61, 12, 19, 0.6),
+    0 0 18px rgba(231, 204, 122, 0.22),
+    inset 0 1px 0 rgba(231, 204, 122, 0.3) !important;
+}
+
+[data-theme="primesuspect"] .card.home-card .home-btn:active:not(:disabled),
+[data-theme="primesuspect"] .home-btn.primary:active:not(:disabled),
+[data-theme="primesuspect"] .home-btn.secondary:active:not(:disabled),
+[data-theme="primesuspect"] .primary-cta:active:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.primary-cta:active:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.create-cta:active:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.join-cta:active:not(:disabled) {
+  transform: translateY(4px) !important;
+  box-shadow: 0 0 0 var(--royal-crimson-dark), inset 0 1px 0 rgba(231, 204, 122, 0.28) !important;
+}
+
+/* Secondary (Join) reads as engraved velvet so it differs from the crimson Create */
+[data-theme="primesuspect"] .home-btn.secondary {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  color: var(--parchment) !important;
+  border-color: rgba(210, 178, 90, 0.5) !important;
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.4),
+    0 14px 28px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(231, 204, 122, 0.14) !important;
+}
+[data-theme="primesuspect"] .home-btn.secondary:hover:not(:disabled) {
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  box-shadow:
+    0 6px 0 rgba(0, 0, 0, 0.4),
+    0 16px 32px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(231, 204, 122, 0.18),
+    inset 0 1px 0 rgba(231, 204, 122, 0.2) !important;
+}
+[data-theme="primesuspect"] .home-btn.secondary:active:not(:disabled) {
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(231, 204, 122, 0.14) !important;
+}
+
+[data-theme="primesuspect"] .card.home-card .home-btn:disabled,
+[data-theme="primesuspect"] .home-btn:disabled,
+[data-theme="primesuspect"] .primary-cta:disabled {
+  opacity: 0.45 !important;
+  filter: grayscale(0.5);
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+/* ---- Generic ghost `.btn` → engraved velvet with depth + press ----------- */
+[data-theme="primesuspect"] .btn {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.4) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--parchment) !important;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.35),
+    0 8px 18px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease, color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] .btn:hover:not(:disabled) {
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.35),
+    0 10px 22px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(231, 204, 122, 0.16),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18) !important;
+}
+[data-theme="primesuspect"] .btn:active:not(:disabled) {
+  transform: translateY(3px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+}
+/* Primary/danger variants of `.btn` → crimson tactile slab */
+[data-theme="primesuspect"] .btn.btn-primary,
+[data-theme="primesuspect"] .btn.btn-danger {
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  box-shadow:
+    0 4px 0 var(--royal-crimson-dark),
+    0 10px 22px rgba(61, 12, 19, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.28) !important;
+}
+[data-theme="primesuspect"] .btn.btn-primary:hover:not(:disabled),
+[data-theme="primesuspect"] .btn.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.06);
+  color: #fff0cf !important;
+}
+[data-theme="primesuspect"] .btn:disabled {
+  opacity: 0.45 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+/* ---- Header utility buttons (Settings / Back-to-Lobby / Leave) ----------- */
+[data-theme="primesuspect"] .game-header-settings-btn,
+[data-theme="primesuspect"] .game-header-lobby-btn,
+[data-theme="primesuspect"] .game-header-leave-btn {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.45) !important;
+  border-radius: var(--radius-sm, 8px) !important;
+  color: var(--parchment) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.4),
+    0 6px 14px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] .game-header-settings-btn:hover,
+[data-theme="primesuspect"] .game-header-lobby-btn:hover,
+[data-theme="primesuspect"] .game-header-leave-btn:hover {
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.4),
+    0 8px 18px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(231, 204, 122, 0.16),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18) !important;
+}
+[data-theme="primesuspect"] .game-header-settings-btn:active,
+[data-theme="primesuspect"] .game-header-lobby-btn:active,
+[data-theme="primesuspect"] .game-header-leave-btn:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+}
+[data-theme="primesuspect"] .game-header-settings-btn svg,
+[data-theme="primesuspect"] .game-header-lobby-btn svg,
+[data-theme="primesuspect"] .game-header-leave-btn svg { color: currentColor !important; stroke: currentColor; }
+
+/* ---- GameBuddies "Try Another Game" — COMPACT (Bluffalo-sized) + tactile -
+   PS's Cinzel display font visually inflates the shared inline button, so pin
+   it back to compact proportions and give it a subtle engraved gold skin so it
+   still feels alive without dominating the header. ------------------------- */
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline {
+  min-height: 36px;
+  padding: 0.3rem 0.6rem !important;
+  gap: 0.4rem;
+  font-family: var(--font-mono, 'Special Elite', monospace) !important;
+  font-weight: 600;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.02em;
+  color: var(--parchment-dark) !important;
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.4) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(231, 204, 122, 0.1) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline:hover {
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.35),
+    0 0 14px rgba(231, 204, 122, 0.16),
+    inset 0 1px 0 rgba(231, 204, 122, 0.16) !important;
+}
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(231, 204, 122, 0.1) !important;
+}
+/* compact two-line label: keep the sub-line small so the button stays tight */
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline .gb-return-main {
+  font-size: 0.78rem;
+  line-height: 1.05;
+}
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline .gb-return-sub {
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+/* ============================================================================
+   8 · MISSED TACTILE BUTTONS (Visual-polish pass — Section A)
+   ----------------------------------------------------------------------------
+   A set of buttons that were still reading flat/ghost/invisible. Re-skinned to
+   the same engraved velvet/gold "tactile" language as .lobby-start-btn / .ps-btn
+   (velvet or crimson gradient, layered `0 Npx 0` depth + drop, inset gold
+   highlight, hover gold glow, :active translateY press, gold/parchment label).
+   This sheet loads LAST, so we match or beat the original specificity and
+   re-assert !important where the base rule used a flat !important fill.
+
+   Extra theme tokens used only by the card redesign (Section D) — define here so
+   the sheet is self-contained even if upstream variables.css lacks them.
+   ============================================================================ */
+[data-theme="primesuspect"] {
+  --royal-tan: #c9a86a;            /* Staff ribbon */
+  --royal-violet: #9b6fb0;         /* Spy ribbon */
+  --royal-crimson-bright: #c0392b; /* Dangerous / Guilty ribbon */
+}
+
+/* ---- 8.1 · "Join Video" (.video-join-btn) — was flat cyan/gold, NO PS skin --
+   Make it an engraved crimson slab with a gold label, matching the lobby CTA. */
+[data-theme="primesuspect"] .video-join-btn {
+  padding: 0.5rem 0.85rem !important;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  border: 1px solid var(--royal-gold) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--royal-gold-light) !important;
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  box-shadow:
+    0 3px 0 var(--royal-crimson-dark),
+    0 9px 20px rgba(61, 12, 19, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.28) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease !important;
+}
+[data-theme="primesuspect"] .video-join-btn:hover {
+  filter: brightness(1.06);
+  color: #fff0cf !important;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 0 var(--royal-crimson-dark),
+    0 11px 24px rgba(61, 12, 19, 0.6),
+    0 0 16px rgba(231, 204, 122, 0.22),
+    inset 0 1px 0 rgba(231, 204, 122, 0.3) !important;
+}
+[data-theme="primesuspect"] .video-join-btn:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 0 0 var(--royal-crimson-dark), inset 0 1px 0 rgba(231, 204, 122, 0.28) !important;
+}
+[data-theme="primesuspect"] .video-join-btn svg { color: currentColor; stroke: currentColor; }
+
+/* ---- 8.2 · Sound / Mute (.game-header-mute-btn) — was text-color only ------
+   Full engraved icon-button to match the settings/leave header set. */
+[data-theme="primesuspect"] .game-header-mute-btn {
+  padding: var(--spacing-xs) !important;
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.45) !important;
+  border-radius: var(--radius-sm, 8px) !important;
+  color: var(--parchment) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.4),
+    0 6px 14px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] .game-header-mute-btn:hover {
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.4),
+    0 8px 18px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(231, 204, 122, 0.16),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18) !important;
+}
+[data-theme="primesuspect"] .game-header-mute-btn:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+}
+/* muted state keeps the crimson alert tint but stays engraved */
+[data-theme="primesuspect"] .game-header-mute-btn.muted {
+  color: var(--royal-crimson-bright) !important;
+  border-color: var(--royal-crimson-bright) !important;
+}
+[data-theme="primesuspect"] .game-header-mute-btn svg { color: currentColor !important; stroke: currentColor; }
+
+/* ---- 8.3 · Copy room-code (.game-header-copy-btn) — was invisible ghost -----
+   It nests INSIDE the room-code chip, so keep it compact but give it a real
+   tactile velvet face + gold hover so it reads as a button. */
+[data-theme="primesuspect"] .game-header-copy-btn {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.4) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--royal-gold-light) !important;
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] .game-header-copy-btn:hover {
+  color: #fff0cf !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-raise)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(231, 204, 122, 0.18),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18) !important;
+}
+[data-theme="primesuspect"] .game-header-copy-btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+}
+[data-theme="primesuspect"] .game-header-copy-btn svg { color: currentColor !important; stroke: currentColor; }
+/* copy-success keeps the green confirm tint */
+[data-theme="primesuspect"] .game-header-copy-btn.copied,
+[data-theme="primesuspect"] .game-header-copy-btn:has(svg.lucide-check) {
+  color: var(--gb-truth) !important;
+  border-color: var(--gb-truth) !important;
+}
+
+/* ---- 8.4 · Copy lobby invite (.solo-invite-btn-copy) — was flat tint -------
+   Promote to the crimson tactile slab; keep Share as engraved velvet (8.5). */
+[data-theme="primesuspect"] .solo-invite-btn-copy {
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  border: 1px solid var(--royal-gold) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--royal-gold-light) !important;
+  font-family: var(--font-mono, 'Special Elite', monospace) !important;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  box-shadow:
+    0 4px 0 var(--royal-crimson-dark),
+    0 10px 22px rgba(61, 12, 19, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.26) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease !important;
+}
+[data-theme="primesuspect"] .solo-invite-btn-copy:hover {
+  filter: brightness(1.06);
+  color: #fff0cf !important;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 5px 0 var(--royal-crimson-dark),
+    0 12px 26px rgba(61, 12, 19, 0.6),
+    0 0 16px rgba(231, 204, 122, 0.22),
+    inset 0 1px 0 rgba(231, 204, 122, 0.3) !important;
+}
+[data-theme="primesuspect"] .solo-invite-btn-copy:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 0 0 var(--royal-crimson-dark), inset 0 1px 0 rgba(231, 204, 122, 0.26) !important;
+}
+
+/* ---- 8.5 · Share lobby invite (.solo-invite-btn-share) — engraved velvet ---
+   (kept tactile so the pair feels intentional next to the crimson Copy.) */
+[data-theme="primesuspect"] .solo-invite-btn-share {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.45) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--parchment) !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.4),
+    0 10px 20px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] .solo-invite-btn-share:hover {
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.4),
+    0 12px 24px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(231, 204, 122, 0.16),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18) !important;
+}
+[data-theme="primesuspect"] .solo-invite-btn-share:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(231, 204, 122, 0.12) !important;
+}
+
+/* ---- 8.6 · Card Legend / Rules / How-to-Play — STRENGTHEN .ps-btn--ghost ----
+   They were already .ps-btn--ghost.ps-btn--sm but read too quiet. Stronger gold
+   border, deeper depth shadow, clearer hover/press so they're obviously tactile.
+   (Re-declared after Section 1 so this wins; no !important needed — same
+   specificity, later in the sheet.) */
+[data-theme="primesuspect"] .ps-btn--ghost {
+  border-color: rgba(210, 178, 90, 0.62);
+  color: var(--parchment);
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-raise));
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.42),
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(231, 204, 122, 0.16);
+}
+[data-theme="primesuspect"] .ps-btn--ghost:hover {
+  border-color: var(--royal-gold-light);
+  color: var(--royal-gold-light);
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.42),
+    0 10px 20px rgba(0, 0, 0, 0.5),
+    0 0 18px rgba(231, 204, 122, 0.22),
+    inset 0 1px 0 rgba(231, 204, 122, 0.22);
+  transform: translateY(-1px);
+}
+[data-theme="primesuspect"] .ps-btn--ghost:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(231, 204, 122, 0.16);
+}
+
+/* ---- 8.7 · Header settings/lobby/leave — pin to the SAME engraved metrics ---
+   Section 7 already skinned these; reassert min-height + flex so the whole
+   header icon set (settings, lobby, leave, mute, copy) reads as one velvet/gold
+   family with consistent sizing. */
+[data-theme="primesuspect"] .game-header-settings-btn,
+[data-theme="primesuspect"] .game-header-lobby-btn,
+[data-theme="primesuspect"] .game-header-leave-btn,
+[data-theme="primesuspect"] .game-header-mute-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+}
+
+/* ============================================================================
+   9 · SIDEBAR TABS / RAIL (Visual-polish pass — Section B)
+   ----------------------------------------------------------------------------
+   The Players / Case Notes tab header read as the template pixel/pink tokens.
+   Restyle to velvet + gold to match the case-log / action-menu panel language
+   (mockup E .sidebar-tabs / .sidebar-tab / .gs-rail). Loaded last → wins; no
+   !important needed (the base rules are un-themed, lower in the cascade).
+   ============================================================================ */
+
+/* rail: velvet body + gold left-border + candlelit inner edge */
+[data-theme="primesuspect"] .gs-rail {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel));
+  border-left: 1px solid rgba(210, 178, 90, 0.4);
+  box-shadow: -8px 0 22px rgba(0, 0, 0, 0.4), inset 1px 0 0 rgba(231, 204, 122, 0.08);
+}
+[data-theme="primesuspect"] .gs-rail-hide-btn {
+  background: var(--velvet-darker);
+  border-bottom: 1px solid rgba(210, 178, 90, 0.32);
+  color: var(--royal-gold-light);
+}
+[data-theme="primesuspect"] .gs-rail-hide-btn:hover {
+  background: rgba(106, 22, 35, 0.4);
+  color: #fff0cf;
+}
+
+/* tabs header: velvet bar + gold bottom border */
+[data-theme="primesuspect"] .sidebar-tabs {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.12));
+  border-bottom: 1px solid rgba(210, 178, 90, 0.42);
+}
+
+/* a tab: typewriter Special Elite, parchment-muted, uppercase */
+[data-theme="primesuspect"] .sidebar-tab {
+  background: transparent;
+  color: var(--parchment-dark);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-weight: 400;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+[data-theme="primesuspect"] .sidebar-tab:hover {
+  color: var(--royal-gold-light);
+  background: rgba(210, 178, 90, 0.08);
+}
+
+/* active tab: crimson/gold engraved — gold text + gold underline + inset glow */
+[data-theme="primesuspect"] .sidebar-tab.active {
+  color: var(--royal-gold-light);
+  background: rgba(106, 22, 35, 0.42);
+  box-shadow:
+    inset 0 -2px 0 var(--royal-gold),
+    inset 0 0 16px rgba(231, 204, 122, 0.1);
+}
+/* the base .active::after underline is amber crimson — repaint to gold */
+[data-theme="primesuspect"] .sidebar-tab.active::after {
+  background: var(--royal-gold);
+  height: 2px;
+  bottom: 0;
+  box-shadow: 0 0 8px rgba(231, 204, 122, 0.5);
+}
+[data-theme="primesuspect"] .sidebar-tab .tab-icon { font-size: 0.95rem; }
+
+/* count → small engraved gold pill */
+[data-theme="primesuspect"] .sidebar-tab .tab-count {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.66rem;
+  opacity: 1;
+  padding: 0.05rem 0.42rem;
+  border-radius: 999px;
+  color: var(--royal-gold-light);
+  background: rgba(210, 178, 90, 0.16);
+  border: 1px solid rgba(210, 178, 90, 0.4);
+}
+/* on the active tab the count sits on crimson — keep it readable */
+[data-theme="primesuspect"] .sidebar-tab.active .tab-count {
+  color: #fff0cf;
+  background: rgba(231, 204, 122, 0.22);
+  border-color: rgba(231, 204, 122, 0.55);
+}
+/* unread badge → crimson wax pill with gold ring */
+[data-theme="primesuspect"] .sidebar-tab .tab-badge {
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  color: var(--royal-gold-light);
+  border: 1px solid rgba(210, 178, 90, 0.5);
+  border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================================
+   reduced motion
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .ps-btn,
+  [data-theme="primesuspect"] .ps-token-coin,
+  [data-theme="primesuspect"] .ps-turn-badge,
+  [data-theme="primesuspect"] .ps-chip,
+  [data-theme="primesuspect"] .ps-chip--draw,
+  [data-theme="primesuspect"] .ps-chip--warn,
+  [data-theme="primesuspect"] .home-btn,
+  [data-theme="primesuspect"] .primary-cta,
+  [data-theme="primesuspect"] .btn,
+  [data-theme="primesuspect"] .video-join-btn,
+  [data-theme="primesuspect"] .solo-invite-btn-copy,
+  [data-theme="primesuspect"] .solo-invite-btn-share,
+  [data-theme="primesuspect"] .game-header-copy-btn,
+  [data-theme="primesuspect"] .game-header-mute-btn,
+  [data-theme="primesuspect"] .game-header-settings-btn,
+  [data-theme="primesuspect"] .game-header-lobby-btn,
+  [data-theme="primesuspect"] .game-header-leave-btn,
+  [data-theme="primesuspect"] .gamebuddies-return-btn.inline {
+    animation: none !important;
+    transition: none !important;
+  }
+  [data-theme="primesuspect"] .home-btn:hover,
+  [data-theme="primesuspect"] .primary-cta:hover,
+  [data-theme="primesuspect"] .btn:hover,
+  [data-theme="primesuspect"] .video-join-btn:hover,
+  [data-theme="primesuspect"] .solo-invite-btn-copy:hover,
+  [data-theme="primesuspect"] .solo-invite-btn-share:hover,
+  [data-theme="primesuspect"] .game-header-copy-btn:hover,
+  [data-theme="primesuspect"] .game-header-mute-btn:hover,
+  [data-theme="primesuspect"] .game-header-settings-btn:hover,
+  [data-theme="primesuspect"] .game-header-lobby-btn:hover,
+  [data-theme="primesuspect"] .game-header-leave-btn:hover,
+  [data-theme="primesuspect"] .gamebuddies-return-btn.inline:hover,
+  [data-theme="primesuspect"] .ps-btn--ghost:hover,
+  [data-theme="primesuspect"] .home-btn:active,
+  [data-theme="primesuspect"] .primary-cta:active,
+  [data-theme="primesuspect"] .btn:active,
+  [data-theme="primesuspect"] .ps-btn--ghost:active {
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   10 · DYNAMIC CARD REDESIGN — polished noir playing card (Section D)
+   ----------------------------------------------------------------------------
+   The base .hg-dynamic-card (prime-suspect-unified.css L4375+) is a CREAM face
+   with a white border, a single top-left value, red name + monospace body — it
+   clashes with the velvet/gold theme. Re-skin it into a proper noir playing
+   card: velvet face, double-line gold border, candlelit shadow + grain, DUAL
+   gold Cinzel value badges (TL + mirrored BR), a per-type top ribbon, a dark
+   matte behind the art with a gold divider + vignette, a gold engraved name
+   banner, and legible parchment effect text (5-line clamp preserved on small
+   cards; the hover-preview / inspector already un-clamp for full text).
+
+   All chrome scales off --hg-card-width so the 116px in-hand sizes through the
+   210px inspector all look right. This sheet loads last; the base rules are
+   un-!important so these same-specificity [data-theme] rules win the cascade.
+   Applies to every variant via the shared .hg-dynamic-card base. The card-back
+   (.hg-card-back) keeps its image and is explicitly exempted from the face skin.
+   ============================================================================ */
+
+/* face-up card FRAME — velvet gradient + double-line gold border + candlelit
+   shadow. (.hg-card-back is excluded so the back image is untouched.) */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) {
+  /* proportional chrome metrics (scale with the card) */
+  --psc-badge: clamp(16px, calc(var(--hg-card-width, 160px) * 0.16), 38px);
+  /* value badge text bumped ~+18% (was 9–22 → 11–26) for legibility */
+  --psc-badge-font: clamp(11px, calc(var(--hg-card-width, 160px) * 0.118), 26px);
+  --psc-ribbon: clamp(3px, calc(var(--hg-card-width, 160px) * 0.028), 7px);
+  --psc-pad: clamp(3px, calc(var(--hg-card-width, 160px) * 0.04), 9px);
+
+  background-color: var(--velvet-panel);
+  background-image: linear-gradient(157deg, var(--velvet-card) 0%, var(--velvet-panel) 55%, var(--velvet-darker) 100%);
+  border: var(--hg-card-border-width, 2px) solid var(--royal-gold);
+  /* double-line gold border via inset rings + candlelit drop */
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(18, 13, 17, 0.9),
+    inset 0 0 0 calc(1px + var(--hg-card-border-width, 2px)) rgba(231, 204, 122, 0.35),
+    inset 0 0 26px rgba(0, 0, 0, 0.45);
+  color: var(--parchment);
+}
+
+/* subtle grain + soft vignette overlay (non-interactive) */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 80% at 50% 0%, transparent 55%, rgba(0, 0, 0, 0.32) 100%),
+    var(--ps-velvet-grain);
+  opacity: 0.85;
+}
+
+/* per-type TOP RIBBON — coloured accent bar across the top edge */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--psc-ribbon);
+  z-index: 11;
+  background: var(--psc-accent, var(--royal-gold));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+/* type accent palette (canonical English type from DynamicCard data-card-type) */
+[data-theme="primesuspect"] .hg-dynamic-card[data-card-type="Law"]       { --psc-accent: var(--royal-gold); }
+[data-theme="primesuspect"] .hg-dynamic-card[data-card-type="Staff"]     { --psc-accent: var(--royal-tan); }
+[data-theme="primesuspect"] .hg-dynamic-card[data-card-type="Civilian"]  { --psc-accent: var(--parchment-dark); }
+[data-theme="primesuspect"] .hg-dynamic-card[data-card-type="Criminal"]  { --psc-accent: var(--royal-crimson-light); }
+[data-theme="primesuspect"] .hg-dynamic-card[data-card-type="Spy"]       { --psc-accent: var(--royal-violet); }
+[data-theme="primesuspect"] .hg-dynamic-card[data-card-type="Dangerous"] { --psc-accent: var(--royal-crimson-bright); }
+[data-theme="primesuspect"] .hg-dynamic-card[data-card-type="Guilty"]    { --psc-accent: var(--royal-crimson-bright); }
+
+/* HEADER — top-left gold Cinzel value badge */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-header {
+  padding: var(--psc-pad);
+  z-index: 12;
+}
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-value {
+  display: grid;
+  place-items: center;
+  width: var(--psc-badge);
+  height: var(--psc-badge);
+  border-radius: clamp(2px, calc(var(--hg-card-width, 160px) * 0.02), 4px);
+  background: linear-gradient(135deg, var(--royal-gold-light), var(--royal-gold-dark));
+  border: 1px solid rgba(120, 90, 30, 0.7);
+  color: var(--royal-crimson-dark);
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 900;
+  font-size: var(--psc-badge-font);
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+/* mirrored BOTTOM-RIGHT value badge (the element added in DynamicCard.tsx) */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-value-br {
+  position: absolute;
+  bottom: var(--psc-pad);
+  right: var(--psc-pad);
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  width: var(--psc-badge);
+  height: var(--psc-badge);
+  border-radius: clamp(2px, calc(var(--hg-card-width, 160px) * 0.02), 4px);
+  background: linear-gradient(135deg, var(--royal-gold-light), var(--royal-gold-dark));
+  border: 1px solid rgba(120, 90, 30, 0.7);
+  color: var(--royal-crimson-dark);
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 900;
+  font-size: var(--psc-badge-font);
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transform: rotate(180deg);
+}
+/* the back has no BR badge */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-card-back .card-value-br { display: none; }
+/* tiny mobile hand cards (56–84px) are too small for dual badges + they already
+   collapse to a minimal "🔍effect" tap-hint — drop the BR badge and the body's
+   reserved bottom padding so the compact layout stays clean. */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-value-br { display: none; }
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
+  padding-bottom: 2px !important;
+}
+
+/* ART — dark velvet matte behind the image + gold divider + soft vignette.
+   The art image is set INLINE on the element (DynamicCard `style`), which wins
+   for background-image, so we only provide the matte (background-color shows
+   through the `contain`-sized art's transparent regions) + a gold divider +
+   an inset vignette. */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-art {
+  background-color: var(--velvet-darker);
+  border-bottom: clamp(1px, calc(var(--hg-card-width, 160px) * 0.014), 2px) solid var(--royal-gold);
+  box-shadow:
+    inset 0 0 24px rgba(0, 0, 0, 0.55),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+/* BODY — velvet base, gold engraved name banner + legible parchment text */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-body {
+  background-color: var(--velvet-panel);
+  background-image: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel));
+  padding: var(--psc-pad) calc(var(--psc-pad) * 1.1)
+           calc(var(--psc-pad) + var(--psc-badge) * 0.5) calc(var(--psc-pad) * 1.1);
+  position: relative;
+  z-index: 6;
+}
+/* gold hairline above the name (separates art matte from the body banner) */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(231, 204, 122, 0.55), transparent);
+}
+
+/* NAME (.effect-tag) → Cinzel gold engraved banner (NOT red).
+   Bumped ~+18% (was 7–14 → 8.5–17) for legibility. */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .effect-tag {
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 800;
+  color: var(--royal-gold-light);
+  font-size: clamp(8.5px, calc(var(--hg-card-width, 160px) * 0.089), 17px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6), 0 0 8px rgba(231, 204, 122, 0.18);
+  margin-bottom: clamp(2px, calc(var(--hg-card-width, 160px) * 0.018), 5px);
+  line-height: 1.05;
+}
+
+/* EFFECT TEXT (.card-description) → Libre Franklin parchment-soft, legible.
+   Bumped ~+18% (was 7–12 → 8.5–14.5) for legibility. */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-description {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-weight: 500;
+  color: var(--parchment);
+  font-size: clamp(8.5px, calc(var(--hg-card-width, 160px) * 0.069), 14.5px);
+  line-height: 1.2;
+  /* keep the base 5-line clamp on small cards; hover/inspector un-clamp below */
+}
+
+/* HOVER — gold frame + glow + lift (matches the existing tactile language) */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back):hover {
+  transform: translateY(-10px);
+  box-shadow:
+    0 16px 32px rgba(0, 0, 0, 0.6),
+    0 0 0 1px var(--royal-gold),
+    0 0 26px rgba(231, 204, 122, 0.32),
+    inset 0 0 0 1px rgba(18, 13, 17, 0.9),
+    inset 0 0 0 calc(1px + var(--hg-card-border-width, 2px)) rgba(231, 204, 122, 0.5),
+    inset 0 0 26px rgba(0, 0, 0, 0.4);
+}
+
+/* Evidence / deck pile: the push-pin, masking-tape and red-string decorations
+   live on the WRAPPER (.hg-discard-card / .hg-deck-card), but the lift above is
+   on the INNER card — so on hover the art rose and the pinned-on bits stayed put.
+   Lift the whole wrapper instead (decorations travel with it) and cancel the
+   inner card's own lift so the pile rises as one piece. */
+[data-theme="primesuspect"] .hg-discard-card,
+[data-theme="primesuspect"] .hg-deck-card {
+  transition: transform 0.2s ease;
+}
+[data-theme="primesuspect"] .hg-discard-card:hover,
+[data-theme="primesuspect"] .hg-deck-card:hover {
+  transform: translateY(-10px);
+}
+[data-theme="primesuspect"] .hg-discard-card:hover .hg-dynamic-card:not(.hg-card-back):hover,
+[data-theme="primesuspect"] .hg-deck-card:hover .hg-dynamic-card:not(.hg-card-back):hover {
+  transform: none;
+}
+
+/* SELECTED — embossed gold frame + crimson outer line + glow (override the
+   cream-era selected rule from prime-suspect-unified.css). Section 4 already
+   styles .hg-hand-card.selected with !important; this covers all OTHER variants
+   (e.g. guard-select) with a matching look. */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back).selected {
+  transform: scale(1.05) translateY(-10px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.65),
+    0 0 0 2px var(--royal-gold),
+    0 0 0 4px rgba(61, 12, 19, 0.6),
+    0 0 26px rgba(231, 204, 122, 0.42),
+    inset 0 0 0 1px rgba(231, 204, 122, 0.5);
+}
+
+/* The large preview (.hg-hover-card) & inspector (.hg-inspector-card) un-clamp
+   their description in the base/Section 6 sheets — re-assert legible colour at
+   those larger sizes (values already scale via --hg-card-width). */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-hover-card .card-description,
+[data-theme="primesuspect"] .hg-dynamic-card.hg-inspector-card .card-description {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
+  color: var(--parchment);
+}
+
+/* reduced motion: cards must not lift/scale */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) { transition: none !important; }
+  [data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back):hover,
+  [data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back).selected {
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   11 · POLISH FIXES (final pass — loads last, wins the cascade)
+   ----------------------------------------------------------------------------
+   Six targeted fixes. This block is the LAST thing in the LAST-imported sheet,
+   so same-specificity rules here override the earlier Section 8.6 / Section 9
+   declarations; we bump specificity or use !important only where a base
+   `button`/`.btn`/template rule would otherwise win.
+   ============================================================================ */
+
+/* ---- 11.1 · SIDEBAR TABS — make BOTH states unmistakably noir ----------------
+   The base .sidebar-tab (pages/game.css) paints inactive tabs with the template
+   Gloria-Hallelujah title font + --text-secondary + pixel borders, which read
+   as "old template". Repaint the INACTIVE tab as a clearly-intentional velvet
+   chip (subtle velvet tint, parchment-muted Special Elite caps), hover → gold
+   text + faint gold tint, and keep .active as the crimson/gold engraved face
+   (gold underline + inset glow). Two-class selectors here beat the un-themed
+   single-class base; we also reset font-family hard so the casual title font
+   can never leak through. */
+[data-theme="primesuspect"] .sidebar-tabs {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.14));
+  border-bottom: 1px solid rgba(210, 178, 90, 0.45);
+}
+
+/* INACTIVE tab — subtle velvet chip, parchment-muted typewriter caps */
+[data-theme="primesuspect"] .sidebar-tabs .sidebar-tab,
+[data-theme="primesuspect"] .sidebar-tab {
+  background: linear-gradient(180deg, rgba(60, 44, 54, 0.42), rgba(44, 32, 41, 0.32));
+  color: var(--parchment-dark);
+  font-family: var(--font-typewriter, 'Special Elite', monospace) !important;
+  font-weight: 400;
+  font-size: 0.74rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  border: none;
+  border-right: 1px solid rgba(210, 178, 90, 0.14);
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.06);
+  transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+[data-theme="primesuspect"] .sidebar-tabs .sidebar-tab:last-child,
+[data-theme="primesuspect"] .sidebar-tab:last-child {
+  border-right: none;
+}
+
+/* HOVER (inactive) — gold text + faint gold tint */
+[data-theme="primesuspect"] .sidebar-tabs .sidebar-tab:hover,
+[data-theme="primesuspect"] .sidebar-tab:hover {
+  color: var(--royal-gold-light);
+  background: linear-gradient(180deg, rgba(106, 22, 35, 0.30), rgba(60, 44, 54, 0.40));
+  box-shadow:
+    inset 0 1px 0 rgba(231, 204, 122, 0.12),
+    inset 0 0 14px rgba(231, 204, 122, 0.06);
+}
+
+/* ACTIVE — crimson/gold engraved: gold caps, crimson velvet face, gold
+   underline + inset candle-glow (clearly the selected, intentional state) */
+[data-theme="primesuspect"] .sidebar-tabs .sidebar-tab.active,
+[data-theme="primesuspect"] .sidebar-tab.active {
+  color: var(--royal-gold-light);
+  background: linear-gradient(180deg, rgba(106, 22, 35, 0.55), rgba(74, 16, 24, 0.42));
+  box-shadow:
+    inset 0 -2px 0 var(--royal-gold),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18),
+    inset 0 0 18px rgba(231, 204, 122, 0.12);
+}
+[data-theme="primesuspect"] .sidebar-tabs .sidebar-tab.active::after,
+[data-theme="primesuspect"] .sidebar-tab.active::after {
+  background: var(--royal-gold);
+  height: 2px;
+  bottom: 0;
+  box-shadow: 0 0 8px rgba(231, 204, 122, 0.55);
+}
+[data-theme="primesuspect"] .sidebar-tab .tab-label { font-weight: 400; }
+
+/* ---- 11.2 · Add Bot / Remove Bot + GameExplainer help button — tactile noir -
+   These had NO PS skin (Add Bot = shared cyan/pink chip; the help button is the
+   GameExplainer cyan round icon-button). Re-skin to the engraved velvet/gold
+   tactile language. !important beats the base component rules (they set flat
+   fills, several with their own !important). */
+
+/* Add Bot — engraved crimson/gold slab with depth + inset highlight + press */
+[data-theme="primesuspect"] .bot-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  border: 1px solid var(--royal-gold) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--royal-gold-light) !important;
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow:
+    0 4px 0 var(--royal-crimson-dark),
+    0 10px 22px rgba(61, 12, 19, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.28) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease !important;
+}
+[data-theme="primesuspect"] .bot-add-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+  color: #fff0cf !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 5px 0 var(--royal-crimson-dark),
+    0 12px 26px rgba(61, 12, 19, 0.6),
+    0 0 18px rgba(231, 204, 122, 0.22),
+    inset 0 1px 0 rgba(231, 204, 122, 0.3) !important;
+}
+[data-theme="primesuspect"] .bot-add-btn:active:not(:disabled) {
+  transform: translateY(4px) !important;
+  box-shadow: 0 0 0 var(--royal-crimson-dark), inset 0 1px 0 rgba(231, 204, 122, 0.28) !important;
+}
+[data-theme="primesuspect"] .bot-add-btn:disabled {
+  opacity: 0.45 !important;
+  filter: grayscale(0.5);
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+[data-theme="primesuspect"] .bot-add-btn svg { color: currentColor !important; stroke: currentColor; }
+
+/* Remove Bot — small crimson tactile icon-button */
+[data-theme="primesuspect"] .bot-remove-btn {
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  border: 1px solid var(--royal-gold) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  color: var(--royal-gold-light) !important;
+  box-shadow:
+    0 2px 0 var(--royal-crimson-dark),
+    0 5px 12px rgba(61, 12, 19, 0.45),
+    inset 0 1px 0 rgba(231, 204, 122, 0.22) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease !important;
+}
+[data-theme="primesuspect"] .bot-remove-btn:hover {
+  filter: brightness(1.08);
+  color: #fff0cf !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 3px 0 var(--royal-crimson-dark),
+    0 7px 16px rgba(61, 12, 19, 0.55),
+    0 0 12px rgba(231, 204, 122, 0.2),
+    inset 0 1px 0 rgba(231, 204, 122, 0.24) !important;
+}
+[data-theme="primesuspect"] .bot-remove-btn:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 0 0 var(--royal-crimson-dark), inset 0 1px 0 rgba(231, 204, 122, 0.22) !important;
+}
+[data-theme="primesuspect"] .bot-remove-btn svg { color: currentColor !important; stroke: currentColor; }
+
+/* GameExplainer help button — engraved velvet/gold round icon-button.
+   The base .game-explainer-help-button (GameExplainer.css) is a cyan circle;
+   repaint to match the header icon family (depth + gold hover glow + press). */
+[data-theme="primesuspect"] .game-explainer-help-button {
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  color: var(--royal-gold-light) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.42),
+    0 6px 14px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(231, 204, 122, 0.14) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] .game-explainer-help-button:hover {
+  color: #fff0cf !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-raise)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.42),
+    0 8px 18px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(231, 204, 122, 0.2),
+    inset 0 1px 0 rgba(231, 204, 122, 0.2) !important;
+}
+[data-theme="primesuspect"] .game-explainer-help-button:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(231, 204, 122, 0.14) !important;
+}
+[data-theme="primesuspect"] .game-explainer-help-button svg { color: currentColor !important; stroke: currentColor; }
+
+/* ---- 11.3 · .ps-btn--ghost — REDESIGN into a clearly tactile 3D button -------
+   Card Legend / Rules / How to Play are .ps-btn.ps-btn--ghost.ps-btn--sm. The
+   ghost style itself read flat/old, so rebuild it: velvet gradient face with a
+   faint crimson tint, STRONG gold border, layered depth shadow (0 3px 0 +
+   drop) + inset gold highlight, gold-light Special Elite label, clear hover
+   (brighter gold border + gold glow + lift) and a real :active press. We bump
+   specificity + !important so it beats any base `button`/`.btn` rule. Slightly
+   larger label/padding so it reads well. */
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost,
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--velvet-card) 88%, var(--royal-crimson) 12%),
+      var(--velvet-panel)) !important;
+  color: var(--royal-gold-light) !important;
+  border: 1px solid rgba(210, 178, 90, 0.55) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  font-family: var(--font-typewriter, 'Special Elite', monospace) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.4),
+    0 9px 18px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(231, 204, 122, 0.20) !important;
+  transition:
+    transform 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 120ms var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter 120ms ease, color 120ms ease, border-color 120ms ease !important;
+}
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost:hover:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost:hover:not(:disabled) {
+  color: #fff0cf !important;
+  border-color: var(--royal-gold-light) !important;
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.4),
+    0 12px 22px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(231, 204, 122, 0.26),
+    inset 0 1px 0 rgba(231, 204, 122, 0.26) !important;
+}
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost:active:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost:active:not(:disabled) {
+  transform: translateY(2px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(231, 204, 122, 0.20) !important;
+}
+/* selected/toggled ghost (selector chips) — engraved gold face, dark label */
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost.is-active,
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost.is-active {
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold)) !important;
+  color: var(--royal-crimson-dark) !important;
+  border-color: var(--royal-gold) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 2px 8px rgba(231, 204, 122, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+/* slightly larger, well-padded label on the small ghost CTAs so they read */
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost.ps-btn--sm,
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost.ps-btn--sm {
+  min-height: 38px !important;
+  padding: 0.5rem 0.95rem !important;
+  font-size: 0.82rem !important;
+}
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost:disabled,
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost:disabled,
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost[disabled] {
+  opacity: 0.45 !important;
+  filter: grayscale(0.4);
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+/* ---- 11.x · reduced motion for the polish-pass buttons ---------------------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .sidebar-tab,
+  [data-theme="primesuspect"] .bot-add-btn,
+  [data-theme="primesuspect"] .bot-remove-btn,
+  [data-theme="primesuspect"] .game-explainer-help-button,
+  [data-theme="primesuspect"] .ps-btn.ps-btn--ghost {
+    transition: none !important;
+  }
+  [data-theme="primesuspect"] .bot-add-btn:hover,
+  [data-theme="primesuspect"] .bot-add-btn:active,
+  [data-theme="primesuspect"] .bot-remove-btn:hover,
+  [data-theme="primesuspect"] .bot-remove-btn:active,
+  [data-theme="primesuspect"] .game-explainer-help-button:hover,
+  [data-theme="primesuspect"] .game-explainer-help-button:active,
+  [data-theme="primesuspect"] .ps-btn.ps-btn--ghost:hover,
+  [data-theme="primesuspect"] .ps-btn.ps-btn--ghost:active {
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   12 · UNIFIED BUTTON SYSTEM  ★ SINGLE SOURCE OF TRUTH ★
+   ----------------------------------------------------------------------------
+   The earlier sections (1, 7, 8, 9, 11) grew organically and each button
+   re-declared its OWN slightly-different depth (0 3px 0 vs 0 4px 0 vs 0 5px 0),
+   drop alpha, radius and hover glow — so the UI still read as "a lot of
+   different button styles" even though every one was nominally "tactile noir".
+
+   This section is the LAST block in the LAST-imported sheet, so it WINS the
+   cascade. It collapses every PS button into ONE coherent tactile-noir family
+   built from a SHARED set of DNA tokens, expressed as exactly THREE tiers that
+   differ only by emphasis / size — never by their underlying recipe:
+
+     • PRIMARY   — main CTAs. Crimson→deeper-crimson slab, gold border, biggest
+                   depth. (Start, ps-btn--primary/--wide, Add Bot, home Create,
+                   action-menu Confirm/Play/Accuse, Victory Play-Again/Back.)
+     • SECONDARY — velvet face + gold border. (ps-btn / --ghost / --subtle,
+                   Card Legend / Rules / How-to-Play, lobby Copy/Share, home Join,
+                   settings toggle/lang/tab/btn, GameBuddies return, Cancel.)
+     • ICON      — compact square / round, icon or icon+short label. (header
+                   mute/copy/settings/leave/lobby/gb/back, Join Video, Help,
+                   Remove Bot, settings-modal close, rail hide/collapse.)
+
+   They ALL share: gold border, layered `0 Npx 0` depth + soft drop, inset gold
+   top highlight, gold hover glow + slight lift, `:active { translateY }` press,
+   Special Elite / Cinzel label, gold/parchment text, and a consistent radius.
+   State colours stay meaningful (mute-active = crimson, copy-success = green,
+   danger/leave = crimson) but always inside the SAME shape language.
+
+   Implementation: one DNA token set + grouped selector lists. `!important` is
+   used throughout because many of the classes below were given flat/`!important`
+   fills by base/template sheets AND by the earlier sections of THIS file.
+   ============================================================================ */
+[data-theme="primesuspect"] {
+  /* ---- SHARED BUTTON DNA — the one recipe every tier is built from -------- */
+  --psb-radius: var(--radius-sm, 7px);
+  --psb-border: 1px solid var(--royal-gold);
+  --psb-border-soft: 1px solid rgba(210, 178, 90, 0.55);
+  --psb-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --psb-transition:
+    transform 130ms var(--psb-ease),
+    box-shadow 130ms var(--psb-ease),
+    filter 130ms ease, color 130ms ease, border-color 130ms ease;
+  --psb-inset-hi: inset 0 1px 0 rgba(231, 204, 122, 0.28);
+  --psb-glow: 0 0 18px rgba(231, 204, 122, 0.22);
+
+  /* PRIMARY (crimson) depth stack — rest / hover / press */
+  --psb-pri-face: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  --psb-pri-rest:
+    0 5px 0 var(--royal-crimson-dark),
+    0 14px 30px rgba(61, 12, 19, 0.5),
+    var(--psb-inset-hi);
+  --psb-pri-hover:
+    0 6px 0 var(--royal-crimson-dark),
+    0 16px 34px rgba(61, 12, 19, 0.6),
+    var(--psb-glow),
+    inset 0 1px 0 rgba(231, 204, 122, 0.3);
+  --psb-pri-press: 0 0 0 var(--royal-crimson-dark), var(--psb-inset-hi);
+
+  /* SECONDARY (velvet) depth stack — rest / hover / press */
+  --psb-sec-face: linear-gradient(180deg, var(--velvet-raise), var(--velvet-panel));
+  --psb-sec-rest:
+    0 5px 0 rgba(0, 0, 0, 0.4),
+    0 14px 28px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(231, 204, 122, 0.14);
+  --psb-sec-hover:
+    0 6px 0 rgba(0, 0, 0, 0.4),
+    0 16px 32px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(231, 204, 122, 0.18),
+    inset 0 1px 0 rgba(231, 204, 122, 0.2);
+  --psb-sec-press: 0 0 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(231, 204, 122, 0.14);
+
+  /* ICON (velvet, shallower) depth stack — rest / hover / press */
+  --psb-ico-rest:
+    0 3px 0 rgba(0, 0, 0, 0.42),
+    0 6px 14px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(231, 204, 122, 0.14);
+  --psb-ico-hover:
+    0 4px 0 rgba(0, 0, 0, 0.42),
+    0 8px 18px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(231, 204, 122, 0.18),
+    inset 0 1px 0 rgba(231, 204, 122, 0.2);
+  --psb-ico-press: 0 0 0 rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(231, 204, 122, 0.14);
+}
+
+/* ----------------------------------------------------------------------------
+   12.1 · PRIMARY TIER — crimson slab, gold border, biggest depth
+   ------------------------------------------------------------------------- */
+[data-theme="primesuspect"] .lobby-start-btn,
+[data-theme="primesuspect"] .ps-btn.ps-btn--primary,
+[data-theme="primesuspect"] .ps-btn.ps-btn--wide,
+[data-theme="primesuspect"] .bot-add-btn,
+[data-theme="primesuspect"] .video-join-btn,
+[data-theme="primesuspect"] .solo-invite-btn-copy,
+[data-theme="primesuspect"] .card.home-card .home-btn.primary,
+[data-theme="primesuspect"] .home-btn.primary,
+[data-theme="primesuspect"] .primary-cta,
+[data-theme="primesuspect"] .home-hero button.primary-cta,
+[data-theme="primesuspect"] .home-hero button.create-cta,
+[data-theme="primesuspect"] .ps-victory-btn--primary,
+[data-theme="primesuspect"] .device-settings-confirm,
+[data-theme="primesuspect"] .chat-send-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--psb-pri-face) !important;
+  border: var(--psb-border) !important;
+  border-radius: var(--psb-radius) !important;
+  color: var(--royal-gold-light) !important;
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+  transform: none !important;
+  box-shadow: var(--psb-pri-rest) !important;
+  transition: var(--psb-transition) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+[data-theme="primesuspect"] .lobby-start-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--primary:hover:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--wide:hover:not(:disabled),
+[data-theme="primesuspect"] .bot-add-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .video-join-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .solo-invite-btn-copy:hover:not(:disabled),
+[data-theme="primesuspect"] .card.home-card .home-btn.primary:hover:not(:disabled),
+[data-theme="primesuspect"] .home-btn.primary:hover:not(:disabled),
+[data-theme="primesuspect"] .primary-cta:hover:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.primary-cta:hover:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.create-cta:hover:not(:disabled),
+[data-theme="primesuspect"] .ps-victory-btn--primary:hover:not(:disabled),
+[data-theme="primesuspect"] .device-settings-confirm:hover:not(:disabled),
+[data-theme="primesuspect"] .chat-send-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+  color: #fff0cf !important;
+  background: linear-gradient(180deg, #9a2a3c, var(--royal-crimson-light)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--psb-pri-hover) !important;
+}
+[data-theme="primesuspect"] .lobby-start-btn:active:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--primary:active:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--wide:active:not(:disabled),
+[data-theme="primesuspect"] .bot-add-btn:active:not(:disabled),
+[data-theme="primesuspect"] .video-join-btn:active:not(:disabled),
+[data-theme="primesuspect"] .solo-invite-btn-copy:active:not(:disabled),
+[data-theme="primesuspect"] .card.home-card .home-btn.primary:active:not(:disabled),
+[data-theme="primesuspect"] .home-btn.primary:active:not(:disabled),
+[data-theme="primesuspect"] .primary-cta:active:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.primary-cta:active:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.create-cta:active:not(:disabled),
+[data-theme="primesuspect"] .ps-victory-btn--primary:active:not(:disabled),
+[data-theme="primesuspect"] .device-settings-confirm:active:not(:disabled),
+[data-theme="primesuspect"] .chat-send-btn:active:not(:disabled) {
+  transform: translateY(4px) !important;
+  box-shadow: var(--psb-pri-press) !important;
+}
+/* start button: drop the legacy attention pulse so it matches the rest exactly */
+[data-theme="primesuspect"] .lobby-start-btn:not(:disabled) { animation: none !important; }
+
+/* ----------------------------------------------------------------------------
+   12.2 · SECONDARY TIER — velvet face, gold border, medium depth
+   ------------------------------------------------------------------------- */
+[data-theme="primesuspect"] .ps-btn:not(.ps-btn--primary):not(.ps-btn--wide),
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost,
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost,
+[data-theme="primesuspect"] .ps-btn.ps-btn--subtle,
+[data-theme="primesuspect"] .solo-invite-btn-share,
+[data-theme="primesuspect"] .home-btn.secondary,
+[data-theme="primesuspect"] .home-hero button.join-cta,
+[data-theme="primesuspect"] .settings-toggle-btn,
+[data-theme="primesuspect"] .settings-lang-btn,
+[data-theme="primesuspect"] .settings-modal-tab,
+[data-theme="primesuspect"] .settings-btn,
+[data-theme="primesuspect"] .device-settings-tab,
+[data-theme="primesuspect"] .device-settings-cancel,
+[data-theme="primesuspect"] .chat-close-btn,
+[data-theme="primesuspect"] .device-settings-close,
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  background: var(--psb-sec-face) !important;
+  border: var(--psb-border-soft) !important;
+  border-radius: var(--psb-radius) !important;
+  color: var(--parchment) !important;
+  font-family: var(--font-typewriter, 'Special Elite', monospace) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.05em !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  transform: none !important;
+  box-shadow: var(--psb-sec-rest) !important;
+  transition: var(--psb-transition) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+[data-theme="primesuspect"] .ps-btn:not(.ps-btn--primary):not(.ps-btn--wide):hover:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost:hover:not(:disabled),
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost:hover:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--subtle:hover:not(:disabled),
+[data-theme="primesuspect"] .solo-invite-btn-share:hover:not(:disabled),
+[data-theme="primesuspect"] .home-btn.secondary:hover:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.join-cta:hover:not(:disabled),
+[data-theme="primesuspect"] .settings-toggle-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .settings-lang-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .settings-modal-tab:hover:not(:disabled),
+[data-theme="primesuspect"] .settings-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .device-settings-tab:hover:not(:disabled),
+[data-theme="primesuspect"] .device-settings-cancel:hover:not(:disabled),
+[data-theme="primesuspect"] .chat-close-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .device-settings-close:hover:not(:disabled),
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline:hover:not(:disabled) {
+  color: var(--royal-gold-light) !important;
+  border-color: var(--royal-gold) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--psb-sec-hover) !important;
+}
+[data-theme="primesuspect"] .ps-btn:not(.ps-btn--primary):not(.ps-btn--wide):active:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost:active:not(:disabled),
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost:active:not(:disabled),
+[data-theme="primesuspect"] .ps-btn.ps-btn--subtle:active:not(:disabled),
+[data-theme="primesuspect"] .solo-invite-btn-share:active:not(:disabled),
+[data-theme="primesuspect"] .home-btn.secondary:active:not(:disabled),
+[data-theme="primesuspect"] .home-hero button.join-cta:active:not(:disabled),
+[data-theme="primesuspect"] .settings-toggle-btn:active:not(:disabled),
+[data-theme="primesuspect"] .settings-lang-btn:active:not(:disabled),
+[data-theme="primesuspect"] .settings-modal-tab:active:not(:disabled),
+[data-theme="primesuspect"] .settings-btn:active:not(:disabled),
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline:active:not(:disabled) {
+  transform: translateY(3px) !important;
+  box-shadow: var(--psb-sec-press) !important;
+}
+/* secondary ACTIVE/selected (lang + settings tab + toggled selector chips) →
+   engraved gold face, dark label — same shape, just the "on" emphasis */
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost.is-active,
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost.is-active,
+[data-theme="primesuspect"] .settings-lang-btn.active,
+[data-theme="primesuspect"] .settings-modal-tab.active,
+[data-theme="primesuspect"] .device-settings-tab.active {
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold)) !important;
+  color: var(--royal-crimson-dark) !important;
+  border-color: var(--royal-gold) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  box-shadow:
+    0 2px 8px rgba(231, 204, 122, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+/* keep the quiet "Cancel" (.ps-btn--subtle) visually lighter while still in-family */
+[data-theme="primesuspect"] .ps-btn.ps-btn--subtle {
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-panel)) !important;
+  color: var(--parchment-dark) !important;
+  border-color: rgba(210, 178, 90, 0.4) !important;
+}
+/* small-ghost CTAs (Card Legend / Rules / How-to-Play) read at a comfortable size */
+[data-theme="primesuspect"] .ps-btn.ps-btn--ghost.ps-btn--sm,
+[data-theme="primesuspect"] button.ps-btn.ps-btn--ghost.ps-btn--sm {
+  min-height: 38px !important;
+  padding: 0.5rem 0.95rem !important;
+  font-size: 0.82rem !important;
+}
+
+/* ----------------------------------------------------------------------------
+   12.3 · ICON TIER — compact velvet square/round, icon or icon+short label
+   ------------------------------------------------------------------------- */
+[data-theme="primesuspect"] .game-header-mute-btn,
+[data-theme="primesuspect"] .game-header-copy-btn,
+[data-theme="primesuspect"] .game-header-settings-btn,
+[data-theme="primesuspect"] .game-header-leave-btn,
+[data-theme="primesuspect"] .game-header-lobby-btn,
+[data-theme="primesuspect"] .game-header-gb-btn,
+[data-theme="primesuspect"] .game-header-back-btn,
+[data-theme="primesuspect"] .home-header-settings-btn,
+[data-theme="primesuspect"] .language-selector-button,
+[data-theme="primesuspect"] .game-explainer-help-button,
+[data-theme="primesuspect"] .bot-remove-btn,
+[data-theme="primesuspect"] .settings-modal-close,
+[data-theme="primesuspect"] .gs-rail-hide-btn,
+[data-theme="primesuspect"] .gs-rail-collapse-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 38px;
+  background: var(--psb-sec-face) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  border-radius: var(--psb-radius) !important;
+  color: var(--royal-gold-light) !important;
+  font-family: var(--font-typewriter, 'Special Elite', monospace) !important;
+  box-shadow: var(--psb-ico-rest) !important;
+  transition: var(--psb-transition) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+[data-theme="primesuspect"] .game-header-mute-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .game-header-copy-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .game-header-settings-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .game-header-leave-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .game-header-lobby-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .game-header-gb-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .game-header-back-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .home-header-settings-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .language-selector-button:hover:not(:disabled),
+[data-theme="primesuspect"] .game-explainer-help-button:hover:not(:disabled),
+[data-theme="primesuspect"] .bot-remove-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .settings-modal-close:hover:not(:disabled),
+[data-theme="primesuspect"] .gs-rail-hide-btn:hover:not(:disabled),
+[data-theme="primesuspect"] .gs-rail-collapse-btn:hover:not(:disabled) {
+  color: #fff0cf !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-raise)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--psb-ico-hover) !important;
+}
+[data-theme="primesuspect"] .game-header-mute-btn:active:not(:disabled),
+[data-theme="primesuspect"] .game-header-copy-btn:active:not(:disabled),
+[data-theme="primesuspect"] .game-header-settings-btn:active:not(:disabled),
+[data-theme="primesuspect"] .game-header-leave-btn:active:not(:disabled),
+[data-theme="primesuspect"] .game-header-lobby-btn:active:not(:disabled),
+[data-theme="primesuspect"] .game-header-gb-btn:active:not(:disabled),
+[data-theme="primesuspect"] .game-header-back-btn:active:not(:disabled),
+[data-theme="primesuspect"] .home-header-settings-btn:active:not(:disabled),
+[data-theme="primesuspect"] .language-selector-button:active:not(:disabled),
+[data-theme="primesuspect"] .game-explainer-help-button:active:not(:disabled),
+[data-theme="primesuspect"] .bot-remove-btn:active:not(:disabled),
+[data-theme="primesuspect"] .settings-modal-close:active:not(:disabled),
+[data-theme="primesuspect"] .gs-rail-hide-btn:active:not(:disabled),
+[data-theme="primesuspect"] .gs-rail-collapse-btn:active:not(:disabled) {
+  transform: translateY(2px) !important;
+  box-shadow: var(--psb-ico-press) !important;
+}
+[data-theme="primesuspect"] .game-header-mute-btn svg,
+[data-theme="primesuspect"] .game-header-copy-btn svg,
+[data-theme="primesuspect"] .game-header-settings-btn svg,
+[data-theme="primesuspect"] .game-header-leave-btn svg,
+[data-theme="primesuspect"] .game-header-lobby-btn svg,
+[data-theme="primesuspect"] .game-header-gb-btn svg,
+[data-theme="primesuspect"] .game-header-back-btn svg,
+[data-theme="primesuspect"] .home-header-settings-btn svg,
+[data-theme="primesuspect"] .game-explainer-help-button svg,
+[data-theme="primesuspect"] .bot-remove-btn svg,
+[data-theme="primesuspect"] .settings-modal-close svg {
+  color: currentColor !important;
+  stroke: currentColor;
+}
+
+/* ----------------------------------------------------------------------------
+   12.4 · MEANINGFUL STATE COLOURS — kept, but inside the same shape language
+   ------------------------------------------------------------------------- */
+/* danger / leave the room → crimson tint (still a velvet icon button) */
+[data-theme="primesuspect"] .game-header-leave-btn {
+  color: var(--royal-crimson-bright) !important;
+  border-color: rgba(192, 57, 43, 0.6) !important;
+}
+[data-theme="primesuspect"] .game-header-leave-btn:hover:not(:disabled) {
+  color: #ff8a78 !important;
+  border-color: var(--royal-crimson-bright) !important;
+}
+/* mute ACTIVE → crimson alert tint */
+[data-theme="primesuspect"] .game-header-mute-btn.muted {
+  color: var(--royal-crimson-bright) !important;
+  border-color: rgba(192, 57, 43, 0.6) !important;
+}
+/* copy SUCCESS → green confirm (room-code + lobby copy) */
+[data-theme="primesuspect"] .game-header-copy-btn.copied,
+[data-theme="primesuspect"] .game-header-copy-btn:has(svg.lucide-check),
+[data-theme="primesuspect"] .solo-invite-btn-copy.copied,
+[data-theme="primesuspect"] .solo-invite-btn-copy:has(svg.lucide-check) {
+  color: var(--gb-truth) !important;
+  border-color: var(--gb-truth) !important;
+}
+
+/* ----------------------------------------------------------------------------
+   12.5 · RAIL BUTTONS — make them feel part of the gold-framed noir sidebar
+   .gs-rail-hide-btn  = the "▸" collapse strip inside the rail header
+   .gs-rail-collapse-btn = the vertical edge tab shown when the rail is collapsed
+   Both inherit the icon-tier velvet/gold skin above; here we restore their
+   specific geometry (full-width strip / vertical edge tab) + gold arrow glyph
+   so they sit cleanly in the rail rather than floating as generic buttons.
+   ------------------------------------------------------------------------- */
+[data-theme="primesuspect"] .gs-rail-hide-btn {
+  width: 100%;
+  min-height: 0;
+  height: 22px;
+  border-radius: 0 !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(210, 178, 90, 0.4) !important;
+  background: linear-gradient(180deg, var(--velvet-raise), var(--velvet-darker)) !important;
+  color: var(--royal-gold-light) !important;
+  font-size: 0.72rem;
+  line-height: 1;
+  letter-spacing: 0.3em;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.1) !important;
+}
+[data-theme="primesuspect"] .gs-rail-hide-btn:hover:not(:disabled) {
+  color: #fff0cf !important;
+  background: linear-gradient(180deg, rgba(106, 22, 35, 0.55), var(--velvet-raise)) !important;
+  transform: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(231, 204, 122, 0.16),
+    inset 0 0 16px rgba(231, 204, 122, 0.08) !important;
+}
+[data-theme="primesuspect"] .gs-rail-hide-btn:active:not(:disabled) {
+  transform: none !important;
+}
+[data-theme="primesuspect"] .gs-rail-collapse-btn {
+  writing-mode: vertical-rl;
+  min-height: 0;
+  padding: 0.85rem 0.34rem !important;
+  border-radius: var(--radius-sm, 7px) 0 0 var(--radius-sm, 7px) !important;
+  border-right: none !important;
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+[data-theme="primesuspect"] .gs-rail-collapse-btn .gs-unread {
+  margin-top: 0.4rem;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  color: var(--royal-gold-light);
+  border: 1px solid rgba(210, 178, 90, 0.5);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  padding: 0.08rem 0.3rem;
+}
+
+/* ----------------------------------------------------------------------------
+   12.6 · SHARED DISABLED + FOCUS (every tier)
+   ------------------------------------------------------------------------- */
+[data-theme="primesuspect"] .lobby-start-btn:disabled,
+[data-theme="primesuspect"] .ps-btn:disabled,
+[data-theme="primesuspect"] .ps-btn[disabled],
+[data-theme="primesuspect"] .bot-add-btn:disabled,
+[data-theme="primesuspect"] .bot-remove-btn:disabled,
+[data-theme="primesuspect"] .video-join-btn:disabled,
+[data-theme="primesuspect"] .home-btn:disabled,
+[data-theme="primesuspect"] .primary-cta:disabled,
+[data-theme="primesuspect"] .solo-invite-btn-copy:disabled,
+[data-theme="primesuspect"] .solo-invite-btn-share:disabled,
+[data-theme="primesuspect"] .settings-toggle-btn:disabled,
+[data-theme="primesuspect"] .settings-lang-btn:disabled,
+[data-theme="primesuspect"] .settings-btn:disabled,
+[data-theme="primesuspect"] .settings-modal-tab:disabled,
+[data-theme="primesuspect"] .settings-modal-close:disabled {
+  opacity: 0.45 !important;
+  filter: grayscale(0.5);
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+[data-theme="primesuspect"] .lobby-start-btn:focus-visible,
+[data-theme="primesuspect"] .ps-btn:focus-visible,
+[data-theme="primesuspect"] .bot-add-btn:focus-visible,
+[data-theme="primesuspect"] .bot-remove-btn:focus-visible,
+[data-theme="primesuspect"] .video-join-btn:focus-visible,
+[data-theme="primesuspect"] .home-btn:focus-visible,
+[data-theme="primesuspect"] .primary-cta:focus-visible,
+[data-theme="primesuspect"] .solo-invite-btn-copy:focus-visible,
+[data-theme="primesuspect"] .solo-invite-btn-share:focus-visible,
+[data-theme="primesuspect"] .game-header-mute-btn:focus-visible,
+[data-theme="primesuspect"] .game-header-copy-btn:focus-visible,
+[data-theme="primesuspect"] .game-header-settings-btn:focus-visible,
+[data-theme="primesuspect"] .game-header-leave-btn:focus-visible,
+[data-theme="primesuspect"] .game-header-lobby-btn:focus-visible,
+[data-theme="primesuspect"] .game-explainer-help-button:focus-visible,
+[data-theme="primesuspect"] .settings-toggle-btn:focus-visible,
+[data-theme="primesuspect"] .settings-lang-btn:focus-visible,
+[data-theme="primesuspect"] .settings-btn:focus-visible,
+[data-theme="primesuspect"] .settings-modal-tab:focus-visible,
+[data-theme="primesuspect"] .settings-modal-close:focus-visible,
+[data-theme="primesuspect"] .gamebuddies-return-btn.inline:focus-visible,
+[data-theme="primesuspect"] .gs-rail-hide-btn:focus-visible,
+[data-theme="primesuspect"] .gs-rail-collapse-btn:focus-visible {
+  outline: 2px solid var(--royal-gold-light) !important;
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------------------------
+   12.7 · REDUCED MOTION — the whole unified family
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .lobby-start-btn,
+  [data-theme="primesuspect"] .ps-btn,
+  [data-theme="primesuspect"] .bot-add-btn,
+  [data-theme="primesuspect"] .bot-remove-btn,
+  [data-theme="primesuspect"] .video-join-btn,
+  [data-theme="primesuspect"] .home-btn,
+  [data-theme="primesuspect"] .primary-cta,
+  [data-theme="primesuspect"] .solo-invite-btn-copy,
+  [data-theme="primesuspect"] .solo-invite-btn-share,
+  [data-theme="primesuspect"] .game-header-mute-btn,
+  [data-theme="primesuspect"] .game-header-copy-btn,
+  [data-theme="primesuspect"] .game-header-settings-btn,
+  [data-theme="primesuspect"] .game-header-leave-btn,
+  [data-theme="primesuspect"] .game-header-lobby-btn,
+  [data-theme="primesuspect"] .game-explainer-help-button,
+  [data-theme="primesuspect"] .settings-toggle-btn,
+  [data-theme="primesuspect"] .settings-lang-btn,
+  [data-theme="primesuspect"] .settings-btn,
+  [data-theme="primesuspect"] .settings-modal-tab,
+  [data-theme="primesuspect"] .settings-modal-close,
+  [data-theme="primesuspect"] .gamebuddies-return-btn.inline,
+  [data-theme="primesuspect"] .gs-rail-hide-btn,
+  [data-theme="primesuspect"] .gs-rail-collapse-btn {
+    transition: none !important;
+    animation: none !important;
+  }
+  [data-theme="primesuspect"] .lobby-start-btn:hover,
+  [data-theme="primesuspect"] .lobby-start-btn:active,
+  [data-theme="primesuspect"] .ps-btn:hover,
+  [data-theme="primesuspect"] .ps-btn:active,
+  [data-theme="primesuspect"] .bot-add-btn:hover,
+  [data-theme="primesuspect"] .bot-add-btn:active,
+  [data-theme="primesuspect"] .video-join-btn:hover,
+  [data-theme="primesuspect"] .video-join-btn:active,
+  [data-theme="primesuspect"] .home-btn:hover,
+  [data-theme="primesuspect"] .home-btn:active,
+  [data-theme="primesuspect"] .primary-cta:hover,
+  [data-theme="primesuspect"] .primary-cta:active,
+  [data-theme="primesuspect"] .solo-invite-btn-copy:hover,
+  [data-theme="primesuspect"] .solo-invite-btn-copy:active,
+  [data-theme="primesuspect"] .solo-invite-btn-share:hover,
+  [data-theme="primesuspect"] .solo-invite-btn-share:active,
+  [data-theme="primesuspect"] .game-header-mute-btn:hover,
+  [data-theme="primesuspect"] .game-header-mute-btn:active,
+  [data-theme="primesuspect"] .game-header-copy-btn:hover,
+  [data-theme="primesuspect"] .game-header-copy-btn:active,
+  [data-theme="primesuspect"] .game-header-settings-btn:hover,
+  [data-theme="primesuspect"] .game-header-settings-btn:active,
+  [data-theme="primesuspect"] .game-header-leave-btn:hover,
+  [data-theme="primesuspect"] .game-header-leave-btn:active,
+  [data-theme="primesuspect"] .game-header-lobby-btn:hover,
+  [data-theme="primesuspect"] .game-header-lobby-btn:active,
+  [data-theme="primesuspect"] .game-explainer-help-button:hover,
+  [data-theme="primesuspect"] .game-explainer-help-button:active,
+  [data-theme="primesuspect"] .settings-toggle-btn:hover,
+  [data-theme="primesuspect"] .settings-toggle-btn:active,
+  [data-theme="primesuspect"] .settings-lang-btn:hover,
+  [data-theme="primesuspect"] .settings-lang-btn:active,
+  [data-theme="primesuspect"] .settings-modal-tab:hover,
+  [data-theme="primesuspect"] .settings-modal-tab:active,
+  [data-theme="primesuspect"] .gamebuddies-return-btn.inline:hover,
+  [data-theme="primesuspect"] .gamebuddies-return-btn.inline:active {
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   13 · RESPONSIVE DESKTOP TABLE  ★ no-clip / no-overlap layout ★
+   ----------------------------------------------------------------------------
+   The bespoke .hearts-gambit-game is a 3-section flex table (opponents flex-3 /
+   deck+evidence flex-4 / hand flex-3) inside .gs-stage (overflow:hidden,
+   container: stage / size). It previously used HARDCODED Tailwind pixel offsets
+   (translate-x-[66px] / translate-x-[182px] translate-y-10 / translate-x-[60px])
+   that were tuned to a now-removed background image and pushed content off-centre
+   → clipping. Those are removed in the JSX; the rows are now CENTERED via the
+   stable hooks .ps-opponents-area / .ps-deck-evidence-row / .ps-hand-area.
+
+   This section makes the table FIT the stage at every common desktop/laptop size
+   with nothing clipped or overlapping:
+
+     • Card-size tokens scale off the STAGE box (cqb / cqi) so the cards shrink as
+       the real playfield shrinks — robust against the rail opening AND the
+       filmstrip growing (both shrink the stage, not just the viewport). A height
+       AND a width ceiling are applied so a short-but-wide stage can't produce
+       tall cards that clip above the fold.
+     • The deck+evidence row no longer has the +translate-y nudge, so its headers
+       + "LATEST EVIDENCE" stamp must fit inside flex-4 — handled via clamps.
+     • The two corner panels (.ps-caselog bottom-left, .hg-context-actions
+       bottom-right) are width/height-capped and re-anchored so they never cover
+       the hand cards or the toolbar.
+     • The toolbar row (token/turn badges + Legend/Rules/How-to) wraps instead of
+       colliding.
+
+   Loads last → wins the cascade. Everything is token-driven + scoped to
+   [data-theme="primesuspect"] and respects prefers-reduced-motion.
+   ============================================================================ */
+
+/* ---- 13.1 · ROOT layout knobs + safe in-hand sizing ----------------------- */
+[data-theme="primesuspect"] .hearts-gambit-game {
+  /* gap between the EVIDENCE pile and the CASE FILE deck — was a fixed 5rem
+     (Tailwind gap-20) which crowded narrow stages; now fluid off stage width. */
+  --ps-deck-gap: clamp(1.1rem, 7cqi, 5rem);
+  /* vertical breathing room reserved at the bottom of the hand row so the
+     floating action menu / case-log corner panels never sit ON the cards. */
+  --ps-hand-safe-bottom: 0px;
+}
+
+/* Apply the fluid gap to the (now-centred) deck+evidence row + the hand row. */
+[data-theme="primesuspect"] .ps-deck-evidence-row { gap: var(--ps-deck-gap); }
+
+/* ---- 13.2 · CARD SIZE — scale off the STAGE container (height-led) ----------
+   .gs-stage is `container: stage / size`, so cqb = stage height and cqi = stage
+   width. We drive card HEIGHT off stage height and clamp WIDTH off stage width
+   so neither dimension can overflow its section. These OVERRIDE the viewport-dvh
+   tokens in prime-suspect-unified.css (same property, later sheet → wins) for the
+   desktop/table view. Touch/mobile (the separate HeartsGambitGameMobile path) is
+   unaffected — it renders a different component, and the has-filmstrip / small-
+   viewport overrides below still apply where relevant. */
+@container stage (min-width: 640px) {
+  [data-theme="primesuspect"] .hearts-gambit-game {
+    /* height: each of the 3 stacked sections gets ~1/3 of the stage; a card plus
+       its header/badges must fit in the flex-3 / flex-4 band. ~22% of stage
+       height keeps the opponents row, deck+evidence and hand all visible. */
+    --hg-card-height: clamp(118px, 22cqb, 208px);
+    --hg-card-width: clamp(79px, 14.7cqb, 139px);
+  }
+  /* also cap by WIDTH so several opponents / the deck+evidence pair fit side by
+     side on a short-but-wide stage (e.g. 1366×640) without horizontal clipping */
+  @container stage (max-aspect-ratio: 21 / 9) {
+    [data-theme="primesuspect"] .hearts-gambit-game {
+      --hg-card-width: min(clamp(79px, 14.7cqb, 139px), 11cqi);
+      --hg-card-height: calc(var(--hg-card-width) * 1.5);
+    }
+  }
+}
+
+/* Short stages: clamp harder off height so the hand never clips below the fold
+   and the opponents row never clips above it. */
+@container stage (max-height: 760px) {
+  [data-theme="primesuspect"] .hearts-gambit-game {
+    --hg-card-height: clamp(104px, 20.5cqb, 168px);
+    --hg-card-width: calc(var(--hg-card-height) * 0.667);
+  }
+}
+@container stage (max-height: 660px) {
+  [data-theme="primesuspect"] .hearts-gambit-game {
+    --hg-card-height: clamp(92px, 19cqb, 144px);
+    --hg-card-width: calc(var(--hg-card-height) * 0.667);
+    --ps-deck-gap: clamp(0.9rem, 5cqi, 3rem);
+  }
+}
+
+/* ---- 13.3 · DECK + EVIDENCE band — keep headers + stamp inside flex-4 -------
+   The pile/deck column headers ("EVIDENCE" / "CASE FILE") + the -bottom-9
+   "LATEST EVIDENCE …" stamp must live inside the middle section now that the
+   +40px translate-y is gone. Tighten the header margin a touch on shorter stages
+   so the stamp clears the section's bottom border. */
+@container stage (max-height: 760px) {
+  [data-theme="primesuspect"] .ps-deck-evidence-row h3 { margin-bottom: 0.35rem; }
+}
+
+/* ---- 13.4 · OPPONENTS row — let suspect cards shrink in step ----------------
+   The face-down opponent mini-cards inherit --hg-card-width/height; nothing extra
+   needed for size. Allow the row to wrap if a 4+ player table gets very narrow so
+   suspects never clip past the stage edge. */
+[data-theme="primesuspect"] .ps-opponents-area {
+  flex-wrap: wrap;
+  gap: clamp(0.5rem, 2.2cqi, 1.5rem);
+  align-content: center;
+}
+
+/* ---- 13.5 · TOOLBAR (token/turn badges + Legend/Rules/How-to) — wrap --------
+   The toolbar is the first child of the bottom (player) section. Let it wrap so
+   the right-aligned button cluster drops below the badges instead of colliding
+   with them on a narrow stage. (Targets the flex row that holds .ps-token-coin.) */
+[data-theme="primesuspect"] .hearts-gambit-game > div > div:last-child > .flex.items-center:first-child {
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+}
+
+/* ---- 13.6 · CASE LOG (bottom-left) — never cover the hand -------------------
+   Cap size off the stage and shrink/relax on short stages. The base rule
+   (Section 5) pins it bottom:1rem/left:1rem with a fixed 264px width; here we
+   make width + max-height responsive so on small stages it stays a compact card
+   that clears the centred hand. */
+@container stage (max-width: 1180px) {
+  [data-theme="primesuspect"] .ps-caselog {
+    width: clamp(184px, 19cqi, 230px);
+    max-height: clamp(120px, 22cqb, 188px);
+  }
+}
+/* Very short stages: tuck it tighter and cap height so it can't reach the hand. */
+@container stage (max-height: 660px) {
+  [data-theme="primesuspect"] .ps-caselog {
+    bottom: 0.6rem;
+    left: 0.6rem;
+    width: clamp(168px, 17cqi, 208px);
+    max-height: clamp(104px, 19cqb, 150px);
+  }
+}
+
+/* ---- 13.7 · ACTION MENU (.hg-context-actions, bottom-right) — fit + clear ---
+   The floating menu is `absolute bottom-5 right-5 w-[560px] max-w-[calc(100%-2.5rem)]`.
+   560px is wider than half a narrow stage and would visually collide with the
+   case-log / overlap the hand. Cap its width off the stage, cap its height so the
+   Inspector 3-row variant scrolls instead of growing past the top of the hand,
+   and tuck the offset on short stages. */
+[data-theme="primesuspect"] .hg-context-actions {
+  /* BIGGER action window. It is bottom-right and must clear the centred hand
+     (visible half-width ≈ 141px + ~24px margin ≈ 165px), so the geometric max
+     width is ~50cqi − 165px. We ride that limit with a higher ceiling
+     (was 560 → 720) and a taller, roomier box. This single clamp adapts at
+     every stage and folds in the old `@container (max-width:1380px)` cap. */
+  width: clamp(380px, calc(50cqi - 165px), 720px) !important;
+  max-width: calc(100% - 2.5rem) !important;
+  /* overflow VISIBLE so the straddling ACTION tab + wax seal are never clipped;
+     the height cap + scroll live on .hg-context-actions-inner instead. */
+  overflow: visible !important;
+  padding: 1.3rem 1.3rem 1.15rem !important;
+}
+[data-theme="primesuspect"] .hg-context-actions-inner {
+  width: 100%;
+  max-height: min(74cqb, 600px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* roomier confirm/cancel buttons inside the wider window */
+[data-theme="primesuspect"] .hg-context-actions .ps-btn {
+  min-height: 46px;
+  padding: 0.6rem 1.35rem;
+  font-size: 0.92rem;
+}
+/* slightly larger "Playing / Target" labels + card name for the bigger panel */
+[data-theme="primesuspect"] .hg-context-actions .uppercase.font-bold { font-size: 0.72rem; }
+/* Inspector guess-card grid → flow responsively: it fills a wide menu with more
+   columns and reflows (never overflows) a narrow one, instead of a fixed 4-col
+   grid that spilled past the panel edge. */
+[data-theme="primesuspect"] .hg-context-actions .grid-cols-4 {
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)) !important;
+  gap: 0.7rem !important;
+  justify-items: center;
+}
+/* keep the Inspector guess-grid usable while the menu is height-capped */
+[data-theme="primesuspect"] .hg-context-actions-inner::-webkit-scrollbar { width: 8px; }
+[data-theme="primesuspect"] .hg-context-actions-inner::-webkit-scrollbar-thumb {
+  background: rgba(210, 178, 90, 0.4);
+  border-radius: 999px;
+}
+@container stage (max-height: 660px) {
+  [data-theme="primesuspect"] .hg-context-actions {
+    bottom: 0.6rem !important;
+    right: 0.6rem !important;
+  }
+  [data-theme="primesuspect"] .hg-context-actions-inner {
+    max-height: min(60cqb, 340px);
+  }
+}
+/* On any non-wide stage the bottom-right 560px menu can reach the centred hand
+   (the player hand is only 1-2 cards, spanning ≈ stage-centre ± 130px). Rather
+   than lift the hand (which collides UPWARD with the deck/evidence row on short
+   stages), we CAP the menu WIDTH so its left edge always stays right of the
+   hand's right edge. The hand occupies ≈ centre ± 150px; a bottom-right menu of
+   width W (right edge at stageW − 20) clears it when W ⪅ stageW/2 − 170, i.e.
+   `50cqi − 170px`. Floored at 290px so the Confirm/Target/Cancel row stays
+   usable — at the desktop table's practical minimum (stage ≈ 960px, i.e. a
+   1280px viewport with the rail open; below 1024px viewport the separate MOBILE
+   component takes over) this yields ≈ 310px, which clears the (smaller) hand.
+   The Inspector (card-1) variant grows TALLER not wider, so the width cap is safe
+   for it too; it scrolls within the height cap from Section 13.7. */
+/* (The width clamp in 13.7 above — clamp(380px, 50cqi − 165px, 720px) — already
+   adapts at every stage and clears the hand, so the old `@container
+   (max-width:1380px)` width cap is folded into it.) */
+
+/* ---- 13.8 · VIEWPORT SAFETY NET (the explicitly-requested desktop sizes) -----
+   The container queries above already adapt to the real stage box (the correct,
+   rail/filmstrip-aware signal). These viewport @media rules are a belt-and-braces
+   pass pinned to the exact sizes in the brief so the table is provably clean at
+   1920×1080, 1600×900, 1440×900, 1366×768, 1280×720 and a short 1366×640 even if
+   the stage ≈ viewport (rail hidden). They only TIGHTEN (never enlarge) and use
+   :where() to stay at low specificity so the container-query tokens still win
+   when the stage is actually smaller than the viewport. */
+
+/* 1366×768 / 1280×720 band — mid laptops */
+@media (max-width: 1440px) and (min-height: 681px) {
+  [data-theme="primesuspect"] .hearts-gambit-game:where(*) {
+    --hg-card-height: clamp(112px, 21dvh, 188px);
+    --hg-card-width: calc(var(--hg-card-height) * 0.667);
+  }
+}
+/* ≤720px tall — the hand must stay above the fold */
+@media (max-height: 720px) {
+  [data-theme="primesuspect"] .hearts-gambit-game:where(*) {
+    --hg-card-height: clamp(100px, 19.5dvh, 156px);
+    --hg-card-width: calc(var(--hg-card-height) * 0.667);
+  }
+}
+/* short 1366×640 case — most height-constrained desktop target */
+@media (max-height: 660px) {
+  [data-theme="primesuspect"] .hearts-gambit-game:where(*) {
+    --hg-card-height: clamp(88px, 18dvh, 138px);
+    --hg-card-width: calc(var(--hg-card-height) * 0.667);
+  }
+}
+
+/* ============================================================================
+   14 · UNIFIED MODAL SYSTEM — ONE coherent velvet-candlelit shell
+   ----------------------------------------------------------------------------
+   Card Legend · Rules · How-to-Play (Tutorial) all render
+   `.settings-modal-backdrop > .settings-modal-panel.hg-panel.hg-candlelight`.
+   (The core SettingsModal uses `.settings-modal` — NOT `.settings-modal-panel` —
+   so it is deliberately left untouched.) Previously the three diverged: Card
+   Legend + Settings = aged tan parchment, Rules = dark velvet, Tutorial = a
+   brutalist tan card. This block (loaded LAST → wins, even over the older
+   `!important` parchment overrides) collapses them onto ONE language:
+     · dark velvet panel + double gold frame + candlelit glow (matches the
+       in-game `.hg-panel` world and mockup E "Noir, Upgraded")
+     · transparent header/footer with gold hairlines (no solid tobacco bar)
+     · Cinzel gold title · Special Elite eyebrow · Libre Franklin parchment body
+     · the engraved gold `.settings-modal-close` + `.ps-btn` actions
+   ============================================================================ */
+
+/* 14.1 · Shared panel — velvet candlelit (beats the tan `#c9b8a0` panel and the
+   per-modal Rules override; all three now identical). */
+[data-theme="primesuspect"] .settings-modal-panel {
+  background:
+    radial-gradient(900px at 28% 14%, rgba(246, 240, 230, 0.07), transparent 55%),
+    radial-gradient(680px at 84% 6%, rgba(210, 178, 90, 0.07), transparent 60%),
+    linear-gradient(150deg, rgba(48, 35, 44, 0.97), rgba(26, 19, 25, 0.985)) !important;
+  background-color: #20171e !important;
+  border: 1px solid rgba(210, 178, 90, 0.45) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 26px 64px rgba(0, 0, 0, 0.72),
+    0 0 34px rgba(231, 204, 122, 0.07),
+    inset 0 0 0 1px rgba(210, 178, 90, 0.20),
+    inset 0 0 0 5px rgba(22, 16, 20, 0.55),
+    inset 0 0 0 6px rgba(210, 178, 90, 0.10) !important;
+}
+
+/* 14.2 · Header — transparent, gold hairline (kills the solid tobacco bar) */
+[data-theme="primesuspect"] .settings-modal-panel .settings-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(210, 178, 90, 0.22) !important;
+  padding: 1.05rem 1.15rem 0.85rem !important;
+}
+[data-theme="primesuspect"] .settings-modal-panel .settings-modal-title h2,
+[data-theme="primesuspect"] .settings-modal-panel .settings-modal-header h2 {
+  margin: 0.2rem 0 0 !important;
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: none !important;
+  color: var(--royal-gold-light) !important;
+  font-size: 1.3rem !important;
+}
+[data-theme="primesuspect"] .settings-modal-panel .settings-modal-eyebrow {
+  background: transparent !important;
+  font-family: var(--font-mono, 'Special Elite', monospace) !important;
+  letter-spacing: 0.26em !important;
+  text-transform: uppercase !important;
+  font-size: 0.68rem !important;
+  color: rgba(210, 178, 90, 0.85) !important;
+  opacity: 1 !important;
+}
+
+/* 14.3 · Content + footer */
+[data-theme="primesuspect"] .settings-modal-panel .settings-modal-content {
+  color: var(--parchment);
+}
+[data-theme="primesuspect"] .settings-modal-panel .settings-modal-footer {
+  background: rgba(0, 0, 0, 0.18) !important;
+  border-top: 1px solid rgba(210, 178, 90, 0.18) !important;
+}
+[data-theme="primesuspect"] .settings-modal-panel .settings-hint {
+  color: rgba(246, 240, 230, 0.62) !important;
+  font-family: var(--font-mono, 'Special Elite', monospace) !important;
+}
+
+/* 14.4 · Close button — force the engraved gold icon button on ALL three
+   (the Rules panel had a one-off glassy override; bring it back into the family). */
+[data-theme="primesuspect"] .card-legend-panel .settings-modal-close,
+[data-theme="primesuspect"] .rules-panel .settings-modal-close,
+[data-theme="primesuspect"] .tutorial-panel .settings-modal-close {
+  background: var(--psb-sec-face) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  border-radius: var(--psb-radius) !important;
+  color: var(--royal-gold-light) !important;
+  box-shadow: var(--psb-ico-rest) !important;
+}
+[data-theme="primesuspect"] .card-legend-panel .settings-modal-close:hover:not(:disabled),
+[data-theme="primesuspect"] .rules-panel .settings-modal-close:hover:not(:disabled),
+[data-theme="primesuspect"] .tutorial-panel .settings-modal-close:hover:not(:disabled) {
+  color: #fff0cf !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-raise)) !important;
+  box-shadow: var(--psb-ico-hover) !important;
+}
+
+/* 14.5 · CARD LEGEND — re-theme items for the velvet panel (were dark-on-tan). */
+[data-theme="primesuspect"] .card-legend-item {
+  background:
+    linear-gradient(158deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0.20)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.20) !important;
+  border-radius: 10px !important;
+}
+[data-theme="primesuspect"] .card-legend-image {
+  border: 1px solid rgba(210, 178, 90, 0.32) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45) !important;
+}
+[data-theme="primesuspect"] .card-legend-name {
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  font-weight: 800 !important;
+  color: var(--royal-gold-light) !important;
+}
+[data-theme="primesuspect"] .card-legend-value {
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson)) !important;
+  color: var(--royal-gold-light) !important;
+  border: 1px solid rgba(210, 178, 90, 0.45) !important;
+  border-radius: 7px !important;
+  font-family: var(--font-title, 'Cinzel', serif) !important;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.22) !important;
+}
+[data-theme="primesuspect"] .card-legend-description {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif) !important;
+  color: rgba(246, 240, 230, 0.86) !important;
+}
+[data-theme="primesuspect"] .card-legend-copies {
+  color: var(--royal-gold) !important;
+}
+
+/* 14.6 · HOW-TO-PLAY (Tutorial) — carousel inside the shared shell.
+   Backdrop matches the Card Legend / Rules vignette so all three open the same. */
+[data-theme="primesuspect"] .settings-modal-backdrop[data-broadcast-mirror-portal="tutorial"] {
+  align-items: flex-start;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  padding-top: calc(var(--app-header-height, 66px) + env(safe-area-inset-top, 0px) + 2.25rem);
+  background:
+    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
+    radial-gradient(900px at 25% 14%, rgba(210, 178, 90, 0.10), transparent 60%),
+    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.75), transparent 58%),
+    rgba(0, 0, 0, 0.72);
+}
+@media (max-width: 926px) {
+  [data-theme="primesuspect"] .settings-modal-backdrop[data-broadcast-mirror-portal="tutorial"] {
+    padding: 0.5rem;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+  }
+}
+@media (max-height: 500px) {
+  [data-theme="primesuspect"] .settings-modal-backdrop[data-broadcast-mirror-portal="tutorial"] {
+    padding: 0.25rem;
+    padding-top: 0.25rem;
+  }
+}
+
+[data-theme="primesuspect"] .tutorial-panel {
+  width: min(560px, 95vw) !important;
+  max-width: 560px;
+  max-height: 85vh;
+  max-height: 85dvh;
+}
+[data-theme="primesuspect"] .tutorial-panel .tutorial-content {
+  height: auto !important;
+  overflow-y: auto;
+  max-height: calc(85vh - 150px);
+  max-height: calc(85dvh - 150px);
+  padding: 1.1rem 1.25rem 0.9rem !important;
+}
+[data-theme="primesuspect"] .tutorial-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.7rem;
+}
+[data-theme="primesuspect"] .tutorial-stage .tutorial-image {
+  width: 100% !important;
+  max-width: 420px;
+  height: auto !important;
+  max-height: 240px;
+  object-fit: contain;
+  border-radius: 8px !important;
+  border: 1px solid rgba(210, 178, 90, 0.32) !important;
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+}
+[data-theme="primesuspect"] .tutorial-slide-title {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 800;
+  font-size: 1.12rem;
+  letter-spacing: 0.05em;
+  color: var(--royal-gold-light);
+}
+[data-theme="primesuspect"] .tutorial-stage .tutorial-description {
+  margin: 0 !important;
+  min-height: 0 !important;
+  font-family: var(--font-body, 'Libre Franklin', sans-serif) !important;
+  font-size: 0.9rem !important;
+  line-height: 1.6 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  color: rgba(246, 240, 230, 0.84) !important;
+}
+/* footer row: prev · dots · next */
+[data-theme="primesuspect"] .tutorial-navigation {
+  justify-content: space-between !important;
+  align-items: center;
+  gap: 0.75rem;
+}
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-nav-btn {
+  min-width: 3.2rem;
+}
+[data-theme="primesuspect"] .tutorial-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+[data-theme="primesuspect"] .tutorial-dots .tutorial-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(210, 178, 90, 0.30) !important;
+  cursor: pointer;
+  box-shadow: none !important;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+[data-theme="primesuspect"] .tutorial-dots .tutorial-dot:hover {
+  background: rgba(210, 178, 90, 0.55) !important;
+  transform: scale(1.15);
+}
+[data-theme="primesuspect"] .tutorial-dots .tutorial-dot.active {
+  background: var(--royal-gold) !important;
+  box-shadow: 0 0 8px rgba(231, 204, 122, 0.55) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .tutorial-dots .tutorial-dot { transition: none; }
+  [data-theme="primesuspect"] .tutorial-dots .tutorial-dot:hover { transform: none; }
+}
+
+/* ============================================================================
+   15 · CENTER EVIDENCE FRAME — "something around the cards in the middle"
+   ----------------------------------------------------------------------------
+   A soft interrogation spotlight pooled behind the Case File deck + Evidence
+   pile (`.ps-deck-evidence-row`), plus faint gold evidence-board corner
+   brackets framing the central row — so the table centre reads as "the
+   evidence under examination". Decoration only: pointer-events:none, the
+   spotlight sits BEHIND the cards, the brackets sit in the outer margin (never
+   over a card face). Reduced-motion safe.
+   ============================================================================ */
+[data-theme="primesuspect"] .ps-deck-evidence-row {
+  position: relative;
+}
+
+/* interrogation spotlight pooled behind the central cards (the key light) */
+[data-theme="primesuspect"] .ps-deck-evidence-row::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150%;
+  height: 240%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(46% 46% at 50% 50%,
+    rgba(245, 226, 168, 0.13) 0%,
+    rgba(214, 170, 90, 0.06) 40%,
+    transparent 70%);
+  mix-blend-mode: screen;
+  filter: blur(10px);
+  animation: psEvidencePool 9s var(--ease-in-out-expo, ease-in-out) infinite;
+}
+@keyframes psEvidencePool {
+  0%, 100% { opacity: 0.78; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* gold evidence-board corner brackets framing the deck + evidence row */
+[data-theme="primesuspect"] .ps-deck-evidence-row::after {
+  content: '';
+  position: absolute;
+  inset: -16px -28px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.42;
+  --psb-bk: 22px;   /* bracket arm length */
+  --psb-bt: 2px;    /* bracket thickness */
+  --psb-bc: rgba(210, 178, 90, 0.9);
+  background:
+    linear-gradient(var(--psb-bc), var(--psb-bc)) left top / var(--psb-bk) var(--psb-bt) no-repeat,
+    linear-gradient(var(--psb-bc), var(--psb-bc)) left top / var(--psb-bt) var(--psb-bk) no-repeat,
+    linear-gradient(var(--psb-bc), var(--psb-bc)) right top / var(--psb-bk) var(--psb-bt) no-repeat,
+    linear-gradient(var(--psb-bc), var(--psb-bc)) right top / var(--psb-bt) var(--psb-bk) no-repeat,
+    linear-gradient(var(--psb-bc), var(--psb-bc)) left bottom / var(--psb-bk) var(--psb-bt) no-repeat,
+    linear-gradient(var(--psb-bc), var(--psb-bc)) left bottom / var(--psb-bt) var(--psb-bk) no-repeat,
+    linear-gradient(var(--psb-bc), var(--psb-bc)) right bottom / var(--psb-bk) var(--psb-bt) no-repeat,
+    linear-gradient(var(--psb-bc), var(--psb-bc)) right bottom / var(--psb-bt) var(--psb-bk) no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .ps-deck-evidence-row::before { animation: none; }
+}
+
+/* ============================================================================
+   16 · SUSPECT LINEUP (the "enemy" area) + MOBILE NOIR POLISH
+   ----------------------------------------------------------------------------
+   (a) Desktop opponents: a soft overhead lineup spotlight + per-suspect gold
+       corner brackets — each opponent reads as a framed suspect dossier,
+       echoing the centre evidence frame (§15).
+   (b) Mobile: a spotlight behind the centre deck, a framed velvet "suspects"
+       board for the opponent strip, and velvet/gold Case Notes + header panels
+       so the mobile board carries the same noir polish as desktop.
+   Reusable corner-bracket background via --ps-corner-brackets (override
+   --psb-bk arm / --psb-bt thickness / --psb-bc colour per element).
+   ============================================================================ */
+[data-theme="primesuspect"] {
+  --ps-corner-brackets:
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) left top / var(--psb-bk, 20px) var(--psb-bt, 2px) no-repeat,
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) left top / var(--psb-bt, 2px) var(--psb-bk, 20px) no-repeat,
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) right top / var(--psb-bk, 20px) var(--psb-bt, 2px) no-repeat,
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) right top / var(--psb-bt, 2px) var(--psb-bk, 20px) no-repeat,
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) left bottom / var(--psb-bk, 20px) var(--psb-bt, 2px) no-repeat,
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) left bottom / var(--psb-bt, 2px) var(--psb-bk, 20px) no-repeat,
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) right bottom / var(--psb-bk, 20px) var(--psb-bt, 2px) no-repeat,
+    linear-gradient(var(--psb-bc, rgba(210,178,90,0.9)), var(--psb-bc, rgba(210,178,90,0.9))) right bottom / var(--psb-bt, 2px) var(--psb-bk, 20px) no-repeat;
+}
+
+/* ---- (a) DESKTOP "enemy" area ---------------------------------------------- */
+/* overhead lineup spotlight (inside the overflow-hidden area) */
+[data-theme="primesuspect"] .ps-opponents-area::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -12%;
+  width: 92%;
+  height: 150%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(60% 50% at 50% 0%,
+    rgba(245, 226, 168, 0.10) 0%,
+    rgba(214, 170, 90, 0.05) 42%,
+    transparent 72%);
+  mix-blend-mode: screen;
+  filter: blur(8px);
+  animation: psLineupGlow 11s var(--ease-in-out-expo, ease-in-out) infinite;
+}
+@keyframes psLineupGlow {
+  0%, 100% { opacity: 0.68; }
+  50%      { opacity: 1; }
+}
+/* keep the suspects above the spotlight */
+[data-theme="primesuspect"] .ps-opponents-area > * { position: relative; z-index: 1; }
+
+/* per-suspect gold corner brackets — the "dossier" frame (faint, brighter on
+   hover / when targeted) */
+[data-theme="primesuspect"] .ps-suspect { position: relative; }
+[data-theme="primesuspect"] .ps-suspect::before {
+  content: '';
+  position: absolute;
+  inset: -7px -11px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.46;
+  --psb-bk: 15px;
+  --psb-bc: rgba(210, 178, 90, 0.9);
+  background: var(--ps-corner-brackets);
+  transition: opacity 0.25s ease;
+}
+[data-theme="primesuspect"] .ps-suspect:hover::before { opacity: 0.72; }
+[data-theme="primesuspect"] .ps-suspect.ps-opp-targeted::before {
+  opacity: 0.9;
+  --psb-bc: var(--royal-gold-light);
+}
+
+/* ---- (b) MOBILE noir polish ----------------------------------------------- */
+/* spotlight pooled behind the centre deck (forgiving — no precise alignment) */
+[data-theme="primesuspect"] .hg-mobile-deck-area::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 230%;
+  height: 230%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(46% 46% at 50% 50%,
+    rgba(245, 226, 168, 0.14) 0%,
+    rgba(214, 170, 90, 0.06) 42%,
+    transparent 70%);
+  mix-blend-mode: screen;
+  filter: blur(9px);
+  animation: psEvidencePool 9s var(--ease-in-out-expo, ease-in-out) infinite;
+}
+
+/* opponent strip → framed velvet "suspects" board */
+[data-theme="primesuspect"] .hg-mobile-opponent-area {
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(48, 35, 44, 0.5), rgba(26, 19, 25, 0.32));
+  box-shadow:
+    inset 0 0 0 1px rgba(210, 178, 90, 0.28),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Case Notes → velvet panel + gold hairline (was flat black) */
+[data-theme="primesuspect"] .hg-mobile-notes-area {
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(48, 35, 44, 0.62), rgba(26, 19, 25, 0.46)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(210, 178, 90, 0.30),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* header bar → velvet + gold underline */
+[data-theme="primesuspect"] .hg-mobile-header-area {
+  background: linear-gradient(180deg, rgba(26, 19, 25, 0.88), rgba(26, 19, 25, 0.55)) !important;
+  border-bottom: 1px solid rgba(210, 178, 90, 0.26) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .ps-opponents-area::before,
+  [data-theme="primesuspect"] .hg-mobile-deck-area::before { animation: none; }
+}
+

@@ -1,0 +1,22 @@
+/* SECTION 6: CARDS & PANELS — Pixel Prairie */
+
+@layer components {
+  .card {
+    @apply p-6 transition-all duration-300;
+    background: var(--panel-bg);
+    border: 2px solid var(--px-border);
+    border-radius: 0;
+    box-shadow: 3px 3px 0 var(--px-border-dark);
+  }
+
+  .card:hover {
+    border-color: var(--primary);
+  }
+
+  .panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--px-border);
+    border-radius: 0;
+    box-shadow: 2px 2px 0 var(--px-border-dark);
+  }
+}

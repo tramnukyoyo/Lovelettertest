@@ -1,0 +1,96 @@
+/* ============================================================================
+   PIXEL BORDER SYSTEM — stepped corners via stacked hard box-shadows.
+   .px-panel  = 1-ring border (chips, rows, inputs)
+   .px-panel2 = 2-ring chunky border (major panels) — corners step twice
+   .px-btn    = chunky pixel button with hard drop + press states
+
+   These are also available as plain shadow stacks for reuse inside
+   component CSS (copy the box-shadow; rings derive from --px tokens).
+   ============================================================================ */
+
+.px-panel {
+  background: var(--panel-bg);
+  border-radius: 0;
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--px-border),
+    0 var(--px)             0 0 var(--px-border),
+    calc(-1 * var(--px)) 0  0 0 var(--px-border),
+    var(--px) 0             0 0 var(--px-border),
+    inset 0 var(--px) 0 0 var(--px-bevel-light),
+    inset 0 calc(-1 * var(--px)) 0 0 var(--px-bevel-dark);
+}
+
+.px-panel2 {
+  background: var(--panel-bg);
+  border-radius: 0;
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--px-border),
+    0 var(--px)             0 0 var(--px-border),
+    calc(-1 * var(--px)) 0  0 0 var(--px-border),
+    var(--px) 0             0 0 var(--px-border),
+    0 calc(-2 * var(--px)) 0 0 var(--px-border-dark),
+    0 calc(2 * var(--px))  0 0 var(--px-border-dark),
+    calc(-2 * var(--px)) 0  0 0 var(--px-border-dark),
+    calc(2 * var(--px)) 0   0 0 var(--px-border-dark),
+    inset 0 var(--px) 0 0 var(--px-bevel-light),
+    inset 0 calc(-1 * var(--px)) 0 0 var(--px-bevel-dark);
+}
+
+/* Amber variant ring — selected/active surfaces */
+.px-panel.is-accent,
+.px-panel2.is-accent {
+  --px-border: var(--primary);
+}
+
+.px-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: var(--btn-face);
+  color: var(--bg-darker);
+  font-family: var(--font-title);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 0;
+  padding: 0.85rem 2.2rem;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--px-border-dark),
+    0 var(--px)             0 0 var(--px-border-dark),
+    calc(-1 * var(--px)) 0  0 0 var(--px-border-dark),
+    var(--px) 0             0 0 var(--px-border-dark),
+    0 calc(3 * var(--px))   0 calc(-1 * var(--px)) var(--btn-shadow),
+    inset 0 var(--px) 0 0 rgba(255, 255, 255, 0.38),
+    inset 0 calc(-1 * var(--px)) 0 0 rgba(20, 10, 4, 0.28);
+}
+.px-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+.px-btn:active { transform: translateY(3px); }
+
+.px-btn.secondary {
+  background: var(--secondary);
+  color: var(--gb-cream);
+}
+.px-btn.secondary:hover { background: var(--secondary-light); }
+
+/* On-sky text — cream with a hard pixel shadow so copy stays readable
+   directly on the bright sky gradient (hero taglines, step indicators). */
+.on-sky,
+.on-sky-strong {
+  color: var(--gb-cream);
+  text-shadow: 2px 2px 0 rgba(20, 10, 4, 0.45);
+}
+.on-sky-strong {
+  font-family: var(--font-title);
+  text-shadow: 4px 4px 0 var(--px-border-dark);
+}
+
+/* Crisp pixel rendering for sprite-art images (mascot etc.) */
+.px-art { image-rendering: pixelated; }

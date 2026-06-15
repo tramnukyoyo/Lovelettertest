@@ -1,0 +1,305 @@
+/**
+ * Lobby Page — Prime Suspect
+ *
+ * Standard GameBuddies two-pane lobby (LEFT invite/players card + RIGHT host
+ * settings/explainer card) housed inside the shared GameShell, matching the
+ * other games. The bespoke detective card table (HeartsGambitGame) is now used
+ * ONLY for PLAYING / ENDED — LobbyPage owns the LOBBY state.
+ *
+ * Shell wiring (header / rail / drawer / video / dock) mirrors GamePage so the
+ * shell stays consistent across phases.
+ */
+
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { Play, Users } from 'lucide-react';
+import type { Lobby, ChatMessage } from '../types';
+import type { GameBuddiesSession } from '../services/gameBuddiesSession';
+import type { WebcamPlayer } from '../config/WebcamConfig';
+import socketService from '../services/socketService';
+import { getTranslation, getCurrentLanguage } from '../utils/gameTranslations';
+import { useWebRTC } from '../contexts/WebRTCContext';
+import { useIsMobile } from '../hooks/useIsMobile';
+import { GameHeader, SidebarTabs } from '../components/core';
+import type { SidebarTab } from '../components/core';
+import { ChatWindow, PlayerList, SoloInvitePanel } from '../components/lobby';
+import { GameExplainer, GameExplainerHelpButton } from '../components/lobby/GameExplainer';
+import { primeSuspectDemoSpec } from '../components/lobby/GameExplainer/demos/PrimeSuspectDemo';
+import '../components/lobby/GameExplainer/GameExplainer.css';
+import HostSettings from '../components/lobby/HostSettings';
+import CollapsibleSection from '../components/core/CollapsibleSection';
+import { GAME_META } from '../config/gameMeta';
+import { MobileDrawer } from '../components/mobile';
+import type { DrawerContent } from '../components/mobile';
+import GameShell from '../shell/GameShell';
+import PresenceDock from '../shell/PresenceDock';
+import ScrollHint from '../shell/ScrollHint';
+import type { DockPlayer } from '../shell/PresenceDock';
+import { Scene, SceneHeader, SceneBody, SceneActions } from '../shell/Scene';
+
+interface LobbyPageProps {
+  lobby: Lobby;
+  messages: ChatMessage[];
+  gameBuddiesSession?: GameBuddiesSession | null;
+  onLeave?: () => void;
+}
+
+const LobbyPage: React.FC<LobbyPageProps> = ({
+  lobby,
+  messages,
+  gameBuddiesSession,
+}) => {
+  const socket = socketService.getSocket();
+  const language = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
+
+  const [drawerContent, setDrawerContent] = useState<DrawerContent>(null);
+  const hasAutoOpenedVideoRef = useRef(false);
+
+  // Player chat ONLY (system / game-log events belong in the Case Log, not chat).
+  const chatMessages = messages.filter(m => m.playerId !== 'system' && !m.isSystem);
+
+  // Sidebar tabs / unread state
+  const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>('players');
+  const [unreadCount, setUnreadCount] = useState(0);
+  const lastMessageCountRef = useRef(chatMessages.length);
+
+  const { prepareVideoChat, isVideoChatActive, disableVideoChat } = useWebRTC();
+  const isMobile = useIsMobile();
+
+  // Track unread messages when chat tab is not active (chat-only, excludes log)
+  useEffect(() => {
+    if (activeSidebarTab === 'chat') {
+      setUnreadCount(0);
+      lastMessageCountRef.current = chatMessages.length;
+    } else {
+      const newMessages = chatMessages.length - lastMessageCountRef.current;
+      if (newMessages > 0) {
+        setUnreadCount(prev => prev + newMessages);
+        lastMessageCountRef.current = chatMessages.length;
+      }
+    }
+  }, [chatMessages.length, activeSidebarTab]);
+
+  const myPlayer = lobby.players.find(p => p.socketId === lobby.mySocketId);
+  const isHost = myPlayer?.isHost || false;
+  const connectedPlayers = lobby.players.filter(p => p.connected);
+  const minPlayers = lobby.settings?.minPlayers || GAME_META.minPlayers;
+  const canStart = isHost && connectedPlayers.length >= minPlayers;
+
+  const handleStartGame = useCallback(() => {
+    if (!canStart) return;
+    socket?.emit('game:start', {});
+  }, [canStart, socket]);
+
+  // Webcam players for the video modal (exclude self — local stream handled separately)
+  const webcamPlayers: WebcamPlayer[] = useMemo(() =>
+    lobby.players
+      .filter(p => p.socketId !== lobby.mySocketId)
+      .map(p => ({
+        id: p.socketId,
+        name: p.name,
+        avatarUrl: p.avatarUrl,
+      })),
+    [lobby.players, lobby.mySocketId]
+  );
+
+  const handleOpenChat = useCallback(() => {
+    setDrawerContent('chat');
+    setUnreadCount(0);
+  }, []);
+
+  const handleOpenPlayers = useCallback(() => {
+    setDrawerContent('players');
+  }, []);
+
+  const handleOpenVideo = useCallback(() => {
+    if (isVideoChatActive) {
+      setDrawerContent('video');
+    } else {
+      prepareVideoChat();
+    }
+  }, [isVideoChatActive, prepareVideoChat]);
+
+  const handleCloseDrawer = useCallback(() => {
+    setDrawerContent(null);
+  }, []);
+
+  useEffect(() => {
+    if (!isVideoChatActive) {
+      hasAutoOpenedVideoRef.current = false;
+    }
+  }, [isVideoChatActive]);
+
+  useEffect(() => {
+    if (isMobile && isVideoChatActive && !hasAutoOpenedVideoRef.current) {
+      hasAutoOpenedVideoRef.current = true;
+      setDrawerContent('video');
+    }
+  }, [isMobile, isVideoChatActive]);
+
+  // PresenceDock: everyone visible while waiting
+  const dockPlayers: DockPlayer[] = useMemo(() =>
+    lobby.players
+      .filter(p => !p.isBigScreen && !p.isSpectator)
+      .map(p => ({
+        id: p.id ?? p.socketId,
+        name: p.name,
+        avatarUrl: p.avatarUrl,
+        isHost: p.isHost,
+        isMe: p.socketId === lobby.mySocketId,
+        connected: p.connected,
+      })),
+    [lobby.players, lobby.mySocketId]
+  );
+
+  if (!socket) return null;
+
+  return (
+    <>
+      <div className="app-layout lobby-page">
+        <GameShell
+          hud={
+            <GameHeader
+              lobby={lobby}
+              gameBuddiesSession={gameBuddiesSession}
+              onOpenChat={handleOpenChat}
+              onOpenPlayers={handleOpenPlayers}
+              onOpenVideo={handleOpenVideo}
+              unreadChatCount={unreadCount}
+            />
+          }
+          rail={
+            <SidebarTabs
+              activeTab={activeSidebarTab}
+              onTabChange={setActiveSidebarTab}
+              playerCount={connectedPlayers.length}
+              unreadCount={unreadCount}
+            >
+              {activeSidebarTab === 'players' ? (
+                <PlayerList
+                  players={lobby.players}
+                  mySocketId={lobby.mySocketId}
+                  isHost={isHost}
+                />
+              ) : (
+                <ChatWindow
+                  messages={chatMessages}
+                  roomCode={lobby.code}
+                  mySocketId={lobby.mySocketId}
+                />
+              )}
+            </SidebarTabs>
+          }
+          railUnread={unreadCount}
+          railLabel={t('chat.title')}
+          dock={<PresenceDock players={dockPlayers} />}
+        >
+          <div className="gs-stage-inner">
+            <Scene className="gs-lobby-scene">
+              <SceneHeader>
+                <div
+                  className="lobby-waiting-header"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
+                >
+                  <h2 style={{ margin: 0 }}>{t('game.waitingForPlayers')}</h2>
+                  <p className="lobby-player-count" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Users className="w-4 h-4" />
+                    {connectedPlayers.length} {t('lobby.players')}
+                  </p>
+                  <GameExplainerHelpButton gameId={GAME_META.id} ariaLabel={t('tutorial.howToPlay')} />
+                </div>
+              </SceneHeader>
+
+              <SceneBody>
+                <div className="gs-lobby-panes">
+                  {/* LEFT — invite + players */}
+                  <div className="gs-pane lobby-waiting-card">
+                    <img
+                      src={`${import.meta.env.BASE_URL}mascot.webp`}
+                      alt=""
+                      aria-hidden="true"
+                      className="lobby-mascot px-art gs-hide-short"
+                    />
+                    <SoloInvitePanel
+                      roomCode={lobby.code}
+                      gameName={GAME_META.name}
+                      minPlayers={minPlayers}
+                      currentPlayers={connectedPlayers.length}
+                      hideRoomCode={gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode}
+                    />
+                    {/* Player list lives in the sidebar rail (Spieler tab) — no
+                        duplicate in the center pane. */}
+                    <ScrollHint />
+                  </div>
+
+                  {/* RIGHT — host settings + explainer */}
+                  <div className="gs-pane lobby-waiting-card lobby-settings-pane">
+                    {isHost ? (
+                      isMobile ? (
+                        <CollapsibleSection title={t('settings.title')}>
+                          <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
+                        </CollapsibleSection>
+                      ) : (
+                        <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
+                      )
+                    ) : (
+                      <p className="lobby-waiting-host">{t('game.waitingForHost')}</p>
+                    )}
+                    {!isMobile && (
+                      <div className="gs-collapse-short" style={{ width: '100%' }}>
+                        <GameExplainer
+                          gameId={GAME_META.id}
+                          demoSpec={primeSuspectDemoSpec}
+                          t={(key: string) => getTranslation(key, language)}
+                        />
+                      </div>
+                    )}
+                    <ScrollHint />
+                  </div>
+                </div>
+              </SceneBody>
+
+              <SceneActions>
+                {isHost ? (
+                  <div className="lobby-start-section">
+                    <button
+                      onClick={handleStartGame}
+                      disabled={!canStart}
+                      className="lobby-start-btn"
+                    >
+                      <Play className="w-5 h-5" />
+                      {t('game.startGame')}
+                    </button>
+                    {!canStart && (
+                      <p className="lobby-start-hint">
+                        {t('game.needMorePlayers').replace('{count}', String(connectedPlayers.length))}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="lobby-waiting-host">{t('game.waitingForHost')}</p>
+                )}
+              </SceneActions>
+            </Scene>
+          </div>
+        </GameShell>
+      </div>
+
+      <MobileDrawer
+        isOpen={drawerContent !== null}
+        content={drawerContent}
+        onClose={handleCloseDrawer}
+        messages={chatMessages}
+        roomCode={lobby.code}
+        mySocketId={lobby.mySocketId}
+        players={lobby.players}
+        webcamPlayers={webcamPlayers}
+        localPlayerName={myPlayer?.name}
+        onLeaveVideo={disableVideoChat}
+        teams={[]}
+      />
+    </>
+  );
+};
+
+export default LobbyPage;

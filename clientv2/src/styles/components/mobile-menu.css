@@ -1,0 +1,933 @@
+/* SECTION 10: MOBILE MENU & DRAWER */
+
+/* Mobile Game Menu (Hamburger) */
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: var(--bg-card-hover);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+  background: rgba(var(--secondary-rgb), 0.2);
+  border-color: var(--gb-cyan);
+}
+
+@media (max-width: 1023px) {
+  .mobile-menu-btn { display: flex; }
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: var(--z-mobile-menu-backdrop);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile Menu Panel */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  max-width: 80vw;
+  height: 100dvh;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--px-border-dark);
+  box-shadow: inset 4px 0 0 0 var(--px-border);
+  z-index: var(--z-mobile-menu);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu.open { transform: translateX(0); }
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 2px solid var(--px-border-dark);
+}
+
+.mobile-menu-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.mobile-menu-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-item:hover { background: rgba(var(--secondary-rgb), 0.1); }
+
+.mobile-menu-item.danger { color: var(--danger-400); }
+
+.mobile-menu-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+.mobile-menu-badge {
+  margin-left: auto;
+  padding: 0.125rem 0.5rem;
+  background: var(--gb-pink);
+  border-radius: var(--radius-lg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* MOBILE GAME MENU (HAMBURGER - PORTAL BASED) */
+
+.mobile-game-menu-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-game-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: var(--bg-card-hover);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-game-menu-btn:hover {
+  background: rgba(var(--secondary-rgb), 0.2);
+  border-color: var(--gb-cyan);
+}
+
+.mobile-game-menu-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: var(--gb-pink);
+  border-radius: var(--radius-md);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: var(--z-mobile-menu-backdrop);
+}
+
+.mobile-game-menu-panel {
+  position: fixed;
+  top: calc(var(--header-height-mobile) + env(safe-area-inset-top, 0px) + 8px);
+  right: 12px;
+  width: min(240px, calc(100vw - 24px));
+  max-height: calc(100dvh - var(--header-height-mobile) - env(safe-area-inset-top, 0px) - 24px);
+  padding-right: env(safe-area-inset-right, 0px);
+  background: var(--bg-secondary);
+  border: 2px solid var(--px-border);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--px-border-dark), inset 0 var(--px) 0 0 var(--primary);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-mobile-menu);
+}
+
+.mobile-game-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 2px solid var(--px-border-dark);
+  background: var(--bg-darker);
+}
+
+.mobile-game-menu-title {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.mobile-game-menu-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-game-menu-close:hover {
+  background: color-mix(in srgb, var(--gb-lie) 20%, var(--bg-darker));
+  color: var(--gb-lie);
+}
+
+.mobile-game-menu-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-game-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-game-menu-item:hover { background: rgba(var(--secondary-rgb), 0.1); }
+
+.mobile-game-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-game-menu-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+.mobile-game-menu-item.highlight { background: rgba(var(--primary-rgb), 0.1); }
+
+.mobile-game-menu-item.highlight:hover { background: rgba(var(--primary-rgb), 0.2); }
+
+.mobile-game-menu-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-card-hover);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.mobile-game-menu-item-icon.highlight {
+  background: rgba(var(--primary-rgb), 0.2);
+  color: var(--gb-pink);
+}
+
+.mobile-game-menu-item-icon.danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger-400);
+}
+
+.mobile-game-menu-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-game-menu-item-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-hand);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mobile-game-menu-item .danger .mobile-game-menu-item-label { color: var(--danger-400); }
+
+.mobile-game-menu-item-badge {
+  padding: 0 6px;
+  height: 16px;
+  background: var(--gb-pink);
+  border-radius: var(--radius-md);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-menu-item-sublabel {
+  font-family: var(--font-hand);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile Game Menu - Landscape adjustments */
+@media (orientation: landscape) and (max-width: 1023px) {
+  .mobile-game-menu-panel {
+    top: calc(var(--header-height-mobile) + 4px);
+    max-height: calc(100dvh - var(--header-height-mobile) - env(safe-area-inset-top, 0px) - 16px);
+  }
+
+  .mobile-game-menu-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+  }
+
+  .mobile-game-menu-item {
+    padding: var(--spacing-xs);
+    font-size: 0.75rem;
+  }
+
+  .mobile-game-menu-item-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-game-menu-item-sublabel { display: none; }
+}
+
+/* ----------------------------------------
+   MobileGameMenu Enhanced States & Animations
+   ---------------------------------------- */
+
+/* Focus-visible for keyboard navigation */
+.mobile-game-menu-btn:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+}
+
+.mobile-game-menu-close:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+}
+
+.mobile-game-menu-item:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: -2px;
+  background: rgba(var(--secondary-rgb), 0.15);
+}
+
+/* Active states for tactile feedback */
+.mobile-game-menu-btn:active {
+  transform: scale(0.95);
+  background: rgba(var(--secondary-rgb), 0.3);
+}
+
+.mobile-game-menu-close:active {
+  transform: scale(0.9);
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.mobile-game-menu-item:active:not(:disabled) {
+  transform: scale(0.98);
+  background: rgba(var(--secondary-rgb), 0.2);
+}
+
+.mobile-game-menu-item.danger:active { background: rgba(239, 68, 68, 0.25); }
+
+.mobile-game-menu-item.highlight:active { background: rgba(var(--primary-rgb), 0.3); }
+
+/* Badge pulse animation for unread notifications — stepped, no glow */
+@keyframes menuBadgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.mobile-game-menu-badge { animation: menuBadgePulse 2s steps(2) infinite; }
+
+.mobile-game-menu-item-badge {
+  animation: menuBadgePulse 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+/* Menu item staggered entrance (handled by Framer Motion, but CSS fallback) */
+@keyframes menuItemSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mobile-game-menu-item { animation: menuItemSlideIn 0.2s ease-out backwards; }
+
+.mobile-game-menu-item:nth-child(1) { animation-delay: 0.02s; }
+.mobile-game-menu-item:nth-child(2) { animation-delay: 0.04s; }
+.mobile-game-menu-item:nth-child(3) { animation-delay: 0.06s; }
+.mobile-game-menu-item:nth-child(4) { animation-delay: 0.08s; }
+.mobile-game-menu-item:nth-child(5) { animation-delay: 0.1s; }
+.mobile-game-menu-item:nth-child(6) { animation-delay: 0.12s; }
+.mobile-game-menu-item:nth-child(7) { animation-delay: 0.14s; }
+.mobile-game-menu-item:nth-child(8) { animation-delay: 0.16s; }
+
+/* Icon hover glow effect */
+.mobile-game-menu-item:hover .mobile-game-menu-item-icon {
+  background: rgba(var(--secondary-rgb), 0.25);
+  color: var(--gb-cyan);
+  transition: all 0.2s ease;
+}
+
+.mobile-game-menu-item.danger:hover .mobile-game-menu-item-icon {
+  background: rgba(239, 68, 68, 0.3);
+  color: var(--danger-400);
+}
+
+.mobile-game-menu-item.highlight:hover .mobile-game-menu-item-icon {
+  background: rgba(var(--primary-rgb), 0.3);
+  color: var(--gb-pink);
+}
+
+/* Mobile Small (≤374px) - extra compact menu */
+@media (max-width: 374px) {
+  .mobile-game-menu-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .mobile-game-menu-badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.5625rem;
+    top: -3px;
+    right: -3px;
+  }
+
+  .mobile-game-menu-panel {
+    width: calc(100vw - 16px);
+    right: 8px;
+    max-height: calc(100dvh - var(--header-height-mobile) - env(safe-area-inset-top, 0px) - 16px);
+  }
+
+  .mobile-game-menu-header { padding: var(--spacing-xs) var(--spacing-sm); }
+
+  .mobile-game-menu-title { font-size: 0.75rem; }
+
+  .mobile-game-menu-items { padding: 4px; }
+
+  .mobile-game-menu-item {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .mobile-game-menu-item-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-game-menu-item-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .mobile-game-menu-item-label { font-size: 0.75rem; }
+
+  .mobile-game-menu-item-badge {
+    height: 14px;
+    padding: 0 4px;
+    font-size: 0.5625rem;
+  }
+
+  .mobile-game-menu-item-sublabel { font-size: 0.625rem; }
+}
+
+/* Safe area for notched devices */
+@supports (padding-right: env(safe-area-inset-right)) {
+  .mobile-game-menu-panel { padding-right: max(0px, env(safe-area-inset-right)); }
+
+  .mobile-game-menu-items { padding-bottom: max(var(--spacing-xs), env(safe-area-inset-bottom)); }
+}
+
+/* Mobile Drawer */
+/* Mobile Drawer Backdrop - TSX uses mobile-drawer-backdrop */
+.mobile-drawer-backdrop,
+.mobile-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: var(--z-chat-drawer-backdrop);
+  /* Framer Motion handles opacity via style prop, but keep for CSS fallback */
+}
+
+/* Legacy class-based animation (CSS fallback) */
+.mobile-drawer-overlay {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-drawer-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile Drawer - slides from right (Framer Motion animated) */
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 85vw);
+  max-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  background: var(--bg-secondary);
+  border-left: 2px solid var(--gb-cyan);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-mobile-drawer);
+  display: flex;
+  flex-direction: column;
+  /* Framer Motion handles transform via style prop */
+}
+
+/* Legacy CSS-only animation (fallback) */
+.mobile-drawer:not([style*="transform"]) {
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.mobile-drawer.open:not([style*="transform"]) { transform: translateX(0); }
+
+.mobile-drawer-handle {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-sm);
+}
+
+.mobile-drawer-handle-bar {
+  width: 40px;
+  height: 4px;
+  background: var(--text-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+
+.mobile-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+.mobile-drawer-title svg { color: var(--gb-cyan); }
+
+.mobile-drawer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-drawer-close:hover {
+  background: rgba(var(--primary-rgb), 0.2);
+  color: var(--gb-pink);
+}
+
+.mobile-drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* No padding - let child components handle their own padding */
+}
+
+/* ----------------------------------------
+   MobileDrawer Enhanced States & Animations
+   ---------------------------------------- */
+
+/* Backdrop with blur effect */
+.mobile-drawer-backdrop {
+}
+
+/* Focus-visible for keyboard navigation */
+.mobile-drawer-close:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+  background: rgba(var(--secondary-rgb), 0.1);
+}
+
+/* Active state for tactile feedback */
+.mobile-drawer-close:active {
+  transform: scale(0.9);
+  background: rgba(var(--primary-rgb), 0.3);
+}
+
+/* Title icon glow */
+.mobile-drawer-title svg { color: var(--primary); }
+
+/* Handle bar hover effect */
+.mobile-drawer-handle-bar { transition: all 0.2s ease; }
+
+.mobile-drawer:hover .mobile-drawer-handle-bar {
+  background: var(--gb-cyan);
+  width: 60px;
+}
+
+/* Content entrance animation */
+@keyframes drawerContentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mobile-drawer-content > * { animation: drawerContentFadeIn 0.25s ease-out 0.1s backwards; }
+
+/* Border glow effect */
+.mobile-drawer {
+  box-shadow: var(--shadow-lg),
+              -2px 0 8px rgba(var(--secondary-rgb), 0.15);
+}
+
+/* Mobile Small (≤374px) */
+@media (max-width: 374px) {
+  .mobile-drawer {
+    width: 100vw;
+    border-left: none;
+    border-radius: 0;
+  }
+
+  .mobile-drawer-header { padding: var(--spacing-sm); }
+
+  .mobile-drawer-title {
+    font-size: 1rem;
+    gap: var(--spacing-xs);
+  }
+
+  .mobile-drawer-title svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobile-drawer-close {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+/* Extreme landscape - compact drawer */
+@media (max-height: 500px) and (orientation: landscape) {
+  .mobile-drawer { width: min(240px, 60vw); }
+
+  .mobile-drawer-header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-height: 40px;
+  }
+
+  .mobile-drawer-title { font-size: 0.875rem; }
+
+  .mobile-drawer-title svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-drawer-close {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* Safe area handling for notched devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .mobile-drawer { padding-top: env(safe-area-inset-top); }
+
+  .mobile-drawer-header { padding-top: max(var(--spacing-md), env(safe-area-inset-top)); }
+}
+
+/* ----------------------------------------
+   Mobile Full-Screen Overlay Modals
+   ---------------------------------------- */
+
+/* Backdrop with blur effect */
+.mobile-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9997;
+}
+
+/* Full-screen modal container */
+.mobile-overlay-modal {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-primary);
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  /* Safe area insets */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Modal header */
+.mobile-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  min-height: 56px;
+}
+
+/* Modal title */
+.mobile-overlay-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.mobile-overlay-title svg {
+  color: var(--primary);
+}
+
+/* Close button */
+.mobile-overlay-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  background: rgba(var(--primary-rgb), 0.1);
+  border: 1px solid rgba(var(--primary-rgb), 0.3);
+  border-radius: var(--radius-md);
+  color: var(--gb-pink);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-overlay-close:hover {
+  background: rgba(var(--primary-rgb), 0.2);
+  border-color: var(--gb-pink);
+}
+
+.mobile-overlay-close:active {
+  transform: scale(0.95);
+  background: rgba(var(--primary-rgb), 0.3);
+}
+
+.mobile-overlay-close:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+}
+
+/* Modal content area - fills remaining space */
+.mobile-overlay-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content fills the modal */
+.mobile-overlay-content > * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Chat window specific adjustments in overlay */
+.mobile-overlay-content .chat-container {
+  height: 100%;
+  max-height: none;
+}
+
+/* Chat window fills mobile overlay */
+.mobile-overlay-content .chat-window {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+.mobile-overlay-content .chat-messages { max-height: none; }
+
+/* Player list specific adjustments in overlay */
+.mobile-overlay-content .player-list { padding: var(--spacing-md); }
+
+.mobile-overlay-content .player-list-items { gap: var(--spacing-sm); }
+
+/* Video grid specific adjustments in overlay */
+.mobile-overlay-content .mobile-video-grid {
+  height: 100%;
+  padding: var(--spacing-md);
+}
+
+/* Content entrance animation */
+@keyframes overlayContentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-overlay-content > * { animation: overlayContentFadeIn 0.2s ease-out; }
+
+/* Mobile Small (≤374px) */
+@media (max-width: 374px) {
+  .mobile-overlay-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 48px;
+  }
+
+  .mobile-overlay-title {
+    font-size: 1.125rem;
+    gap: var(--spacing-xs);
+  }
+
+  .mobile-overlay-title svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobile-overlay-close {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Landscape orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+  .mobile-overlay-header {
+    padding: var(--spacing-xs) var(--spacing-md);
+    min-height: 44px;
+  }
+
+  .mobile-overlay-title { font-size: 1rem; }
+
+  .mobile-overlay-close {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .mobile-overlay-content .player-list { padding: var(--spacing-sm); }
+}
+
+/* Reduced motion: menus appear instantly, badges stay static */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-game-menu-badge,
+  .mobile-game-menu-item-badge,
+  .mobile-game-menu-item,
+  .mobile-drawer-content > *,
+  .mobile-overlay-content > * {
+    animation: none;
+  }
+}

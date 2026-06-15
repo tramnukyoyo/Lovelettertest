@@ -1,0 +1,1945 @@
+/* SECTION 8: VIDEO/FILMSTRIP COMPONENTS */
+
+/* ----------------------------------------
+   Video Filmstrip
+   ---------------------------------------- */
+.video-filmstrip {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  background: var(--bg-darker);
+  border-top: 4px solid var(--px-border-dark);
+  box-shadow: inset 0 2px 0 var(--px-bevel-light);
+  z-index: var(--z-filmstrip);
+  /* Framer Motion handles height animation */
+}
+
+.video-filmstrip.collapsed {
+  height: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-filmstrip.collapsed:hover .filmstrip-resize-handle::before {
+  background: var(--primary);
+}
+
+.video-filmstrip.expanded { height: var(--filmstrip-height); }
+
+/* Filmstrip resize handle */
+.filmstrip-resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: row-resize;
+  z-index: 10;
+}
+
+/* Chunky pixel grip bar */
+.filmstrip-resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 4px;
+  background: rgba(var(--primary-rgb), 0.45);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  transition: background 0.2s;
+}
+
+.filmstrip-resize-handle:hover::before { background: var(--primary); }
+
+/* Filmstrip popout button */
+.filmstrip-popout-btn {
+  position: absolute;
+  top: 2px;
+  right: 12px;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--px-border);
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+  color: var(--text-secondary);
+  font-family: var(--font-title);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filmstrip-popout-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Prevent selection during resize */
+.app-root.filmstrip-resizing { user-select: none; }
+
+.app-root.filmstrip-resizing .video-filmstrip { transition: none !important; }
+
+/* Filmstrip resizing state - disable pointer events on children */
+.video-filmstrip.resizing { transition: none !important; }
+
+.video-filmstrip.resizing * { pointer-events: none; }
+
+.video-filmstrip.resizing .filmstrip-resize-handle { pointer-events: auto; }
+
+/* Filmstrip Header - hidden (controls via keyboard/header) */
+.video-filmstrip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: 1px solid var(--px-bevel-light);
+}
+
+/* Expand/Collapse buttons */
+.video-filmstrip-expand-btn,
+.video-filmstrip-collapse-btn,
+.filmstrip-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--panel-bg);
+  border: 1px solid var(--px-border);
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  color: var(--primary);
+  font-family: var(--font-title);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.video-filmstrip-expand-btn:hover,
+.video-filmstrip-collapse-btn:hover,
+.filmstrip-toggle:hover {
+  border-color: var(--primary);
+  background: var(--panel-bg-hover);
+}
+
+/* Video feeds container */
+.video-filmstrip-feeds,
+.filmstrip-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  padding-top: 12px; /* Space for resize handle */
+  height: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+
+.video-filmstrip-feeds::-webkit-scrollbar { height: 4px; }
+
+.video-filmstrip-feeds::-webkit-scrollbar-track { background: transparent; }
+
+.video-filmstrip-feeds::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 0;
+}
+
+/* Empty state */
+.video-filmstrip-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  color: var(--text-secondary);
+  font-family: var(--font-hand);
+  font-style: italic;
+}
+
+/* ----------------------------------------
+   VideoFilmstrip Enhanced States & Animations
+   ---------------------------------------- */
+
+/* Focus-visible for keyboard navigation */
+.video-filmstrip-expand-btn:focus-visible,
+.video-filmstrip-collapse-btn:focus-visible,
+.filmstrip-toggle:focus-visible {
+  outline: 2px solid var(--gb-pink);
+  outline-offset: 2px;
+}
+
+/* Active states for tactile feedback */
+.video-filmstrip-expand-btn:active,
+.video-filmstrip-collapse-btn:active,
+.filmstrip-toggle:active {
+  transform: scale(0.95);
+  background: rgba(var(--secondary-rgb), 0.35);
+}
+
+/* Filmstrip border glow */
+.video-filmstrip { box-shadow: 0 -4px 16px rgba(var(--secondary-rgb), 0.15); }
+
+/* Scroll fade indicators for horizontal overflow */
+.video-filmstrip-feeds {
+  position: relative;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 2%,
+    black 98%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 2%,
+    black 98%,
+    transparent 100%
+  );
+}
+
+/* Video feed entrance animation */
+@keyframes videoFeedEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.video-filmstrip-feeds > * { animation: videoFeedEnter 0.3s ease-out backwards; }
+
+.video-filmstrip-feeds > *:nth-child(1) { animation-delay: 0.05s; }
+.video-filmstrip-feeds > *:nth-child(2) { animation-delay: 0.1s; }
+.video-filmstrip-feeds > *:nth-child(3) { animation-delay: 0.15s; }
+.video-filmstrip-feeds > *:nth-child(4) { animation-delay: 0.2s; }
+.video-filmstrip-feeds > *:nth-child(5) { animation-delay: 0.25s; }
+.video-filmstrip-feeds > *:nth-child(6) { animation-delay: 0.3s; }
+.video-filmstrip-feeds > *:nth-child(7) { animation-delay: 0.35s; }
+.video-filmstrip-feeds > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* Collapse button icon rotation */
+.video-filmstrip-collapse-btn svg,
+.video-filmstrip-expand-btn svg { transition: transform 0.2s ease; }
+
+.video-filmstrip-collapse-btn:hover svg { transform: translateY(2px); }
+
+.video-filmstrip-expand-btn:hover svg { transform: translateY(-2px); }
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .video-filmstrip-header { padding: var(--spacing-xs) var(--spacing-sm); }
+
+  .video-filmstrip-feeds {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .video-filmstrip-expand-btn,
+  .video-filmstrip-collapse-btn {
+    padding: 4px var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+}
+
+/* Mobile Small (≤374px) */
+@media (max-width: 374px) {
+  .video-filmstrip-header { padding: 4px var(--spacing-xs); }
+
+  .video-filmstrip-expand-btn,
+  .video-filmstrip-collapse-btn {
+    padding: 3px 8px;
+    font-size: 0.6875rem;
+    gap: 4px;
+  }
+
+  .video-filmstrip-expand-btn svg,
+  .video-filmstrip-collapse-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .video-filmstrip-feeds {
+    padding: 4px var(--spacing-xs);
+    gap: 6px;
+  }
+
+  .video-filmstrip.collapsed { height: 28px; }
+}
+
+/* Desktop Large (≥1536px) */
+@media (min-width: 1536px) {
+  .video-filmstrip-header { padding: var(--spacing-sm) var(--spacing-lg); }
+
+  .video-filmstrip-expand-btn,
+  .video-filmstrip-collapse-btn {
+    padding: var(--spacing-xs) var(--spacing-lg);
+    font-size: 0.9375rem;
+  }
+
+  .video-filmstrip-feeds {
+    padding: var(--spacing-md) var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+
+  .video-filmstrip.expanded { height: 140px; }
+
+  .video-filmstrip.collapsed { height: 48px; }
+}
+
+/* ----------------------------------------
+   Video Control Cluster
+   ---------------------------------------- */
+.video-control-cluster,
+.video-controls {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--bg-darker);
+  border-radius: 0;
+  border: 2px solid var(--px-border);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.video-control-cluster.compact {
+  padding: 0.125rem;
+  gap: 0.125rem;
+}
+
+.video-control-cluster.compact .video-control-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.video-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-hand);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Invisible hit-area expansion: the visual button shrinks down to 28px in the
+   compact cluster, but the tap target stays ≥44px (WCAG 2.5.5) at every size. */
+.video-control-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
+.video-control-btn:hover {
+  background: var(--panel-bg-hover);
+  color: var(--primary);
+}
+
+.video-control-btn:active { transform: translateY(1px); }
+
+.video-control-btn.muted,
+.video-control-btn.off {
+  background: color-mix(in srgb, var(--gb-lie) 20%, var(--bg-darker));
+  color: var(--gb-lie);
+}
+
+.video-control-btn.off:hover { background: color-mix(in srgb, var(--gb-lie) 32%, var(--bg-darker)); }
+
+/* Leave video button - red styling */
+.video-control-btn.leave {
+  background: color-mix(in srgb, var(--gb-lie) 20%, var(--bg-darker));
+  color: var(--gb-lie);
+}
+
+.video-control-btn.leave:hover { background: color-mix(in srgb, var(--gb-lie) 32%, var(--bg-darker)); }
+
+/* ----------------------------------------
+   Join Video Button (Not Joined State)
+   ---------------------------------------- */
+
+.video-join-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--secondary);
+  border: none;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  color: var(--gb-cream);
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.video-join-btn:hover {
+  background: var(--secondary-light);
+  transform: translateY(-1px);
+}
+
+.video-join-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+}
+
+.video-join-text { display: none; }
+
+@media (min-width: 768px) {
+  .video-join-text { display: inline; }
+}
+
+/* ----------------------------------------
+   Preparing Badge (Setting Up State)
+   ---------------------------------------- */
+
+.video-preparing-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  background: var(--bg-darker);
+  border: 2px solid var(--primary);
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  color: var(--primary);
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  animation: preparingPulse 2s steps(2) infinite;
+}
+
+@keyframes preparingPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ----------------------------------------
+   VideoControlCluster Enhanced States
+   ---------------------------------------- */
+
+/* Focus-visible for keyboard navigation */
+.video-control-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.video-control-btn.off:focus-visible { outline-color: var(--gb-lie); }
+
+/* On state: cream icons (live controls); active toggle reads via color */
+.video-control-btn:not(.off):not(.muted) { color: var(--gb-cream); }
+
+/* Off/muted attention blink — stepped, no soft glow */
+@keyframes mutedPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.video-control-btn.off,
+.video-control-btn.muted { animation: mutedPulse 3s steps(2) infinite; }
+
+/* Stop pulse on hover (user noticed) */
+.video-control-btn.off:hover,
+.video-control-btn.muted:hover { animation: none; }
+
+/* Settings button spin on hover */
+.video-control-btn:has(svg.lucide-settings):hover svg { animation: settingsSpin 1s ease-in-out; }
+
+@keyframes settingsSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(180deg); }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .video-control-cluster {
+    padding: 0.125rem;
+    gap: 0.125rem;
+  }
+
+  .video-control-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .video-control-cluster.compact .video-control-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+}
+
+/* Mobile Small (≤374px) */
+@media (max-width: 374px) {
+  .video-control-cluster {
+    padding: 2px;
+    gap: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .video-control-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .video-control-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .video-control-cluster.compact .video-control-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  .video-control-cluster.compact .video-control-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Desktop Large (≥1536px) */
+@media (min-width: 1536px) {
+  .video-control-cluster {
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+  }
+
+  .video-control-btn {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    min-height: 52px;
+  }
+
+  .video-control-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .video-control-cluster.compact .video-control-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Mobile Landscape - horizontal compact layout */
+@media (max-width: 926px) and (orientation: landscape) {
+  .video-control-cluster {
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .video-control-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .video-control-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ----------------------------------------
+   Webcam Display (Individual video feed)
+   ---------------------------------------- */
+.webcam-display,
+.video-feed {
+  position: relative;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+/* Size variants */
+.webcam-display.small,
+.video-feed {
+  width: 120px;
+  height: 90px;
+}
+
+.webcam-display.medium {
+  width: 180px;
+  height: 135px;
+}
+
+.webcam-display.large {
+  width: 240px;
+  height: 180px;
+}
+
+.webcam-display:hover,
+.video-feed:hover { border-color: var(--gb-cyan); }
+
+/* Turn indicator — hard amber ring (zero-blur, pixel discipline) */
+.webcam-display.is-turn,
+.video-feed.current-turn {
+  border-color: var(--primary);
+  box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 2px var(--primary);
+}
+
+.video-feed.self {
+  border-color: var(--gb-cyan);
+  box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 2px rgba(var(--secondary-rgb), 0.45);
+}
+
+/* Video container */
+.webcam-video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.webcam-video,
+.video-feed video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Local video is mirrored */
+.webcam-display .webcam-video { transform: scaleX(-1); }
+
+/* Placeholder when no video */
+.webcam-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-secondary);
+}
+
+.webcam-avatar,
+.video-feed-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--secondary);
+  font-weight: 700;
+  color: white;
+  font-family: var(--font-title);
+  overflow: hidden;
+}
+
+.webcam-display.small .webcam-avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+}
+
+.webcam-display.large .webcam-avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
+}
+
+.webcam-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.webcam-avatar-initial { font-size: 1.25rem; }
+
+/* "Away" badge — overlay shown when a peer's document.hidden is true.
+   The live video keeps playing underneath; this is a visual hint that
+   the peer has tabbed out / minimised. */
+.webcam-away-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 4;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+/* Active speaker — the broadcast tile keeps the outer box-shadow pulse on the
+   tile itself (no entrance-animation collision there). */
+.sb-webcam-tile.is-speaking {
+  border-color: var(--gb-cream, #f7e7c5);
+  box-shadow: 0 0 0 2px var(--gb-cream, #f7e7c5), 0 0 16px rgba(247, 231, 197, 0.5);
+  animation: speakingPulse 1.1s ease-in-out infinite;
+}
+.sb-webcam-tile:not(.is-speaking) {
+  transition: box-shadow 0.28s ease-in, border-color 0.28s ease-in;
+}
+
+@keyframes speakingPulse {
+  0%, 100% { box-shadow: 0 0 0 2px var(--gb-cream, #f7e7c5), 0 0 12px rgba(247, 231, 197, 0.45); }
+  50%      { box-shadow: 0 0 0 3px var(--gb-cream, #f7e7c5), 0 0 22px rgba(247, 231, 197, 0.78); }
+}
+
+/* Filmstrip/grid tiles (WebcamDisplay): the ring is a dedicated overlay child
+   pulsed via OPACITY — never box-shadow/animation on the tile itself. The tile
+   carries the filmstrip entrance animation (videoFeedEnter) on its `animation`
+   property; putting the ring's `animation` on the same element flipped it back to
+   videoFeedEnter when speaking stopped and REPLAYED the opacity:0 entrance (the
+   tile briefly vanished). An inset glow (not clipped by the tile's overflow:hidden)
+   on a separate element, animated via opacity, avoids that — and any mask repaint. */
+.webcam-speaking-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: inset 0 0 0 2px var(--gb-cream, #f7e7c5), inset 0 0 14px rgba(247, 231, 197, 0.55);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.webcam-speaking-ring.active {
+  opacity: 1;
+  animation: speakingRingPulse 1.1s ease-in-out infinite;
+}
+@keyframes speakingRingPulse {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+/* "Connecting…" overlay — shown on a remote tile while its media negotiates,
+   so a joining player is visible immediately instead of popping in late. */
+.webcam-connecting {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(10, 8, 24, 0.55);
+  z-index: 3;
+}
+.webcam-connecting-spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(247, 231, 197, 0.25);
+  border-top-color: var(--gb-cream, #f7e7c5);
+  animation: webcamSpin 0.8s linear infinite;
+}
+.webcam-connecting-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-hand, inherit);
+}
+.webcam-display.small .webcam-connecting-label { font-size: 0.5625rem; }
+.webcam-display.small .webcam-connecting-spinner { width: 18px; height: 18px; }
+
+@keyframes webcamSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-webcam-tile.is-speaking {
+    animation: none;
+    box-shadow: 0 0 0 2px var(--gb-cream, #f7e7c5), 0 0 16px rgba(247, 231, 197, 0.6);
+  }
+  .webcam-speaking-ring.active { animation: none; opacity: 1; }
+  .webcam-connecting-spinner {
+    animation: none;
+    border-top-color: rgba(247, 231, 197, 0.6);
+  }
+  /* Continuous loops: keep the state visible, stop the pulsing */
+  .video-control-btn.off,
+  .video-control-btn.muted,
+  .webcam-muted { animation: none; }
+  .webcam-host-icon { animation: none; }
+  .mobile-video-grid-item,
+  .mobile-video-grid-item.local,
+  .mobile-video-grid-item.is-turn { animation: none; }
+}
+
+/* Connection-quality signal bars (remote tiles) — driven by getStats polling */
+.webcam-quality {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  padding: 2px 3px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.webcam-quality .q-bar {
+  width: 3px;
+  border-radius: var(--radius-sm);
+  background: currentColor;
+  opacity: 0.3;
+}
+.webcam-quality .q1 { height: 33%; }
+.webcam-quality .q2 { height: 66%; }
+.webcam-quality .q3 { height: 100%; }
+.webcam-quality.is-good { color: var(--success-500); }
+.webcam-quality.is-ok   { color: var(--gold-400); }
+.webcam-quality.is-poor { color: var(--danger-400); }
+.webcam-quality.is-good .q-bar { opacity: 1; }
+.webcam-quality.is-ok .q1,
+.webcam-quality.is-ok .q2 { opacity: 1; }
+.webcam-quality.is-poor .q1 { opacity: 1; }
+.webcam-display.small .webcam-quality { height: 11px; padding: 1px 2px; top: 4px; right: 4px; }
+.webcam-display.small .webcam-quality .q-bar { width: 2px; }
+
+/* ---------- Tier 3: per-peer audio control, reactions, push-to-talk ---------- */
+
+/* Per-peer local audio control (remote tiles only): mute-for-me + volume */
+.webcam-audio-control {
+  position: absolute;
+  left: 6px;
+  bottom: 26px; /* sit above the name overlay */
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+.webcam-display:hover .webcam-audio-control,
+.webcam-audio-control.is-muted {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.webcam-audio-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.webcam-audio-btn.muted { color: var(--danger-400, #f87171); }
+.webcam-volume-slider {
+  width: 56px;
+  height: 4px;
+  accent-color: var(--primary, #ffb648);
+  cursor: pointer;
+}
+.webcam-volume-slider:disabled { opacity: 0.4; cursor: default; }
+.webcam-display.small .webcam-audio-control { bottom: 22px; }
+.webcam-display.small .webcam-volume-slider { width: 42px; }
+/* Touch devices have no hover — keep the mute button visible, hide the slider */
+@media (hover: none) {
+  .webcam-audio-control { opacity: 1; transform: none; pointer-events: auto; }
+  .webcam-volume-slider { display: none; }
+}
+
+/* Floating reaction emoji */
+.webcam-reaction {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  z-index: 6;
+  font-size: 2rem;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: webcamReactionFloat 4s ease-out forwards;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+@keyframes webcamReactionFloat {
+  0%   { opacity: 0; transform: translate(-50%, 8px) scale(0.5); }
+  12%  { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+  25%  { transform: translate(-50%, -6px) scale(1); }
+  80%  { opacity: 1; transform: translate(-50%, -40px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -64px) scale(0.9); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .webcam-reaction { animation: webcamReactionFade 4s ease-out forwards; }
+  @keyframes webcamReactionFade { 0% { opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+}
+
+/* Reactions button + popover in the control cluster */
+.video-reactions-wrap { position: relative; display: inline-flex; }
+.video-reactions-popover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  display: flex;
+  gap: 2px;
+  padding: 6px;
+  border-radius: var(--radius-md, 10px);
+  background: var(--bg-secondary, #1b1040);
+  border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.12));
+  box-shadow: var(--shadow-lg);
+}
+.video-reaction-emoji {
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+.video-reaction-emoji:hover { transform: scale(1.25); background: var(--bg-card-hover); }
+
+/* Push-to-talk live indicator */
+.video-ptt-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(52, 211, 153, 0.18);
+  color: var(--success-500);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  animation: pttPulse 1s ease-in-out infinite;
+}
+@keyframes pttPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .video-ptt-indicator { animation: none; } }
+
+/* Local indicator badge */
+.webcam-local-indicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 2px 6px;
+  background: var(--gb-cyan);
+  border-radius: var(--radius-sm);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--bg-primary);
+  text-transform: uppercase;
+}
+
+/* Overlay with name and status */
+.webcam-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 6px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.webcam-name,
+.video-feed-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: var(--font-hand);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white;
+}
+
+.webcam-host-icon {
+  color: var(--gb-pink);
+  flex-shrink: 0;
+}
+
+.webcam-you-tag {
+  font-size: 0.5625rem;
+  color: var(--gb-cyan);
+  opacity: 0.9;
+}
+
+/* Mute indicator */
+.webcam-muted,
+.video-feed-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(239, 68, 68, 0.8);
+  border-radius: var(--radius-sm);
+  color: white;
+}
+
+.video-feed-status span {
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Turn indicator banner */
+.webcam-turn-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 4px;
+  background: var(--primary);
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  font-family: var(--font-title);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ----------------------------------------
+   WebcamDisplay Enhanced States & Animations
+   ---------------------------------------- */
+
+/* Turn indicator blink — stepped ring swap, no soft glow */
+@keyframes turnGlow {
+  0%, 100% { box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 2px var(--primary); }
+  50% { box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 3px var(--primary-light); }
+}
+
+.webcam-display.is-turn,
+.video-feed.current-turn { animation: turnGlow 1.2s steps(2) infinite; }
+
+/* Host crown shimmer */
+@keyframes hostCrownGlow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(var(--primary-rgb), 0.5)); }
+  50% { filter: drop-shadow(0 0 6px rgba(var(--primary-rgb), 0.9)); }
+}
+
+.webcam-host-icon { animation: hostCrownGlow 2s ease-in-out infinite; }
+
+/* Muted indicator pulse */
+.webcam-muted { animation: mutedPulse 2s ease-in-out infinite; }
+
+/* Avatar placeholder entrance */
+@keyframes avatarFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.webcam-avatar { animation: avatarFadeIn 0.3s ease-out; }
+
+/* Video connection loading state */
+@keyframes videoLoading {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.webcam-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(var(--secondary-rgb), 0.05) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: videoLoading 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Local indicator glow */
+.webcam-local-indicator { box-shadow: 0 0 8px rgba(var(--secondary-rgb), 0.5); }
+
+/* Overlay fade on hover - show full info */
+.webcam-overlay { transition: all 0.2s ease; }
+
+.webcam-display:hover .webcam-overlay {
+  background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.9) 100%);
+  padding-bottom: 8px;
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .webcam-display.small,
+  .video-feed {
+    width: 100px;
+    height: 75px;
+  }
+
+  .webcam-display.medium {
+    width: 150px;
+    height: 112px;
+  }
+
+  .webcam-avatar,
+  .video-feed-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .webcam-display.small .webcam-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+
+  .webcam-name,
+  .video-feed-name { font-size: 0.625rem; }
+
+  .webcam-local-indicator {
+    padding: 1px 4px;
+    font-size: 0.5625rem;
+  }
+
+  .webcam-muted,
+  .video-feed-status {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Mobile Small (≤374px) */
+@media (max-width: 374px) {
+  .webcam-display.small,
+  .video-feed {
+    width: 80px;
+    height: 60px;
+  }
+
+  .webcam-display.medium {
+    width: 120px;
+    height: 90px;
+  }
+
+  .webcam-avatar,
+  .video-feed-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .webcam-display.small .webcam-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .webcam-avatar-initial { font-size: 0.875rem; }
+
+  .webcam-overlay { padding: 2px 4px; }
+
+  .webcam-name,
+  .video-feed-name {
+    font-size: 0.5625rem;
+    gap: 2px;
+  }
+
+  .webcam-host-icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  .webcam-you-tag { font-size: 0.5rem; }
+
+  .webcam-local-indicator {
+    padding: 1px 3px;
+    font-size: 0.5rem;
+    top: 2px;
+    left: 2px;
+  }
+
+  .webcam-muted,
+  .video-feed-status {
+    width: 14px;
+    height: 14px;
+  }
+
+  .webcam-muted svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .webcam-turn-indicator {
+    padding: 2px;
+    font-size: 0.5rem;
+  }
+}
+
+/* Desktop Large (≥1536px) */
+@media (min-width: 1536px) {
+  .webcam-display.small,
+  .video-feed {
+    width: 140px;
+    height: 105px;
+  }
+
+  .webcam-display.medium {
+    width: 220px;
+    height: 165px;
+  }
+
+  .webcam-display.large {
+    width: 300px;
+    height: 225px;
+  }
+
+  .webcam-avatar,
+  .video-feed-avatar {
+    width: 56px;
+    height: 56px;
+  }
+
+  .webcam-display.small .webcam-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 1.125rem;
+  }
+
+  .webcam-display.large .webcam-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+
+  .webcam-avatar-initial { font-size: 1.5rem; }
+
+  .webcam-overlay { padding: 6px 8px; }
+
+  .webcam-name,
+  .video-feed-name {
+    font-size: 0.8125rem;
+    gap: 6px;
+  }
+
+  .webcam-host-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .webcam-you-tag { font-size: 0.6875rem; }
+
+  .webcam-local-indicator {
+    padding: 3px 8px;
+    font-size: 0.6875rem;
+    top: 6px;
+    left: 6px;
+  }
+
+  .webcam-muted,
+  .video-feed-status {
+    width: 24px;
+    height: 24px;
+  }
+
+  .webcam-turn-indicator {
+    padding: 6px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Mobile Landscape */
+@media (max-width: 926px) and (orientation: landscape) {
+  .webcam-display.small,
+  .video-feed {
+    width: 90px;
+    height: 68px;
+  }
+
+  .webcam-display.medium {
+    width: 120px;
+    height: 90px;
+  }
+
+  .webcam-avatar,
+  .video-feed-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .webcam-overlay { padding: 2px 4px; }
+
+  .webcam-name,
+  .video-feed-name { font-size: 0.5625rem; }
+
+  .webcam-turn-indicator {
+    padding: 2px;
+    font-size: 0.5rem;
+  }
+}
+
+/* MOBILE VIDEO GRID COMPONENT */
+
+.mobile-video-grid {
+  display: grid;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  height: 100%;
+  width: 100%;
+}
+
+.mobile-video-grid.grid-1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.mobile-video-grid.grid-2 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.mobile-video-grid.grid-3 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.mobile-video-grid.grid-3 .mobile-video-grid-item:first-child { grid-column: 1 / -1; }
+
+.mobile-video-grid.grid-4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.mobile-video-grid.grid-5,
+.mobile-video-grid.grid-6 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr;
+}
+
+/* 5+ streams: 2-column scrollable grid — every player stays reachable
+   (replaces the old hard 4-stream cap + "+N more" dead-end indicator). */
+.mobile-video-grid.grid-scroll {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: none;
+  grid-auto-rows: minmax(130px, 24vh);
+  align-content: start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* keep the last row reachable above the pinned controls bar */
+  padding-bottom: calc(var(--spacing-md) * 2 + 48px + env(safe-area-inset-bottom, 0px));
+}
+
+.mobile-video-grid-item {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Override fixed sizing in mobile video grid - fill parent */
+.mobile-video-grid-item .webcam-display {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mobile-video-grid-item .webcam-video-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Local (self) video */
+.mobile-video-grid-item.self,
+.mobile-video-grid-item.local {
+  border-color: var(--gb-cyan);
+  box-shadow: 0 0 10px rgba(var(--secondary-rgb), 0.3);
+}
+
+/* Active speaker / Turn indicator */
+.mobile-video-grid-item.active-speaker,
+.mobile-video-grid-item.is-turn {
+  border-color: var(--gb-pink);
+  box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.4);
+}
+
+.mobile-video-grid-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-video-grid-item .video-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-video-grid-item .video-name {
+  font-size: 0.75rem;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-video-grid-item .video-status {
+  display: flex;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.mobile-video-grid-overflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 2px dashed var(--panel-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+/* Mobile Video Controls */
+.mobile-video-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  z-index: 10;
+}
+
+.mobile-video-control-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-video-control-btn:active { transform: scale(0.95); }
+
+.mobile-video-control-btn.off {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.mobile-video-control-btn.leave {
+  background: var(--gb-pink);
+  color: white;
+}
+
+.mobile-video-control-btn.leave:active { background: var(--primary-dark); }
+
+/* Mobile Video Grid - Landscape orientation adjustments */
+@media (orientation: landscape) and (max-width: 1023px) {
+  .mobile-video-grid.grid-2 { grid-template-columns: 1fr 1fr; }
+
+  .mobile-video-grid.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+  }
+
+  .mobile-video-grid.grid-3 .mobile-video-grid-item:first-child { grid-column: auto; }
+
+  .mobile-video-grid.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 1fr;
+  }
+
+  .mobile-video-grid.grid-5,
+  .mobile-video-grid.grid-6 {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: 1fr;
+  }
+}
+
+/* ----------------------------------------
+   MobileVideoGrid Enhanced States & Animations
+   ---------------------------------------- */
+
+/* Grid item entrance animation */
+@keyframes gridItemEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mobile-video-grid-item { animation: gridItemEnter 0.3s ease-out backwards; }
+
+.mobile-video-grid-item:nth-child(1) { animation-delay: 0.05s; }
+.mobile-video-grid-item:nth-child(2) { animation-delay: 0.1s; }
+.mobile-video-grid-item:nth-child(3) { animation-delay: 0.15s; }
+.mobile-video-grid-item:nth-child(4) { animation-delay: 0.2s; }
+.mobile-video-grid-item:nth-child(5) { animation-delay: 0.25s; }
+.mobile-video-grid-item:nth-child(6) { animation-delay: 0.3s; }
+
+/* Hover state for touch feedback */
+.mobile-video-grid-item:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+/* Enhanced local video glow */
+.mobile-video-grid-item.local { animation: gridItemEnter 0.3s ease-out backwards, localGlow 3s ease-in-out 0.3s infinite; }
+
+@keyframes localGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(var(--secondary-rgb), 0.3); }
+  50% { box-shadow: 0 0 18px rgba(var(--secondary-rgb), 0.5); }
+}
+
+/* Turn indicator glow on grid items */
+.mobile-video-grid-item.is-turn { animation: gridItemEnter 0.3s ease-out backwards, turnGlow 1.5s ease-in-out 0.3s infinite; }
+
+/* Enhanced overflow indicator */
+.mobile-video-grid-overflow { transition: all 0.2s ease; }
+
+.mobile-video-grid-overflow:hover {
+  background: var(--bg-secondary);
+  border-style: solid;
+  border-color: var(--gb-cyan);
+  color: var(--gb-cyan);
+}
+
+@keyframes overflowPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.mobile-video-grid-overflow span { animation: overflowPulse 2s ease-in-out infinite; }
+
+/* Mobile Small (≤374px) */
+@media (max-width: 374px) {
+  .mobile-video-grid {
+    gap: 4px;
+    padding: var(--spacing-xs);
+  }
+
+  .mobile-video-grid-item {
+    border-radius: var(--radius-sm);
+    border-width: 1.5px;
+  }
+
+  .mobile-video-grid-item .video-overlay { padding: 2px 4px; }
+
+  .mobile-video-grid-item .video-name { font-size: 0.625rem; }
+
+  .mobile-video-grid-item .video-status {
+    font-size: 0.625rem;
+    gap: 2px;
+  }
+
+  .mobile-video-grid-overflow {
+    font-size: 0.8125rem;
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* Extreme landscape (very short viewport) */
+@media (max-height: 400px) and (orientation: landscape) {
+  .mobile-video-grid {
+    gap: 3px;
+    padding: 4px;
+  }
+
+  .mobile-video-grid-item {
+    border-radius: var(--radius-sm);
+    border-width: 1px;
+  }
+
+  .mobile-video-grid-item .video-overlay { padding: 1px 3px; }
+
+  .mobile-video-grid-item .video-name { font-size: 0.5625rem; }
+
+  .mobile-video-grid-overflow { font-size: 0.75rem; }
+}
+
+/* VIDEO ENHANCEMENTS PANEL */
+
+.video-enhancements {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.enhancement-section {
+  background: var(--bg-card);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.enhancement-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-hand);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  min-height: 44px;
+}
+
+.enhancement-toggle:hover { background: rgba(var(--secondary-rgb), 0.1); }
+
+.enhancement-toggle.active { background: rgba(var(--secondary-rgb), 0.15); }
+
+.enhancement-toggle svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.enhancement-toggle.active svg { color: var(--gb-cyan); }
+
+.enhancement-toggle span:first-of-type { flex: 1; }
+
+.enhancement-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: var(--bg-card-hover);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+}
+
+.enhancement-toggle.active .enhancement-status {
+  background: rgba(var(--secondary-rgb), 0.2);
+  color: var(--gb-cyan);
+}
+
+.enhancement-content {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--panel-border);
+  background: var(--bg-card);
+}
+
+.background-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.background-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  aspect-ratio: 4/3;
+  padding: var(--spacing-xs);
+  background: var(--bg-card-hover);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.625rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.background-option:hover {
+  border-color: var(--gb-cyan);
+  background: rgba(var(--secondary-rgb), 0.1);
+}
+
+.background-option.selected {
+  border-color: var(--gb-pink);
+  background: rgba(var(--primary-rgb), 0.15);
+}
+
+.background-option.image {
+  padding: 0;
+  background: #000;
+}
+
+.background-option.image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.selected-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--gb-pink);
+  border-radius: 50%;
+  color: white;
+}
+
+/* Responsive for mobile */
+@media (max-width: 767px) {
+  .background-options { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 374px) {
+  .background-options { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ----------------------------------------
+   VideoEnhancements Enhanced States & Animations
+   ---------------------------------------- */
+
+/* Focus-visible for keyboard navigation */
+.enhancement-toggle:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: -2px;
+  background: rgba(var(--secondary-rgb), 0.15);
+}
+
+.background-option:focus-visible {
+  outline: 2px solid var(--gb-cyan);
+  outline-offset: 2px;
+}
+
+/* Active states for tactile feedback */
+.enhancement-toggle:active { transform: scale(0.98); }
+
+.background-option:active { transform: scale(0.95); }
+
+/* Content expand animation */
+@keyframes enhancementExpand {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+  }
+}
+
+.enhancement-content {
+  animation: enhancementExpand 0.25s ease-out;
+  overflow: hidden;
+}
+
+/* Section entrance stagger */
+.enhancement-section { animation: sectionSlideIn 0.2s ease-out backwards; }
+
+.enhancement-section:nth-child(1) { animation-delay: 0.05s; }
+.enhancement-section:nth-child(2) { animation-delay: 0.1s; }
+.enhancement-section:nth-child(3) { animation-delay: 0.15s; }
+
+@keyframes sectionSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Background option selection effect */
+@keyframes optionSelect {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+.background-option.selected { animation: optionSelect 0.2s ease; }
+
+/* Selected indicator entrance */
+@keyframes indicatorPop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.selected-indicator { animation: indicatorPop 0.2s ease-out; }
+
+/* Status badge transition */
+.enhancement-status { transition: all 0.2s ease; }
+
+/* Icon rotation on toggle */
+.enhancement-toggle svg:first-of-type { transition: transform 0.2s ease; }
+
+.enhancement-toggle:hover svg:first-of-type { transform: scale(1.1); }
+
+.enhancement-toggle.active svg:first-of-type { transform: rotate(10deg); }
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .video-enhancements {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .enhancement-toggle {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8125rem;
+    min-height: 40px;
+  }
+
+  .enhancement-content { padding: var(--spacing-xs) var(--spacing-sm); }
+
+  .background-options {
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Desktop Large (≥1536px) */
+@media (min-width: 1536px) {
+  .video-enhancements {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+
+  .enhancement-toggle {
+    padding: var(--spacing-md);
+    font-size: 1rem;
+    min-height: 52px;
+  }
+
+  .enhancement-toggle svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .enhancement-status {
+    font-size: 0.8125rem;
+    padding: 3px 10px;
+  }
+
+  .enhancement-content { padding: var(--spacing-md); }
+
+  .background-options {
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .background-option {
+    font-size: 0.75rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .selected-indicator {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Mobile Landscape */
+@media (max-width: 926px) and (orientation: landscape) {
+  .video-enhancements {
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+  }
+
+  .enhancement-toggle {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+
+  .enhancement-content { padding: var(--spacing-xs); }
+
+  .background-options {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+  }
+
+  .background-option { font-size: 0.5rem; }
+}

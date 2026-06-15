@@ -1,0 +1,435 @@
+/* ============================================================================
+   "MOONLIT RAIN" NOIR BACKDROP — fixed luminous detective-noir night behind all
+   content. Layered inline pixel-art SVG (crispEdges) + pure-CSS animation, in the
+   spirit of Bluffalo's PrairieBackdrop. A big warm moon + breathing halo keeps it
+   bright (the old dark night scene read as "dark/empty"); drifting fog banks give
+   parallax depth, gentle rain + light shafts add atmosphere, grain + scanlines add
+   the CRT/film texture. No images, no UI text. All motion guarded by
+   prefers-reduced-motion at the bottom. Rendered by
+   src/components/ui/decor/PaperDeductionBackdrop.tsx
+   ============================================================================ */
+
+.gb-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-background, -2);
+  pointer-events: none;
+  overflow: hidden;
+  /* gentle warm floor vignette — keeps the upper scene lit, softly grounds the
+     foot (much lighter than the old heavy near-black noir vignette). */
+  background:
+    radial-gradient(150% 120% at 50% 8%, transparent 60%, rgba(0, 0, 0, 0.42) 100%);
+}
+
+/* ---- deep noir night gradient (warm amber rim at the foot) ----------------- */
+.gb-backdrop .gb-sky {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background: var(--noir-sky, linear-gradient(180deg,
+    #0d1320 0%,
+    #141b2c 34%,
+    #20222e 62%,
+    #3a2c25 86%,
+    #5a3a22 100%));
+  background-attachment: fixed;
+}
+
+/* ---- faint twinkling pixel stars ------------------------------------------ */
+.gb-backdrop .gb-stars {
+  position: absolute;
+  inset: 0 0 38% 0;
+  z-index: -3;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 18%, rgba(246, 236, 196, 0.85), transparent 60%),
+    radial-gradient(1.2px 1.2px at 24% 32%, rgba(246, 236, 196, 0.55), transparent 60%),
+    radial-gradient(1.6px 1.6px at 38% 12%, rgba(231, 204, 122, 0.7), transparent 60%),
+    radial-gradient(1.2px 1.2px at 57% 24%, rgba(246, 236, 196, 0.6), transparent 60%),
+    radial-gradient(1.3px 1.3px at 71% 10%, rgba(246, 236, 196, 0.5), transparent 60%),
+    radial-gradient(1.5px 1.5px at 84% 30%, rgba(231, 204, 122, 0.55), transparent 60%),
+    radial-gradient(1.2px 1.2px at 92% 16%, rgba(246, 236, 196, 0.5), transparent 60%),
+    radial-gradient(1.3px 1.3px at 47% 8%,  rgba(246, 236, 196, 0.45), transparent 60%);
+  animation: gbStarTwinkle 5.5s steps(3, end) infinite alternate;
+  will-change: opacity;
+}
+@keyframes gbStarTwinkle {
+  0%   { opacity: 0.55; }
+  100% { opacity: 0.95; }
+}
+
+/* ---- soft breathing halo behind the moon (the key light) ------------------ */
+.gb-backdrop .gb-moonglow {
+  position: absolute;
+  top: -8%;
+  right: 6%;
+  width: 52vmin;
+  height: 52vmin;
+  z-index: -2;
+  pointer-events: none;
+  background: radial-gradient(closest-side,
+    rgba(245, 226, 168, 0.34) 0%,
+    rgba(214, 178, 90, 0.18) 38%,
+    rgba(214, 178, 90, 0.07) 60%,
+    transparent 74%);
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  animation: gbMoonGlow 8s var(--ease-in-out-expo, ease-in-out) infinite;
+  will-change: transform, opacity;
+}
+@keyframes gbMoonGlow {
+  0%, 100% { opacity: 0.82; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.05); }
+}
+
+/* ---- pixel-art moon -------------------------------------------------------- */
+.gb-backdrop .gb-moon {
+  position: absolute;
+  top: 6vh;
+  right: 12vw;
+  width: clamp(78px, 13vmin, 150px);
+  height: clamp(78px, 13vmin, 150px);
+  z-index: -2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(231, 204, 122, 0.45));
+}
+.gb-backdrop .gb-moon svg { display: block; }
+
+/* ---- drifting pixel fog banks (parallax) ---------------------------------- */
+.gb-backdrop .gb-fog-far,
+.gb-backdrop .gb-fog-near {
+  position: absolute;
+  left: -20%;
+  pointer-events: none;
+  will-change: transform;
+}
+/* clouds/fog now drift across the TOP of the sky, around the moon */
+.gb-backdrop .gb-fog-far {
+  top: 4%;
+  width: 132%;
+  height: 16vh;
+  z-index: -2;
+  opacity: 0.4;
+  filter: blur(2px);
+  animation: gbFogDriftFar 64s ease-in-out infinite alternate;
+}
+.gb-backdrop .gb-fog-near {
+  top: 11%;
+  width: 142%;
+  height: 18vh;
+  z-index: -2;
+  opacity: 0.55;
+  filter: blur(1px);
+  animation: gbFogDriftNear 44s ease-in-out infinite alternate;
+  animation-delay: -12s;
+}
+.gb-backdrop .gb-fog-far svg,
+.gb-backdrop .gb-fog-near svg { display: block; width: 100%; height: 100%; }
+@keyframes gbFogDriftFar {
+  from { transform: translate3d(-5%, 0, 0); }
+  to   { transform: translate3d(6%, 0, 0); }
+}
+@keyframes gbFogDriftNear {
+  from { transform: translate3d(6%, 0, 0); }
+  to   { transform: translate3d(-7%, 0, 0); }
+}
+
+/* ---- faint diagonal noir light shafts ------------------------------------- */
+.gb-backdrop .gb-shafts {
+  position: absolute;
+  inset: -10% -20%;
+  z-index: -2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.1;
+  background: repeating-linear-gradient(
+    108deg,
+    transparent 0px,
+    transparent 46px,
+    rgba(231, 204, 122, 0.5) 46px,
+    rgba(231, 204, 122, 0.5) 64px,
+    transparent 64px,
+    transparent 130px
+  );
+  animation: gbShaftShift 26s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+@keyframes gbShaftShift {
+  0%   { transform: translate3d(-3%, 0, 0); opacity: 0.07; }
+  100% { transform: translate3d(4%, 0, 0);  opacity: 0.13; }
+}
+
+/* ---- gentle falling rain --------------------------------------------------- */
+.gb-backdrop .gb-rain {
+  position: absolute;
+  inset: -20% 0 0 0;
+  z-index: -1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.12;
+  background-image: repeating-linear-gradient(
+    100deg,
+    transparent 0px,
+    transparent 22px,
+    rgba(196, 214, 234, 0.55) 22px,
+    rgba(196, 214, 234, 0.55) 23px
+  );
+  background-size: 200px 220px;
+  animation: gbRainFall 0.9s linear infinite;
+  will-change: background-position;
+}
+@keyframes gbRainFall {
+  from { background-position: 0 0; }
+  to   { background-position: -38px 220px; }
+}
+
+/* ---- floating dust motes / embers in the moonlight ------------------------- */
+.gb-backdrop .gb-motes {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1.6px 1.6px at 18% 72%, rgba(245, 226, 168, 0.7), transparent 60%),
+    radial-gradient(1.4px 1.4px at 33% 38%, rgba(245, 226, 168, 0.5), transparent 60%),
+    radial-gradient(2px 2px   at 54% 80%, rgba(231, 204, 122, 0.6), transparent 60%),
+    radial-gradient(1.2px 1.2px at 67% 28%, rgba(245, 226, 168, 0.55), transparent 60%),
+    radial-gradient(1.7px 1.7px at 79% 62%, rgba(231, 204, 122, 0.45), transparent 60%),
+    radial-gradient(1.2px 1.2px at 46% 18%, rgba(245, 226, 168, 0.45), transparent 60%),
+    radial-gradient(1.5px 1.5px at 88% 40%, rgba(231, 204, 122, 0.45), transparent 60%),
+    radial-gradient(1.3px 1.3px at 9% 46%,  rgba(245, 226, 168, 0.5), transparent 60%);
+  animation: gbMotes 17s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+@keyframes gbMotes {
+  0%   { transform: translate3d(0, 0, 0);        opacity: 0.4; }
+  100% { transform: translate3d(1.6%, -5%, 0);   opacity: 0.7; }
+}
+
+/* ---- faint drifting film-grain -------------------------------------------- */
+.gb-backdrop .gb-grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.gb-backdrop .gb-grain::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: gbGrain 6s steps(6) infinite;
+  will-change: transform;
+}
+@keyframes gbGrain {
+  0%   { transform: translate3d(0, 0, 0); }
+  20%  { transform: translate3d(-8%, 4%, 0); }
+  40%  { transform: translate3d(6%, -6%, 0); }
+  60%  { transform: translate3d(-4%, 8%, 0); }
+  80%  { transform: translate3d(8%, -4%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* ---- whisper-subtle CRT scanline overlay (over the scene, behind the UI) --- */
+.gb-backdrop .gb-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(8, 6, 12, 0.05) 0px,
+    rgba(8, 6, 12, 0.05) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+/* ---- noir street foreground (bottom edge, behind the UI) ------------------ */
+/* cobblestone street the figures stand on — moonlit curb edge at the top,
+   wet-asphalt dark toward the foot, brick-grid mortar lines for the stones */
+.gb-backdrop .gb-street {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 16vh;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    /* vertical + horizontal mortar lines (cobble/brick grid) */
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.30) 0 2px, transparent 2px 30px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 2px, transparent 2px 16px),
+    /* faint per-stone tone variation */
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0 15px, rgba(0, 0, 0, 0.035) 15px 30px),
+    /* surface: lit curb edge at the top → dark wet asphalt at the foot */
+    linear-gradient(180deg,
+      rgba(150, 134, 110, 0.22) 0,
+      rgba(150, 134, 110, 0.0) 5%,
+      rgba(26, 20, 26, 0.55) 18%,
+      rgba(10, 8, 12, 0.88) 100%);
+}
+/* crisp moonlit curb line where the street meets the night */
+.gb-backdrop .gb-street::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(231, 204, 122, 0.18) 20%,
+    rgba(231, 204, 122, 0.28) 50%, rgba(231, 204, 122, 0.18) 80%, transparent 100%);
+}
+
+/* warm light pool cast by the street lamp (bottom-left) */
+.gb-backdrop .gb-lamp-pool {
+  position: absolute;
+  /* fixed px so the lamp + murderer clear the in-game case-notes panel
+     (.ps-caselog: absolute, left:1rem, width:264px ≈ 296px block) at any size */
+  left: 296px;
+  bottom: 0;
+  width: clamp(160px, 22vw, 320px);
+  height: 16vh;
+  z-index: -2;
+  pointer-events: none;
+  background: radial-gradient(60% 80% at 50% 100%,
+    rgba(245, 226, 168, 0.30) 0%,
+    rgba(214, 178, 90, 0.14) 38%,
+    transparent 70%);
+  mix-blend-mode: screen;
+  animation: gbLampPool 9s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* street lamp */
+.gb-backdrop .gb-streetlamp {
+  position: absolute;
+  left: 326px;
+  /* base sits on the SAME ground line as the murderer; taller so it towers over him */
+  bottom: 1vh;
+  width: clamp(32px, 3.8vw, 56px);
+  height: clamp(190px, 32vh, 360px);
+  z-index: -1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(231, 204, 122, 0.35));
+}
+.gb-backdrop .gb-streetlamp .gb-bulb { animation: gbLampFlicker 5s steps(2, end) infinite; }
+
+/* detective — stands directly by the phone booth (bottom-right) */
+.gb-backdrop .gb-detective {
+  position: absolute;
+  right: 14%;
+  bottom: 1vh;
+  width: clamp(46px, 6vw, 86px);
+  height: clamp(96px, 17vh, 180px);
+  z-index: -1;
+  pointer-events: none;
+}
+.gb-backdrop .gb-detective .gb-ember { animation: gbEmber 4.5s ease-in-out infinite; }
+.gb-backdrop .gb-detective .gb-lens { animation: gbLensGlint 5s ease-in-out infinite; }
+
+/* phone booth (bottom-right) */
+.gb-backdrop .gb-phonebooth {
+  position: absolute;
+  right: 7%;
+  bottom: 1vh;
+  width: clamp(46px, 6vw, 92px);
+  height: clamp(92px, 18vh, 186px);
+  z-index: -1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(106, 22, 35, 0.35));
+}
+.gb-backdrop .gb-phonebooth .gb-booth-glow { animation: gbBoothGlow 6s ease-in-out infinite; }
+
+/* murderer — stands in the lamp light (bottom-left, where the detective was),
+   knife raised, with a slow menacing sway */
+.gb-backdrop .gb-murderer {
+  position: absolute;
+  left: 366px;
+  bottom: 1vh;
+  width: clamp(46px, 6vw, 86px);
+  height: clamp(96px, 17vh, 180px);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.95;
+  transform-origin: bottom center;
+  animation: gbMurkSway 7s ease-in-out infinite;
+  will-change: transform;
+}
+.gb-backdrop .gb-murderer .gb-knife { animation: gbKnifeGlint 3.2s ease-in-out infinite; }
+.gb-backdrop .gb-streetlamp svg,
+.gb-backdrop .gb-detective svg,
+.gb-backdrop .gb-phonebooth svg,
+.gb-backdrop .gb-murderer svg { display: block; width: 100%; height: 100%; }
+
+@keyframes gbLampFlicker {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.82; }
+  92%      { opacity: 0.6; }
+}
+@keyframes gbLampPool {
+  0%, 100% { opacity: 0.85; transform: scaleX(1); }
+  50%      { opacity: 1;    transform: scaleX(1.04); }
+}
+@keyframes gbEmber {
+  0%, 100% { opacity: 0.3; }
+  45%      { opacity: 1; }
+  60%      { opacity: 0.7; }
+}
+@keyframes gbBoothGlow {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.85; }
+}
+@keyframes gbMurkSway {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  50%      { transform: translateX(-2px) rotate(-1.4deg); }
+}
+@keyframes gbKnifeGlint {
+  0%, 100% { opacity: 0.72; }
+  50%      { opacity: 1; filter: drop-shadow(0 0 3px rgba(207, 214, 224, 0.85)); }
+}
+@keyframes gbLensGlint {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+/* ---- responsive ----------------------------------------------------------- */
+@media (max-width: 768px) {
+  .gb-backdrop .gb-moon { top: 4vh; right: 8vw; width: clamp(64px, 22vmin, 110px); height: clamp(64px, 22vmin, 110px); }
+  .gb-backdrop .gb-moonglow { width: 64vmin; height: 64vmin; right: 0%; }
+  .gb-backdrop .gb-fog-far { height: 12vh; }
+  .gb-backdrop .gb-fog-near { height: 14vh; }
+  /* nudge the cast toward the corners so the two figures don't crowd on phones */
+  .gb-backdrop .gb-streetlamp { left: 3%; }
+  .gb-backdrop .gb-murderer { left: 6%; }
+  .gb-backdrop .gb-phonebooth { right: 4%; }
+  .gb-backdrop .gb-detective { right: 17%; }
+  .gb-backdrop .gb-lamp-pool { left: 0%; width: clamp(120px, 42vw, 220px); }
+}
+
+/* ---- reduced motion ------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .gb-backdrop .gb-stars,
+  .gb-backdrop .gb-moonglow,
+  .gb-backdrop .gb-fog-far,
+  .gb-backdrop .gb-fog-near,
+  .gb-backdrop .gb-shafts,
+  .gb-backdrop .gb-rain,
+  .gb-backdrop .gb-motes,
+  .gb-backdrop .gb-grain::before,
+  .gb-backdrop .gb-lamp-pool,
+  .gb-backdrop .gb-streetlamp .gb-bulb,
+  .gb-backdrop .gb-detective .gb-ember,
+  .gb-backdrop .gb-detective .gb-lens,
+  .gb-backdrop .gb-phonebooth .gb-booth-glow,
+  .gb-backdrop .gb-murderer,
+  .gb-backdrop .gb-murderer .gb-knife {
+    animation: none;
+  }
+  /* keep the rain faintly visible as static streaks rather than gone */
+  .gb-backdrop .gb-rain { opacity: 0.08; }
+}

@@ -1,0 +1,211 @@
+/* ============================================================================
+   GAMESHELL STAGE — scene primitives + fit machinery.
+
+   Everything inside the stage sizes itself with container units (cqi/cqb)
+   relative to the stage box — when the filmstrip grows or the rail opens,
+   the stage shrinks and ALL type/spacing follows. This structurally replaces
+   the old zoom-factor hack.
+
+   Scene anatomy (every phase + the lobby):
+     .gs-scene
+       .gs-scene-header    intrinsic height (badges, timer, question)
+       .gs-scene-body      flex:1 min-height:0  — the flexible region
+       .gs-scene-actions   intrinsic height (CTA — never pushed off-screen)
+
+   DEGRADATION LADDER (container queries, in order):
+     1. fluid gaps/padding bottom out (clamp floors)
+     2. decorative hides: mascot, spotlight (stage <= 600px tall)
+     3. lobby panes scroll internally instead of clipping (cards always
+        scrollable, scrollbar hidden + ScrollHint ▾) — interactive content
+        (host settings, explainer demo) is never cut off or hidden
+     4. type clamps bottom out
+     5. presence chips avatar-only (shell.css, viewport <= 520px)
+     6. dense scenes tighten gaps (<= 540px)
+     7. LAST RESORT (<= 420px): stage scrolls internally — page never does
+   ============================================================================ */
+
+/* Fluid stage tokens */
+.gs-stage {
+  --gs-pad-block: clamp(0.5rem, 2cqb, 1.5rem);
+  --gs-pad-inline: clamp(0.75rem, 3cqi, 2.5rem);
+  --gs-gap: clamp(0.4rem, 1.5cqb, 1rem);
+  --gs-text-sm: clamp(0.7rem, 1.8cqb, 0.9rem);
+  --gs-text-md: clamp(0.8rem, 2.4cqb, 1.15rem);
+  --gs-text-lg: clamp(0.95rem, 3.4cqb, 1.7rem);
+  --gs-text-xl: clamp(1.1rem, 4.5cqb, 2.1rem);
+}
+
+.gs-scene {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--gs-pad-block) var(--gs-pad-inline);
+  gap: var(--gs-gap);
+}
+
+.gs-scene-header {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.3rem, 1cqb, 0.7rem);
+  min-width: 0;
+}
+
+.gs-scene-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Centers intrinsically-sized content (submitted states, banners) */
+.gs-scene-body.is-centered {
+  align-items: center;
+  justify-content: center;
+}
+
+.gs-scene-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+/* ----- OPTION GRID — fit by construction --------------------------------- */
+/* Content-sized rows with a clamped minimum, centered as a group. 1fr rows
+   looked right with a full board but stretched 1-2 short answers into giant
+   cards (e.g. when nobody submitted a lie and only the truth shows).
+   2+ columns as soon as the stage is wide enough; 1 column on phones. */
+.gs-option-grid {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  grid-auto-rows: minmax(clamp(48px, 10cqb, 84px), auto);
+  gap: var(--gs-gap);
+  align-content: center;
+  padding: var(--px);
+}
+
+/* Grid items must be allowed to shrink */
+.gs-option-grid > * {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Clamp long option text so a verbose lie can't blow up a row */
+.gs-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ----- LOBBY PANES -------------------------------------------------------- */
+.gs-lobby-panes {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: clamp(0.6rem, 2cqi, 1.4rem);
+  align-content: center;
+}
+
+.gs-pane {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.4rem, 1.6cqb, 0.9rem);
+}
+
+/* ----- SCROLL HINT (shell/ScrollHint.tsx) ---------------------------------
+   Sticky bottom fade + ▾ inside hidden-scrollbar panes; visible only while
+   the parent has unscrolled content below. Zero layout cost via negative
+   margin. The fade color matches the lobby card surface (--bg-secondary). */
+.gs-scroll-hint {
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+  width: 100%;
+  height: 40px;
+  margin-top: -40px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: linear-gradient(transparent, var(--bg-secondary) 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 2;
+}
+
+.gs-scroll-hint.is-visible { opacity: 1; }
+
+/* Amber pixel tab — has to read instantly as "more below" */
+.gs-scroll-hint-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 20px;
+  background: var(--primary);
+  color: var(--bg-darker);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  animation: gsScrollHintBob 1.1s steps(2) infinite;
+}
+
+@keyframes gsScrollHintBob {
+  50% { transform: translateY(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-scroll-hint-chevron { animation: none; }
+}
+
+/* ----- DEGRADATION LADDER ------------------------------------------------- */
+@container stage (max-height: 600px) {
+  .gs-hide-short { display: none !important; }       /* decor: mascot etc. */
+
+  /* Panes scroll instead of clip: a large filmstrip used to squeeze the
+     lobby panes and overflow:hidden cut off the host settings with no way
+     to reach them (scroll only arrived at the <=420px last resort).
+     Centered content must flip to flex-start — centered overflow clips the
+     top edge unreachably. */
+  .gs-pane {
+    overflow-y: auto;
+    overflow-x: hidden;
+    justify-content: flex-start;
+    scrollbar-width: thin;
+  }
+}
+
+/* (The old <=700px step hid the explainer preview entirely. Removed: lobby
+   cards scroll now — content is reached by scrolling, never hidden.) */
+
+@container stage (max-height: 540px) {
+  .gs-scene { gap: 0.35rem; }
+  .gs-lobby-panes { align-content: start; }
+}
+
+@container stage (max-height: 420px) {
+  /* LAST RESORT: internal stage scroll. The page still never scrolls. */
+  .gs-stage-inner { overflow-y: auto; }
+  .gs-scene { flex: none; min-height: 100%; height: auto; }
+  .gs-option-grid {
+    flex: none;
+    grid-auto-rows: minmax(44px, auto);
+  }
+}

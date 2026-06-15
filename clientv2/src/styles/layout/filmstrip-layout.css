@@ -1,0 +1,44 @@
+/* SECTION 4C: FILMSTRIP LAYOUT */
+
+/* NOTE: the old zoom-scaling system (`.lobby-content-wrapper` /
+   `.main-scroll-area` zoom when the filmstrip grew) was removed — those
+   classes no longer exist since the GameShell refactor. Fit-to-space is now
+   handled by the stage's container-query degradation ladder (shell/stage.css)
+   and the 40% viewport cap on the filmstrip height (VideoFilmstrip.tsx). */
+
+/* Critical: Filmstrip in document flow on desktop */
+
+/* Desktop: filmstrip stays in document flow for proper flex layout */
+@media (min-width: 64rem) {
+  .video-filmstrip {
+    position: relative !important;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    flex-shrink: 0 !important;
+    z-index: auto !important;
+  }
+
+  /* Higher specificity to override body .video-filmstrip rules */
+  body .video-filmstrip,
+  html body .video-filmstrip {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Without this, the content doesn't resize - the filmstrip just overlaps. */
+@media (min-width: 64rem) {
+  html.has-filmstrip .app-root.in-room .app-layout {
+    max-height: calc(var(--vh-adjusted, 100vh) - var(--filmstrip-safe-space, 0px)) !important;
+    max-height: calc(var(--dvh-adjusted, 100dvh) - var(--filmstrip-safe-space, 0px)) !important;
+  }
+
+  /* Smooth transition when not actively resizing */
+  html.has-filmstrip .app-root:not(.filmstrip-resizing) .app-layout { transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+}

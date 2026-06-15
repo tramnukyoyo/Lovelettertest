@@ -1,0 +1,163 @@
+/* ReconnectOverlay - Shown when game is restored after server restart */
+
+.reconnect-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-darker);
+  animation: reconnect-fade-in 0.3s ease-out;
+}
+
+@keyframes reconnect-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reconnect-overlay.dismissing {
+  animation: reconnect-fade-out 0.4s ease-in forwards;
+}
+
+@keyframes reconnect-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.reconnect-card {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  max-width: 380px;
+  width: 90%;
+  border-radius: 0;
+  background: var(--panel-bg);
+  border: 2px solid var(--px-border);
+  box-shadow: 6px 6px 0 var(--px-border-dark), inset 0 var(--px) 0 0 var(--primary);
+}
+
+.reconnect-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: reconnect-pulse 2s ease-in-out infinite;
+}
+
+@keyframes reconnect-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.reconnect-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-title, 'Orbitron', sans-serif);
+}
+
+.reconnect-phase {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  text-transform: capitalize;
+}
+
+.reconnect-players {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  background: var(--bg-darker);
+  border: 2px solid var(--px-border);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+}
+
+.reconnect-player-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.reconnect-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  background: var(--panel-bg-hover);
+  transition: background 0.3s ease;
+}
+
+.reconnect-dot.connected {
+  background: var(--gb-truth);
+}
+
+.reconnect-count {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.reconnect-action {
+  margin-top: 0.5rem;
+}
+
+.reconnect-resume-btn {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  color: var(--bg-darker);
+  background: var(--btn-face);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  font-family: var(--font-title, 'Pixelify Sans', sans-serif);
+}
+
+.reconnect-resume-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.reconnect-resume-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--px-border-dark);
+}
+
+.reconnect-waiting {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.reconnect-waiting-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(247, 231, 197, 0.2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: reconnect-spin 0.8s steps(8) infinite;
+}
+
+@keyframes reconnect-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reconnect-icon,
+  .reconnect-waiting-spinner {
+    animation: none;
+  }
+  .reconnect-overlay,
+  .reconnect-overlay.dismissing {
+    animation: none;
+  }
+}

@@ -1,0 +1,320 @@
+/* ============================================================================
+   GAMESHELL — universal viewport-fit layout (structural; zero hardcoded
+   visuals — every color/border/shadow comes from variables.css tokens).
+
+   Grid:   hud   hud        slim bar (GameHeader + SpectatorBanner stack)
+           stage rail       stage = game scenes (size container, no scroll)
+           dock  rail       PresenceDock: ambient player chips, every phase
+   The video filmstrip stays an app-root flex sibling BELOW the shell —
+   when it grows, .app-layout shrinks and the stage container queries adapt.
+
+   Minimum supported viewports: desktop 1024x600, tablet 768x1024,
+   phone portrait 360x640. Above these: no scrollbars anywhere except the
+   chat log (and the dock beyond ~10 players). Below: the stage falls back
+   to internal scroll (degradation ladder in stage.css) — never the page.
+
+   COPY-PASTE CONTRACT (other games): copy src/shell/** + src/styles/shell/**,
+   import shell.css + stage.css from styles/index.css, define the standard
+   variables.css token set, fill the GameShell slots (hud / rail / dock /
+   scenes). Override --gs-* tokens below per game if needed.
+   ============================================================================ */
+
+:root {
+  --gs-rail-w: 320px;
+  --gs-dock-h: 60px;
+  --gs-rail-breakpoint: 1024px; /* informational — media queries below use it */
+}
+
+.gs-shell {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  display: grid;
+  grid-template-areas:
+    "hud   hud"
+    "stage rail"
+    "dock  rail";
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) var(--gs-rail-w);
+  overflow: hidden;
+}
+
+.gs-shell.gs-rail-collapsed {
+  grid-template-columns: minmax(0, 1fr) 0px;
+}
+
+/* On-screen keyboard open (GameShell sets the class + --gs-keyboard-inset from
+   visualViewport): shrink the shell so the stage bottom — and SceneActions
+   submit buttons — stay above the keys. iOS Safari keeps the layout viewport
+   (100dvh) full-size when the keyboard opens, so dvh alone can't handle this.
+   The dock is hidden meanwhile; presence chips are ambient info the typing
+   player doesn't need. */
+.gs-shell.gs-kb-open {
+  margin-bottom: var(--gs-keyboard-inset, 0px);
+}
+
+.gs-shell.gs-kb-open .gs-dock {
+  display: none;
+}
+
+/* ----- HUD (wraps GameHeader + SpectatorBanner; row height is intrinsic) -- */
+.gs-hud-wrap {
+  grid-area: hud;
+  min-width: 0;
+  /* visible — header dropdowns (language selector, menus) open BELOW the
+     bar and were clipped by the old overflow:hidden */
+  overflow: visible;
+  z-index: 5;
+}
+
+/* F11 / browser fullscreen: auto-hide the header (YouTube-style). Taking the
+   hud out of the grid collapses its row, so the stage gains the full height;
+   the header slides down over the stage on hover. :focus-within keeps it
+   open for keyboard users and while header dropdowns are in use. Where
+   display-mode isn't supported, the header simply stays — graceful. */
+@media (display-mode: fullscreen) {
+  .gs-hud-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 7;
+    overflow: visible;
+    transform: translateY(calc(-100% + 8px));
+    transition: transform 0.25s var(--ease-out-expo);
+  }
+
+  .gs-hud-wrap:hover,
+  .gs-hud-wrap:focus-within {
+    transform: translateY(0);
+  }
+
+  /* Peek strip: the visible 8px edge doubles as the reveal affordance */
+  .gs-hud-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8px;
+    background: rgba(var(--primary-rgb), 0.35);
+    border-bottom: 2px solid var(--px-border-dark);
+    transition: background 0.2s;
+    pointer-events: none;
+  }
+
+  .gs-hud-wrap:hover::after,
+  .gs-hud-wrap:focus-within::after {
+    background: transparent;
+    border-bottom-color: transparent;
+  }
+}
+
+/* ----- STAGE -------------------------------------------------------------- */
+.gs-stage {
+  grid-area: stage;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  container: stage / size;
+}
+
+/* Inner wrapper (motion div target): fills the stage. */
+.gs-stage-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ----- RAIL --------------------------------------------------------------- */
+.gs-rail {
+  grid-area: rail;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border-left: 4px solid var(--px-border-dark);
+  overflow: hidden;
+  z-index: 4;
+}
+
+.gs-rail-collapsed .gs-rail { display: none; }
+
+/* Hide / show sidebar toggle — a compact chevron tab on the rail's right edge,
+   vertically centred. Shows ▸ (hide) when the rail is open and ◂ (show) when
+   collapsed. */
+.gs-rail-collapse-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.6rem 0.4rem;
+  background: var(--primary);
+  color: var(--bg-darker);
+  border: none;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  box-shadow: -2px 2px 0 var(--px-border-dark);
+  z-index: 6;
+}
+
+.gs-rail-collapse-icon { font-size: 1.1rem; line-height: 1; }
+
+.gs-rail-collapsed .gs-rail-collapse-btn { display: flex; }
+
+.gs-rail-collapse-btn .gs-unread {
+  display: inline-block;
+  margin-top: 0.4rem;
+  background: var(--gb-lie);
+  color: var(--gb-cream);
+  font-size: 0.7rem;
+  padding: 0.1rem 0.25rem;
+}
+
+/* Slim full-width collapse strip at the rail's top edge */
+.gs-rail-hide-btn {
+  flex-shrink: 0;
+  width: 100%;
+  height: 20px;
+  background: var(--bg-darker);
+  border: none;
+  border-bottom: 2px solid var(--px-border-dark);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.gs-rail-hide-btn:hover { color: var(--primary); background: var(--panel-bg-hover); }
+
+/* Rail is desktop-only; below the breakpoint the existing MobileDrawer
+   (opened from the header buttons) covers chat/players/video. */
+@media (max-width: 1023.98px) {
+  .gs-shell { grid-template-columns: minmax(0, 1fr) 0px; }
+  .gs-rail,
+  .gs-rail-collapse-btn { display: none !important; }
+}
+
+/* ----- PRESENCE DOCK ------------------------------------------------------ */
+.gs-dock {
+  grid-area: dock;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Safe-area: keep chips clear of the iPhone home-indicator swipe zone */
+  height: calc(var(--gs-dock-h) + env(safe-area-inset-bottom, 0px));
+  padding: 0 0.6rem env(safe-area-inset-bottom, 0px);
+  background: var(--bg-darker);
+  border-top: 4px solid var(--px-border-dark);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  z-index: 3;
+}
+
+.gs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.3rem;
+  background: var(--panel-bg);
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+.gs-chip.is-me {
+  box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 2px var(--primary);
+}
+
+.gs-chip.is-disconnected { opacity: 0.45; }
+
+.gs-chip-av {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  background: var(--bg-dark);
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.gs-chip-av img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gs-chip-name {
+  font-weight: 700;
+  max-width: 9ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gs-chip-score {
+  font-family: var(--font-title);
+  color: var(--primary);
+  font-size: 0.8rem;
+}
+
+.gs-chip-status {
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+}
+
+.gs-chip-status.done { color: var(--gb-truth); }
+
+.gs-chip-status.waiting {
+  color: var(--text-secondary);
+  animation: gsChipBlink 1.2s steps(2) infinite;
+}
+
+@keyframes gsChipBlink { 50% { opacity: 0.25; } }
+
+.gs-chip-host {
+  color: var(--primary);
+  font-size: 0.7rem;
+}
+
+/* Phones: chips compress to avatar-only (the ladder's presence step) */
+@media (max-width: 520px) {
+  .gs-chip-name,
+  .gs-chip-score { display: none; }
+  .gs-chip { padding: 0.3rem; }
+  :root { --gs-dock-h: 52px; }
+}
+
+/* Landscape phones (short viewports): every vertical pixel goes to the stage.
+   Chips go avatar-only and the dock slims down so the stage rarely hits the
+   ≤420px last-resort internal-scroll step in stage.css. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .gs-chip-name,
+  .gs-chip-score { display: none; }
+  .gs-chip { padding: 0.25rem; }
+  :root { --gs-dock-h: 44px; }
+
+  .gs-chip-av {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-chip-status.waiting { animation: none; }
+}
