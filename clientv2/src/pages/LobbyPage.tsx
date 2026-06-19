@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Play, Users } from 'lucide-react';
+import { Play } from 'lucide-react';
 import type { Lobby, ChatMessage } from '../types';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import type { WebcamPlayer } from '../config/WebcamConfig';
@@ -201,11 +201,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                   className="lobby-waiting-header"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
                 >
-                  <h2 style={{ margin: 0 }}>{t('game.waitingForPlayers')}</h2>
-                  <p className="lobby-player-count" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Users className="w-4 h-4" />
-                    {connectedPlayers.length} {t('lobby.players')}
-                  </p>
+                  <h2 style={{ margin: 0 }}>{t('game.waitingForPlayers')}</h2>
                   <GameExplainerHelpButton gameId={GAME_META.id} ariaLabel={t('tutorial.howToPlay')} />
                 </div>
               </SceneHeader>

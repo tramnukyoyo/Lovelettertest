@@ -1143,56 +1143,24 @@ body::before {
     gap: 0.2rem;
   }
 
-  .game-header-player-info {
-    display: none;
-  }
+  
 
   .game-header-divider {
     display: none;
   }
 
-  .game-header-player-count {
-    padding: 2px 6px;
-    font-size: 0.8rem;
-  }
+  
 }
 
-.game-header-player-count {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(51, 65, 85, 0.5);
-  border-radius: var(--radius-md);
-  font-family: var(--font-hand);
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
 
-.game-header-player-count svg {
-  color: var(--gb-cyan);
-}
 
-.game-header-player-info {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(51, 65, 85, 0.5);
-  border-radius: var(--radius-md);
-  font-family: var(--font-hand);
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
 
-.game-header-player-info.host {
-  background: rgba(250, 204, 21, 0.15);
-  border: 1.5px solid var(--gold-500);
-}
 
-.game-header-player-info.host svg {
-  color: var(--gold-400);
-}
+
+
+
+
+
 
 .game-header-settings-btn,
 .game-header-leave-btn {
@@ -6774,14 +6742,7 @@ body::before {
   margin-bottom: var(--spacing-sm);
 }
 
-.lobby-player-count {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  color: var(--text-secondary);
-  font-family: var(--font-hand);
-}
+
 
 .lobby-room-code-section {
   margin-bottom: var(--spacing-lg);

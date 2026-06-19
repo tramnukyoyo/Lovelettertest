@@ -197,52 +197,15 @@
   gap: 0.75rem;
 }
 
-.game-header-player-count {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-darker);
-  border-radius: var(--radius-md);
-  font-family: var(--font-hand);
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  /* 1-ring pixel chip — same recipe as the room-code chip */
-  box-shadow:
-    0 -2px 0 0 var(--px-border),
-    0 2px 0 0 var(--px-border),
-    -2px 0 0 0 var(--px-border),
-    2px 0 0 0 var(--px-border),
-    var(--px) var(--px) 0 0 var(--px-border-dark);
-}
 
-.game-header-player-count svg { color: var(--gb-cyan); }
 
-.game-header-player-info {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-darker);
-  border-radius: var(--radius-md);
-  font-family: var(--font-hand);
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  /* 1-ring pixel chip — same recipe as the room-code chip */
-  box-shadow:
-    0 -2px 0 0 var(--px-border),
-    0 2px 0 0 var(--px-border),
-    -2px 0 0 0 var(--px-border),
-    2px 0 0 0 var(--px-border),
-    var(--px) var(--px) 0 0 var(--px-border-dark);
-}
 
-.game-header-player-info.host {
-  background: var(--bg-darker);
-  border: 2px solid var(--primary);
-}
 
-.game-header-player-info.host svg { color: var(--primary); }
+
+
+
+
+
 
 .game-header-settings-btn,
 .game-header-leave-btn {

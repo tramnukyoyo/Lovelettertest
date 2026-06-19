@@ -62,19 +62,12 @@
   text-shadow: 2px 2px 0 var(--px-border-dark);
 }
 
-.lobby-player-count {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  color: var(--text-secondary);
-  font-family: var(--font-hand);
-}
+
 
 /* Mobile: the presence dock already shows every player as a chip — the
    count + icon is redundant and wastes header space (e.g. iPhone SE) */
 @media (max-width: 1023px) {
-  .lobby-player-count { display: none; }
+  
 }
 
 /* ----------------------------------------
