@@ -657,11 +657,11 @@
   border: 2px solid var(--px-border);
   border-radius: 0;
   box-shadow: 6px 6px 0 var(--px-border-dark);
-  max-width: 480px;
+  max-width: 720px;
   width: 100%;
   /* fixed height: switching tabs must never resize the modal */
-  height: min(680px, 90vh);
-  height: min(680px, 90dvh);
+  height: min(1040px, 94vh);
+  height: min(1040px, 94dvh);
   display: flex;
   flex-direction: column;
   overflow: hidden;
