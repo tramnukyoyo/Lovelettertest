@@ -7,13 +7,27 @@ import { getCurrentLanguage, setCurrentLanguage, t } from '../../utils/translati
 // vs HTMLSVGElement (HTMLElement & SVGElement) contravariance mismatch.
 type FlagComponent = typeof GB;
 
-const languageOptions: { code: Language; label: string; Flag: FlagComponent }[] = [
+// Traditional Chinese uses a neutral text badge instead of a national flag
+// (flags don't map to languages; CN-vs-TW is politically loaded).
+const languageOptions: { code: Language; label: string; Flag?: FlagComponent; badge?: string }[] = [
   { code: 'en', label: 'English', Flag: GB },
   { code: 'de', label: 'Deutsch', Flag: DE },
   { code: 'es', label: 'Español', Flag: ES },
   { code: 'pt-BR', label: 'Português (Brasil)', Flag: BR },
   { code: 'pt-PT', label: 'Português (Portugal)', Flag: PT },
+  { code: 'zh-Hant', label: '中文（繁體）', badge: '繁' },
 ];
+
+const LangBadge: React.FC<{ text: string; label: string; width: number; height: number }> = ({ text, label, width, height }) => (
+  <span
+    className="language-flag"
+    title={label}
+    aria-hidden="true"
+    style={{ width, height, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 2, background: 'rgba(255,255,255,0.14)', fontSize: Math.round(height * 0.8), fontWeight: 700, lineHeight: 1 }}
+  >
+    {text}
+  </span>
+);
 
 interface SimpleLanguageSelectorProps {
   showLabels?: boolean;
@@ -64,7 +78,11 @@ const SimpleLanguageSelector: React.FC<SimpleLanguageSelectorProps> = ({ classNa
         aria-label={t('settings.language')}
         title={t('settings.language')}
       >
-        <CurrentFlag className="language-flag" title={currentLang.label} width={26} height={18} />
+        {CurrentFlag ? (
+          <CurrentFlag className="language-flag" title={currentLang.label} width={26} height={18} />
+        ) : (
+          <LangBadge text={currentLang.badge ?? '?'} label={currentLang.label} width={26} height={18} />
+        )}
       </button>
 
       {isOpen && (
@@ -78,7 +96,11 @@ const SimpleLanguageSelector: React.FC<SimpleLanguageSelectorProps> = ({ classNa
                 className={`language-option ${language === lang.code ? 'active' : ''}`}
                 onClick={() => handleLanguageChange(lang.code)}
               >
-                <LangFlag className="language-flag" title={lang.label} width={24} height={16} />
+                {LangFlag ? (
+                  <LangFlag className="language-flag" title={lang.label} width={24} height={16} />
+                ) : (
+                  <LangBadge text={lang.badge ?? '?'} label={lang.label} width={24} height={16} />
+                )}
                 <span className="language-label">{lang.label}</span>
                 {language === lang.code && <span className="language-check">✓</span>}
               </button>

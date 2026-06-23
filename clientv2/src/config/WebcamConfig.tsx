@@ -9,7 +9,7 @@ import React, { createContext, useContext } from 'react';
 import { Socket } from 'socket.io-client';
 
 // TODO: Import your game's language type
-type Language = 'en' | 'de' | 'pt-BR' | 'pt-PT' | 'es';
+type Language = 'en' | 'de' | 'pt-BR' | 'pt-PT' | 'es' | 'zh-Hant';
 
 /**
  * Player data structure for webcam display
