@@ -2,6 +2,7 @@ import React from 'react';
 import { useAds } from './AdContext';
 import AdSenseUnit from './AdSenseUnit';
 import { ADSENSE_ENABLED, AD_SLOTS } from '../../config/adsense';
+import { t } from '../../utils/translations';
 import './ads.css';
 
 interface GameAdRectangleProps {
@@ -43,8 +44,8 @@ const GameAdRectangle: React.FC<GameAdRectangleProps> = ({
         <div className="game-ad-placeholder">
           <div className="ad-badge">AD</div>
           <div className="ad-text">
-            <span className="ad-title">Support GameBuddies</span>
-            <span className="ad-subtitle">Ads help keep games free!</span>
+            <span className="ad-title">{t('gameAd.support')}</span>
+            <span className="ad-subtitle">{t('gameAd.helpKeepFree')}</span>
           </div>
         </div>
       )}

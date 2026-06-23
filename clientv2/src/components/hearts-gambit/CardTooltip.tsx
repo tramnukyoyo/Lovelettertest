@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CardType } from '../../types';
 import DynamicCard from './DynamicCard';
+import { t } from '../../utils/translations';
 
 interface CardTooltipProps {
   card: CardType;
@@ -135,7 +136,7 @@ const CardTooltip: React.FC<CardTooltipProps> = ({
                 <div className="text-center">
                   <div className="text-[var(--royal-gold-light)] font-bold text-sm tracking-wide">{cardName}</div>
                   {card !== 0 && (
-                    <div className="hg-meta text-xs mt-1">Value: {card}</div>
+                    <div className="hg-meta text-xs mt-1">{t('heartsGambit.cardValue')} {card}</div>
                   )}
                   {cardDescription && (
                     <div className="text-[rgba(246,240,230,0.78)] text-xs mt-2 leading-tight">{cardDescription}</div>

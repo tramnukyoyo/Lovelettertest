@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { isInStandaloneMode, isIOSSafari, dismissInstallPrompt } from '../utils/pwaUtils';
+import { t } from '../utils/translations';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -81,26 +82,26 @@ export function InstallPrompt() {
             <CloseIcon />
           </button>
 
-          <h2 style={styles.title}>Install Game</h2>
-          <p style={styles.subtitle}>Get the full-screen experience!</p>
+          <h2 style={styles.title}>{t('installPrompt.title')}</h2>
+          <p style={styles.subtitle}>{t('installPrompt.iosSubtitle')}</p>
 
           <div style={styles.steps}>
             <div style={styles.step}>
               <span style={styles.stepNumber}>1</span>
-              <span>Tap the <ShareIcon /> Share button below</span>
+              <span>{t('installPrompt.iosStep1Prefix')} <ShareIcon /> {t('installPrompt.iosStep1Suffix')}</span>
             </div>
             <div style={styles.step}>
               <span style={styles.stepNumber}>2</span>
-              <span>Scroll and tap <strong>"Add to Home Screen"</strong></span>
+              <span>{t('installPrompt.iosStep2')}</span>
             </div>
             <div style={styles.step}>
               <span style={styles.stepNumber}>3</span>
-              <span>Tap <strong>"Add"</strong> to install</span>
+              <span>{t('installPrompt.iosStep3')}</span>
             </div>
           </div>
 
           <button style={styles.dontShowButton} onClick={handleDontShowAgain}>
-            Don't show again
+            {t('installPrompt.dontShowAgain')}
           </button>
         </div>
       </div>
@@ -116,15 +117,15 @@ export function InstallPrompt() {
             <CloseIcon />
           </button>
 
-          <h2 style={styles.title}>Install Game</h2>
-          <p style={styles.subtitle}>Add to home screen for full-screen play!</p>
+          <h2 style={styles.title}>{t('installPrompt.title')}</h2>
+          <p style={styles.subtitle}>{t('installPrompt.androidSubtitle')}</p>
 
           <button style={styles.installButton} onClick={handleAndroidInstall}>
-            Install App
+            {t('installPrompt.installApp')}
           </button>
 
           <button style={styles.dontShowButton} onClick={handleDontShowAgain}>
-            Don't show again
+            {t('installPrompt.dontShowAgain')}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MessageSquare, Send, X } from 'lucide-react';
+import { t } from '../../utils/translations';
 import './AdminMessageToast.css';
 
 /**
@@ -53,18 +54,18 @@ const AdminMessageToast: React.FC<Props> = ({ message, onReply, onClose }) => {
   };
 
   return createPortal(
-    <div className="gb-admsg" role="dialog" aria-label="Message from GameBuddies">
+    <div className="gb-admsg" role="dialog" aria-label={t('adminMessage.title')}>
       <div className="gb-admsg-header">
         <MessageSquare className="gb-admsg-icon" size={18} />
         <strong className="gb-admsg-from">{message.fromName || 'GameBuddies'}</strong>
-        <button className="gb-admsg-close" onClick={onClose} type="button" aria-label="Close">
+        <button className="gb-admsg-close" onClick={onClose} type="button" aria-label={t('common.close')}>
           <X size={16} />
         </button>
       </div>
       <div className="gb-admsg-body">
         <p className="gb-admsg-text">{message.body}</p>
         {sent ? (
-          <p className="gb-admsg-sent">Reply sent ✓</p>
+          <p className="gb-admsg-sent">{t('adminMessage.replySent')}</p>
         ) : (
           <div className="gb-admsg-composer">
             <textarea
@@ -73,10 +74,10 @@ const AdminMessageToast: React.FC<Props> = ({ message, onReply, onClose }) => {
               onChange={(e) => setReply(e.target.value)}
               rows={2}
               maxLength={4000}
-              placeholder="Reply to GameBuddies…"
+              placeholder={t('adminMessage.replyPlaceholder')}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
             />
-            <button className="gb-admsg-send" onClick={send} type="button" disabled={!reply.trim()} aria-label="Send reply">
+            <button className="gb-admsg-send" onClick={send} type="button" disabled={!reply.trim()} aria-label={t('adminMessage.sendReply')}>
               <Send size={16} />
             </button>
           </div>

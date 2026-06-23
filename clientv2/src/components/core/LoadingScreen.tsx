@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import { t } from '../../utils/translations';
 import './LoadingScreen.css';
 
 interface LoadingScreenProps {
@@ -22,13 +23,13 @@ interface LoadingScreenProps {
   mascotUrl?: string;
 }
 
-const HINTS = [
-  'Get ready to play!',
-  'Gather your friends!',
-  'The fun is about to begin!',
-  'Loading awesome gameplay...',
-  'Preparing the game room!',
-  'Almost there!',
+const HINT_KEYS = [
+  'loadingScreen.hint1',
+  'loadingScreen.hint2',
+  'loadingScreen.hint3',
+  'loadingScreen.hint4',
+  'loadingScreen.hint5',
+  'loadingScreen.hint6',
 ];
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
@@ -38,9 +39,9 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   gameName = 'GameBuddies',
   mascotUrl,
 }) => {
-  const displayStatus = status || message || 'Connecting';
+  const displayStatus = status || message || t('loadingScreen.connecting');
   const [hint] = React.useState(() =>
-    HINTS[Math.floor(Math.random() * HINTS.length)]
+    t(HINT_KEYS[Math.floor(Math.random() * HINT_KEYS.length)])
   );
 
   return (

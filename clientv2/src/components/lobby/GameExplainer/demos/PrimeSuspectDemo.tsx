@@ -31,6 +31,7 @@
 import React from 'react';
 import type { DemoProps, DemoSpec } from '../types';
 import cardBackImg from '../../../../assets/cards/back.png';
+import { t } from '../../../../utils/translations';
 
 const VIEW_W = 640;
 const VIEW_H = 360;
@@ -360,7 +361,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
               <g opacity={eliPeekT}>
                 {renderCardFace(cx + 60, cy + 30, 8, 0.95, 0.85, -8, true)}
                 <line x1={cx + 18} y1={cy + 50} x2={cx + 50} y2={cy + 35} stroke={CYAN} strokeWidth={1.2} strokeDasharray="2 2" opacity={0.7} />
-                <text x={cx + 60} y={cy + 80} fontSize={7} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CYAN} textAnchor="middle" letterSpacing={1.5}>SEEN BY LOU</text>
+                <text x={cx + 60} y={cy + 80} fontSize={7} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CYAN} textAnchor="middle" letterSpacing={1.5}>{t('psDemo.seenByLou')}</text>
               </g>
             </g>
           );
@@ -385,7 +386,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
                 opacity={arrestStampOp}
               >
                 <rect x={-46} y={-13} width={92} height={26} fill="#fff" stroke={RED} strokeWidth={3} />
-                <text y={5} fontSize={13} fontFamily="'Special Elite', monospace" fontWeight={800} fill={RED} textAnchor="middle" letterSpacing={2.5}>ARRESTED</text>
+                <text y={5} fontSize={13} fontFamily="'Special Elite', monospace" fontWeight={800} fill={RED} textAnchor="middle" letterSpacing={2.5}>{t('psDemo.arrested')}</text>
               </g>
             )}
           </g>
@@ -436,7 +437,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
             return (
               <g opacity={peekBeamT}>
                 <line x1={srcX} y1={srcY} x2={dstX} y2={dstY} stroke={CYAN} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.7} />
-                <text x={(srcX + dstX) / 2} y={(srcY + dstY) / 2 - 6} fontSize={10} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CYAN} textAnchor="middle" letterSpacing={2}>PEEK</text>
+                <text x={(srcX + dstX) / 2} y={(srcY + dstY) / 2 - 6} fontSize={10} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CYAN} textAnchor="middle" letterSpacing={2}>{t('psDemo.peek')}</text>
               </g>
             );
           })()}
@@ -469,7 +470,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
           )}
           {ms >= BEAT4_AT + 2600 && ms < BEAT5_AT - 300 && (
             <text x={VIEW_W / 2} y={225} fontSize={11} fontFamily="'Special Elite', monospace" fontWeight={800} fill={GOLD_BRIGHT} textAnchor="middle" letterSpacing={2}>
-              ✓ CORRECT — ARRESTED
+              {t('psDemo.correctArrested')}
             </text>
           )}
         </g>
