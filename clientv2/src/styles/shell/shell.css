@@ -369,3 +369,51 @@
     transition: none;
   }
 }
+
+
+/* ============================================================================
+   MOBILE POLISH (appended) — additive overrides only.
+   ============================================================================ */
+
+/* A1: in-game chrome toggle — bigger hit area, clear the notch, higher contrast. */
+.gs-chrome-toggle {
+  min-height: 36px;
+  top: max(0px, env(safe-area-inset-top, 0px));
+  background: rgba(var(--primary-rgb, 233, 69, 96), 0.95);
+  border-color: var(--px-border-dark, rgba(0, 0, 0, 0.55));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+.gs-chrome-toggle-icon { font-size: 15px; }
+
+/* A2: >=44px tap targets for modal/menu close buttons on touch viewports. */
+@media (max-width: 1024px) {
+  .settings-modal-close,
+  .settings-close,
+  .device-settings-close,
+  .game-explainer-close,
+  .mobile-game-menu-close,
+  .mobile-drawer-close,
+  .mobile-overlay-close,
+  .mobile-menu-close,
+  .invite-modal-close,
+  .popup-close-btn,
+  .tutorial-close,
+  .chat-close-btn,
+  .home-header-menu-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* A3: respect reduced-motion inside modals/menus (covers their animations). */
+@media (prefers-reduced-motion: reduce) {
+  .settings-modal *,
+  .device-settings-modal *,
+  .game-explainer-modal *,
+  .mobile-drawer *,
+  .mobile-game-menu-panel * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
