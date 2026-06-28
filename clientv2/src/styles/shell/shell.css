@@ -318,3 +318,54 @@
 @media (prefers-reduced-motion: reduce) {
   .gs-chip-status.waiting { animation: none; }
 }
+
+/* ----- Mobile immersive mode (GameShell adds .gs-immersive on phones, in-game) --
+   Hide the top header AND the bottom presence dock so the stage gets the whole
+   screen. Both are `auto` grid rows, so display:none collapses them to 0 — the
+   same mechanism the keyboard-open dock hide uses just above. A floating
+   .gs-chrome-toggle (rendered by GameShell on mobile only) brings them back. */
+.gs-shell.gs-immersive .gs-hud-wrap,
+.gs-shell.gs-immersive .gs-dock {
+  display: none;
+}
+
+/* Floating reveal/hide toggle — mobile only. A small tab pinned to the top-centre
+   edge, above the header (z 8 > hud z 5) so it stays reachable in both states:
+   ▾ reveals the chrome, ▴ hides it again. Translucent so it never fights the game. */
+.gs-chrome-toggle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 24px;
+  padding: 0 10px;
+  border: 2px solid var(--px-border-dark, rgba(0, 0, 0, 0.45));
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  background: rgba(var(--primary-rgb, 233, 69, 96), 0.82);
+  color: #fff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease;
+}
+
+.gs-chrome-toggle:hover,
+.gs-chrome-toggle:focus-visible {
+  background: rgba(var(--primary-rgb, 233, 69, 96), 0.96);
+}
+
+.gs-chrome-toggle-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-chrome-toggle {
+    transition: none;
+  }
+}

@@ -13,6 +13,7 @@
 import React, { useCallback, useState } from 'react';
 import { useShellOverflowGuard } from './useShellOverflowGuard';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const RAIL_COLLAPSED_KEY = 'gs_rail_collapsed';
 
@@ -48,6 +49,15 @@ const GameShell: React.FC<GameShellProps> = ({
   // keyboard opens — without this the bottom of the stage sits under the keys.
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHeight();
 
+  // Mobile immersive mode: on phones (≤1024px) the top header AND the bottom
+  // presence dock are HIDDEN by default while in-game so the stage gets the full
+  // screen. A floating toggle (▾ reveal / ▴ hide) brings them back together — the
+  // header carries the menu (settings / leave / chat), so the toggle must always
+  // be reachable. Desktop (≥1024px) is unaffected: everything stays visible.
+  const isMobile = useIsMobile();
+  const [chromeHidden, setChromeHidden] = useState(true);
+  const immersive = isMobile && chromeHidden;
+
   const toggleRail = useCallback(() => {
     setRailCollapsed(prev => {
       localStorage.setItem(RAIL_COLLAPSED_KEY, prev ? '0' : '1');
@@ -58,7 +68,7 @@ const GameShell: React.FC<GameShellProps> = ({
   return (
     <div
       className={`gs-shell ${railCollapsed ? 'gs-rail-collapsed' : ''} ${
-        isKeyboardVisible ? 'gs-kb-open' : ''
+        (isKeyboardVisible ? 'gs-kb-open' : '') + (immersive ? ' gs-immersive' : '')
       }`}
       style={
         isKeyboardVisible
@@ -103,6 +113,23 @@ const GameShell: React.FC<GameShellProps> = ({
       )}
 
       {dock && <div className="gs-dock">{dock}</div>}
+
+      {/* Mobile-only chrome toggle: reveal/hide the header + dock together. Always
+          on top so the menu (in the header) stays reachable while immersive. */}
+      {isMobile && (
+        <button
+          type="button"
+          className={`gs-chrome-toggle ${chromeHidden ? 'is-hidden' : 'is-shown'}`}
+          onClick={() => setChromeHidden(prev => !prev)}
+          aria-label={chromeHidden ? 'Show menu' : 'Hide menu'}
+          title={chromeHidden ? 'Show menu' : 'Hide menu'}
+          aria-pressed={!chromeHidden}
+        >
+          <span className="gs-chrome-toggle-icon" aria-hidden="true">
+            {chromeHidden ? '▾' : '▴'}
+          </span>
+        </button>
+      )}
     </div>
   );
 };
