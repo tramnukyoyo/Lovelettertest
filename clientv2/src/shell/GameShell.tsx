@@ -25,6 +25,8 @@ interface GameShellProps {
   railUnread?: number;
   /** Label on the collapsed-rail edge tab (e.g. t('chat.title')). */
   railLabel?: string;
+  /** In-game only (GamePage passes it): enable mobile immersive auto-hide of header+dock. */
+  chromeAutoHide?: boolean;
   children: React.ReactNode;
 }
 
@@ -35,6 +37,7 @@ const GameShell: React.FC<GameShellProps> = ({
   railUnread = 0,
   // railLabel is accepted for API compatibility but the collapsed-rail tab now
   // shows a hide/show chevron instead of a text label.
+  chromeAutoHide = false,
   children,
 }) => {
   const [railCollapsed, setRailCollapsed] = useState(
@@ -56,7 +59,7 @@ const GameShell: React.FC<GameShellProps> = ({
   // be reachable. Desktop (≥1024px) is unaffected: everything stays visible.
   const isMobile = useIsMobile();
   const [chromeHidden, setChromeHidden] = useState(true);
-  const immersive = isMobile && chromeHidden;
+  const immersive = isMobile && chromeAutoHide && chromeHidden;
 
   const toggleRail = useCallback(() => {
     setRailCollapsed(prev => {
@@ -116,7 +119,7 @@ const GameShell: React.FC<GameShellProps> = ({
 
       {/* Mobile-only chrome toggle: reveal/hide the header + dock together. Always
           on top so the menu (in the header) stays reachable while immersive. */}
-      {isMobile && (
+      {isMobile && chromeAutoHide && (
         <button
           type="button"
           className={`gs-chrome-toggle ${chromeHidden ? 'is-hidden' : 'is-shown'}`}

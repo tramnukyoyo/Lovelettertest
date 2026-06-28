@@ -269,6 +269,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
         <>
           <div className="app-layout game-page">
             <GameShell
+              chromeAutoHide
               hud={
                 <>
                   {isSpectator && (
