@@ -417,3 +417,57 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ============================================================================
+   MOBILE LOBBY FLOW (appended) — single-column, flat, ONE natural scroll.
+   Targets shared lobby classes so it applies across all games despite each
+   game's LobbyPage being unique. Mobile only; desktop unchanged.
+   ============================================================================ */
+@media (max-width: 1024px) {
+  /* The lobby scrolls as ONE page (not per-pane). This removes the per-pane
+     internal scroll + the ScrollHint chevron, and makes portrait flow from the
+     top exactly like the short/landscape layout does. */
+  .gs-stage-inner:has(.gs-lobby-scene) {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .gs-lobby-scene {
+    flex: none !important;
+    min-height: 100% !important;
+    height: auto !important;
+  }
+  .gs-lobby-scene .gs-scroll-hint { display: none !important; }
+
+  /* One clean column, TOP-aligned flow (invite -> settings -> start). */
+  .gs-lobby-panes {
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    gap: clamp(0.75rem, 3cqb, 1.25rem) !important;
+  }
+
+  /* Flatten the lobby "cards" into plain stacked sections — no box, no clip. */
+  .lobby-waiting-card {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Drop the decorative mascot on phones to save vertical space. */
+  .lobby-mascot { display: none !important; }
+
+  /* Full-width Start, pinned to the bottom of the scroll so it's always reachable. */
+  .gs-lobby-scene .gs-scene-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background: var(--bg-secondary, var(--bg-darker, #15131f));
+    padding-top: 0.5rem;
+    padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+  }
+  .lobby-start-section { width: 100%; }
+  .lobby-start-btn { width: 100%; }
+}

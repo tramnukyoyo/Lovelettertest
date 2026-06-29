@@ -16,7 +16,7 @@ interface CollapsibleSectionProps {
 
 const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
-  defaultOpen = false,
+  defaultOpen = true,
   className = '',
   children,
 }) => {

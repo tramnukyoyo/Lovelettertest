@@ -13,6 +13,7 @@ import WebcamDisplay from './WebcamDisplay';
 import type { WebcamPlayer } from '../../config/WebcamConfig';
 import type { Team } from '../../types';
 import { t } from '../../utils/translations';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 // Filmstrip resize constants
 const MIN_HEIGHT = 80;
@@ -52,6 +53,9 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
 }) => {
   const { localStream, remoteStreams, speakingPeers, connectingPeers, isVideoEnabled, isVideoPrepairing } = useWebRTC();
   const { isFilmstripExpanded, toggleFilmstrip, isStreamerBroadcastOpen } = useVideoUI();
+  // No bottom video filmstrip on mobile — it reserved dead space at the bottom of
+  // the screen. Mobile users reach video via the menu/drawer instead.
+  const isMobile = useIsMobile();
 
   const getPlayerTeamColor = (playerId: string): string | undefined => {
     for (const team of teams) {
@@ -138,7 +142,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
       ? filmstripHeight
       : (isStreamerBroadcastOpen ? 0 : COLLAPSED_SAFE_SPACE);
 
-    const showFilmstrip = isVideoEnabled && !isStreamerBroadcastOpen;
+    const showFilmstrip = isVideoEnabled && !isStreamerBroadcastOpen && !isMobile;
     document.documentElement.classList.toggle('has-filmstrip', showFilmstrip);
     document.documentElement.style.setProperty(
       '--filmstrip-safe-space',
@@ -149,7 +153,13 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
       document.documentElement.classList.remove('has-filmstrip');
       document.documentElement.style.setProperty('--filmstrip-safe-space', '0px');
     };
-  }, [isFilmstripExpanded, filmstripHeight, isVideoEnabled, isStreamerBroadcastOpen]);
+  }, [isFilmstripExpanded, filmstripHeight, isVideoEnabled, isStreamerBroadcastOpen, isMobile]);
+
+  // Mobile never shows the bottom filmstrip (the safe-space effect above already
+  // cleared its reserved padding so the shell fills the screen).
+  if (isMobile) {
+    return null;
+  }
 
   if (!isVideoEnabled && !isVideoPrepairing) {
     return null;

@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Volume2, Palette, Globe } from 'lucide-react';
 import { getCurrentLanguage, setCurrentLanguage, t } from '../../utils/translations';
 import { backgroundMusic, soundEffects } from '../../utils/audio';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 // localStorage keys for audio settings
 const STORAGE_KEYS = {
@@ -29,6 +30,8 @@ type SettingsTab = 'general' | 'audio';
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [language, setLanguage] = useState(getCurrentLanguage());
+  // Mobile shows every section in one scroll (no tabs); desktop keeps the tabs.
+  const isMobile = useIsMobile();
 
   // Helper to safely get localStorage (handles private mode/quota errors)
   const safeGetItem = (key: string): string | null => {
@@ -156,27 +159,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             </button>
           </div>
 
-          {/* Tabs */}
-          <div className="settings-modal-tabs">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`settings-modal-tab ${activeTab === tab.id ? 'active' : ''}`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
+          {/* Tabs (desktop only — mobile shows all sections in one scroll) */}
+          {!isMobile && (
+            <div className="settings-modal-tabs">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`settings-modal-tab ${activeTab === tab.id ? 'active' : ''}`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Content */}
           <div className="settings-modal-content">
-            {/* General Tab */}
-            {activeTab === 'general' && (
+            {/* General */}
+            {(isMobile || activeTab === 'general') && (
               <div className="settings-section">
                 {/* Language */}
                 <div className="settings-row">
@@ -202,8 +207,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               </div>
             )}
 
-            {/* Audio Tab */}
-            {activeTab === 'audio' && (
+            {/* Audio */}
+            {(isMobile || activeTab === 'audio') && (
               <div className="settings-section">
                 {/* Music Volume */}
                 <div className="settings-row">

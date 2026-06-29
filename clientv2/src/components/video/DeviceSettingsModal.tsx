@@ -489,7 +489,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
           )}
 
           {/* BACKGROUND TAB - Desktop only */}
-          {!isMobile && activeTab === 'background' && (
+          {(isMobile || activeTab === 'background') && (
             <div className="device-settings-background">
               {/* Browser compatibility check */}
               {!('MediaStreamTrackProcessor' in window) && (
@@ -549,7 +549,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
           )}
 
           {/* AUDIO TAB - Desktop only */}
-          {!isMobile && activeTab === 'audio' && (
+          {(isMobile || activeTab === 'audio') && (
             <div className="device-settings-audio">
               {/* Noise Suppression Toggle */}
               <label className="privacy-toggle feature-toggle">
@@ -594,7 +594,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
           )}
 
           {/* AVATAR TAB - Desktop only */}
-          {!isMobile && activeTab === 'avatar' && (
+          {(isMobile || activeTab === 'avatar') && (
             <div className="device-settings-avatar">
               {/* Avatar Toggle */}
               <label className="privacy-toggle feature-toggle">
