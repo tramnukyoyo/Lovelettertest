@@ -470,6 +470,34 @@
   [data-theme="primesuspect"] .ps-caselog { width: 220px; max-height: 168px; }
 }
 
+/* Phones: the bottom-left Case Log (264px) collides with the bottom-pinned
+   floating action menu (.hg-context-actions ≈ full width) and floats over the
+   hand cards. Dock it to the TOP-LEFT instead — opponents are centre-clustered
+   and the hover preview is hidden on touch — as a narrower, shorter "peek". */
+@media (max-width: 767px) {
+  [data-theme="primesuspect"] .ps-caselog {
+    top: 0.5rem;
+    left: 0.5rem;
+    bottom: auto;
+    width: clamp(150px, 44vw, 196px);
+    max-height: 132px;
+  }
+  [data-theme="primesuspect"] .ps-caselog-line,
+  [data-theme="primesuspect"] .ps-caselog-empty { font-size: 0.68rem; }
+}
+
+/* Short landscape: vertical space is scarce and the panel would sandwich the
+   hand — collapse the Case Log to a compact top-left "peek" (~1 line). */
+@media (max-height: 500px) and (orientation: landscape) {
+  [data-theme="primesuspect"] .ps-caselog {
+    top: 0.4rem;
+    left: 0.4rem;
+    bottom: auto;
+    width: clamp(140px, 30vw, 184px);
+    max-height: 4.25rem;
+  }
+}
+
 /* ============================================================================
    6 · CARD HOVER PREVIEW — large card pinned TOP-RIGHT of the stage
    ============================================================================ */
@@ -591,6 +619,29 @@
   [data-theme="primesuspect"] .hg-dynamic-card.hg-hover-card {
     --hg-card-width: 168px;
     --hg-card-height: 252px;
+  }
+}
+
+/* Touch / small screens: the hover preview is driven by real :hover (none on
+   touch) and its 268px box can clip off-screen — hide it. Touch players get the
+   long-press CardTooltip instead. */
+@media (max-width: 1023px), (hover: none) {
+  [data-theme="primesuspect"] .ps-hover-preview { display: none; }
+}
+
+/* Short landscape: keep the engraved "ACTION" tab tucked inside the menu's top
+   edge so the stage's overflow:hidden never clips it (it normally sits above
+   the box at top:-11px). */
+@media (max-height: 500px) and (orientation: landscape) {
+  [data-theme="primesuspect"] .hg-context-actions { padding-top: 0.6rem !important; }
+  [data-theme="primesuspect"] .hg-context-actions::before {
+    top: 0;
+    left: 10px;
+    font-size: 0.46rem;
+    letter-spacing: 0.12em;
+    padding: 1px 9px 2px;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
   }
 }
 

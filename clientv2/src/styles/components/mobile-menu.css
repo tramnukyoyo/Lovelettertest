@@ -706,7 +706,16 @@
 
 /* Extreme landscape - compact drawer */
 @media (max-height: 500px) and (orientation: landscape) {
-  .mobile-drawer { width: min(240px, 60vw); }
+  /* Cap the height + anchor to the bottom so the chat drawer no longer spans
+     the full screen height — a strip of game state stays peekable above it. */
+  .mobile-drawer {
+    width: min(240px, 60vw);
+    top: auto;
+    bottom: 0;
+    height: auto;
+    max-height: 84dvh;
+    border-top: 2px solid var(--gb-cyan);
+  }
 
   .mobile-drawer-header {
     padding: var(--spacing-xs) var(--spacing-sm);
