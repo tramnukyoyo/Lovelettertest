@@ -3016,3 +3016,137 @@
   [data-theme="primesuspect"] .hg-mobile-deck-area::before { animation: none; }
 }
 
+/* ----------------------------------------------------------------------------
+   HOME HEADER (mobile) — sound button was clipping the header underline.
+   The home header's mute button inherits the in-game icon-button treatment
+   above ([data-theme] .game-header-mute-btn), whose raised drop-shadow
+   (--psb-ico-rest ≈ 14px downward) bled across the compact 48px home header's
+   1px bottom border. On phones: flatten it to an inset-only face and shrink
+   the pair (mute + hamburger) to 40px so they sit cleanly inside the bar with
+   clearance. Desktop keeps the raised look (taller 66px header, no clip).
+   ------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  [data-theme="primesuspect"] .home-header .game-header-mute-btn,
+  [data-theme="primesuspect"] .home-header .home-header-hamburger {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  [data-theme="primesuspect"] .home-header .game-header-mute-btn {
+    box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.16) !important;
+  }
+
+  [data-theme="primesuspect"] .home-header .game-header-mute-btn:hover:not(:disabled),
+  [data-theme="primesuspect"] .home-header .game-header-mute-btn:active:not(:disabled) {
+    transform: none !important;
+    box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.24) !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   MOBILE SHELL FIXES (lobby + in-game)
+   ------------------------------------------------------------------------- */
+
+/* Rail collapse/hide tabs are desktop-only chrome — the shell already sets them
+   to display:none below 1024px, but the primesuspect icon-tier rule above forces
+   .gs-rail-collapse-btn / .gs-rail-hide-btn back to display:inline-flex. On phones
+   the rail itself is a MobileDrawer, so the tab does nothing when tapped. Keep it
+   hidden on mobile (later + equal specificity → wins the earlier theme rule). */
+@media (max-width: 1023.98px) {
+  [data-theme="primesuspect"] .gs-rail-collapse-btn,
+  [data-theme="primesuspect"] .gs-rail-hide-btn {
+    display: none !important;
+  }
+}
+
+/* In-game (mobile) the card table (HeartsGambitGameMobile) renders its OWN top
+   bar (.hg-mobile-header-area, a position:fixed % -scaled layer) as the GameShell
+   stage content; the GameShell hud is hidden on mobile (prime-suspect-unified.css).
+   Tie that game header to the shell's immersive state so the existing ▾/▴ chrome
+   toggle hides/reveals it too — matching the other games' in-game immersive header.
+   Default is hidden (GameShell mounts immersive on); the toggle brings it back. */
+@media (max-width: 1024px) {
+  .gs-shell.gs-immersive .hg-mobile-header-area {
+    display: none !important;
+  }
+
+  /* The game header is height:8.14% of the viewport (prime-suspect-unified.css) —
+     on short / landscape phones that resolves to ~30px, smaller than the 40px menu
+     button, so the hamburger overflowed the bar ("bigger than the header"). Floor
+     the height so the button always fits with clearance above the gold underline. */
+  [data-theme="primesuspect"] .hg-mobile-header-area {
+    min-height: 52px !important;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.3rem) !important;
+    padding-bottom: 0.3rem !important;
+    align-items: center !important;
+  }
+
+  /* Hamburger/menu button → 40px so it clears the underline in BOTH the game bar
+     and the GameShell lobby header (below). */
+  .mobile-game-menu-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  /* The mobile LOBBY had no header at all: prime-suspect-unified.css hides the
+     GameShell .game-header on every mobile in-room screen (a pre-GameShell leftover
+     — "mobile game has its own header", which is only true for the PLAYING card
+     table). Re-show it in the LOBBY, where there is no game header, so players get
+     the menu / settings / leave bar. PLAYING keeps its own .hg-mobile-header-area. */
+  [data-theme="primesuspect"] .app-root.in-room .app-layout.lobby-page .game-header {
+    display: block !important;
+    /* The old ported unified.css sets .game-header{position:fixed}. The mobile
+       layout zeroes the app-root top offset that used to clear it, so a fixed
+       header overlaid the stage and hid the Scene header + "?" behind it. Return
+       it to normal flow so the GameShell grid reserves its (hud) row. */
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+  }
+}
+
+/* The chrome toggle must sit ABOVE the game header (which is position:fixed,
+   z-index 1000). At its shell default z-index of 8 it hid behind the revealed
+   header, so ▴ couldn't be tapped to hide the chrome again. */
+.gs-chrome-toggle {
+  z-index: calc(var(--z-mobile-nav, 1000) + 10) !important;
+}
+
+/* ----------------------------------------------------------------------------
+   RE-SHOWN LOBBY HEADER (mobile) — polish
+   ------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  /* Sound (mute) + share (copy) buttons inherit the in-game tactile drop-shadow
+     (--psb-ico-rest ≈ 14px down), which bled onto the header's 4px underline.
+     Flatten to an inset-only face and size them to sit cleanly inside the bar. */
+  [data-theme="primesuspect"] .game-header .game-header-mute-btn,
+  [data-theme="primesuspect"] .game-header .game-header-copy-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.16) !important;
+  }
+  [data-theme="primesuspect"] .game-header .game-header-mute-btn:hover:not(:disabled),
+  [data-theme="primesuspect"] .game-header .game-header-mute-btn:active:not(:disabled),
+  [data-theme="primesuspect"] .game-header .game-header-copy-btn:hover:not(:disabled),
+  [data-theme="primesuspect"] .game-header .game-header-copy-btn:active:not(:disabled) {
+    transform: none !important;
+    box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.24) !important;
+  }
+
+  /* The lobby SceneHeader (title + "?" tutorial button) sits directly under the
+     re-shown header; its top edge was tucked beneath the header's underline/shadow
+     so the "?" read as hidden. Give it clearance + its own stacking context so it
+     never falls behind the header. */
+  .lobby-page .gs-lobby-scene .lobby-waiting-header {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.5rem;
+  }
+}
+

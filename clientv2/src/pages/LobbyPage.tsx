@@ -201,7 +201,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                   className="lobby-waiting-header"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
                 >
-                  <h2 style={{ margin: 0 }}>{t('game.waitingForPlayers')}</h2>
+                  <h2 style={{ margin: 0 }}>{t('game.waitingForPlayers')}</h2>
                   <GameExplainerHelpButton gameId={GAME_META.id} ariaLabel={t('tutorial.howToPlay')} />
                 </div>
               </SceneHeader>
@@ -250,13 +250,29 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                         />
                       </div>
                     )}
+                    {/* Mobile: mount the explainer offscreen so the header Help
+                        button (which flips the shared explainer store) can open
+                        its modal. The modal portals to <body>, so a hidden host
+                        is fine and the closed-state sidebar stays out of the way. */}
+                    {isMobile && (
+                      <div style={{ display: 'none' }}>
+                        <GameExplainer
+                          gameId={GAME_META.id}
+                          demoSpec={primeSuspectDemoSpec}
+                          t={(key: string) => getTranslation(key, language)}
+                        />
+                      </div>
+                    )}
                     <ScrollHint />
                   </div>
                 </div>
               </SceneBody>
 
-              <SceneActions>
-                {isHost ? (
+              {/* Host-only action bar. The non-host "waiting for host" message
+                  lives once in the right settings pane above — it was previously
+                  duplicated here, showing twice on mobile. */}
+              {isHost && (
+                <SceneActions>
                   <div className="lobby-start-section">
                     <button
                       onClick={handleStartGame}
@@ -272,10 +288,8 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                       </p>
                     )}
                   </div>
-                ) : (
-                  <p className="lobby-waiting-host">{t('game.waitingForHost')}</p>
-                )}
-              </SceneActions>
+                </SceneActions>
+              )}
             </Scene>
           </div>
         </GameShell>

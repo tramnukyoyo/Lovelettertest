@@ -726,22 +726,45 @@
   .home-header-title { font-size: 1rem; }
   .home-header-branding { font-size: 0.6rem; }
 
+  /* One-screen home: vertically center a compacted stack so the whole page
+     fits the viewport without scrolling. `safe` keeps the top reachable if a
+     very short device still overflows (falls back to top-aligned + scroll). */
   .home-page {
+    justify-content: safe center;
+    gap: 0;
     padding: var(--spacing-md);
-    padding-top: calc(var(--header-height-mobile) + var(--spacing-md));
+    padding-top: calc(var(--header-height-mobile) + var(--spacing-sm));
+    padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom));
   }
 
   .home-hero {
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    gap: 2px;
+    margin-bottom: var(--spacing-sm);
   }
 
+  .home-mascot { width: clamp(64px, 20vw, 104px); }
   .home-mascot-emoji { font-size: 3rem; }
 
+  /* The "by GameBuddies.io" line is already in the header — drop the duplicate
+     under the tagline to reclaim vertical space. */
+  .home-gb-branding { display: none; }
+
+  /* "How it works" is the tallest block once it stacks vertically; the adaptive
+     card already explains create/join, so hide it on phones to keep the page to
+     a single screen. */
+  .home-steps { display: none; }
+
+  .home-mp-badge {
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+  }
+
   .home-cards { flex-direction: column; align-items: center; }
-  .home-card { max-width: 100%; padding: var(--spacing-lg); }
+  .home-card { max-width: 100%; padding: var(--spacing-md) var(--spacing-lg); }
 
   .home-tip-banner {
+    margin-top: var(--spacing-sm);
     font-size: 0.8rem;
     padding: var(--spacing-xs) var(--spacing-md);
   }
@@ -750,22 +773,6 @@
     margin-top: calc(var(--header-height-mobile) + var(--spacing-sm));
     font-size: 0.75rem;
     padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .home-mp-badge {
-    font-size: 0.8rem;
-    padding: var(--spacing-xs) var(--spacing-md);
-  }
-
-  .home-steps {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .home-step-arrow {
-    transform: rotate(90deg);
-    font-size: 0.8rem;
   }
 
   .mobile-hidden { display: none !important; }
@@ -807,6 +814,81 @@
   }
 
   .home-card .card-description { display: none; }
+}
+
+/* Phone LANDSCAPE (short height): two-column layout — hero/badge/steps on the
+   LEFT, the create/join card on the RIGHT — so everything fits the ~375px
+   height (iPhone SE) without scrolling. Mirrors CanvasChaos's home landscape
+   grid. Height-gated + placed AFTER the (max-width:926px) landscape block, so
+   it wins for phone landscape while taller tablet-landscape keeps the row
+   layout above. CSS-grid places the flat page children into columns — no JSX
+   change needed. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .home-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "hero  card"
+      "badge card"
+      "steps card";
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    column-gap: var(--spacing-lg);
+    row-gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    padding-top: calc(var(--header-height-mobile) + var(--spacing-xs));
+    overflow: hidden;
+  }
+
+  .home-hero {
+    grid-area: hero;
+    flex-direction: row;
+    width: auto;
+    margin: 0;
+    gap: var(--spacing-sm);
+  }
+  .home-mascot { width: clamp(40px, 9vh, 60px); }
+  .home-title { font-size: 1.5rem; }
+
+  .home-mp-badge { grid-area: badge; margin: 0; }
+
+  /* Re-show the steps (hidden in portrait) — landscape has room in the left
+     column, and a compact horizontal row balances the two columns. */
+  .home-steps {
+    grid-area: steps;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+  }
+  .home-steps .home-step-arrow { transform: none; font-size: 0.8rem; }
+
+  .home-cards-wrapper {
+    grid-area: card;
+    align-self: stretch;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .home-cards { flex-direction: column; width: 100%; }
+  .home-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 420px;
+    padding: var(--spacing-md);
+  }
+  .home-card .card-description { display: none; }
+
+  /* Conditional banners: if they appear, span both columns so the two-column
+     grid doesn't break. */
+  .home-gb-banner,
+  .home-error { grid-column: 1 / -1; }
+
+  .home-tip-banner { display: none; }
 }
 
 @media (max-width: 374px) {

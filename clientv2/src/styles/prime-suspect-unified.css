@@ -16363,9 +16363,13 @@ button svg.lucide,
     display: none !important;
   }
 
-  /* === COMPACT LAYOUT === */
+  /* === COMPACT LAYOUT ===
+     min-height:100dvh REMOVED — it was written for the OLD tab-based home
+     layout (mobile-tab-switcher / split-card / home-shell). The new
+     Bluffalo-base HomePage still renders .home-hero, so that rule made the hero
+     eat the entire viewport and pushed the create/join card far below the fold.
+     Shared pages/home.css drives the intrinsic-height, one-screen hero now. */
   .home-hero {
-    min-height: 100dvh;
     padding-top: 0;
   }
 
