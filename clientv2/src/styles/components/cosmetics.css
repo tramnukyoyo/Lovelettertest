@@ -1,0 +1,578 @@
+/* ============================================================================
+ * Cosmetic GP-sink styles: username flair, avatar frames, profile banners.
+ * Class names match shared/constants/cosmetics.ts.
+ * ==========================================================================*/
+
+/* ============ FLAIR — applied to display-name <span> ============ */
+
+/* Tier 1: solid colors. Use !important sparingly to override deeply-nested
+ * .player-name etc. styles — flair is a user-paid override, so it should win. */
+.flair-red    { color: #ff4d6d !important; }
+.flair-blue   { color: #4d8fff !important; }
+.flair-green  { color: #2ecc71 !important; }
+.flair-gold   { color: #ffd166 !important; }
+
+/* Tier 2: animated effects. */
+.flair-shimmer {
+  background: linear-gradient(90deg, #b8b8b8 0%, #ffffff 50%, #b8b8b8 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-shimmer-shift 2.5s linear infinite;
+}
+@keyframes flair-shimmer-shift {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: -200% 0%; }
+}
+
+.flair-pulse {
+  color: #00d9ff !important;
+  animation: flair-pulse-glow 1.6s ease-in-out infinite;
+}
+@keyframes flair-pulse-glow {
+  0%, 100% { text-shadow: 0 0 4px #00d9ff66; }
+  50%      { text-shadow: 0 0 12px #00d9ffcc, 0 0 20px #00d9ff66; }
+}
+
+.flair-neon {
+  color: #00ffff !important;
+  text-shadow:
+    0 0 4px #00ffff,
+    0 0 8px #00ffffaa,
+    0 0 16px #00ffff66;
+}
+
+/* Tier 3: premium gradients. */
+.flair-rainbow {
+  background: linear-gradient(90deg, #ff0080, #ff8c00, #ffd700, #00ff7f, #00bfff, #8a2be2, #ff0080);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-rainbow-shift 4s linear infinite;
+}
+@keyframes flair-rainbow-shift {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: -300% 0%; }
+}
+
+.flair-fire {
+  background: linear-gradient(180deg, #ffe066 0%, #ff6b35 50%, #c9184a 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-fire-flicker 1.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #ff6b35aa);
+}
+@keyframes flair-fire-flicker {
+  0%, 100% { filter: drop-shadow(0 0 4px #ff6b35aa); }
+  50%      { filter: drop-shadow(0 0 8px #ffe066cc); }
+}
+
+.flair-electric {
+  color: #66e0ff !important;
+  text-shadow:
+    0 0 6px #66e0ff,
+    0 0 12px #1f8fff,
+    0 0 18px #1f8fff77;
+  animation: flair-electric-flicker 1.1s steps(2, end) infinite;
+}
+@keyframes flair-electric-flicker {
+  0%, 100% { text-shadow: 0 0 6px #66e0ff, 0 0 12px #1f8fff, 0 0 18px #1f8fff77; }
+  50%      { text-shadow: 0 0 4px #66e0ff, 0 0 8px #1f8fff,  0 0 12px #1f8fff55; }
+}
+
+.flair-frost {
+  background: linear-gradient(90deg, #a8d8ff 0%, #e8f7ff 45%, #7fc8f8 55%, #a8d8ff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-frost-shift 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #a8d8ff66);
+}
+@keyframes flair-frost-shift {
+  0%, 100% { background-position: 0% 0%; }
+  50%      { background-position: -100% 0%; }
+}
+
+.flair-toxic {
+  color: #7CFC00 !important;
+  animation: flair-toxic-pulse 1.8s ease-in-out infinite;
+}
+@keyframes flair-toxic-pulse {
+  0%, 100% { text-shadow: 0 0 4px #7CFC0066; }
+  50%      { text-shadow: 0 0 12px #7CFC00cc, 0 0 20px #39ff1466; }
+}
+
+.flair-galaxy {
+  background: linear-gradient(90deg, #8a2be2, #4d8fff, #00d9ff, #b388ff, #8a2be2);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-galaxy-drift 5s linear infinite;
+  filter: drop-shadow(0 0 4px #8a2be266);
+}
+@keyframes flair-galaxy-drift {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: -300% 0%; }
+}
+
+.flair-royal {
+  background: linear-gradient(110deg, #ffd700 0%, #f3c14b 35%, #9d4edd 65%, #ffd700 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-royal-sheen 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #ffd70055);
+}
+@keyframes flair-royal-sheen {
+  0%, 100% { background-position: 0% 0%; }
+  50%      { background-position: -150% 0%; }
+}
+
+/* Premium-exclusive — radiant gold aura. */
+.flair-premium-aura {
+  background: linear-gradient(100deg, #fff4c2 0%, #ffd700 30%, #ffb347 55%, #ffd700 80%, #fff4c2 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-premium-aura-glow 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #ffd70088);
+}
+@keyframes flair-premium-aura-glow {
+  0%, 100% { background-position: 0% 0%;   filter: drop-shadow(0 0 5px #ffd70077); }
+  50%      { background-position: -150% 0%; filter: drop-shadow(0 0 9px #ffe680cc); }
+}
+
+/* Premium-exclusive — liquid chrome. */
+.flair-chrome {
+  background: linear-gradient(100deg, #e8eef5 0%, #b8c2cc 20%, #ffffff 40%, #9aa7b4 60%, #dfe7ee 80%, #b8c2cc 100%);
+  background-size: 280% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-chrome-flow 4s linear infinite;
+  filter: drop-shadow(0 1px 1px #00000066);
+}
+@keyframes flair-chrome-flow {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: -280% 0%; }
+}
+
+/* Premium-exclusive — holographic foil. */
+.flair-holographic {
+  background: linear-gradient(100deg, #ff6ec7, #ffd86e, #6effa6, #6ec7ff, #b388ff, #ff6ec7);
+  background-size: 350% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-holographic-shift 5s linear infinite;
+  filter: drop-shadow(0 0 5px #ffffff44);
+}
+@keyframes flair-holographic-shift {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: -350% 0%; }
+}
+
+/* Premium-exclusive — molten gold. */
+.flair-molten {
+  background: linear-gradient(100deg, #ffe680 0%, #ffb347 35%, #ff5e3a 60%, #ffb347 80%, #ffe680 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: flair-molten-flow 3.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #ff5e3a66);
+}
+@keyframes flair-molten-flow {
+  0%, 100% { background-position: 0% 0%;   filter: drop-shadow(0 0 5px #ff5e3a55); }
+  50%      { background-position: -160% 0%; filter: drop-shadow(0 0 10px #ffb347aa); }
+}
+
+/* ============ FRAMES — applied to AvatarFrame wrapper ============ */
+
+.avatar-frame-wrap {
+  position: relative;
+  display: inline-flex;
+  /* Zoomies avatars are SQUARE (unlike the platform's round ones) - the ring
+   * follows the element's border-radius, so keep it square here. */
+  border-radius: 0;
+  /* No frame = no visual change. */
+}
+
+/* NOTE: the platform sizes .avatar-frame-wrap explicitly and stretches the
+ * child to 100%. In Zoomies the wrapper shrink-wraps the avatar instead, so
+ * the child keeps its own sizing (e.g. .player-avatar 40px). */
+
+/* Common rule for any equipped frame: a ring sits on top via box-shadow
+ * (cheaper to render than ::before pseudo-elements at scale). */
+[class*=" frame-"],
+[class^="frame-"] {
+  /* --frame-ring is set inline based on avatar size. Square in Zoomies. */
+  border-radius: 0;
+}
+
+/* Tier 1: metals — solid borders. */
+.frame-bronze { box-shadow: 0 0 0 var(--frame-ring, 2px) #cd7f32, 0 0 6px #cd7f3266; }
+.frame-silver { box-shadow: 0 0 0 var(--frame-ring, 2px) #c0c0c0, 0 0 6px #c0c0c066; }
+.frame-gold   { box-shadow: 0 0 0 var(--frame-ring, 2px) #ffd700, 0 0 8px #ffd70077; }
+
+/* Tier 2: gems — color + outer glow. */
+.frame-sapphire { box-shadow: 0 0 0 var(--frame-ring, 2px) #1e88e5, 0 0 12px #1e88e588; }
+.frame-ruby     { box-shadow: 0 0 0 var(--frame-ring, 2px) #e53935, 0 0 12px #e5393588; }
+.frame-emerald  { box-shadow: 0 0 0 var(--frame-ring, 2px) #2ecc71, 0 0 12px #2ecc7188; }
+
+/* Tier 3: animated elemental. */
+.frame-flame {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #ff6b35,
+    0 0 16px #ff6b35bb,
+    0 0 24px #ffe06699;
+  animation: frame-flame-flicker 1.2s ease-in-out infinite;
+}
+@keyframes frame-flame-flicker {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #ff6b35, 0 0 16px #ff6b35bb, 0 0 24px #ffe06699; }
+  50%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #ff8c5a, 0 0 24px #ffaa55cc, 0 0 32px #ffe066bb; }
+}
+
+.frame-ice {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #aee0ff,
+    0 0 14px #aee0ffaa,
+    0 0 22px #66c0ff77;
+  animation: frame-ice-shimmer 3s ease-in-out infinite;
+}
+@keyframes frame-ice-shimmer {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #aee0ff, 0 0 14px #aee0ffaa, 0 0 22px #66c0ff77; }
+  50%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #d8f0ff, 0 0 18px #c0e8ffcc, 0 0 28px #88d0ff99; }
+}
+
+.frame-lightning {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #ffe066,
+    0 0 16px #ffe066bb,
+    0 0 22px #66e0ff66;
+  animation: frame-lightning-flicker 0.6s steps(2, end) infinite;
+}
+@keyframes frame-lightning-flicker {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #ffe066, 0 0 16px #ffe066bb, 0 0 22px #66e0ff66; }
+  50%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #fff5b8, 0 0 22px #fff5b8dd, 0 0 30px #66e0ff99; }
+}
+
+/* Tier 2 additions (2026-06-10). */
+.frame-rosegold { box-shadow: 0 0 0 var(--frame-ring, 2px) #e8a89b, 0 0 12px #e8a89b88; }
+.frame-obsidian { box-shadow: 0 0 0 var(--frame-ring, 2px) #1c1c28, 0 0 12px #9d4edd66; }
+
+/* Tier 3 addition (2026-06-10): slow nebula color drift. */
+.frame-galaxy {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #8a2be2,
+    0 0 14px #8a2be2aa,
+    0 0 22px #00d9ff55;
+  animation: frame-galaxy-drift 6s ease-in-out infinite;
+}
+@keyframes frame-galaxy-drift {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #8a2be2, 0 0 14px #8a2be2aa, 0 0 22px #00d9ff55; }
+  33%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #4d8fff, 0 0 16px #4d8fffaa, 0 0 24px #b388ff66; }
+  66%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #00d9ff, 0 0 14px #00d9ffaa, 0 0 22px #8a2be255; }
+}
+
+/* Premium-exclusive — shifting prismatic ring. */
+.frame-prismatic {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #ffd700,
+    0 0 16px #ffd700aa,
+    0 0 26px #ff6ec766;
+  animation: frame-prismatic-shift 4.5s linear infinite;
+}
+@keyframes frame-prismatic-shift {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #ffd700, 0 0 16px #ffd700aa, 0 0 26px #ff6ec766; }
+  25%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #ff6ec7, 0 0 16px #ff6ec7aa, 0 0 26px #00d9ff66; }
+  50%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #00d9ff, 0 0 16px #00d9ffaa, 0 0 26px #7cff6b66; }
+  75%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #b388ff, 0 0 16px #b388ffaa, 0 0 26px #ffd70066; }
+}
+
+/* Premium-exclusive — brilliant diamond sparkle. */
+.frame-diamond {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #ffffff,
+    0 0 12px #cfefff,
+    0 0 22px #9fd8ff88;
+  animation: frame-diamond-sparkle 2.6s ease-in-out infinite;
+}
+@keyframes frame-diamond-sparkle {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #ffffff, 0 0 10px #cfefff, 0 0 18px #9fd8ff66; }
+  50%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #ffffff, 0 0 18px #ffffff, 0 0 30px #bfeaffaa; }
+}
+
+/* Premium-exclusive — phoenix flame ring. */
+.frame-phoenix {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #ffc04d,
+    0 0 16px #ff8a1eaa,
+    0 0 26px #ff3d0066;
+  animation: frame-phoenix-flare 2.8s ease-in-out infinite;
+}
+@keyframes frame-phoenix-flare {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #ffc04d, 0 0 14px #ff8a1eaa, 0 0 22px #ff3d0055; }
+  50%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #ffe08a, 0 0 20px #ffae3ecc, 0 0 34px #ff5e1a88; }
+}
+
+/* Premium-exclusive — drifting aurora halo. */
+.frame-aurora {
+  box-shadow:
+    0 0 0 var(--frame-ring, 2px) #7cffc4,
+    0 0 16px #56e0a0aa,
+    0 0 26px #6ec7ff66;
+  animation: frame-aurora-drift 6s ease-in-out infinite;
+}
+@keyframes frame-aurora-drift {
+  0%, 100% { box-shadow: 0 0 0 var(--frame-ring, 2px) #7cffc4, 0 0 16px #56e0a0aa, 0 0 26px #6ec7ff55; }
+  50%      { box-shadow: 0 0 0 var(--frame-ring, 2px) #b388ff, 0 0 18px #8a9bffaa, 0 0 30px #7cffc466; }
+}
+
+/* ============ BANNERS — applied to ProfileBanner div ============ */
+
+.profile-banner {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  border: var(--border-chunky, 2px) solid var(--ink-deep, #05020e);
+  box-shadow: var(--shadow-hard-sm, 3px 3px 0 #05020e);
+}
+
+.banner-default { background: linear-gradient(135deg, #1a1d2e 0%, #2d3148 100%); }
+
+/* Tier 1: solid gradients. */
+.banner-dawn   { background: linear-gradient(135deg, #ff9a8b 0%, #ff6a88 50%, #ff99ac 100%); }
+.banner-ocean  { background: linear-gradient(135deg, #013a63 0%, #2a6f97 50%, #61a5c2 100%); }
+.banner-forest { background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #74c69d 100%); }
+
+/* Tier 2: patterned. */
+.banner-pixel {
+  background-color: #2d3148;
+  background-image:
+    linear-gradient(#3d4060 1px, transparent 1px),
+    linear-gradient(90deg, #3d4060 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.banner-neoncity {
+  background:
+    linear-gradient(180deg, #0d0f1a 0%, #1a1240 60%, #4a1a5e 100%);
+  position: relative;
+}
+.banner-neoncity::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 24%, #ff00aa44 25%, transparent 26%, transparent 49%, #00d9ff44 50%, transparent 51%, transparent 74%, #ff00aa44 75%, transparent 76%);
+  background-size: 80px 100%;
+  pointer-events: none;
+}
+
+.banner-retro {
+  background:
+    linear-gradient(180deg, #2d1b69 0%, #ff006e 100%);
+  position: relative;
+}
+.banner-retro::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 0 0;
+  background-image:
+    linear-gradient(0deg, #ffd60a 1px, transparent 1px),
+    linear-gradient(90deg, #ffd60a 1px, transparent 1px);
+  background-size: 20px 12px;
+  opacity: 0.6;
+  transform: perspective(40px) rotateX(40deg);
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+/* Tier 3: animated. */
+.banner-aurora {
+  background: linear-gradient(135deg, #0d0f1a 0%, #1a1240 100%);
+  position: relative;
+  overflow: hidden;
+}
+.banner-aurora::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(circle at 30% 50%, #00ff9477 0%, transparent 35%),
+    radial-gradient(circle at 70% 50%, #ff00aa55 0%, transparent 35%),
+    radial-gradient(circle at 50% 50%, #00d9ff66 0%, transparent 35%);
+  filter: blur(20px);
+  animation: banner-aurora-drift 12s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes banner-aurora-drift {
+  0%, 100% { transform: translateX(-10%) translateY(0); }
+  50%      { transform: translateX(10%)  translateY(-5%); }
+}
+
+.banner-starfield {
+  background: radial-gradient(ellipse at center, #1a1d3a 0%, #0d0f1a 100%);
+  position: relative;
+  overflow: hidden;
+}
+.banner-starfield::before,
+.banner-starfield::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 30% 70%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 50% 30%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 70% 60%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 80% 10%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 90% 80%, #fff 50%, transparent 51%);
+  background-size: 200px 200px;
+  pointer-events: none;
+  animation: banner-starfield-twinkle 6s ease-in-out infinite alternate;
+}
+.banner-starfield::after {
+  background-size: 350px 350px;
+  opacity: 0.6;
+  animation-duration: 10s;
+}
+@keyframes banner-starfield-twinkle {
+  from { opacity: 0.55; }
+  to   { opacity: 1; }
+}
+
+/* Tier 1 addition (2026-06-10). */
+.banner-midnight { background: linear-gradient(180deg, #16213e 0%, #0d1126 55%, #05060f 100%); }
+
+/* Tier 2 addition (2026-06-10): falling code columns. */
+.banner-matrix {
+  background: linear-gradient(180deg, #04140a 0%, #020a06 100%);
+  position: relative;
+  overflow: hidden;
+}
+.banner-matrix::before {
+  content: "";
+  position: absolute;
+  inset: -100% 0 0 0;
+  background-image:
+    repeating-linear-gradient(180deg, transparent 0 6px, #2eff7144 6px 10px, transparent 10px 26px),
+    repeating-linear-gradient(180deg, transparent 0 14px, #2eff7122 14px 17px, transparent 17px 38px);
+  background-size: 14px 64px, 22px 90px;
+  animation: banner-matrix-rain 7s linear infinite;
+  pointer-events: none;
+}
+@keyframes banner-matrix-rain {
+  from { transform: translateY(0); }
+  to   { transform: translateY(50%); }
+}
+
+/* Tier 3 addition (2026-06-10): smoldering embers, same drift technique as aurora. */
+.banner-lava {
+  background: linear-gradient(180deg, #1a0a06 0%, #2b0d05 100%);
+  position: relative;
+  overflow: hidden;
+}
+.banner-lava::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(circle at 25% 70%, #ff6b3588 0%, transparent 35%),
+    radial-gradient(circle at 65% 40%, #c9184a66 0%, transparent 35%),
+    radial-gradient(circle at 80% 75%, #ffe06655 0%, transparent 30%);
+  filter: blur(18px);
+  animation: banner-lava-drift 10s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes banner-lava-drift {
+  0%, 100% { transform: translateX(-8%) translateY(0); }
+  50%      { transform: translateX(8%)  translateY(-6%); }
+}
+
+/* ============ PREMIUM-EXCLUSIVE BANNERS ============ */
+
+/* Gold Leaf — shimmering gold sweep. */
+.banner-premium-gold {
+  background: linear-gradient(115deg, #3a2a05 0%, #8a6a12 30%, #ffe680 50%, #8a6a12 70%, #3a2a05 100%);
+  background-size: 250% 100%;
+  animation: banner-premium-gold-sweep 6s linear infinite;
+}
+@keyframes banner-premium-gold-sweep {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: -250% 0%; }
+}
+
+/* Royal Nebula — violet nebula with drifting gold dust. */
+.banner-premium-nebula {
+  background:
+    radial-gradient(circle at 30% 40%, #b388ff66 0%, transparent 45%),
+    radial-gradient(circle at 75% 65%, #ffd70044 0%, transparent 40%),
+    linear-gradient(160deg, #1a0d3a 0%, #2a1158 55%, #0d0720 100%);
+  position: relative;
+  overflow: hidden;
+}
+.banner-premium-nebula::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background:
+    radial-gradient(1px 1px at 20% 30%, #ffe680 50%, transparent 51%),
+    radial-gradient(1px 1px at 55% 60%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 80% 25%, #ffd700 50%, transparent 51%),
+    radial-gradient(1px 1px at 40% 80%, #fff 50%, transparent 51%);
+  background-size: 180px 180px;
+  animation: banner-premium-nebula-drift 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes banner-premium-nebula-drift {
+  from { transform: translateX(-4%) translateY(0); opacity: 0.7; }
+  to   { transform: translateX(4%)  translateY(-4%); opacity: 1; }
+}
+
+/* Gold Circuit — animated golden circuitry. */
+.banner-premium-circuit {
+  background-color: #15100a;
+  background-image:
+    linear-gradient(#ffd70022 1px, transparent 1px),
+    linear-gradient(90deg, #ffd70022 1px, transparent 1px),
+    radial-gradient(circle at 20% 30%, #ffd70033 0%, transparent 25%),
+    radial-gradient(circle at 80% 70%, #ffae3e33 0%, transparent 25%);
+  background-size: 22px 22px, 22px 22px, 100% 100%, 100% 100%;
+  animation: banner-premium-circuit-pan 8s linear infinite;
+}
+@keyframes banner-premium-circuit-pan {
+  0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 44px 0, 0 44px, 0 0, 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-premium-gold,
+  .banner-premium-circuit,
+  .banner-premium-nebula::after,
+  .flair-chrome,
+  .flair-holographic,
+  .flair-molten,
+  .frame-diamond,
+  .frame-phoenix,
+  .frame-aurora { animation: none; }
+}

@@ -16,3 +16,5 @@ export { default as SimpleLanguageSelector } from './SimpleLanguageSelector';
 export { default as SidebarTabs } from './SidebarTabs';
 export type { SidebarTab } from './SidebarTabs';
 export { default as SpectatorBanner } from './SpectatorBanner';
+export { default as PlayerCard } from './PlayerCard';
+export { ProfileAvatar, FlairName } from './ProfileIdentity';

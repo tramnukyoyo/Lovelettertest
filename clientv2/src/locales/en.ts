@@ -450,6 +450,24 @@ export const en = {
     learnTheRules: 'Learn the rules',
     soundAndPreferences: 'Sound & preferences',
   },
+
+  // Platform profile peek card (gb:player:profile)
+  playerCard: {
+    level: 'Level {level}',
+    gabuPoints: 'GabuPoints',
+    dailyStreak: 'Daily streak',
+    winsInGame: 'Wins in this game',
+    achievements: 'Achievements ({count})',
+  },
+
+  // Lobby invite panel (GameBuddies friends + QR)
+  invitePanel: {
+    friendsTitle: 'Invite friends',
+    invite: 'Invite',
+    sent: 'Sent!',
+    failed: 'Failed',
+    qr: 'QR code',
+  },
 };
 
 export type Translations = typeof en;

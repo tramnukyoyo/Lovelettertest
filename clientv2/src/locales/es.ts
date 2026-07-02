@@ -454,4 +454,22 @@ export const es: Translations = {
     learnTheRules: 'Aprende las reglas',
     soundAndPreferences: 'Sonido y preferencias',
   },
+
+  // Platform profile peek card (gb:player:profile)
+  playerCard: {
+    level: 'Nivel {level}',
+    gabuPoints: 'GabuPoints',
+    dailyStreak: 'Racha diaria',
+    winsInGame: 'Victorias en este juego',
+    achievements: 'Logros ({count})',
+  },
+
+  // Lobby invite panel (GameBuddies friends + QR)
+  invitePanel: {
+    friendsTitle: 'Invitar amigos',
+    invite: 'Invitar',
+    sent: '¡Enviado!',
+    failed: 'Error',
+    qr: 'Código QR',
+  },
 };

@@ -4,6 +4,8 @@
  */
 
 import { isDiscordActivity } from './discordActivity';
+import { setCurrentLanguage, type Language } from '../utils/translations';
+import { STORAGE_KEYS } from '../config/storageKeys';
 
 export type GameBuddiesSession = {
   roomCode: string;
@@ -20,7 +22,33 @@ export type GameBuddiesSession = {
   pendingResolution?: boolean;
   premiumTier?: 'free' | 'premium' | 'pro';
   avatarUrl?: string;
+  /** Platform-chosen UI language (en|de|es|pt-BR|pt-PT) */
+  locale?: string;
 };
+
+const SUPPORTED_LANGUAGES: Language[] = ['en', 'de', 'es', 'pt-BR', 'pt-PT'];
+
+// Manual in-game language choice can live under any of the three keys the two
+// translation systems write (see utils/translations.ts) — if any is set, it wins.
+const MANUAL_LANGUAGE_KEYS = [
+  'gamebuddies-language',
+  'heartsgambit-language',
+  STORAGE_KEYS.LOCAL.LANGUAGE,
+];
+
+/**
+ * Initialize the game's i18n from the platform locale. A language the player
+ * picked manually in-game (stored in localStorage) always wins; otherwise the
+ * lobby language beats browser detection. Unsupported locales are ignored.
+ */
+export function applySessionLocale(locale?: string): void {
+  if (!locale) return;
+  if (MANUAL_LANGUAGE_KEYS.some((key) => localStorage.getItem(key))) return; // manual in-game choice wins
+  if ((SUPPORTED_LANGUAGES as string[]).includes(locale)) {
+    setCurrentLanguage(locale as Language);
+    console.log(`[GameBuddies] i18n initialized from platform locale: ${locale}`);
+  }
+}
 
 const SESSION_KEY = 'gamebuddies:session';
 
@@ -65,6 +93,9 @@ export function parseGameBuddiesSession(): GameBuddiesSession | null {
     }
 
 
+    const urlLang = params.get('lang') || undefined;
+    applySessionLocale(urlLang);
+
     const pendingSession = {
       pendingResolution: true,
       sessionToken,
@@ -76,6 +107,7 @@ export function parseGameBuddiesSession(): GameBuddiesSession | null {
       isStreamerMode: params.get('streamerMode') === 'true',
       roomCode: '',
       returnUrl: 'https://gamebuddies.io',
+      locale: urlLang,
     };
 
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(pendingSession));
@@ -100,6 +132,9 @@ export function parseGameBuddiesSession(): GameBuddiesSession | null {
     return null;
   }
 
+  const legacyLang = params.get('lang') || undefined;
+  applySessionLocale(legacyLang);
+
   return {
     roomCode: roomCode!,
     playerName: playerName || undefined,
@@ -112,6 +147,7 @@ export function parseGameBuddiesSession(): GameBuddiesSession | null {
     isStreamerMode,
     hideRoomCode: isStreamerMode,
     avatarUrl,
+    locale: legacyLang,
   };
 }
 
@@ -179,6 +215,7 @@ export async function resolveSessionToken(sessionToken: string): Promise<{
   isHost?: boolean;
   premiumTier?: string;
   avatarUrl?: string;
+  locale?: string;
 } | null> {
   // Inside a Discord Activity the origin is *.discordsays.com and absolute
   // gamebuddies.io fetches are CSP-blocked. Use same-origin candidates that route
@@ -231,6 +268,7 @@ export async function resolveSessionToken(sessionToken: string): Promise<{
       isHost: session.isHost,
       premiumTier: session.premiumTier,
       avatarUrl: session.avatarUrl,
+      locale: session.locale,
     };
   }
 
@@ -278,7 +316,10 @@ export async function resolvePendingSession(): Promise<GameBuddiesSession | null
       hideRoomCode: resolved.streamerMode ?? pending.isStreamerMode ?? false,
       premiumTier: (resolved.premiumTier as 'free' | 'premium' | 'pro') || 'free',
       avatarUrl: resolved.avatarUrl,
+      locale: resolved.locale || pending.locale,
     };
+
+    applySessionLocale(finalSession.locale);
 
     storeSession(finalSession);
     return finalSession;

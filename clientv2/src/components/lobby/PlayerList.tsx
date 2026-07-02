@@ -7,6 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Crown, Eye, Wifi, WifiOff, UserMinus, X } from 'lucide-react';
+import { PlayerCard, ProfileAvatar, FlairName } from '../core';
 import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
 
@@ -52,6 +53,8 @@ const PlayerList: React.FC<PlayerListProps> = ({
   const gameActive = players.some(p => 'score' in p && typeof (p as any).score === 'number' && (((p as any).hasSubmittedLie || (p as any).hasVoted || (p as any).score > 0)));
   // State for inline kick confirmation
   const [pendingKickId, setPendingKickId] = useState<string | null>(null);
+  // Player whose platform profile card is open (tap on avatar)
+  const [cardPlayer, setCardPlayer] = useState<Player | null>(null);
 
   // Track previous player IDs for join animations
   const prevPlayerIdsRef = useRef<Set<string>>(new Set());
@@ -203,15 +206,9 @@ const PlayerList: React.FC<PlayerListProps> = ({
               className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''}`}
               onClick={() => isSpectator && !isMe && onPlayerClick?.(player.socketId)}
             >
-              {/* Avatar */}
+              {/* Avatar (tap opens the platform profile card, cosmetics-aware) */}
               <div className="player-avatar-container">
-                {player.avatarUrl ? (
-                  <img src={player.avatarUrl} alt="" className="player-avatar" />
-                ) : (
-                  <div className="player-avatar placeholder">
-                    {player.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <ProfileAvatar player={player} className="player-avatar" onClick={() => setCardPlayer(player)} />
                 {showStatus && (
                   <span className={`player-status ${isConnected ? 'online' : 'offline'}`}>
                     {isConnected ? (
@@ -225,10 +222,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
 
               {/* Player Info */}
               <div className="player-info">
-                <span className="player-name">
+                <FlairName player={player} className="player-name">
                   {player.name}
                   {isMe && <span className="player-me-tag">({t('lobby.you')})</span>}
-                </span>
+                </FlairName>
                 {/* Show score during game (always, including 0) */}
                 {gameActive && 'score' in player && typeof (player as any).score === 'number' && (
                   <span className="player-score-badge">{(player as any).score} {t('bluffalo.pts') || 'pts'}</span>
@@ -299,6 +296,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
           );
         })}
       </ul>
+
+      {cardPlayer && (
+        <PlayerCard player={cardPlayer} onClose={() => setCardPlayer(null)} />
+      )}
     </div>
   );
 };

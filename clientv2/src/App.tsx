@@ -10,7 +10,17 @@ import SiteNotificationToast from './components/ui/SiteNotificationToast';
 import type { SiteNotification } from './components/ui/SiteNotificationToast';
 import AdminMessageToast from './components/ui/AdminMessageToast';
 import type { AdminMessage } from './components/ui/AdminMessageToast';
-import type { Lobby } from './types';
+import type { Lobby, PlayerPlatformProfile } from './types';
+import { setPlayerProfile } from './services/playerProfiles';
+import {
+  setPostgameRewards,
+  setRematchState,
+  setRematchGo,
+  setCrewStreak,
+  addUnlock,
+  type PostgameRewardEntry,
+  type PostgameUnlock,
+} from './services/postgame';
 import { getTranslation, getCurrentLanguage } from './utils/gameTranslations';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { WebRTCProvider, useWebRTC } from './contexts/WebRTCContext';
@@ -249,6 +259,35 @@ function App() {
       });
     };
 
+    // Platform profile hydration: game server sends each player's aggregate
+    // GameBuddies profile (level, GP, streak, cosmetics, achievements) once
+    // shortly after they join. Kept in a store outside lobby state so full
+    // room-state broadcasts can't wipe it.
+    const onPlayerProfile = (data: { playerId: string; profile: PlayerPlatformProfile }) => {
+      if (data?.playerId && data?.profile) {
+        setPlayerProfile(data.playerId, data.profile);
+      }
+    };
+
+    // Post-game screen: shared rewards summary + rematch vote + crew streak.
+    const onPostgameSummary = (data: { rewards?: PostgameRewardEntry[] }) => {
+      if (Array.isArray(data?.rewards)) setPostgameRewards(data.rewards);
+    };
+    const onRematchUpdate = (data: { votes?: number; needed?: number; voters?: string[] }) => {
+      if (typeof data?.votes === 'number' && typeof data?.needed === 'number') {
+        setRematchState({ votes: data.votes, needed: data.needed, voters: data.voters || [] });
+      }
+    };
+    const onRematchGo = () => setRematchGo();
+    const onCrewStreak = (data: { gamesTonight?: number; weekStreak?: number }) => {
+      if (typeof data?.gamesTonight === 'number') {
+        setCrewStreak({ gamesTonight: data.gamesTonight, weekStreak: data.weekStreak ?? 0 });
+      }
+    };
+    const onAchievementUnlocked = (data: PostgameUnlock) => {
+      if (data?.playerId && data?.achievement?.id) addUnlock(data);
+    };
+
     socket.on('roomStateUpdated', onRoomStateUpdated);
     socket.on('gamebuddies:return-redirect', onReturnRedirect);
     socket.on('gamebuddies:lobby-redirect', onLobbyRedirect);
@@ -258,6 +297,12 @@ function App() {
     socket.on('game:resumed', onGameResumed);
     socket.on('player:reconnected', onPlayerReconnected);
     socket.on('game:log', onGameLog);
+    socket.on('gb:player:profile', onPlayerProfile);
+    socket.on('gb:postgame:summary', onPostgameSummary);
+    socket.on('gb:postgame:rematch-update', onRematchUpdate);
+    socket.on('gb:postgame:rematch-go', onRematchGo);
+    socket.on('gb:postgame:crewstreak', onCrewStreak);
+    socket.on('gb:achievement:unlocked', onAchievementUnlocked);
 
     return () => {
       socket.off('roomStateUpdated', onRoomStateUpdated);
@@ -269,6 +314,12 @@ function App() {
       socket.off('game:resumed', onGameResumed);
       socket.off('player:reconnected', onPlayerReconnected);
       socket.off('game:log', onGameLog);
+      socket.off('gb:player:profile', onPlayerProfile);
+      socket.off('gb:postgame:summary', onPostgameSummary);
+      socket.off('gb:postgame:rematch-update', onRematchUpdate);
+      socket.off('gb:postgame:rematch-go', onRematchGo);
+      socket.off('gb:postgame:crewstreak', onCrewStreak);
+      socket.off('gb:achievement:unlocked', onAchievementUnlocked);
     };
   }, []);
 

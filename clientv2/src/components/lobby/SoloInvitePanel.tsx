@@ -7,7 +7,8 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Copy, Check, Share2 } from 'lucide-react';
+import { Copy, Check, Share2, QrCode, UserPlus } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { t } from '../../utils/translations';
 import socketService from '../../services/socketService';
 
@@ -19,6 +20,80 @@ interface SoloInvitePanelProps {
   hideRoomCode?: boolean;
 }
 
+interface InviteFriend {
+  id: string;
+  username: string;
+  displayName: string | null;
+  online: boolean;
+}
+
+/**
+ * Friends section of the invite panel. Fetches the player's GameBuddies
+ * friends (with online presence) via the cross-game `gb:friends:list` ack
+ * event and lets them one-click invite via `gb:invite:send` — the friend gets
+ * a platform toast/notification with a join link. Renders nothing for guests
+ * or when the platform is unreachable (server answers with an empty list).
+ */
+const InviteFriends: React.FC = () => {
+  const [friends, setFriends] = useState<InviteFriend[]>([]);
+  const [inviteState, setInviteState] = useState<Record<string, 'sent' | 'failed'>>({});
+
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+    let cancelled = false;
+    socket.emit('gb:friends:list', {}, (resp: { friends?: InviteFriend[] }) => {
+      if (!cancelled && Array.isArray(resp?.friends)) {
+        // Online friends first, then alphabetical.
+        const sorted = [...resp.friends].sort((a, b) =>
+          Number(b.online) - Number(a.online) || a.username.localeCompare(b.username)
+        );
+        setFriends(sorted);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleInvite = useCallback((friendId: string) => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+    socket.emit('gb:invite:send', { toUserId: friendId }, (resp: { success?: boolean }) => {
+      setInviteState(prev => ({ ...prev, [friendId]: resp?.success ? 'sent' : 'failed' }));
+    });
+  }, []);
+
+  if (friends.length === 0) return null;
+
+  return (
+    <div className="invite-friends">
+      <h4 className="invite-friends-title">
+        <UserPlus className="w-4 h-4" />
+        {t('invitePanel.friendsTitle')}
+      </h4>
+      <ul className="invite-friends-list">
+        {friends.slice(0, 8).map((f) => (
+          <li key={f.id} className="invite-friends-item">
+            <span className={`invite-friend-dot ${f.online ? 'online' : 'offline'}`} />
+            <span className="invite-friend-name">{f.displayName || f.username}</span>
+            <button
+              type="button"
+              className="invite-friend-btn"
+              disabled={inviteState[f.id] === 'sent'}
+              onClick={() => handleInvite(f.id)}
+            >
+              {inviteState[f.id] === 'sent'
+                ? t('invitePanel.sent')
+                : inviteState[f.id] === 'failed'
+                  ? t('invitePanel.failed')
+                  : t('invitePanel.invite')}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
   roomCode,
   gameName,
@@ -27,6 +102,7 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
   hideRoomCode = false,
 }) => {
   const [linkCopied, setLinkCopied] = useState(false);
+  const [showQr, setShowQr] = useState(false);
   const pendingActionRef = useRef<'copy' | 'share' | null>(null);
 
   // Direct room-code URL (non-streamer). Safe to compute synchronously.
@@ -127,7 +203,24 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
             <span>{t('home.share')}</span>
           </button>
         )}
+
+        {/* QR join — direct room URL only (streamer mode hides the code) */}
+        {!hideRoomCode && (
+          <button onClick={() => setShowQr(v => !v)} className="solo-invite-btn solo-invite-btn-qr" type="button">
+            <QrCode className="w-4 h-4" />
+            <span>{t('invitePanel.qr')}</span>
+          </button>
+        )}
       </div>
+
+      {showQr && !hideRoomCode && (
+        <div className="solo-invite-qr">
+          <QRCodeSVG value={directRoomUrl} size={132} bgColor="#ffffff" fgColor="#05020e" includeMargin />
+        </div>
+      )}
+
+      {/* GameBuddies friends — one-click platform invites */}
+      <InviteFriends />
 
       {/* Players needed hint */}
       {playersNeeded > 0 && (

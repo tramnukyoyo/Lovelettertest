@@ -26,6 +26,7 @@
 @import './components/utilities.css';
 @import './components/pixel.css';
 @import './components/decor.css';
+@import './components/cosmetics.css';
 
 /* GameShell: universal viewport-fit layout (see src/shell/README.md) */
 @import './shell/shell.css';

@@ -1,0 +1,240 @@
+/* PlayerCard — 1:1 port of gamebuddies.io's ProfilePeekModal.css.
+ *
+ * The platform's design tokens are resolved to their literal values here
+ * (Zoomies' own vars have different meanings — e.g. its --bg-card is a 5%
+ * alpha tint). Values from Gamebuddies.Io/client/src/styles/theme.css:
+ *   card #1a1d2e · ink #05020e · secondary #00d9ff · primary #e94560
+ *   surface-1 #151b30 · surface-2 #1c2240 · text #e7e9f1
+ * Font: platform uses Bungee; Zoomies self-hosts Fredoka One (same chunky
+ * display class, no extra network font).
+ * Unlike the in-game player list (square avatars), the peek avatar is ROUND —
+ * exactly like the platform's .mascot-avatar-container. */
+
+.player-card-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  animation: player-card-fade-in 0.15s ease;
+}
+
+@keyframes player-card-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.player-card {
+  background: #1a1d2e;
+  color: #e7e9f1;
+  border: 3px solid #00d9ff;
+  border-radius: 20px;
+  width: min(95vw, 480px);
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  box-shadow:
+    8px 8px 0 #05020e,
+    0 0 0 6px #05020e;
+}
+
+.player-card-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: #1c2240;
+  border: 2px solid #05020e;
+  border-radius: 9px;
+  box-shadow: 3px 3px 0 #05020e;
+  color: #e7e9f1;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 1;
+  line-height: 1;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.player-card-close:hover {
+  background: #e94560;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #05020e;
+}
+
+.player-card-close:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #05020e;
+}
+
+/* Banner (reuses .profile-banner + .banner-* from cosmetics.css). The
+ * platform renders it 140px tall with a fade into the card color. */
+.player-card-banner {
+  height: 140px;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  position: relative;
+}
+
+.player-card-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(26, 29, 46, 0.4) 80%, #1a1d2e 100%);
+}
+
+/* Identity — round framed avatar overlapping the banner */
+.player-card-identity {
+  position: relative;
+  text-align: center;
+  margin-top: -52px;
+  padding: 0 16px 8px;
+}
+
+.player-card-avatar {
+  margin: 0 auto;
+  width: 96px;
+  height: 96px;
+  background: #1a1d2e;
+}
+
+/* Platform avatars are round — override the square in-game frame shape for
+ * this card only (the ring's box-shadow follows the border-radius). */
+.player-card-avatar.avatar-frame-wrap,
+.player-card-avatar[class*=" frame-"] {
+  border-radius: 50%;
+}
+
+.player-card-avatar-img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.player-card-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.player-card-username {
+  font-family: 'Fredoka One', 'Arial Black', system-ui, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-shadow: 3px 3px 0 #05020e;
+}
+
+/* Flairs paint the glyphs with a gradient via background-clip:text, which
+ * makes the fill transparent — a text-shadow then shows THROUGH the glyphs
+ * as solid black. Flairs carry their own glow (drop-shadow filters), so the
+ * ink shadow is dropped whenever one is equipped. */
+.player-card-username[class*="flair-"] {
+  text-shadow: none;
+}
+
+.player-card-meta {
+  font-size: 0.85rem;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+/* Stat grid — platform .profile-peek-stats */
+.player-card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.player-card-stat {
+  text-align: center;
+  min-width: 0;
+}
+
+.player-card-stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #00d9ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-card-stat-label {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Achievements — platform .profile-peek-achievements */
+.player-card-achievements {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.player-card-section-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.player-card-achievement-row {
+  display: flex;
+  gap: 8px;
+}
+
+.player-card-achievement {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+  border: 2px solid #05020e;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0 #05020e;
+  text-align: center;
+  background: #151b30;
+}
+
+.player-card-achievement img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  margin: 0 auto 4px;
+}
+
+.player-card-achievement-fallback {
+  font-size: 1.5rem;
+  display: block;
+}
+
+.player-card-achievement-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Initial-letter fallback when the player has no avatar image */
+.player-card-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1c2240;
+  color: #e7e9f1;
+  font-size: 2.5rem;
+  font-weight: 700;
+}

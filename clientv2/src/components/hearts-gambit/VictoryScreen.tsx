@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Lobby } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { motion } from 'framer-motion';
@@ -7,6 +7,104 @@ import { Confetti } from '../animations/Confetti';
 import { soundEffects } from '../../utils/soundEffects';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Portal } from '../../utils/portal';
+import { usePostgame, resetPostgame } from '../../services/postgame';
+
+/**
+ * Shared platform rewards strip on the results screen: per-player +XP/+GP,
+ * level-up badges, achievement unlocks, and the crew-streak banner. Data
+ * arrives via gb:postgame:summary / gb:postgame:crewstreak (see App.tsx).
+ */
+const PostGameRewards: React.FC = () => {
+  const { rewards, crewStreak, unlocks } = usePostgame();
+  if (rewards.length === 0 && !crewStreak && unlocks.length === 0) return null;
+
+  return (
+    <div className="my-3 text-sm">
+      {crewStreak && (
+        <div className="font-bold text-[var(--royal-gold-light)] mb-1.5">
+          🔥 {crewStreak.gamesTonight > 1 ? `Game ${crewStreak.gamesTonight} tonight!` : 'First game tonight!'}
+          {crewStreak.weekStreak > 1 ? ` · Crew streak: ${crewStreak.weekStreak} weeks` : ''}
+        </div>
+      )}
+      {unlocks.length > 0 && (
+        <div className="flex flex-col gap-0.5 mb-1.5">
+          {unlocks.slice(0, 4).map((u) => (
+            <div
+              key={`${u.playerId}:${u.achievement.id}`}
+              title={u.achievement.description}
+              className="font-bold text-[var(--royal-gold-light)]"
+            >
+              🏅 {u.playerName} unlocked “{u.achievement.name}”!
+            </div>
+          ))}
+        </div>
+      )}
+      {rewards.length > 0 && (
+        <div className="flex flex-col gap-0.5 max-h-28 overflow-y-auto">
+          {rewards.map((r) => (
+            <div key={r.playerId} className="flex items-center justify-center gap-2 text-[var(--parchment)]">
+              <span className="truncate max-w-[120px]">{r.playerName}</span>
+              <span className="text-[#4ea7ea] font-semibold whitespace-nowrap">+{r.totalXp} XP</span>
+              {r.gabuPoints > 0 && <span className="text-[var(--royal-gold)] font-semibold whitespace-nowrap">+{r.gabuPoints} GP</span>}
+              {r.leveledUp && r.newLevel != null && <span className="text-[#7cffb2] font-semibold whitespace-nowrap">⬆ Lv {r.newLevel}</span>}
+              {r.achievements.map((a) => (
+                <span key={a.id} title={a.name}>🏅</span>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
+ * Rematch vote controls: every player can vote (gb:postgame:rematch-vote); a
+ * majority triggers gb:postgame:rematch-go, on which the HOST fires the game's
+ * own `game:start` restart flow. The store resets when the victory screen
+ * leaves (component unmount).
+ */
+const RematchControls: React.FC<{ socket: Socket; isHost: boolean }> = ({ socket, isHost }) => {
+  const { rematch, rematchGo } = usePostgame();
+  const [voted, setVoted] = useState(false);
+  const firedRef = useRef(false);
+
+  // Host: majority reached → fire the existing restart flow exactly once.
+  useEffect(() => {
+    if (rematchGo && isHost && !firedRef.current) {
+      firedRef.current = true;
+      if (socket.connected) socket.emit('game:start', {});
+    }
+  }, [rematchGo, isHost, socket]);
+
+  // Leaving the results screen (rematch started / back to lobby): clear state.
+  useEffect(() => () => { resetPostgame(); }, []);
+
+  const handleVote = () => {
+    setVoted((v) => !v);
+    if (socket.connected) socket.emit('gb:postgame:rematch-vote');
+  };
+
+  return (
+    <div className="mt-3 flex flex-col items-center gap-1">
+      <button
+        onClick={handleVote}
+        className="ps-victory-btn--primary w-full px-6 py-3 text-sm sm:text-base min-h-[48px]"
+        type="button"
+      >
+        {voted ? 'Voted ✓' : 'Rematch!'}
+      </button>
+      {rematch && rematch.votes > 0 && (
+        <div className="text-sm font-bold text-[var(--parchment)]">
+          {rematch.votes}/{rematch.needed} want a rematch
+        </div>
+      )}
+      {!isHost && !rematch?.votes && (
+        <div className="text-xs text-[var(--parchment-dark)] opacity-70">Majority vote starts the rematch</div>
+      )}
+    </div>
+  );
+};
 
 interface VictoryScreenProps {
   lobby: Lobby;
@@ -172,6 +270,9 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             ))}
           </motion.div>
 
+          {/* Platform rewards (+XP/+GP, unlocks, crew streak) */}
+          {!isBroadcastMirror && <PostGameRewards />}
+
           {/* Buttons / Waiting */}
           <motion.div
             className="mt-4 sm:mt-6"
@@ -199,6 +300,9 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                 {t('victory.waitingForHost')}
               </div>
             )}
+
+            {/* Rematch vote (platform-wide majority vote) */}
+            {!isBroadcastMirror && <RematchControls socket={socket} isHost={isHost} />}
 
             {lobby.isGameBuddiesRoom && (
               <button

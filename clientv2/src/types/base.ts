@@ -23,6 +23,32 @@ export interface BasePlayer {
   avatarUrl?: string;
   id?: string;
   isPassPlayPlayer?: boolean;
+  /** Platform-chosen UI language, when launched from GameBuddies. */
+  locale?: string;
+  /** Aggregate platform identity — arrives async via `gb:player:profile`. */
+  profile?: PlayerPlatformProfile;
+}
+
+/**
+ * Aggregate platform identity for a player (level, GabuPoints, daily streak,
+ * equipped cosmetics, achievements, per-game stats). Sent once per player by
+ * the game server via the `gb:player:profile` socket event shortly after join.
+ */
+export interface PlayerPlatformProfile {
+  userId: string;
+  isGuest: boolean;
+  level: number;
+  xp: number;
+  nextLevelXp: number;
+  progressPercent: number;
+  gabuPoints: number;
+  dailyStreak: number;
+  cosmetics: { flairId: string | null; frameId: string | null; bannerId: string | null };
+  achievements: {
+    count: number;
+    recent: Array<{ id: string; name: string; iconUrl: string | null; rarity: string; earnedAt: string }>;
+  };
+  gameStats: { gameId: string; plays: number; wins: number } | null;
 }
 
 // ============================================================================
