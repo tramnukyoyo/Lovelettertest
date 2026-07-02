@@ -305,6 +305,8 @@ export const de: Translations = {
   // Player list
   // AI-TRANSLATED on 2026-05-19, please review
   playerList: {
+    removingIn: 'Entfernt in {seconds}s',
+    removing: 'Wird entfernt...',
     kick: 'Kicken',
     confirmKick: 'Kick bestätigen',
     cancel: 'Abbrechen',

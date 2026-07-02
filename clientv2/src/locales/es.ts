@@ -212,6 +212,8 @@ export const es: Translations = {
   // Player list
   // AI-TRANSLATED on 2026-05-19, please review
   playerList: {
+    removingIn: 'Eliminando en {seconds}s',
+    removing: 'Eliminando...',
     kick: 'Expulsar',
     confirmKick: 'Confirmar expulsion',
     cancel: 'Cancelar',

@@ -8,6 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { t } from '../utils/translations';
+import { Avatar } from './core/Avatar';
 import './PortalCloseOverlay.css';
 
 interface Player {
@@ -178,11 +179,7 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
               className="portal-player-avatar"
               title={player.name}
             >
-              {player.avatarUrl ? (
-                <img src={player.avatarUrl} alt={player.name} />
-              ) : (
-                player.name.charAt(0).toUpperCase()
-              )}
+              <Avatar src={player.avatarUrl} alt={player.name} />
             </div>
           ))}
           {players.length > 6 && (

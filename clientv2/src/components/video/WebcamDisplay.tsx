@@ -9,6 +9,7 @@ import { MicOff, Crown, Volume2, VolumeX } from 'lucide-react';
 import type { WebcamPlayer } from '../../config/WebcamConfig';
 import { useWebRTC } from '../../contexts/WebRTCContext';
 import { t } from '../../utils/translations';
+import { Avatar } from '../core/Avatar';
 
 interface WebcamDisplayProps {
   player: WebcamPlayer;
@@ -183,13 +184,7 @@ const WebcamDisplay: React.FC<WebcamDisplayProps> = ({
               className="webcam-avatar"
               style={player.avatarUrl ? undefined : { background: avatarGradient }}
             >
-              {player.avatarUrl ? (
-                <img src={player.avatarUrl as string} alt="" className="webcam-avatar-img" />
-              ) : (
-                <span className="webcam-avatar-initial">
-                  {player.name.charAt(0).toUpperCase()}
-                </span>
-              )}
+              <Avatar src={player.avatarUrl as string | undefined} className="webcam-avatar-img" />
             </div>
             {isConnecting && (
               <div className="webcam-connecting" role="status">

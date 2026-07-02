@@ -13,6 +13,7 @@
 import React from 'react';
 import type { Socket } from 'socket.io-client';
 import type { Lobby } from '../../types';
+import { GAME_META } from '../../config/gameMeta';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import BotControls from './BotControls';
 
@@ -39,7 +40,7 @@ const HostSettings: React.FC<HostSettingsProps> = ({ lobby, socket, isHost }) =>
             roomCode={lobby.code}
             players={lobby.players}
             isHost={true}
-            maxPlayers={lobby.settings?.maxPlayers || 999}
+            maxPlayers={lobby.settings?.maxPlayers || GAME_META.maxPlayers}
             socket={socket}
           />
         </div>

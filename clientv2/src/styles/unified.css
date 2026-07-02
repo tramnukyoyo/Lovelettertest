@@ -3710,6 +3710,14 @@ body::before {
   opacity: 0.5;
 }
 
+/* Countdown until a disconnected player is removed (30s grace period) */
+.player-disconnect-timer {
+  font-size: 0.75rem;
+  color: var(--warning-400);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* Compact mode for player items */
 .player-list.compact .player-list-item,
 .player-list-item.compact {

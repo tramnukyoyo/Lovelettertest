@@ -24,6 +24,7 @@ import { translateGameMessage } from '../../utils/gameLog';
 import { Portal } from '../../utils/portal';
 import { CardHoverProvider, CardHoverZone } from './CardHoverContext';
 import CardHoverPreview from './CardHoverPreview';
+import { Avatar } from '../core/Avatar';
 // GameExplainer / BotControls / GAME_META were only used by the bespoke LOBBY
 // overlay, which now lives in src/pages/LobbyPage.tsx (standard two-pane lobby).
 
@@ -61,8 +62,6 @@ type ZoomContext = {
 };
 
 // getTranslatedCardName, getTranslatedCardDescription, and CARD_IMAGES are now imported from cardDatabase.ts
-
-const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
 
 /**
  * Router component that selects between mobile and desktop implementations.
@@ -453,15 +452,10 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                     {/* Circular Avatar with Gradient Border */}
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden shrink-0 relative">
                         <div className="w-full h-full rounded-full bg-[var(--velvet-dark)] overflow-hidden flex items-center justify-center">
-                            <img
-                              src={player.avatarUrl || FALLBACK_AVATAR_URL}
+                            <Avatar
+                              src={player.avatarUrl}
                               alt={`${player.name} avatar`}
                               className="w-full h-full rounded-full object-cover"
-                              onError={(e) => {
-                                if (e.currentTarget.src !== FALLBACK_AVATAR_URL) {
-                                  e.currentTarget.src = FALLBACK_AVATAR_URL;
-                                }
-                              }}
                             />
                         </div>
                         {/* Immunity Shield Badge */}

@@ -28,7 +28,7 @@ export const GAME_META = {
 
   // Min/max players
   minPlayers: 2,
-  maxPlayers: 8,
+  maxPlayers: 4,
 
   // Game category (shown on homepage)
   category: 'Social Deduction',

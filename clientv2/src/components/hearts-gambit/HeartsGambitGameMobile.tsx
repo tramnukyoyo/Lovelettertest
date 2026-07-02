@@ -28,6 +28,7 @@ import PassPlayToggle from '../lobby/PassPlayToggle';
 import BotControls from '../lobby/BotControls';
 import { usePassPlay } from '../../hooks/usePassPlay';
 import { GameExplainer, GameExplainerHelpButton } from '../lobby/GameExplainer';
+import { Avatar } from '../core/Avatar';
 import { primeSuspectDemoSpec } from '../lobby/GameExplainer/demos/PrimeSuspectDemo';
 import '../lobby/GameExplainer/GameExplainer.css';
 import { GAME_META } from '../../config/gameMeta';
@@ -854,11 +855,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                     {/* Noir octagonal avatar */}
                     <div className="hg-noir-avatar mb-1">
                       <div className="hg-noir-avatar-inner">
-                        {player.avatarUrl ? (
-                          <img src={player.avatarUrl} alt={player.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <User size={20} color="var(--parchment)" />
-                        )}
+                        <Avatar src={player.avatarUrl} alt={player.name} className="w-full h-full object-cover" />
                       </div>
                     </div>
                     <span className="text-xs text-[var(--parchment)] font-medium truncate max-w-full">

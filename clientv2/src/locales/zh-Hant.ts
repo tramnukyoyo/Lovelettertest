@@ -304,6 +304,8 @@ export const zhHant: Translations = {
 
   // Player list
   playerList: {
+    removingIn: '{seconds} 秒後移除',
+    removing: '移除中...',
     kick: '踢出',
     confirmKick: '確認踢出',
     cancel: '取消',

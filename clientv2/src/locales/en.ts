@@ -307,6 +307,8 @@ export const en = {
 
   // Player list
   playerList: {
+    removingIn: 'Removing in {seconds}s',
+    removing: 'Removing...',
     kick: 'Kick',
     confirmKick: 'Confirm kick',
     cancel: 'Cancel',

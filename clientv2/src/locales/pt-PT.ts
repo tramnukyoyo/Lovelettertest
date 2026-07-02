@@ -314,6 +314,8 @@ export const ptPT: Translations = {
   // Player list
   // AI-TRANSLATED on 2026-05-19, please review
   playerList: {
+    removingIn: 'A remover em {seconds}s',
+    removing: 'A remover...',
     kick: 'Expulsar',
     confirmKick: 'Confirmar expulsao',
     cancel: 'Cancelar',
