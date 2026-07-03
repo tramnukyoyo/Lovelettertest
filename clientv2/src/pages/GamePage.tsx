@@ -176,6 +176,10 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
   }, [pp.currentPlayerIndex]);
 
   const isSpectator = lobby.players.find(p => p.socketId === lobby.mySocketId)?.isSpectator || false;
+  const isHost = lobby.players.find(p => p.socketId === lobby.mySocketId)?.isHost || false;
+  const handleKickPlayer = useCallback((playerId: string) => {
+    socket?.emit('player:kick', { roomCode: lobby.code, playerId });
+  }, [socket, lobby.code]);
   const viewingAs = (lobby as any).viewingAs
     ? lobby.players.find(p => p.socketId === (lobby as any).viewingAs)
     : null;
@@ -299,6 +303,8 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
                     <PlayerList
                       players={lobby.players}
                       mySocketId={lobby.mySocketId}
+                      isHost={isHost}
+                      onKickPlayer={isHost ? handleKickPlayer : undefined}
                       isSpectator={isSpectator}
                       viewingAsSocketId={(lobby as any).viewingAs}
                       onPlayerClick={handleSpectatorPlayerClick}
@@ -330,6 +336,8 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
             roomCode={lobby.code}
             mySocketId={lobby.mySocketId}
             players={lobby.players}
+            isHost={isHost}
+            onKickPlayer={isHost ? handleKickPlayer : undefined}
             webcamPlayers={webcamPlayers}
             localPlayerName={lobby.players.find(p => p.socketId === lobby.mySocketId)?.name}
             onLeaveVideo={disableVideoChat}

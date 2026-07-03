@@ -91,6 +91,10 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
     socket?.emit('game:start', {});
   }, [canStart, socket]);
 
+  const handleKickPlayer = useCallback((playerId: string) => {
+    socket?.emit('player:kick', { roomCode: lobby.code, playerId });
+  }, [socket, lobby.code]);
+
   // Webcam players for the video modal (exclude self — local stream handled separately)
   const webcamPlayers: WebcamPlayer[] = useMemo(() =>
     lobby.players
@@ -180,6 +184,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                   players={lobby.players}
                   mySocketId={lobby.mySocketId}
                   isHost={isHost}
+                  onKickPlayer={isHost ? handleKickPlayer : undefined}
                 />
               ) : (
                 <ChatWindow
@@ -303,6 +308,8 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
         roomCode={lobby.code}
         mySocketId={lobby.mySocketId}
         players={lobby.players}
+        isHost={isHost}
+        onKickPlayer={isHost ? handleKickPlayer : undefined}
         webcamPlayers={webcamPlayers}
         localPlayerName={myPlayer?.name}
         onLeaveVideo={disableVideoChat}
