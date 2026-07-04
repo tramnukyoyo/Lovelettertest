@@ -209,6 +209,11 @@ function App() {
         };
       }
       applyAndSetLobby(data);
+      // If the room dropped back to lobby (game ended/restarted while the
+      // ReconnectOverlay was up), clear the overlay so non-host players aren't
+      // stuck waiting for a host that won't resume. Prime Suspect's state enum
+      // is uppercase ('LOBBY'), not the generic 'lobby'.
+      if (data.state === 'LOBBY') setRestoreInfo(null);
     };
 
     const returnViaDiscordParent = (): boolean => {

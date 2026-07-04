@@ -33,6 +33,8 @@ interface SessionReconnectResponse {
   success: boolean;
   lobby?: Lobby;
   sessionToken?: string;
+  reason?: string;
+  roomCode?: string;
 }
 
 interface GameSyncResponse {
@@ -261,8 +263,15 @@ export function useGameBuddiesClient(
     isReconnecting.current = true;
 
     return new Promise((resolve) => {
-      socket.emit('session:reconnect', { sessionToken: token }, (response: SessionReconnectResponse) => {
+      socket.timeout(15000).emit('session:reconnect', { sessionToken: token }, (err: Error | null, response: SessionReconnectResponse) => {
         isReconnecting.current = false;
+
+        if (err) {
+          console.warn('[useGameBuddiesClient] session:reconnect timed out:', err.message);
+          setError('Reconnecting to the game timed out. Retrying on next connection…');
+          resolve(false);
+          return;
+        }
 
         if (response.success && response.lobby) {
           setLobbyState(response.lobby);
@@ -285,9 +294,27 @@ export function useGameBuddiesClient(
           }, 100);
 
           resolve(true);
+        } else if (response.reason === 'wrong_worker') {
+          // Cluster: we reconnected to a worker that does not own this room. The
+          // session is still valid — do NOT clear it. Persist the routing hint and
+          // do ONE guarded full reload so the socket Manager is rebuilt with
+          // ?roomCode= in its query and the master routes us to the owning worker.
+          if (response.roomCode) sessionStorage.setItem('lastRoomCode', response.roomCode);
+          const nowWW = Date.now();
+          const lastWW = Number(sessionStorage.getItem('gb_wrongWorkerReloadAt') || 0);
+          if (nowWW - lastWW > 15000) {
+            sessionStorage.setItem('gb_wrongWorkerReloadAt', String(nowWW));
+            console.warn('[useGameBuddiesClient] session:reconnect wrong worker — reloading with routing hint');
+            resolve(false);
+            window.location.reload();
+            return;
+          }
+          console.warn('[useGameBuddiesClient] session:reconnect wrong worker — reload throttled');
+          resolve(false);
         } else {
           sessionStorage.removeItem('gameSessionToken');
           socketService.clearReconnectionData();
+          setError('Your game session could not be restored — the room may have ended.');
           resolve(false);
         }
       });
@@ -318,7 +345,14 @@ export function useGameBuddiesClient(
         socketService.clearReconnectionData();
       }
 
-      if (storedSessionToken && !isReconnecting.current) {
+      if (storedSessionToken) {
+        if (isReconnecting.current) {
+          // A reconnect for this session is already in flight (a 2nd 'connect'
+          // during socket flapping). Do NOT fall through to createRoom/joinRoom —
+          // that races the in-flight session:reconnect and double-joins / spawns a
+          // duplicate room. Let the in-flight attempt own the rejoin.
+          return;
+        }
         const reconnected = await handleReconnection(storedSessionToken);
         if (reconnected) return; // Successful reconnection, nothing else to do
       }

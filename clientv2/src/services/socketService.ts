@@ -53,6 +53,9 @@ class SocketService {
   // subsequent positional array deltas. audit 2026-06.
   private internalRoomStateHandler: ((data: any) => void) | null = null;
   // Store listener references for cleanup
+  // Timestamp of the last visibility-triggered session:reconnect emit — used to
+  // throttle it so it can't double-fire the rejoin alongside the hook's onConnect.
+  private lastSessionReconnectAt = 0;
   private visibilityListener: (() => void) | null = null;
   private onlineListener: (() => void) | null = null;
   private offlineListener: (() => void) | null = null;
@@ -194,9 +197,13 @@ class SocketService {
       }
 
       // Manual reconnection with stored data — only if we actually disconnected
-      // (prevents phantom reconnect events from transport upgrades or initial connect)
+      // (prevents phantom reconnect events from transport upgrades or initial connect).
+      // When a gameSessionToken exists, useGameBuddiesClient's onConnect handles the
+      // rejoin via session:reconnect — emitting room:join here too would race it and
+      // can double-join the player. Keep room:join only as the no-session fallback.
+      const hasGameSession = !!sessionStorage.getItem('gameSessionToken');
       const stored = this.getStoredReconnectionData();
-      if (stored.sessionToken && stored.roomCode && stored.playerName && this.wasDisconnected) {
+      if (!hasGameSession && stored.sessionToken && stored.roomCode && stored.playerName && this.wasDisconnected) {
         console.log(`[Video/socket] Attempting auto-reconnection to room ${stored.roomCode}`);
         this.socket?.emit('room:join', {
           roomCode: stored.roomCode,
@@ -404,8 +411,16 @@ class SocketService {
           // Server-side state may have been GC'd while backgrounded. Fire a full
           // session:reconnect to rebind the socket via sessionToken (hot-restores
           // the room from snapshot if it's no longer in memory).
-          console.log('[Video/socket] Page visible — firing session:reconnect to rebind state');
-          this.socket.emit('session:reconnect', { sessionToken: stored.sessionToken });
+          // Throttle: the hook's onConnect also owns session:reconnect (single
+          // rejoin owner). Skip this ackless emit if one fired <5s ago so a
+          // visibility flip coinciding with an auto-reconnect doesn't double-rejoin.
+          if (Date.now() - this.lastSessionReconnectAt > 5000) {
+            this.lastSessionReconnectAt = Date.now();
+            console.log('[Video/socket] Page visible — firing session:reconnect to rebind state');
+            this.socket.emit('session:reconnect', { sessionToken: stored.sessionToken });
+          } else {
+            console.log('[Video/socket] Page visible — session:reconnect throttled (<5s)');
+          }
         } else if (stored.roomCode) {
           console.log('[Video/socket] Sending heartbeat to server');
           this.socket.emit('client:heartbeat', {
