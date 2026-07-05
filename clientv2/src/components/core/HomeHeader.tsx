@@ -9,11 +9,12 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Menu, X, HelpCircle, Globe } from 'lucide-react';
+import { Settings, Menu, X, HelpCircle, Globe, MessageSquareWarning } from 'lucide-react';
 import { GAME_META } from '../../config/gameMeta';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { t } from '../../utils/translations';
 import SettingsModal from './SettingsModal';
+import FeedbackModal from './FeedbackModal';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
 import MuteButton from './MuteButton';
 
@@ -23,12 +24,18 @@ interface HomeHeaderProps {
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const handleOpenSettings = () => {
     setIsMenuOpen(false);
     setShowSettings(true);
+  };
+
+  const handleOpenFeedback = () => {
+    setIsMenuOpen(false);
+    setShowFeedback(true);
   };
 
   const handleOpenTutorial = () => {
@@ -65,6 +72,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
         <div className="home-header-controls">
           <SimpleLanguageSelector />
           <MuteButton />
+          <button
+            onClick={() => setShowFeedback(true)}
+            className="home-header-settings-btn"
+            aria-label={t('feedback.title')}
+            title={t('feedback.title')}
+          >
+            <MessageSquareWarning className="w-5 h-5" />
+          </button>
           <button
             onClick={() => setShowSettings(true)}
             className="home-header-settings-btn"
@@ -166,6 +181,20 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
                       <span className="home-header-menu-sublabel">{t('homeMenu.soundAndPreferences')}</span>
                     </div>
                   </button>
+
+                  {/* Report a problem */}
+                  <button
+                    onClick={handleOpenFeedback}
+                    className="home-header-menu-item"
+                  >
+                    <div className="home-header-menu-icon">
+                      <MessageSquareWarning className="w-4 h-4" />
+                    </div>
+                    <div className="home-header-menu-content">
+                      <span className="home-header-menu-label">{t('feedback.menuLabel')}</span>
+                      <span className="home-header-menu-sublabel">{t('feedback.intro')}</span>
+                    </div>
+                  </button>
                 </div>
               </motion.div>
             </>
@@ -175,6 +204,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
       )}
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
     </header>
   );
 };

@@ -407,6 +407,25 @@ export const de: Translations = {
     countdownGo: 'LOS!',
   },
 
+  // In-game feedback / bug report modal
+  feedback: {
+    menuLabel: 'Problem melden',
+    title: 'Problem melden',
+    intro: 'Fehler gefunden oder eine Idee? Sag es uns — wir lesen jede Meldung.',
+    typeBug: 'Fehler',
+    typeIdea: 'Idee',
+    typeOther: 'Sonstiges',
+    messagePlaceholder: 'Was ist passiert? Je mehr Details, desto besser.',
+    roomLabel: 'Raum',
+    stateAttachedNote: 'Dein aktueller Spielstand wird zur Fehlersuche mitgeschickt.',
+    submit: 'Meldung senden',
+    sending: 'Wird gesendet…',
+    successTitle: 'Danke für die Meldung!',
+    successBody: 'Sie ging direkt an das GameBuddies-Team.',
+    errorMsg: 'Meldung konnte nicht gesendet werden. Bitte versuche es erneut.',
+    tooShort: 'Bitte etwas mehr Details ergänzen.',
+  },
+
   // Settings
   settings: {
     title: 'Einstellungen',

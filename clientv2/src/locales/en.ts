@@ -402,6 +402,25 @@ export const en = {
     countdownGo: 'GO!',
   },
 
+  // In-game feedback / bug report modal
+  feedback: {
+    menuLabel: 'Report a problem',
+    title: 'Report a problem',
+    intro: 'Found a bug or have an idea? Tell us — we read every report.',
+    typeBug: 'Bug',
+    typeIdea: 'Idea',
+    typeOther: 'Other',
+    messagePlaceholder: 'What happened? The more detail, the better.',
+    roomLabel: 'Room',
+    stateAttachedNote: 'Your current game state is attached to help us debug.',
+    submit: 'Send report',
+    sending: 'Sending…',
+    successTitle: 'Thanks for the report!',
+    successBody: 'It went straight to the GameBuddies team.',
+    errorMsg: 'Could not send your report. Please try again.',
+    tooShort: 'Please add a little more detail.',
+  },
+
   // Settings
   settings: {
     title: 'Settings',

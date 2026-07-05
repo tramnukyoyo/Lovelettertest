@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Copy, ArrowLeft, Settings, Check, Share2, RotateCcw } from 'lucide-react';
+import { Copy, ArrowLeft, Settings, Check, Share2, RotateCcw, MessageSquareWarning } from 'lucide-react';
 import type { Lobby, Player } from '../../types';
 import { clearSession, type GameBuddiesSession } from '../../services/gameBuddiesSession';
 import socketService from '../../services/socketService';
@@ -17,6 +17,7 @@ import { GAME_META } from '../../config/gameMeta';
 import { t } from '../../utils/translations';
 import MobileGameMenu from './MobileGameMenu';
 import SettingsModal from './SettingsModal';
+import FeedbackModal from './FeedbackModal';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
 import GameBuddiesReturnButton from './GameBuddiesReturnButton';
 import MuteButton from './MuteButton';
@@ -46,6 +47,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   const myPlayer = lobby.players.find((p: Player) => p.socketId === lobby.mySocketId);
   const isHost = myPlayer?.isHost || false;
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [, setCopyError] = useState(false);
   const feedbackTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -253,6 +255,14 @@ const GameHeader: React.FC<GameHeaderProps> = ({
             <MuteButton />
 
             <button
+              onClick={() => setIsFeedbackOpen(true)}
+              className="game-header-settings-btn"
+              title={t('feedback.title')}
+            >
+              <MessageSquareWarning className="w-4 h-4" />
+            </button>
+
+            <button
               onClick={() => setIsSettingsOpen(true)}
               className="game-header-settings-btn"
               title={t('settings.title')}
@@ -320,6 +330,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               isVideoEnabled={webrtc.isVideoChatActive}
               onVideo={isDiscordActivity() ? undefined : onOpenVideo}
               onSettings={() => setIsSettingsOpen(true)}
+              onReportBug={() => setIsFeedbackOpen(true)}
               hideRoomCode={hideRoomCode}
               isLobby={lobby.state === 'LOBBY'}
               onReturnToLobby={onReturnToLobby}
@@ -349,6 +360,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({
 
       {/* Settings Modal */}
       {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+
+      {/* Feedback / Report-a-problem Modal */}
+      {isFeedbackOpen && <FeedbackModal lobby={lobby} onClose={() => setIsFeedbackOpen(false)} />}
     </header>
   );
 };

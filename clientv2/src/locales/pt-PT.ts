@@ -416,6 +416,25 @@ export const ptPT: Translations = {
     countdownGo: 'JA!',
   },
 
+  // In-game feedback / bug report modal
+  feedback: {
+    menuLabel: 'Reportar um problema',
+    title: 'Reportar um problema',
+    intro: 'Encontrou um erro ou tem uma ideia? Diga-nos — lemos todos os relatos.',
+    typeBug: 'Erro',
+    typeIdea: 'Ideia',
+    typeOther: 'Outro',
+    messagePlaceholder: 'O que aconteceu? Quantos mais detalhes, melhor.',
+    roomLabel: 'Sala',
+    stateAttachedNote: 'O estado atual do seu jogo é anexado para nos ajudar a depurar.',
+    submit: 'Enviar relato',
+    sending: 'A enviar…',
+    successTitle: 'Obrigado pelo relato!',
+    successBody: 'Foi diretamente para a equipa da GameBuddies.',
+    errorMsg: 'Não foi possível enviar o seu relato. Tente novamente.',
+    tooShort: 'Acrescente um pouco mais de detalhe, por favor.',
+  },
+
   // Settings
   settings: {
     title: 'Definicoes',

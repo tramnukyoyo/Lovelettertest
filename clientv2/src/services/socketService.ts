@@ -574,6 +574,24 @@ class SocketService {
       errorContext: context ? JSON.stringify(context) : undefined,
     });
   }
+
+  /**
+   * Submit an in-game player feedback / bug report. The server enriches it with
+   * the room code + a full room/game/player state snapshot and stores it in the
+   * shared feedback table (visible in the /admin/feedback dashboard).
+   */
+  submitFeedback(
+    payload: { reportType: 'bug' | 'idea' | 'other'; message: string; clientContext?: Record<string, unknown> },
+    callback?: (res: { success: boolean; error?: string }) => void,
+  ): void {
+    if (!this.socket?.connected) {
+      callback?.({ success: false, error: 'not-connected' });
+      return;
+    }
+    this.socket.emit('feedback:submit', payload, (res: { success: boolean; error?: string }) => {
+      callback?.(res || { success: false, error: 'no-response' });
+    });
+  }
 }
 
 export default new SocketService();

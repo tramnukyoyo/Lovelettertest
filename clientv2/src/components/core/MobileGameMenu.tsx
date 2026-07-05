@@ -22,7 +22,8 @@ import {
   MessageCircle,
   Volume2,
   ExternalLink,
-  Home
+  Home,
+  MessageSquareWarning
 } from 'lucide-react';
 import { t } from '../../utils/translations';
 import { hapticFeedback } from '../../utils/hapticFeedback';
@@ -52,6 +53,8 @@ interface MobileGameMenuProps {
   onSoundSettings?: () => void;
   /** Callback to open settings */
   onSettings?: () => void;
+  /** Callback to open the feedback / report-a-problem modal */
+  onReportBug?: () => void;
   /** Callback to open How to Play */
   onHowToPlay?: () => void;
   /** Hide room code (streamer mode) */
@@ -84,6 +87,7 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   onVideo,
   onSoundSettings,
   onSettings,
+  onReportBug,
   onHowToPlay,
   hideRoomCode = false,
   isLobby = false,
@@ -153,6 +157,13 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
       label: t('menu.settings'),
       action: onSettings ? () => handleMenuItemClick(onSettings) : undefined,
       show: !!onSettings,
+    },
+    {
+      id: 'report-bug',
+      icon: MessageSquareWarning,
+      label: t('feedback.menuLabel'),
+      action: onReportBug ? () => handleMenuItemClick(onReportBug) : undefined,
+      show: !!onReportBug,
     },
     {
       id: 'return-to-lobby',
