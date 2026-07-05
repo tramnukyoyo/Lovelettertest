@@ -151,6 +151,13 @@ export function useGameBuddiesClient(
   const [kickMessage, setKickMessage] = useState<string | null>(null);
 
   const isReconnecting = useRef(false);
+  // Throttle for the onConnect auto create/join: a socket flap during boot can
+  // fire 'connect' twice before the first create/join resolves, double-joining
+  // the player (duplicate-guest bug class). The old code was partially shielded
+  // by the always-attempted session:reconnect; the fresh-handoff fast path
+  // skips that, so guard explicitly. 5s is far above a create/join RTT but
+  // short enough that a genuinely failed attempt retries on the next reconnect.
+  const lastAutoJoinAt = useRef(0);
   const timeoutRefs = useRef<Array<ReturnType<typeof setTimeout>>>([]);
 
   const addTimeout = useCallback((callback: () => void, delay: number) => {
@@ -281,17 +288,15 @@ export function useGameBuddiesClient(
           sessionStorage.setItem('gameSessionToken', newToken);
           persistReconnectionData(response.lobby, newToken);
 
-          addTimeout(() => {
-            socket.emit(
-              'game:sync-state',
-              { roomCode: response.lobby!.code },
-              (syncResponse: GameSyncResponse) => {
-                if (syncResponse.success && syncResponse.room) {
-                  setLobbyState(syncResponse.room);
-                }
+          socket.emit(
+            'game:sync-state',
+            { roomCode: response.lobby!.code },
+            (syncResponse: GameSyncResponse) => {
+              if (syncResponse.success && syncResponse.room) {
+                setLobbyState(syncResponse.room);
               }
-            );
-          }, 100);
+            }
+          );
 
           resolve(true);
         } else if (response.reason === 'wrong_worker') {
@@ -319,7 +324,7 @@ export function useGameBuddiesClient(
         }
       });
     });
-  }, [addTimeout, persistReconnectionData, setLobbyState]);
+  }, [persistReconnectionData, setLobbyState]);
 
   // Register core socket events once
   useEffect(() => {
@@ -370,10 +375,15 @@ export function useGameBuddiesClient(
 
       if (session) {
         setGameBuddiesSession(session);
+        const now = Date.now();
+        if (now - lastAutoJoinAt.current < 5000) {
+          return; // create/join from a previous connect event is still in flight
+        }
+        lastAutoJoinAt.current = now;
         if (session.isHost) {
-          addTimeout(() => createRoom(session.playerName || 'Host', session, session.isStreamerMode || session.hideRoomCode || false), 100);
+          createRoom(session.playerName || 'Host', session, session.isStreamerMode || session.hideRoomCode || false);
         } else if (session.playerName) {
-          addTimeout(() => joinRoom(session.roomCode, session.playerName!, session), 100);
+          joinRoom(session.roomCode, session.playerName!, session);
         }
       }
     };

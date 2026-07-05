@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { initAnalytics, trackPhaseFromRoomState } from './services/analyticsService';
 import { initErrorReporter } from './services/errorReporter';
+import { prefetchLobbyAssets } from './services/lobbyPrefetch';
 import socketService from './services/socketService';
 import { isDiscordActivity } from './services/discordActivity';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
@@ -276,6 +277,9 @@ function App() {
 
     // Post-game screen: shared rewards summary + rematch vote + crew streak.
     const onPostgameSummary = (data: { rewards?: PostgameRewardEntry[] }) => {
+      // Warm the platform lobby's hashed assets so Return-to-Lobby paints
+      // from cache once the post-game summary lands.
+      void prefetchLobbyAssets();
       if (Array.isArray(data?.rewards)) setPostgameRewards(data.rewards);
     };
     const onRematchUpdate = (data: { votes?: number; needed?: number; voters?: string[] }) => {

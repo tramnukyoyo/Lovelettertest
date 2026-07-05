@@ -10,32 +10,47 @@
  *   // Call trackShare('whatsapp') in share handlers
  */
 
-import posthog from 'posthog-js';
+import type { PostHog } from 'posthog-js';
 import { GAME_META } from '../config/gameMeta';
 
 const POSTHOG_KEY = 'phc_lXhLxEeir5ZB9MjrDuvKiZsj6A0VGvZIIgduZsL20ji';
 const POSTHOG_HOST = 'https://eu.i.posthog.com';
 const CONSENT_KEY = 'gb-cookie-consent';
 
+// posthog-js is dynamic-imported so its ~50KB gz stays out of the eager
+// bundle (it is only needed post-consent). Events fired before the module
+// loads are dropped — same tradeoff the platform client ships. Type-only
+// import above is erased at build time.
+let posthogRef: PostHog | null = null;
 let initialized = false;
+let loading = false;
 
 function hasConsent(): boolean {
   return localStorage.getItem(CONSENT_KEY) === 'all';
 }
 
 function doInit(): void {
-  if (initialized) return;
+  if (initialized || loading) return;
   if (!hasConsent()) return;
 
-  posthog.init(POSTHOG_KEY, {
-    api_host: POSTHOG_HOST,
-    persistence: 'localStorage+cookie',
-    capture_pageview: false,
-    capture_pageleave: false,
-    person_profiles: 'identified_only',
-    property_denylist: ['sessionToken', 'inviteToken', 'password', 'email', 'access_token', 'refresh_token'],
-  });
-  initialized = true;
+  loading = true;
+  import('posthog-js')
+    .then(({ default: posthog }) => {
+      posthog.init(POSTHOG_KEY, {
+        api_host: POSTHOG_HOST,
+        persistence: 'localStorage+cookie',
+        capture_pageview: false,
+        capture_pageleave: false,
+        person_profiles: 'identified_only',
+        property_denylist: ['sessionToken', 'inviteToken', 'password', 'email', 'access_token', 'refresh_token'],
+      });
+      posthogRef = posthog;
+      initialized = true;
+      loading = false;
+    })
+    .catch(() => {
+      loading = false; // load failed (offline/adblock) — retry on next consent event
+    });
 }
 
 /** Call once from App.tsx. Inits PostHog if consent exists, listens for future consent changes. */
@@ -45,18 +60,18 @@ export function initAnalytics(): void {
   window.addEventListener('gb-consent-changed', ((e: CustomEvent<string>) => {
     if (e.detail === 'all') {
       doInit();
-    } else if (initialized) {
-      posthog.opt_out_capturing();
+    } else if (initialized && posthogRef) {
+      posthogRef.opt_out_capturing();
     }
   }) as EventListener);
 }
 
 /** Fire a custom event to PostHog. No-op if not initialized or no consent. */
 export function trackEvent(name: string, properties?: Record<string, unknown>): void {
-  if (!initialized || !hasConsent()) return;
+  if (!initialized || !posthogRef || !hasConsent()) return;
   // Emit `game` as the slug (id) so dashboards can group cleanly. Fall back to
   // display name only if id was never declared on this game's GAME_META.
-  posthog.capture(name, { game: (GAME_META as any).id || GAME_META.name, ...properties });
+  posthogRef.capture(name, { game: (GAME_META as any).id || GAME_META.name, ...properties });
 }
 
 /** Convenience: track a share action. */

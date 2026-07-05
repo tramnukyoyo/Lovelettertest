@@ -10,6 +10,50 @@ import type { Region } from '../config/servers';
 
 let cachedRegion: Region | null = null;
 
+// Cross-navigation region handoff. The platform lobby (same origin — games are
+// proxied under gamebuddies.io/<gameId>/) probes both regions on game selection
+// and writes the winner here, so the game boot can skip its own 2x health
+// probes (up to 3s serialized before the socket can open). The game also
+// writes its own probe result so game->lobby->game relaunches stay warm.
+const REGION_CACHE_KEY = 'gb:region:v1';
+const REGION_CACHE_TTL_MS = 30 * 60 * 1000;
+
+interface RegionCacheEntry {
+  region: Region;
+  servers: Record<Region, string>;
+  ts: number;
+}
+
+function readRegionCache(): Region | null {
+  try {
+    const raw = sessionStorage.getItem(REGION_CACHE_KEY);
+    if (!raw) return null;
+    const entry = JSON.parse(raw) as RegionCacheEntry;
+    if (!entry || (entry.region !== 'us' && entry.region !== 'eu')) return null;
+    if (Date.now() - entry.ts > REGION_CACHE_TTL_MS) return null;
+    // Only trust a cache written against the same server pair this build would
+    // probe — a game with a VITE_BACKEND_URL override must not inherit the
+    // platform's choice between different hosts.
+    if (entry.servers?.us !== SERVERS.us || entry.servers?.eu !== SERVERS.eu) return null;
+    return entry.region;
+  } catch {
+    return null;
+  }
+}
+
+function writeRegionCache(region: Region): void {
+  try {
+    const entry: RegionCacheEntry = {
+      region,
+      servers: { us: SERVERS.us, eu: SERVERS.eu },
+      ts: Date.now(),
+    };
+    sessionStorage.setItem(REGION_CACHE_KEY, JSON.stringify(entry));
+  } catch {
+    // Storage blocked/full — next load probes again.
+  }
+}
+
 async function measureLatency(serverUrl: string): Promise<number> {
   const start = performance.now();
   try {
@@ -32,6 +76,12 @@ async function measureLatency(serverUrl: string): Promise<number> {
 export async function detectFastestRegion(): Promise<Region> {
   if (cachedRegion) return cachedRegion;
 
+  const handoff = readRegionCache();
+  if (handoff) {
+    console.log(`[Region] Using ${handoff.toUpperCase()} from sessionStorage handoff (no probe)`);
+    cachedRegion = handoff;
+    return cachedRegion;
+  }
 
   const [usLatency, euLatency] = await Promise.all([
     measureLatency(SERVERS.us),
@@ -42,8 +92,10 @@ export async function detectFastestRegion(): Promise<Region> {
   if (usLatency === Infinity && euLatency === Infinity) {
     console.warn('[Region] Both servers unreachable, defaulting to EU');
     cachedRegion = 'eu';
+    // Deliberately not cached: an offline blip must not pin EU for 30 minutes.
   } else {
     cachedRegion = usLatency < euLatency ? 'us' : 'eu';
+    writeRegionCache(cachedRegion);
   }
 
   return cachedRegion;

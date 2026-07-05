@@ -110,10 +110,7 @@ class GameBuddiesReturnManager {
     const session = getCurrentSession();
     const targetUrl = url || session?.returnUrl || `${this.apiBase}/lobby`;
 
-
-    setTimeout(() => {
-      window.location.href = targetUrl;
-    }, 500);
+    window.location.href = targetUrl;
   }
 
   /**
