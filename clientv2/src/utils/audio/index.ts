@@ -40,3 +40,7 @@ export const initAudio = async () => {
 // Re-export classes and types for custom instances if needed
 export { BackgroundMusicManager, type BackgroundMusicConfig };
 export { SoundEffectsManager, type SoundEffectConfig, SOUND_EFFECTS, type SoundEffectName };
+
+// gb-juice-kit v1: procedural Web-Audio SFX (gated by soundEffects — benign cycle)
+export { synthSfx } from './synthSfx';
+export type { SynthSfxName } from './synthSfx';

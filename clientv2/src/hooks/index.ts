@@ -36,6 +36,10 @@ export type { UseTimerOptions, UseTimerResult } from './useTimer';
 export { useGameRounds } from './useGameRounds';
 export type { UseGameRoundsOptions, UseGameRoundsResult } from './useGameRounds';
 
+// gb-juice-kit v1 hooks
+export { useUrgentTick } from './useUrgentTick';
+export { useScreenShake } from './useScreenShake';
+
 // usePlayerReady and usePassPlay removed (template-specific)
 // useMobileNavigation and useDesktopScale removed (dead code — pages manage
 // drawer state directly; MobileDrawer owns the body-scroll lock)

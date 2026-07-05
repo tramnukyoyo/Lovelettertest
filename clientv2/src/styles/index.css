@@ -54,6 +54,7 @@
 
 /* Animations & features */
 @import './animations/animations.css';
+@import './animations/juice.css';
 @import './features/pass-play.css';
 
 /* Responsive breakpoints (must be last to override) */

@@ -3,7 +3,7 @@ import type { Lobby } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { motion } from 'framer-motion';
 import { Crown } from 'lucide-react';
-import { Confetti } from '../animations/Confetti';
+import { Confetti, ScoreCountUp } from '../juice';
 import { soundEffects } from '../../utils/soundEffects';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Portal } from '../../utils/portal';
@@ -204,7 +204,8 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   // ── Game Victory Mode ──
   return (
     <Portal>
-      <Confetti />
+      {/* Noir/gold palette carried over from the retired animations/Confetti. */}
+      <Confetti colors={['#d2b25a', '#e7cc7a', '#8a2233', '#f6f0e6', '#a77e22']} />
       <motion.div
         className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4"
         initial={{ opacity: 0 }}
@@ -265,7 +266,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                   {p.id === winnerId && <Crown size={14} style={{flexShrink:0}} />}
                   {p.name}
                 </span>
-                <span className="font-mono whitespace-nowrap">{p.tokens} / {tokensToWin}</span>
+                <span className="font-mono whitespace-nowrap"><ScoreCountUp value={p.tokens} from={0} /> / {tokensToWin}</span>
               </motion.div>
             ))}
           </motion.div>
