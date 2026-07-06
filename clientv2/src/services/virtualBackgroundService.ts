@@ -147,7 +147,12 @@ export class VirtualBackgroundService {
 
   public async initialize(): Promise<void> {
     const wasmPath = import.meta.env.BASE_URL + 'wasm';
-    const modelPath = import.meta.env.BASE_URL + 'models/selfie_multiclass_256x256.tflite';
+    // Binary selfie segmenter (244 KB) instead of the multiclass model (16 MB):
+    // labels are [background, person], background still index 0, so the
+    // person-confidence math below is unchanged. Only the hair-specific edge
+    // treatment needs the multiclass model — processSegmentationResults
+    // detects the mask count and degrades gracefully.
+    const modelPath = import.meta.env.BASE_URL + 'models/selfie_segmenter.tflite';
     console.log('[Video/vb] Initializing — wasm:', wasmPath, 'model:', modelPath, 'config:', this.config);
 
     let stage = 'FilesetResolver';
@@ -170,7 +175,7 @@ export class VirtualBackgroundService {
         outputCategoryMask: false,
         outputConfidenceMasks: true
       });
-      console.log('[Video/vb] ImageSegmenter ready (multiclass, GPU delegate, VIDEO mode, confidence masks)');
+      console.log('[Video/vb] ImageSegmenter ready (binary selfie segmenter, GPU delegate, VIDEO mode, confidence masks)');
 
       if (this.config.backgroundImageUrl) {
         stage = 'loadBackgroundImage';
@@ -187,7 +192,7 @@ export class VirtualBackgroundService {
       if (stage === 'FilesetResolver') {
         console.error('[Video/vb] Likely cause: /wasm/ folder missing in public/ — check ' + wasmPath);
       } else if (stage === 'ImageSegmenter.createFromOptions') {
-        console.error('[Video/vb] Likely cause: selfie_multiclass_256x256.tflite model 404 — check ' + modelPath);
+        console.error('[Video/vb] Likely cause: selfie_segmenter.tflite model 404 — check ' + modelPath);
       } else if (stage === 'loadBackgroundImage') {
         console.error('[Video/vb] Likely cause: CSP blocks the bg image host or the URL 404s. Init still threw — non-fatal.');
       }
@@ -324,10 +329,12 @@ export class VirtualBackgroundService {
     const masks = result.confidenceMasks;
     if (!masks || masks.length < 2) return;
 
-    // Multiclass model layout: [0]=bg, [1]=hair, [2]=body-skin, [3]=face-skin, [4]=clothes, [5]=others.
-    // Person confidence is 1 - bg (equivalent to the sum of classes 1..5, but cheaper to read one mask).
+    // Binary selfie segmenter: [0]=bg, [1]=person. Multiclass (if ever swapped
+    // back): [0]=bg, [1]=hair, [2]=body-skin, [3]=face-skin, [4]=clothes,
+    // [5]=others. Person confidence is 1 - bg in both. Hair-specific edge
+    // treatment only exists with the multiclass model's hair channel.
     const bgConf = masks[CLS_BACKGROUND].getAsFloat32Array();
-    const hairConf = masks[CLS_HAIR].getAsFloat32Array();
+    const hairConf = masks.length >= 6 ? masks[CLS_HAIR].getAsFloat32Array() : null;
     const N = bgConf.length;
 
     const threshold = this.config.segmentationThreshold ?? 0.5;
@@ -355,7 +362,7 @@ export class VirtualBackgroundService {
     // Hot loop. Keep the body branch-free where possible; the JIT inlines smoothstep.
     for (let i = 0; i < N; i++) {
       const personConf = 1 - bgConf[i];
-      const isHair = hairConf[i] > 0.5;
+      const isHair = hairConf !== null && hairConf[i] > 0.5;
 
       // Adaptive tau: lean on previous frame when motion is small (less flicker),
       // on the current frame when motion is large (less lag). Hair has a high
