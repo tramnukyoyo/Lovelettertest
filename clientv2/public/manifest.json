@@ -3,6 +3,7 @@
   "short_name": "Prime Suspect",
   "description": "A murder-mystery deduction card game by GameBuddies.io",
   "start_url": "/primesuspect/",
+  "scope": "/primesuspect/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#1a1a1a",
