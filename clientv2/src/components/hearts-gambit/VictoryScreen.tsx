@@ -8,6 +8,7 @@ import { soundEffects } from '../../utils/soundEffects';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Portal } from '../../utils/portal';
 import { usePostgame, resetPostgame } from '../../services/postgame';
+import { GameAdRectangle } from '../ads';
 
 /**
  * Shared platform rewards strip on the results screen: per-player +XP/+GP,
@@ -314,6 +315,10 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
               </button>
             )}
           </motion.div>
+
+          {/* Game-over ad — below the victory actions. Non-premium players only
+              (Prime Suspect has no big-screen mode). */}
+          {!isBroadcastMirror && <GameAdRectangle placement="game_over" />}
         </motion.div>
       </motion.div>
     </Portal>

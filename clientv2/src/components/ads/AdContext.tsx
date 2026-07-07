@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { loadAdSense } from '../../services/adsenseLoader';
 
 interface AdContextType {
   shouldShowAds: boolean;
@@ -26,6 +27,14 @@ export const AdProvider: React.FC<AdProviderProps> = ({ children, isPremium = fa
 
   // Base check - show ads to non-premium users
   const shouldShowAds = !isPremium;
+
+  // Inject the AdSense loader only when this client may actually show ads
+  // (no-op while ADSENSE_ENABLED is false or the publisher ID is a placeholder).
+  useEffect(() => {
+    if (shouldShowAds) {
+      loadAdSense();
+    }
+  }, [shouldShowAds]);
 
   // Ad-block detection
   useEffect(() => {
