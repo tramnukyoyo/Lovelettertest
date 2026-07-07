@@ -272,6 +272,25 @@ export const ptBR: Translations = {
     pts: 'pts',
   },
 
+  // QR scan-to-join
+  scanQr: {
+    button: 'Escanear QR',
+    hint: 'Aponte a câmera para o código QR na TV',
+    starting: 'Iniciando câmera…',
+    permissionDenied: 'Câmera indisponível — digite o código da sala',
+    cameraError: 'A câmera parou — feche e tente de novo, ou digite o código da sala',
+    photoButton: 'Tirar uma foto do código QR',
+    photoProcessing: 'Lendo a foto…',
+    photoFailed: 'Nenhum código QR encontrado — chegue mais perto da tela e tente de novo',
+    photoUnreadable: 'Não foi possível ler a foto — tire outra',
+    libraryButton: 'Escolher das Fotos',
+    joinTitle: 'Código escaneado!',
+    joinSubtitle: 'Digite seu nome para entrar na sala {code}',
+    joinCta: 'Entrar no jogo',
+    notACode: 'Não é um código do GameBuddies',
+    close: 'Fechar leitor',
+  },
+
   // Chat
   chat: {
     typeMessage: 'Digite uma mensagem...',

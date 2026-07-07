@@ -1,0 +1,178 @@
+/* ==========================================================================
+   In-client QR scanner overlay (join by scanning the TV's big-screen QR)
+   ========================================================================== */
+
+.qr-scanner-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-settings-modal, 9999);
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-scanner-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qr-scanner-frame {
+  position: relative;
+  width: min(68vw, 46vh, 320px);
+  aspect-ratio: 1;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.qr-scanner-frame-reject {
+  border-color: #ef4444;
+  animation: qr-frame-shake 0.35s ease-in-out;
+}
+
+@keyframes qr-frame-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.qr-scanner-close {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+}
+
+.qr-scanner-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.qr-scanner-hint {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.qr-scanner-error { color: #fca5a5; }
+
+.qr-scanner-fallback-btn {
+  min-height: 44px;
+  padding: 0.6rem 1.5rem;
+  background: var(--primary, #6a1623);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* The capture inputs must be visually hidden but IN-FLOW: display:none makes
+   WebKit refuse to open the picker from the paired label inside standalone
+   (Home Screen) PWAs. */
+.qr-scanner-file-input {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+/* Secondary escape hatch: no-capture input → iOS library/camera action sheet
+   (works where the direct-camera capture flow is broken in standalone). */
+.qr-scanner-library-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.4rem 1.25rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Photo-capture fallback (iOS PWA): a <label> wrapping the hidden capture
+   input, styled as the primary action. */
+.qr-scanner-photo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  padding: 0.85rem 1.75rem;
+  margin-bottom: 0.5rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.qr-scanner-photo-btn svg {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/* Scanned room code inside the post-scan join modal — royal gold reads best
+   on the velvet-dark modal panel. */
+.invite-modal-roomcode {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  text-align: center;
+  margin: 0.25rem 0 0.75rem;
+  color: var(--secondary, #d2b25a);
+}
+
+/* The scan entry button on the join card */
+.home-scan-qr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px dashed var(--panel-border);
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.home-scan-qr-btn:hover {
+  border-color: var(--secondary, #d2b25a);
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qr-scanner-frame-reject { animation: none; }
+}

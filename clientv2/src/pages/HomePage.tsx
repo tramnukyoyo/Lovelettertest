@@ -4,12 +4,25 @@
  * Landing page with game show branding. Single adaptive card for Create/Join.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Users, Plus, Lightbulb, ExternalLink, Share2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { Users, Plus, Lightbulb, ExternalLink, Share2, ScanLine } from 'lucide-react';
 import { GAME_META } from '../config/gameMeta';
 import { HomeHeader, FloatingLabelInput, JoinFromInviteModal } from '../components/core';
+import JoinScannedRoomModal from '../components/join/JoinScannedRoomModal';
 import { getCurrentSession } from '../services/gameBuddiesSession';
+import { isDiscordActivity } from '../services/discordActivity';
+import { trackEvent } from '../services/analyticsService';
 import { t } from '../utils/translations';
+
+// Camera scanner is code-split — only fetched when the user taps "Scan QR".
+const QrScannerOverlay = lazy(() => import('../components/join/QrScannerOverlay'));
+
+// In-app webviews (Discord Activity especially) often deny camera access —
+// hide the scan affordance where it can't work.
+const canOfferQrScan =
+  typeof navigator !== 'undefined' &&
+  !!navigator.mediaDevices?.getUserMedia &&
+  !isDiscordActivity();
 
 interface HomePageProps {
   onCreateRoom: (playerName: string, streamerMode?: boolean) => void;
@@ -31,6 +44,9 @@ const HomePage: React.FC<HomePageProps> = ({
   const [streamerMode, setStreamerMode] = useState(false);
   const [isFromGameBuddies, setIsFromGameBuddies] = useState(false);
   const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const [pendingCamStream, setPendingCamStream] = useState<Promise<MediaStream> | null>(null);
+  const [scannedRoomCode, setScannedRoomCode] = useState<string | null>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,6 +90,35 @@ const HomePage: React.FC<HomePageProps> = ({
     if (inviteToken && onJoinWithInvite) {
       onJoinWithInvite(inviteToken, name);
     }
+  };
+
+  // The gesture-context stream must be stopped DETERMINISTICALLY whenever the
+  // scanner goes away — a live orphaned rear-camera track collides with the
+  // next scan's getUserMedia on iOS (WebKit kills one of the two tracks).
+  // Double-stopping tracks the hook already stopped is a harmless no-op.
+  const releasePendingCamStream = (p: Promise<MediaStream> | null) => {
+    p?.then(s => s.getTracks().forEach(t => t.stop())).catch(() => { /* denied — nothing to stop */ });
+  };
+
+  // Scanner results only PRODUCE a code/token — the join itself runs through
+  // an explicit modal (scan → type name → Join). The old silent form-prefill
+  // looked like "nothing happened" on a phone.
+  const handleScannedRoomCode = (roomCode: string) => {
+    setShowScanner(false);
+    releasePendingCamStream(pendingCamStream);
+    setPendingCamStream(null);
+    setInviteToken(null);
+    setScannedRoomCode(roomCode);
+    trackEvent('qr_join_prefilled', { via: 'scanner' });
+  };
+
+  const handleScannedInviteToken = (token: string) => {
+    setShowScanner(false);
+    releasePendingCamStream(pendingCamStream);
+    setPendingCamStream(null);
+    setJoinMode(null);
+    setInviteToken(token);
+    trackEvent('qr_join_prefilled', { via: 'scanner', payload: 'invite' });
   };
 
   return (
@@ -183,6 +228,36 @@ const HomePage: React.FC<HomePageProps> = ({
                     ? t('home.joinRoom')
                     : t('home.createRoom')}
               </button>
+              {canOfferQrScan && (
+                <button
+                  type="button"
+                  className="home-scan-qr-btn"
+                  onClick={() => {
+                    // iOS standalone PWAs only grant the camera INSIDE the
+                    // tap's call stack — request it here and hand the pending
+                    // stream to the scanner (an effect-time request works in
+                    // Safari but is rejected in Home Screen installs).
+                    const pending = navigator.mediaDevices?.getUserMedia
+                      ? navigator.mediaDevices.getUserMedia({
+                          video: { facingMode: { ideal: 'environment' } },
+                          audio: false,
+                        }).catch(() =>
+                          // Some iOS standalone builds reject constrained
+                          // requests but accept a bare one (still inside the
+                          // gesture's transient activation window).
+                          navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                        )
+                      : null;
+                    pending?.catch(() => { /* hook re-awaits and surfaces it */ });
+                    setPendingCamStream(pending);
+                    setShowScanner(true);
+                    trackEvent('qr_scan_opened', {});
+                  }}
+                >
+                  <ScanLine className="w-4 h-4" />
+                  {t('scanQr.button')}
+                </button>
+              )}
             </form>
           </div>
         </div>
@@ -203,6 +278,34 @@ const HomePage: React.FC<HomePageProps> = ({
           isConnecting={isConnecting}
           error={error}
         />
+      )}
+
+      {/* Post-scan join modal: scan → name → join */}
+      {scannedRoomCode && (
+        <JoinScannedRoomModal
+          roomCode={scannedRoomCode}
+          onClose={() => setScannedRoomCode(null)}
+          onJoin={(name) => onJoinRoom(scannedRoomCode, name)}
+          isConnecting={isConnecting}
+          error={error}
+          initialName={playerName}
+        />
+      )}
+
+      {/* QR scanner overlay (scan the TV's big-screen QR to join) */}
+      {showScanner && (
+        <Suspense fallback={null}>
+          <QrScannerOverlay
+            onRoomCode={handleScannedRoomCode}
+            onInviteToken={handleScannedInviteToken}
+            onClose={() => {
+              setShowScanner(false);
+              releasePendingCamStream(pendingCamStream);
+              setPendingCamStream(null);
+            }}
+            pendingStream={pendingCamStream}
+          />
+        </Suspense>
       )}
     </div>
   );

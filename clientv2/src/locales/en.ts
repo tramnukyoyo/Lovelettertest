@@ -270,6 +270,25 @@ export const en = {
     pts: 'pts',
   },
 
+  // QR scan-to-join
+  scanQr: {
+    button: 'Scan QR',
+    hint: 'Point your camera at the QR code on the TV',
+    starting: 'Starting camera…',
+    permissionDenied: 'Camera unavailable — type the room code instead',
+    cameraError: 'The camera stopped — close and try again, or type the room code',
+    photoButton: 'Take a photo of the QR code',
+    photoProcessing: 'Reading the photo…',
+    photoFailed: 'No QR code found — get closer to the screen and try again',
+    photoUnreadable: 'The photo could not be read — please take it again',
+    libraryButton: 'Choose from Photos',
+    joinTitle: 'Code scanned!',
+    joinSubtitle: 'Enter your name to join room {code}',
+    joinCta: 'Join the game',
+    notACode: 'Not a GameBuddies code',
+    close: 'Close scanner',
+  },
+
   // Chat
   chat: {
     typeMessage: 'Type a message...',

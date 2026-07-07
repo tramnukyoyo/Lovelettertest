@@ -263,6 +263,25 @@ export const de: Translations = {
     pts: 'Pkt',
   },
 
+  // QR scan-to-join
+  scanQr: {
+    button: 'QR scannen',
+    hint: 'Richte die Kamera auf den QR-Code auf dem TV',
+    starting: 'Kamera wird gestartet…',
+    permissionDenied: 'Kamera nicht verfügbar — gib stattdessen den Raumcode ein',
+    cameraError: 'Die Kamera wurde beendet — schließe den Scanner und versuch es erneut, oder gib den Raumcode ein',
+    photoButton: 'Foto vom QR-Code machen',
+    photoProcessing: 'Foto wird ausgelesen…',
+    photoFailed: 'Kein QR-Code gefunden — geh näher an den Bildschirm und versuch es nochmal',
+    photoUnreadable: 'Das Foto konnte nicht gelesen werden — bitte mach es noch einmal',
+    libraryButton: 'Aus Fotos auswählen',
+    joinTitle: 'Code gescannt!',
+    joinSubtitle: 'Gib deinen Namen ein, um Raum {code} beizutreten',
+    joinCta: 'Mitspielen',
+    notACode: 'Kein GameBuddies-Code',
+    close: 'Scanner schließen',
+  },
+
   // Chat
   chat: {
     typeMessage: 'Nachricht eingeben...',

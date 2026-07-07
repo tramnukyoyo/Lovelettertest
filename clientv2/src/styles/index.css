@@ -28,6 +28,7 @@
 @import './components/pixel.css';
 @import './components/decor.css';
 @import './components/cosmetics.css';
+@import './components/qr-scanner.css';
 
 /* GameShell: universal viewport-fit layout (see src/shell/README.md) */
 @import './shell/shell.css';
