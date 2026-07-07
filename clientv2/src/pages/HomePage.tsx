@@ -22,6 +22,8 @@ const QrScannerOverlay = lazy(() => import('../components/join/QrScannerOverlay'
 const canOfferQrScan =
   typeof navigator !== 'undefined' &&
   !!navigator.mediaDevices?.getUserMedia &&
+  // Touch devices only - desktop webcam scanning is poor UX (user call 2026-07-07).
+  (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) &&
   !isDiscordActivity();
 
 interface HomePageProps {
