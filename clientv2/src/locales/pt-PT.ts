@@ -454,6 +454,14 @@ export const ptPT: Translations = {
     tooShort: 'Acrescente um pouco mais de detalhe, por favor.',
   },
 
+  // Legal
+  legal: {
+    impressum: 'Informação Legal',
+    privacy: 'Privacidade',
+    terms: 'Termos',
+    section: 'Legal',
+  },
+
   // Settings
   settings: {
     title: 'Definicoes',

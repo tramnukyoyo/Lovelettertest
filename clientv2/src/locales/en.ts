@@ -440,6 +440,14 @@ export const en = {
     tooShort: 'Please add a little more detail.',
   },
 
+  // Legal
+  legal: {
+    impressum: 'Impressum',
+    privacy: 'Privacy',
+    terms: 'Terms',
+    section: 'Legal',
+  },
+
   // Settings
   settings: {
     title: 'Settings',

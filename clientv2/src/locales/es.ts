@@ -352,6 +352,14 @@ export const es: Translations = {
     tooShort: 'Añade un poco más de detalle, por favor.',
   },
 
+  // Legal
+  legal: {
+    impressum: 'Aviso legal',
+    privacy: 'Privacidad',
+    terms: 'Términos',
+    section: 'Legal',
+  },
+
   // Settings
   settings: {
     title: 'Configuracion',

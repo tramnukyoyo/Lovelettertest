@@ -1,0 +1,65 @@
+/**
+ * Legal footer + Settings legal links.
+ *
+ * Token-driven so it inherits each game's palette + font automatically — every
+ * game defines --font-body / --primary-light / --text-muted / --accent-hover /
+ * --accent-glow with its OWN values, so this one file themes itself per game.
+ * Fallbacks keep it readable if a token is missing. Only tweak per game when a
+ * specific look needs it. Copy alongside LegalFooter.tsx + the Settings legal row.
+ */
+
+/* Homepage footer -------------------------------------------------------- */
+.legal-footer {
+  margin-top: auto;            /* pin to the bottom of the flex-column homepage */
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.9rem;
+  padding: 0.9rem 1rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.72rem;
+  color: var(--text-muted, #9fb0ff);
+}
+
+.legal-footer__brand {
+  letter-spacing: 0.03em;
+  opacity: 0.75;
+}
+
+/* Link rows (footer + settings modal share these) ------------------------ */
+.legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.9rem;
+}
+
+.legal-link {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: var(--primary-light, var(--accent-hover, #7fe9ff));
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  /* color-mix softens the underline; if unsupported the browser falls back to a
+     solid currentColor underline, which is fine. */
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  transition: color 140ms ease, text-shadow 140ms ease, text-decoration-color 140ms ease;
+}
+
+.legal-link:hover,
+.legal-link:focus-visible {
+  color: var(--accent-hover, var(--primary, #00d9ff));
+  text-decoration-color: currentColor;
+  text-shadow: 0 0 10px var(--accent-glow, rgba(0, 217, 255, 0.4));
+  outline: none;
+}
+
+/* Settings-modal variant: label on the left, links inline — slightly denser. */
+.settings-row .legal-links { gap: 0.3rem 0.8rem; }

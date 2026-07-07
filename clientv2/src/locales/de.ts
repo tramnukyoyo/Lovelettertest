@@ -445,6 +445,14 @@ export const de: Translations = {
     tooShort: 'Bitte etwas mehr Details ergänzen.',
   },
 
+  // Legal
+  legal: {
+    impressum: 'Impressum',
+    privacy: 'Datenschutz',
+    terms: 'AGB',
+    section: 'Rechtliches',
+  },
+
   // Settings
   settings: {
     title: 'Einstellungen',

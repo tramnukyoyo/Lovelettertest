@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Volume2, Palette, Globe } from 'lucide-react';
+import { X, Volume2, Palette, Globe, FileText } from 'lucide-react';
 import { getCurrentLanguage, setCurrentLanguage, t } from '../../utils/translations';
 import { backgroundMusic, soundEffects } from '../../utils/audio';
 import { useIsMobile } from '../../hooks/useIsMobile';
@@ -263,6 +263,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 </div>
               </div>
             )}
+
+            {/* Legal — always shown so the Impressum / Datenschutz stay reachable
+                in 2 clicks (Settings ⚙ → link) from every screen, incl. the
+                fullscreen game, without leaving the room (§ 5 DDG / DSGVO). */}
+            <div className="settings-section">
+              <div className="settings-row">
+                <div className="settings-row-label">
+                  <FileText className="w-4 h-4" />
+                  <span>{t('legal.section')}</span>
+                </div>
+                <div className="legal-links">
+                  <a className="legal-link" href="https://gamebuddies.io/impressum" target="_blank" rel="noopener noreferrer">{t('legal.impressum')}</a>
+                  <a className="legal-link" href="https://gamebuddies.io/datenschutz" target="_blank" rel="noopener noreferrer">{t('legal.privacy')}</a>
+                  <a className="legal-link" href="https://gamebuddies.io/terms" target="_blank" rel="noopener noreferrer">{t('legal.terms')}</a>
+                </div>
+              </div>
+            </div>
 
           </div>
         </motion.div>

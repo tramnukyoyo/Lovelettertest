@@ -8,6 +8,7 @@ import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Users, Plus, Lightbulb, ExternalLink, Share2, ScanLine } from 'lucide-react';
 import { GAME_META } from '../config/gameMeta';
 import { HomeHeader, FloatingLabelInput, JoinFromInviteModal } from '../components/core';
+import LegalFooter from '../components/core/LegalFooter';
 import JoinScannedRoomModal from '../components/join/JoinScannedRoomModal';
 import { getCurrentSession } from '../services/gameBuddiesSession';
 import { isDiscordActivity } from '../services/discordActivity';
@@ -270,6 +271,10 @@ const HomePage: React.FC<HomePageProps> = ({
         <Lightbulb className="w-4 h-4" />
         <span>{t('home.multiplayerTip')}</span>
       </div>
+
+      {/* Legal footer (Impressum / Datenschutz / Terms). Homepage only — the
+          lobby/in-game views reach the same links via the Settings ⚙ menu. */}
+      <LegalFooter />
 
       {/* Invite Modal */}
       {inviteToken && (
