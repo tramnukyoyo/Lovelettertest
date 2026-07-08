@@ -214,7 +214,7 @@
   background: var(--btn-face, var(--gb-pink, #e94560));
   border: none;
   border-radius: 0;
-  color: var(--bg-darker, #0d0f1a);
+  color: var(--home-primary-btn-text, var(--bg-darker, #0d0f1a));
   font-family: var(--font-title, inherit);
   font-size: 0.85rem;
   letter-spacing: 0.03em;
@@ -225,7 +225,7 @@
 }
 .game-header-account-chip:hover { background: var(--accent-hover, var(--gb-pink, #e94560)); transform: translateY(-2px); filter: brightness(1.08); }
 .game-header-account-chip:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 0 var(--px-border-dark, rgba(0, 0, 0, 0.4)); }
-.game-header-account-chip.is-premium svg { color: #d4a017; }
+.game-header-account-chip.is-premium svg { color: #ffcf33; filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.85)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45)); }
 .game-header-account-name {
   max-width: 120px;
   overflow: hidden;
