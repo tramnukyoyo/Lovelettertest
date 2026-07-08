@@ -78,3 +78,12 @@
     background-attachment: scroll;
   }
 }
+
+/* ============================================================================
+   PRESENCE DOCK — "me" chip ring. shell.css uses --primary (royal crimson
+   #6a1623), invisible on the near-black velvet dock strip (#120d11). Lighter
+   rose ring instead — distinct from all card-style rings. Ring first (the
+   first shadow paints on top; the offset pressed shadow would cover its
+   right/bottom edges), pressed shadow pushed past the 2px ring.
+   (An equipped card style still outranks this — see cardstyles.css.) */
+.gs-chip.is-me { box-shadow: 0 0 0 2px #c9566b, 4px 4px 0 var(--px-border-dark); }

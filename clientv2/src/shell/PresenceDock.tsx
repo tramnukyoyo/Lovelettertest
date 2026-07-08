@@ -13,6 +13,8 @@ export interface DockPlayer {
   isHost?: boolean;
   isMe?: boolean;
   connected?: boolean;
+  /** Equipped premium card style (neon/gold/holo/ink) — frames the chip. */
+  cardStyle?: string;
   /** 'done' = ✓, 'waiting' = animated …, undefined = no status shown */
   status?: 'done' | 'waiting';
 }
@@ -22,7 +24,7 @@ const PresenceDock: React.FC<{ players: DockPlayer[] }> = ({ players }) => (
     {players.map(p => (
       <span
         key={p.id}
-        className={`gs-chip ${p.isMe ? 'is-me' : ''} ${p.connected === false ? 'is-disconnected' : ''}`}
+        className={`gs-chip ${p.isMe ? 'is-me' : ''} ${p.connected === false ? 'is-disconnected' : ''} ${p.cardStyle ? `lr-cardstyle-${p.cardStyle}` : ''}`.trim()}
         title={p.name}
       >
         <span className="gs-chip-av">

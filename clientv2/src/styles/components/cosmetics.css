@@ -5,6 +5,15 @@
 
 /* ============ FLAIR — applied to display-name <span> ============ */
 
+/* Readability outline: premium flairs are bright/pale/gradient and wash out on
+ * busy or matching backgrounds. A solid BLACK stroke drawn *behind* the fill
+ * (paint-order) outlines every letter so the name stays legible on ANY
+ * background without dulling the flair's color or animation. */
+[class*="flair-"] {
+  paint-order: stroke fill;
+  -webkit-text-stroke: 1px #000;
+}
+
 /* Tier 1: solid colors. Use !important sparingly to override deeply-nested
  * .player-name etc. styles — flair is a user-paid override, so it should win. */
 .flair-red    { color: #ff4d6d !important; }

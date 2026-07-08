@@ -1,0 +1,249 @@
+/* ============================================================================
+ * Premium card styles (game-native cosmetic, LetterRush package port).
+ *
+ * Prime Suspect has no per-answer card surface, so the equipped style shows on
+ * the lobby roster card, the presence-dock chip, and the picker preview.
+ * Server-validated: only premium players can equip one (player:set-card-style),
+ * style ids whitelisted server-side.
+ *
+ * Visual language: royal-noir velvet (--velvet-* / --parchment / royal crimson
+ * + gold). Canonical neon/gold/holo ring colors are kept fleet-wide; the ink
+ * style is adapted to a pale parchment-ink line (--parchment-dark #d9cfbe)
+ * because LetterRush's navy ink is invisible on the dark velvet surfaces.
+ * ==========================================================================*/
+
+/* Neon — electric cyan outline with a soft glow. */
+.lr-cardstyle-neon {
+  box-shadow:
+    inset 0 0 0 2px #00b8d9,
+    inset 0 0 10px rgba(0, 184, 217, 0.28);
+}
+
+/* Gold — gold-foil framing, warm inner sheen. */
+.lr-cardstyle-gold {
+  box-shadow:
+    inset 0 0 0 2px #d4a017,
+    inset 0 0 10px rgba(212, 160, 23, 0.3);
+}
+
+/* Holo — holographic sticker: the ring slowly cycles foil colors. */
+.lr-cardstyle-holo {
+  box-shadow:
+    inset 0 0 0 2px #ff6ec7,
+    inset 0 0 12px rgba(255, 110, 199, 0.22);
+  animation: lr-holo-shift 4.5s linear infinite;
+}
+@keyframes lr-holo-shift {
+  0%, 100% { box-shadow: inset 0 0 0 2px #ff6ec7, inset 0 0 12px rgba(255, 110, 199, 0.22); }
+  25%      { box-shadow: inset 0 0 0 2px #ffd86e, inset 0 0 12px rgba(255, 216, 110, 0.22); }
+  50%      { box-shadow: inset 0 0 0 2px #6effa6, inset 0 0 12px rgba(110, 255, 166, 0.22); }
+  75%      { box-shadow: inset 0 0 0 2px #6ec7ff, inset 0 0 12px rgba(110, 199, 255, 0.22); }
+}
+
+/* Ink — double pen rule, like a hand-inked frame. Pale parchment ink on the
+ * dark velvet card (navy would vanish); the middle stripe is the card tone. */
+.lr-cardstyle-ink {
+  box-shadow:
+    inset 0 0 0 1px var(--parchment-dark, #d9cfbe),
+    inset 0 0 0 3px var(--velvet-card, #3d2c36),
+    inset 0 0 0 4px var(--parchment-dark, #d9cfbe);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lr-cardstyle-holo { animation: none; }
+}
+
+/* ============================================================================
+ * Lobby picker — a compact row on the player's OWN card in PlayerList.
+ * Premium players pick a style; free players see the options locked (🔒).
+ * ==========================================================================*/
+
+/* The own-card <li> gains this class so the picker can wrap to a full row. */
+.player-list-item.has-cardstyle-picker { flex-wrap: wrap; }
+
+.lr-cardstyle-picker {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--panel-border, rgba(210, 178, 90, 0.38));
+}
+
+/* Collapsible header — the whole thin row is the toggle. Closed by default so
+ * the picker doesn't bloat the player card; expands to chips + preview. */
+.lr-cardstyle-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 1px 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+
+.lr-cardstyle-current {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-hand, inherit);
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--parchment, #f6f0e6);
+}
+
+.lr-cardstyle-swatch {
+  width: 18px;
+  height: 13px;
+  flex-shrink: 0;
+  background: var(--velvet-card, #3d2c36);
+  border: 1px solid var(--panel-border, rgba(210, 178, 90, 0.38));
+}
+
+.lr-cardstyle-chevron {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--text-muted, rgba(246, 240, 230, 0.72));
+}
+
+.lr-cardstyle-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted, rgba(246, 240, 230, 0.72));
+}
+
+.lr-cardstyle-hint {
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.7;
+}
+
+.lr-cardstyle-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Chips sit on the semi-transparent velvet player card, so they get the OPAQUE
+ * raised card tone — one step lighter than the panel — to stay readable. */
+.lr-cardstyle-chip {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-hand, inherit);
+  padding: 3px 8px;
+  background: var(--velvet-card, #3d2c36);
+  color: var(--parchment, #f6f0e6);
+  border: 2px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+  transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.lr-cardstyle-chip:active { transform: scale(0.95); }
+
+/* Rose accent (matches the dock is-me ring) — --primary crimson #6a1623 is
+ * too dark to read as "selected" on the velvet chip. */
+.lr-cardstyle-chip.selected {
+  border-color: #c9566b;
+}
+
+.lr-cardstyle-chip.locked {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.35);
+}
+
+/* Live preview — a mock player card showing the equipped style, so picking a
+ * style visibly does something right in the lobby. The .lr-cardstyle-* class
+ * layers its frame on top. */
+.lr-cardstyle-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.lr-cardstyle-preview-caption {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted, rgba(246, 240, 230, 0.72));
+}
+
+.lr-cardstyle-preview {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  background: var(--velvet-card, #3d2c36);
+  color: var(--parchment, #f6f0e6);
+  font-family: var(--font-hand, inherit);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: box-shadow 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Equipped style also frames the player's card in the roster: the border takes
+ * the style's color while the card keeps its pressed drop-shadow. Scoped under
+ * .player-list-items so it beats the .is-me border; box-shadow is reset here
+ * (the bare .lr-cardstyle-* class would otherwise swap in its inset ring and
+ * drop the card's depth). Ink border goes pale parchment — navy or crimson
+ * lines vanish on the dark velvet card. */
+.player-list-items .player-list-item.lr-cardstyle-neon { border-color: #00b8d9; box-shadow: 2px 2px 0 var(--px-border-dark); }
+.player-list-items .player-list-item.lr-cardstyle-gold { border-color: #d4a017; box-shadow: 2px 2px 0 var(--px-border-dark); }
+.player-list-items .player-list-item.lr-cardstyle-ink  { border-color: var(--parchment-dark, #d9cfbe); box-shadow: 2px 2px 0 var(--px-border-dark); }
+.player-list-items .player-list-item.lr-cardstyle-holo {
+  border-color: #ff6ec7;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
+  animation: lr-holo-border 4.5s linear infinite;
+}
+@keyframes lr-holo-border {
+  0%, 100% { border-color: #ff6ec7; }
+  25%      { border-color: #ffd86e; }
+  50%      { border-color: #6effa6; }
+  75%      { border-color: #6ec7ff; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .player-list-items .player-list-item.lr-cardstyle-holo { animation: none; }
+}
+
+/* Presence-dock chip (bottom roster) takes the equipped style as a ring while
+ * keeping its pressed drop-shadow. The .is-me variants outrank the
+ * .gs-chip.is-me ring (shell.css + hearts-gambit-old.css load later, so
+ * specificity must win) — the equipped style beats is-me, same rule as the
+ * lobby roster cards. Shadow ORDER matters: the first shadow paints on top, so
+ * the ring must come first or the offset pressed shadow covers its
+ * right/bottom edges. The pressed shadow is pushed to 4px so it still peeks
+ * out past the 2px ring. */
+.gs-chip.lr-cardstyle-neon,
+.gs-chip.is-me.lr-cardstyle-neon { box-shadow: 0 0 0 2px #00b8d9, 4px 4px 0 var(--px-border-dark); }
+.gs-chip.lr-cardstyle-gold,
+.gs-chip.is-me.lr-cardstyle-gold { box-shadow: 0 0 0 2px #d4a017, 4px 4px 0 var(--px-border-dark); }
+/* Ink ring is drawn INSET in pale parchment — an outer dark-ink ring is
+ * invisible against the dock's near-black velvet strip (#120d11). */
+.gs-chip.lr-cardstyle-ink,
+.gs-chip.is-me.lr-cardstyle-ink  { box-shadow: 2px 2px 0 var(--px-border-dark), inset 0 0 0 2px var(--parchment-dark, #d9cfbe); }
+.gs-chip.lr-cardstyle-holo { animation: lr-holo-chip 4.5s linear infinite; }
+@keyframes lr-holo-chip {
+  0%, 100% { box-shadow: 0 0 0 2px #ff6ec7, 4px 4px 0 var(--px-border-dark); }
+  25%      { box-shadow: 0 0 0 2px #ffd86e, 4px 4px 0 var(--px-border-dark); }
+  50%      { box-shadow: 0 0 0 2px #6effa6, 4px 4px 0 var(--px-border-dark); }
+  75%      { box-shadow: 0 0 0 2px #6ec7ff, 4px 4px 0 var(--px-border-dark); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-chip.lr-cardstyle-holo,
+  .gs-chip.is-me.lr-cardstyle-holo { animation: none; box-shadow: 0 0 0 2px #ff6ec7, 4px 4px 0 var(--px-border-dark); }
+}

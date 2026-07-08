@@ -37,6 +37,8 @@ interface MobileDrawerProps {
   onLeaveVideo?: () => void;
   teams?: Team[];
   className?: string;
+  /** Lobby only: show the premium card-style picker on the viewer's own card. */
+  showCardStylePicker?: boolean;
 }
 
 const MobileDrawer: React.FC<MobileDrawerProps> = ({
@@ -53,7 +55,8 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
   localPlayerName,
   onLeaveVideo,
   teams = [],
-  className = ''
+  className = '',
+  showCardStylePicker = false
 }) => {
   // Lock background scroll while the overlay is open (touch can otherwise
   // scroll the page behind the modal).
@@ -147,6 +150,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   isHost={isHost}
                   onKickPlayer={onKickPlayer}
                   teams={teams}
+                  showCardStylePicker={showCardStylePicker}
                 />
               )}
 

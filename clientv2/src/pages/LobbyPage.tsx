@@ -152,6 +152,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
         isHost: p.isHost,
         isMe: p.socketId === lobby.mySocketId,
         connected: p.connected,
+        cardStyle: p.cardStyle,
       })),
     [lobby.players, lobby.mySocketId]
   );
@@ -185,6 +186,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                   mySocketId={lobby.mySocketId}
                   isHost={isHost}
                   onKickPlayer={isHost ? handleKickPlayer : undefined}
+                  showCardStylePicker
                 />
               ) : (
                 <ChatWindow
@@ -314,6 +316,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
         localPlayerName={myPlayer?.name}
         onLeaveVideo={disableVideoChat}
         teams={[]}
+        showCardStylePicker
       />
     </>
   );

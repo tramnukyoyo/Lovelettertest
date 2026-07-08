@@ -22,6 +22,8 @@ export interface BasePlayer {
   isGuest?: boolean;
   disconnectedAt?: number;
   premiumTier?: 'free' | 'premium' | 'pro' | 'monthly' | 'lifetime';
+  /** Premium card style ('' | 'neon' | 'gold' | 'holo' | 'ink') — server-validated. */
+  cardStyle?: string;
   avatarUrl?: string;
   id?: string;
   isPassPlayPlayer?: boolean;

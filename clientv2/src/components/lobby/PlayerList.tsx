@@ -10,6 +10,7 @@ import { Crown, Eye, Wifi, WifiOff, UserMinus, X } from 'lucide-react';
 import { PlayerCard, ProfileAvatar, FlairName } from '../core';
 import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
+import socketService from '../../services/socketService';
 
 interface PlayerListProps {
   players: Player[];
@@ -24,7 +25,18 @@ interface PlayerListProps {
   isSpectator?: boolean;
   viewingAsSocketId?: string | null;
   onPlayerClick?: (socketId: string) => void;
+  /** Lobby only: show the premium card-style picker on the viewer's own card. */
+  showCardStylePicker?: boolean;
 }
+
+/** Premium card styles (ids validated server-side, see cardstyles.css). */
+const CARD_STYLE_OPTIONS: Array<{ id: string; label: string }> = [
+  { id: '', label: 'None' },
+  { id: 'neon', label: 'Neon' },
+  { id: 'gold', label: 'Gold' },
+  { id: 'holo', label: 'Holo' },
+  { id: 'ink', label: 'Ink' },
+];
 
 // Normalize tier values (API returns 'lifetime' but CSS uses 'premium')
 const getNormalizedTier = (tier?: string): 'premium' | 'pro' | null => {
@@ -47,8 +59,29 @@ const PlayerList: React.FC<PlayerListProps> = ({
   onKickPlayer,
   isSpectator = false,
   viewingAsSocketId,
-  onPlayerClick
+  onPlayerClick,
+  showCardStylePicker = false
 }) => {
+  // Premium detection for the card-style picker (LetterRush pattern).
+  const me = players.find(p => p.socketId === mySocketId);
+  const isPremium = !!me?.premiumTier && me.premiumTier !== 'free';
+
+  // Optimistic card-style selection: reflect the click instantly, then let the
+  // server broadcast (source of truth) reconcile it. Without this the only
+  // feedback was a faint chip border ~200ms after the round-trip.
+  const [pendingCardStyle, setPendingCardStyle] = useState<string | null>(null);
+  const handleSetCardStyle = (style: string) => {
+    setPendingCardStyle(style);
+    socketService.getSocket()?.emit('player:set-card-style', { style });
+  };
+  useEffect(() => {
+    if (pendingCardStyle !== null && (me?.cardStyle ?? '') === pendingCardStyle) {
+      setPendingCardStyle(null);
+    }
+  }, [me?.cardStyle, pendingCardStyle]);
+  // Collapsed by default so the picker stays a thin row in the player list;
+  // tap the header to expand the chips + preview.
+  const [cardStyleOpen, setCardStyleOpen] = useState(false);
   // Game is active if any player has any Bluffalo game fields set (score exists)
   const gameActive = players.some(p => 'score' in p && typeof (p as any).score === 'number' && (((p as any).hasSubmittedLie || (p as any).hasVoted || (p as any).score > 0)));
   // State for inline kick confirmation
@@ -199,11 +232,15 @@ const PlayerList: React.FC<PlayerListProps> = ({
           const isMe = player.socketId === mySocketId;
           const isConnected = player.connected;
           const playerTeam = getPlayerTeam(player.socketId);
+          const withStylePicker = showCardStylePicker && isMe && !player.isSpectator;
+          // Optimistic pending style applies to my own card only — other players
+          // always reflect their own equipped style from the broadcast.
+          const equippedCardStyle = (isMe ? pendingCardStyle : null) ?? (player.cardStyle ?? '');
 
           return (
             <li
               key={player.id ?? player.socketId}
-              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''}`}
+              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''} ${withStylePicker ? 'has-cardstyle-picker' : ''} ${equippedCardStyle ? `lr-cardstyle-${equippedCardStyle}` : ''}`}
               onClick={() => isSpectator && !isMe && onPlayerClick?.(player.socketId)}
             >
               {/* Avatar (tap opens the platform profile card, cosmetics-aware) */}
@@ -259,6 +296,63 @@ const PlayerList: React.FC<PlayerListProps> = ({
                   );
                 })()}
               </div>
+
+              {/* Premium card-style picker — own card, lobby only. Premium players
+                  pick a card style; free players see the options locked
+                  (shown-but-locked upsell, mirrors the LetterRush package). */}
+              {withStylePicker && (
+                <div className={`lr-cardstyle-picker ${cardStyleOpen ? 'is-open' : ''}`}>
+                  {/* Thin header row — collapsed by default, tap to expand. */}
+                  <button
+                    type="button"
+                    className="lr-cardstyle-toggle"
+                    aria-expanded={cardStyleOpen}
+                    onClick={(e) => { e.stopPropagation(); setCardStyleOpen(o => !o); }}
+                  >
+                    <span className="lr-cardstyle-label">
+                      Card style
+                      {!isPremium && <span className="lr-cardstyle-hint"> · Premium</span>}
+                    </span>
+                    <span className="lr-cardstyle-current">
+                      <span className={`lr-cardstyle-swatch ${equippedCardStyle ? `lr-cardstyle-${equippedCardStyle}` : ''}`} />
+                      {CARD_STYLE_OPTIONS.find(o => o.id === equippedCardStyle)?.label ?? 'None'}
+                    </span>
+                    <span className="lr-cardstyle-chevron">{cardStyleOpen ? '▾' : '▸'}</span>
+                  </button>
+                  {cardStyleOpen && (
+                    <>
+                      <div className="lr-cardstyle-chips">
+                        {CARD_STYLE_OPTIONS.map((opt) => {
+                          const locked = !isPremium && opt.id !== '';
+                          const selected = equippedCardStyle === opt.id;
+                          return (
+                            <button
+                              key={opt.id || 'none'}
+                              type="button"
+                              className={`lr-cardstyle-chip ${opt.id ? `lr-cardstyle-${opt.id}` : ''} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+                              title={locked ? 'Premium card style — unlock with GameBuddies Premium' : opt.label}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!locked) handleSetCardStyle(opt.id);
+                              }}
+                            >
+                              {locked ? `🔒 ${opt.label}` : selected ? `✓ ${opt.label}` : opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {/* Live preview: the equipped style frames your roster card and
+                          dock chip — mirror it here so picking clearly does something. */}
+                      <div className="lr-cardstyle-preview-row">
+                        <span className="lr-cardstyle-preview-caption">Your player card</span>
+                        <div className={`lr-cardstyle-preview ${equippedCardStyle ? `lr-cardstyle-${equippedCardStyle}` : ''}`}>
+                          {player.name}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* Kick Button (host only, not self, connected players) */}
               {isHost && !isMe && isConnected && onKickPlayer && (
