@@ -12,6 +12,7 @@ import LegalFooter from '../components/core/LegalFooter';
 import JoinScannedRoomModal from '../components/join/JoinScannedRoomModal';
 import { getCurrentSession } from '../services/gameBuddiesSession';
 import { isDiscordActivity } from '../services/discordActivity';
+import { useAuthState } from '../services/supabaseAuth';
 import { trackEvent } from '../services/analyticsService';
 import { t } from '../utils/translations';
 
@@ -74,6 +75,18 @@ const HomePage: React.FC<HomePageProps> = ({
       if (session.isStreamerMode) setStreamerMode(true);
     }
   }, []);
+
+  // Signed in via the shared platform session (in-game modal or main site):
+  // prefill the name field once the profile arrives. Platform-launch session
+  // names and anything the user already typed take precedence.
+  const auth = useAuthState();
+  useEffect(() => {
+    if (auth.status !== 'authed' || !auth.user) return;
+    const profileName = auth.user.display_name || auth.user.username;
+    if (profileName) {
+      setPlayerName((current) => (current.trim() ? current : String(profileName)));
+    }
+  }, [auth.status, auth.user]);
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();

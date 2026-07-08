@@ -9,14 +9,18 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Menu, X, HelpCircle, Globe, MessageSquareWarning } from 'lucide-react';
+import { Settings, Menu, X, HelpCircle, Globe, MessageSquareWarning, LogIn, LogOut } from 'lucide-react';
 import { GAME_META } from '../../config/gameMeta';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { t } from '../../utils/translations';
 import SettingsModal from './SettingsModal';
 import FeedbackModal from './FeedbackModal';
+import GameAuthModal from './GameAuthModal';
+import GameAccountControl from './GameAccountControl';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
 import MuteButton from './MuteButton';
+import { canPlatformLogin, redirectToPlatformLogin, redirectToPlatformLogout } from '../../services/platformAuth';
+import { useAuthState, isInGameAuthAvailable, signOutEverywhere } from '../../services/supabaseAuth';
 
 interface HomeHeaderProps {
   onTutorial?: () => void;
@@ -25,8 +29,26 @@ interface HomeHeaderProps {
 const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  // Account control on the landing screen — no room yet, so identity comes
+  // straight from the shared platform session (supabaseAuth store).
+  const auth = useAuthState();
+  const isLoggedIn = auth.status === 'authed';
+  const accountName = (auth.user?.display_name || auth.user?.username || 'Player') as string;
+  const canAuth = canPlatformLogin();
+  const handleLogin = () => {
+    setIsMenuOpen(false);
+    if (isInGameAuthAvailable()) setShowAuth(true);
+    else redirectToPlatformLogin();
+  };
+  const handleLogout = () => {
+    setIsMenuOpen(false);
+    if (isInGameAuthAvailable()) void signOutEverywhere();
+    else redirectToPlatformLogout();
+  };
 
   const handleOpenSettings = () => {
     setIsMenuOpen(false);
@@ -88,6 +110,17 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
           >
             <Settings className="w-5 h-5" />
           </button>
+
+          {/* Account control — utmost right (platform convention). Guest →
+              Log in / Sign up (in-game modal); logged-in → name + Log out. */}
+          <GameAccountControl
+            name={accountName}
+            isLoggedIn={isLoggedIn}
+            isPremium={auth.isPremium}
+            canAuth={canAuth}
+            onLogin={handleLogin}
+            onLogout={handleLogout}
+          />
         </div>
       )}
 
@@ -195,6 +228,30 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
                       <span className="home-header-menu-sublabel">{t('feedback.intro')}</span>
                     </div>
                   </button>
+
+                  {/* Account — Log in / Sign up (guest) or Log out (account) */}
+                  {canAuth && !isLoggedIn && (
+                    <button onClick={handleLogin} className="home-header-menu-item">
+                      <div className="home-header-menu-icon">
+                        <LogIn className="w-4 h-4" />
+                      </div>
+                      <div className="home-header-menu-content">
+                        <span className="home-header-menu-label">{t('menu.login')}</span>
+                        <span className="home-header-menu-sublabel">{t('menu.loginSublabel')}</span>
+                      </div>
+                    </button>
+                  )}
+                  {canAuth && isLoggedIn && (
+                    <button onClick={handleLogout} className="home-header-menu-item">
+                      <div className="home-header-menu-icon">
+                        <LogOut className="w-4 h-4" />
+                      </div>
+                      <div className="home-header-menu-content">
+                        <span className="home-header-menu-label">{t('menu.logout')}</span>
+                        <span className="home-header-menu-sublabel">{accountName}</span>
+                      </div>
+                    </button>
+                  )}
                 </div>
               </motion.div>
             </>
@@ -205,6 +262,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+
+      {/* In-game login/signup — auth without leaving the page */}
+      {showAuth && <GameAuthModal onClose={() => setShowAuth(false)} />}
     </header>
   );
 };

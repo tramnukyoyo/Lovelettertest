@@ -97,6 +97,9 @@ export const en = {
     streamerMode: 'Streamer Mode',
     copyRoomLink: 'Copy room link',
     copyInviteLink: 'Copy invite link',
+    login: 'Log in',
+    loginTitle: 'Log in or sign up to save your progress, GP and premium',
+    logout: 'Log out',
   },
 
   // Video
@@ -387,6 +390,11 @@ export const en = {
 
   // Mobile hamburger menu items + drawer titles
   menu: {
+    login: 'Log in / Sign up',
+    loginSublabel: 'Save your GP & premium',
+    logout: 'Log out',
+    loggedIn: 'Logged in',
+    premiumMember: 'Premium member',
     tapToCopy: 'Tap to copy',
     linkCopied: 'Link copied!',
     streamerMode: 'Streamer Mode',
@@ -446,6 +454,36 @@ export const en = {
     privacy: 'Privacy',
     terms: 'Terms',
     section: 'Legal',
+  },
+
+  // In-game login/signup modal (GameAuthModal)
+  authModal: {
+    titleSignin: 'Log in',
+    titleSignup: 'Create account',
+    tabSignin: 'Log in',
+    tabSignup: 'Sign up',
+    benefits: 'Save your GP, streak & premium across all GameBuddies games',
+    email: 'Email',
+    password: 'Password',
+    confirmPassword: 'Confirm password',
+    rememberMe: 'Stay signed in',
+    consent: 'I am 16 or older and accept the Terms & Privacy Policy',
+    submitSignin: 'Log in',
+    submitSignup: 'Sign up',
+    submitting: 'Please wait…',
+    orEmail: 'or with email',
+    google: 'Continue with Google',
+    discord: 'Continue with Discord',
+    fillAllFields: 'Please fill in all fields.',
+    passwordMinLength: 'Password must be at least 6 characters.',
+    passwordsMismatch: 'Passwords do not match.',
+    consentRequired: 'Please confirm age and terms to continue.',
+    emailAlreadyRegistered: 'This email is already registered — log in instead.',
+    authFailed: 'Sign-in failed. Please try again.',
+    popupClosed: 'The sign-in window was closed before finishing.',
+    pendingConfirmTitle: 'Check your email',
+    pendingConfirmBody: 'We sent you a confirmation link. After confirming you will be signed in automatically.',
+    successTitle: 'Signed in!',
   },
 
   // Settings

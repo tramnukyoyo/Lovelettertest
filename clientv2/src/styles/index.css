@@ -21,6 +21,7 @@
 @import './components/cards.css';
 @import './components/header.css';
 @import './components/settings-modal.css';
+@import './components/auth-modal.css';
 @import './components/feedback-modal.css';
 @import './components/error-boundary.css';
 @import './components/return-button.css';

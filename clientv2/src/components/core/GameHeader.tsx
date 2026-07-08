@@ -18,11 +18,16 @@ import { t } from '../../utils/translations';
 import MobileGameMenu from './MobileGameMenu';
 import SettingsModal from './SettingsModal';
 import FeedbackModal from './FeedbackModal';
+import GameAuthModal from './GameAuthModal';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
 import GameBuddiesReturnButton from './GameBuddiesReturnButton';
+import GameAccountControl from './GameAccountControl';
 import MuteButton from './MuteButton';
 import { VideoControlCluster } from '../video';
 import { isDiscordActivity } from '../../services/discordActivity';
+import { redirectToPlatformLogin, redirectToPlatformLogout, canPlatformLogin } from '../../services/platformAuth';
+import { useAuthState, isInGameAuthAvailable, signOutEverywhere } from '../../services/supabaseAuth';
+import { usePlayerProfile } from '../../services/playerProfiles';
 
 interface GameHeaderProps {
   lobby: Lobby;
@@ -46,6 +51,43 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   const hideRoomCode = gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode || false;
   const myPlayer = lobby.players.find((p: Player) => p.socketId === lobby.mySocketId);
   const isHost = myPlayer?.isHost || false;
+  // Account control mirrors the platform header. Login/logout happen IN-GAME
+  // via GameAuthModal + the shared platform Supabase session (supabaseAuth.ts);
+  // the redirect flow is only the fallback when in-game auth is unavailable
+  // (standalone dev, config unreachable).
+  const myProfile = usePlayerProfile(myPlayer?.id);
+  const auth = useAuthState();
+  const isPremiumMe = !!(myPlayer?.premiumTier && myPlayer.premiumTier !== 'free');
+  // Precedence: explicit logout → out; live shared session → in; otherwise the
+  // server-validated seat flag (with profile/premium inference as last resort).
+  const isLoggedIn = auth.signedOutLocally
+    ? false
+    : auth.status === 'authed'
+      ? true
+      : myPlayer?.isGuest === false
+        ? true
+        : myPlayer?.isGuest === true
+          ? false
+          : (!!myProfile || isPremiumMe);
+  // The account chip shows the PLATFORM identity (gamebuddies.io account
+  // name), not the room nickname — renaming yourself in the room must not
+  // change the logged-in-as display. Seat name only as last-resort fallback
+  // (e.g. platform-launched seat where in-game auth is unavailable).
+  const accountName =
+    (auth.user?.display_name as string | undefined) ||
+    (auth.user?.username as string | undefined) ||
+    myPlayer?.name ||
+    'Player';
+  const canAuth = canPlatformLogin();
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const handleLogin = () => {
+    if (isInGameAuthAvailable()) setIsAuthOpen(true);
+    else redirectToPlatformLogin({ roomCode: lobby.code, playerName: myPlayer?.name });
+  };
+  const handleLogout = () => {
+    if (isInGameAuthAvailable()) void signOutEverywhere();
+    else redirectToPlatformLogout();
+  };
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(false);
@@ -307,6 +349,18 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               <ArrowLeft className="w-4 h-4" />
               {t('lobby.leaveRoom')}
             </button>
+
+            {/* Account control — utmost right in every header (platform
+                convention). Logged-in → platform account name + premium +
+                Log out; guest → Log in / Sign up via the in-game GameAuthModal. */}
+            <GameAccountControl
+              name={accountName}
+              isLoggedIn={isLoggedIn}
+              isPremium={isPremiumMe}
+              canAuth={canAuth}
+              onLogin={handleLogin}
+              onLogout={handleLogout}
+            />
           </div>
         )}
 
@@ -323,6 +377,11 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               onCopyLink={copyRoomLink}
               linkCopied={copyFeedback}
               onLeave={handleLeave}
+              onLogin={canAuth && !isLoggedIn ? handleLogin : undefined}
+              onLogout={canAuth && isLoggedIn ? handleLogout : undefined}
+              playerName={accountName}
+              isPremium={isPremiumMe}
+              isLoggedIn={isLoggedIn}
               onChat={onOpenChat}
               unreadCount={unreadChatCount}
               onPlayers={onOpenPlayers}
@@ -363,6 +422,15 @@ const GameHeader: React.FC<GameHeaderProps> = ({
 
       {/* Feedback / Report-a-problem Modal */}
       {isFeedbackOpen && <FeedbackModal lobby={lobby} onClose={() => setIsFeedbackOpen(false)} />}
+
+      {/* In-game login/signup — auth without leaving the room */}
+      {isAuthOpen && (
+        <GameAuthModal
+          onClose={() => setIsAuthOpen(false)}
+          roomCode={lobby.code}
+          playerName={myPlayer?.name}
+        />
+      )}
     </header>
   );
 };

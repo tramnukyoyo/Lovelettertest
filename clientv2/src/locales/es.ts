@@ -98,6 +98,9 @@ export const es: Translations = {
     streamerMode: 'Modo Streamer',
     copyRoomLink: 'Copiar enlace de la sala',
     copyInviteLink: 'Copiar enlace de invitacion',
+    login: 'Iniciar sesión',
+    loginTitle: 'Inicia sesión o regístrate para guardar tu progreso, GP y premium',
+    logout: 'Cerrar sesión',
   },
 
   // Video
@@ -297,6 +300,11 @@ export const es: Translations = {
   // Mobile hamburger menu items + drawer titles
   // AI-TRANSLATED on 2026-06-12, please review
   menu: {
+    login: 'Iniciar sesión / Registrarse',
+    loginSublabel: 'Guarda tus GP y premium',
+    logout: 'Cerrar sesión',
+    loggedIn: 'Sesión iniciada',
+    premiumMember: 'Miembro premium',
     tapToCopy: 'Toca para copiar',
     linkCopied: '¡Enlace copiado!',
     streamerMode: 'Modo Streamer',
@@ -358,6 +366,36 @@ export const es: Translations = {
     privacy: 'Privacidad',
     terms: 'Términos',
     section: 'Legal',
+  },
+
+  // In-game login/signup modal (GameAuthModal)
+  authModal: {
+    titleSignin: 'Iniciar sesión',
+    titleSignup: 'Crear cuenta',
+    tabSignin: 'Iniciar sesión',
+    tabSignup: 'Registrarse',
+    benefits: 'Guarda tus GP, racha y premium en todos los juegos de GameBuddies',
+    email: 'Correo electrónico',
+    password: 'Contraseña',
+    confirmPassword: 'Confirmar contraseña',
+    rememberMe: 'Mantener la sesión iniciada',
+    consent: 'Tengo 16 años o más y acepto los Términos y la Política de Privacidad',
+    submitSignin: 'Iniciar sesión',
+    submitSignup: 'Registrarse',
+    submitting: 'Espera…',
+    orEmail: 'o con correo',
+    google: 'Continuar con Google',
+    discord: 'Continuar con Discord',
+    fillAllFields: 'Completa todos los campos, por favor.',
+    passwordMinLength: 'La contraseña debe tener al menos 6 caracteres.',
+    passwordsMismatch: 'Las contraseñas no coinciden.',
+    consentRequired: 'Confirma tu edad y los términos para continuar.',
+    emailAlreadyRegistered: 'Este correo ya está registrado — inicia sesión.',
+    authFailed: 'No se pudo iniciar sesión. Inténtalo de nuevo.',
+    popupClosed: 'La ventana de inicio de sesión se cerró antes de terminar.',
+    pendingConfirmTitle: 'Revisa tu correo',
+    pendingConfirmBody: 'Te enviamos un enlace de confirmación. Tras confirmar, iniciarás sesión automáticamente.',
+    successTitle: '¡Sesión iniciada!',
   },
 
   // Settings

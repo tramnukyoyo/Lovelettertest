@@ -18,6 +18,8 @@ export interface BasePlayer {
   name: string;
   connected: boolean;
   isHost: boolean;
+  /** Server-validated logged-in vs guest signal (isGuest = no platform account). */
+  isGuest?: boolean;
   disconnectedAt?: number;
   premiumTier?: 'free' | 'premium' | 'pro' | 'monthly' | 'lifetime';
   avatarUrl?: string;

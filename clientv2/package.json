@@ -27,6 +27,7 @@
     "@react-three/fiber": "^9.3.0",
     "@react-three/postprocessing": "^3.0.4",
     "@sapphi-red/web-noise-suppressor": "^0.3.5",
+    "@supabase/supabase-js": "^2.110.1",
     "country-flag-icons": "^1.6.16",
     "emoji-picker-react": "^4.13.3",
     "fast-json-patch": "^3.1.1",

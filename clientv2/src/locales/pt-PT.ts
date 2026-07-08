@@ -99,6 +99,9 @@ export const ptPT: Translations = {
     streamerMode: 'Modo Streamer',
     copyRoomLink: 'Copiar ligacao da sala',
     copyInviteLink: 'Copiar ligacao de convite',
+    login: 'Entrar',
+    loginTitle: 'Inicia sessão ou regista-te para guardar o teu progresso, GP e premium',
+    logout: 'Sair',
   },
 
   // Video
@@ -399,6 +402,11 @@ export const ptPT: Translations = {
   // Mobile hamburger menu items + drawer titles
   // AI-TRANSLATED on 2026-06-12, please review
   menu: {
+    login: 'Entrar / Registar',
+    loginSublabel: 'Guarda os teus GP e premium',
+    logout: 'Sair',
+    loggedIn: 'Sessão iniciada',
+    premiumMember: 'Membro premium',
     tapToCopy: 'Toca para copiar',
     linkCopied: 'Ligação copiada!',
     streamerMode: 'Modo Streamer',
@@ -460,6 +468,36 @@ export const ptPT: Translations = {
     privacy: 'Privacidade',
     terms: 'Termos',
     section: 'Legal',
+  },
+
+  // In-game login/signup modal (GameAuthModal)
+  authModal: {
+    titleSignin: 'Iniciar sessão',
+    titleSignup: 'Criar conta',
+    tabSignin: 'Iniciar sessão',
+    tabSignup: 'Registar',
+    benefits: 'Guarde os seus GP, sequência e premium em todos os jogos GameBuddies',
+    email: 'E-mail',
+    password: 'Palavra-passe',
+    confirmPassword: 'Confirmar palavra-passe',
+    rememberMe: 'Manter sessão iniciada',
+    consent: 'Tenho 16 anos ou mais e aceito os Termos e a Política de Privacidade',
+    submitSignin: 'Iniciar sessão',
+    submitSignup: 'Registar',
+    submitting: 'Aguarde…',
+    orEmail: 'ou com e-mail',
+    google: 'Continuar com Google',
+    discord: 'Continuar com Discord',
+    fillAllFields: 'Preencha todos os campos, por favor.',
+    passwordMinLength: 'A palavra-passe deve ter pelo menos 6 caracteres.',
+    passwordsMismatch: 'As palavras-passe não coincidem.',
+    consentRequired: 'Confirme a idade e os termos para continuar.',
+    emailAlreadyRegistered: 'Este e-mail já está registado — inicie sessão.',
+    authFailed: 'Falha ao iniciar sessão. Tente novamente.',
+    popupClosed: 'A janela de início de sessão foi fechada antes de concluir.',
+    pendingConfirmTitle: 'Verifique o seu e-mail',
+    pendingConfirmBody: 'Enviámos um link de confirmação. Após confirmar, iniciará sessão automaticamente.',
+    successTitle: 'Sessão iniciada!',
   },
 
   // Settings

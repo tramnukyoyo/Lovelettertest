@@ -13,6 +13,7 @@ import AdminMessageToast from './components/ui/AdminMessageToast';
 import type { AdminMessage } from './components/ui/AdminMessageToast';
 import type { Lobby, PlayerPlatformProfile } from './types';
 import { setPlayerProfile } from './services/playerProfiles';
+import { initSupabaseAuth, maybeUpgradeRoomIdentity, useAuthState } from './services/supabaseAuth';
 import {
   setPostgameRewards,
   setRematchState,
@@ -393,6 +394,30 @@ function App() {
 
     return removeListeners;
   }, []);
+
+  // In-game auth (shared platform Supabase session). Prime Suspect has no TV
+  // big-screen display mode, so this always initializes.
+  useEffect(() => {
+    initSupabaseAuth();
+  }, []);
+
+  // Live seat upgrade: whenever we're authed with the shared session and
+  // seated in a room, have the server re-validate the access token and set
+  // userId/isGuest/premiumTier on the seat. Must run even when the seat
+  // already looks non-guest: standalone create claims our userId client-side
+  // (unvalidated → premium stays 'free') — only this validation grants
+  // premium. Once per (room, user); the server call is cheap + rate-limited.
+  const auth = useAuthState();
+  const authUpgradeFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!socket || !lobby || auth.status !== 'authed') return;
+    const myPlayer = lobby.players.find(p => p.socketId === lobby.mySocketId);
+    if (!myPlayer) return;
+    const key = `${lobby.code}:${auth.userId}`;
+    if (authUpgradeFor.current === key) return;
+    authUpgradeFor.current = key;
+    maybeUpgradeRoomIdentity();
+  }, [socket, lobby, auth.status, auth.userId]);
 
   const handleCreateRoom = useCallback((playerName: string, streamerMode?: boolean) => {
     createRoom(playerName, gameBuddiesSession, streamerMode);

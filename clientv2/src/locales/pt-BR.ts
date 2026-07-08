@@ -99,6 +99,9 @@ export const ptBR: Translations = {
     streamerMode: 'Modo Streamer',
     copyRoomLink: 'Copiar link da sala',
     copyInviteLink: 'Copiar link de convite',
+    login: 'Entrar',
+    loginTitle: 'Entre ou cadastre-se para salvar seu progresso, GP e premium',
+    logout: 'Sair',
   },
 
   // Video
@@ -399,6 +402,11 @@ export const ptBR: Translations = {
   // Mobile hamburger menu items + drawer titles
   // AI-TRANSLATED on 2026-06-12, please review
   menu: {
+    login: 'Entrar / Cadastrar',
+    loginSublabel: 'Salve seus GP e premium',
+    logout: 'Sair',
+    loggedIn: 'Conectado',
+    premiumMember: 'Membro premium',
     tapToCopy: 'Toque para copiar',
     linkCopied: 'Link copiado!',
     streamerMode: 'Modo Streamer',
@@ -460,6 +468,36 @@ export const ptBR: Translations = {
     privacy: 'Privacidade',
     terms: 'Termos',
     section: 'Legal',
+  },
+
+  // In-game login/signup modal (GameAuthModal)
+  authModal: {
+    titleSignin: 'Entrar',
+    titleSignup: 'Criar conta',
+    tabSignin: 'Entrar',
+    tabSignup: 'Cadastrar',
+    benefits: 'Salve seus GP, sequência e premium em todos os jogos GameBuddies',
+    email: 'E-mail',
+    password: 'Senha',
+    confirmPassword: 'Confirmar senha',
+    rememberMe: 'Manter conectado',
+    consent: 'Tenho 16 anos ou mais e aceito os Termos e a Política de Privacidade',
+    submitSignin: 'Entrar',
+    submitSignup: 'Cadastrar',
+    submitting: 'Aguarde…',
+    orEmail: 'ou com e-mail',
+    google: 'Continuar com Google',
+    discord: 'Continuar com Discord',
+    fillAllFields: 'Preencha todos os campos, por favor.',
+    passwordMinLength: 'A senha deve ter pelo menos 6 caracteres.',
+    passwordsMismatch: 'As senhas não coincidem.',
+    consentRequired: 'Confirme idade e termos para continuar.',
+    emailAlreadyRegistered: 'Este e-mail já está registrado — faça login.',
+    authFailed: 'Falha ao entrar. Tente novamente.',
+    popupClosed: 'A janela de login foi fechada antes de concluir.',
+    pendingConfirmTitle: 'Verifique seu e-mail',
+    pendingConfirmBody: 'Enviamos um link de confirmação. Após confirmar, você entrará automaticamente.',
+    successTitle: 'Conectado!',
   },
 
   // Settings

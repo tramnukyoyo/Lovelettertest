@@ -21,6 +21,7 @@ import {
   clearSession,
 } from '../services/gameBuddiesSession';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
+import { getAuthUserId } from '../services/supabaseAuth';
 import type {
   ChatMessage,
   Lobby,
@@ -224,7 +225,11 @@ export function useGameBuddiesClient(
     socket.emit('room:create', {
       playerName,
       playerId: sessionWithMode?.playerId,
-      userId: sessionWithMode?.userId,
+      // Standalone but signed in via the in-game modal (shared platform
+      // session): claim the userId so the seat starts authenticated. The
+      // server treats client userIds as unvalidated (premium stays 'free')
+      // until gb:auth:upgrade re-validates with the access token ~1s later.
+      userId: sessionWithMode?.userId ?? getAuthUserId() ?? undefined,
       roomCode: sessionWithMode?.roomCode,
       isGameBuddiesRoom: !!sessionWithMode,
       sessionToken: sessionWithMode?.sessionToken,
@@ -253,7 +258,8 @@ export function useGameBuddiesClient(
       inviteToken: isInviteToken ? roomCode : undefined,
       playerName,
       playerId: session?.playerId,
-      userId: session?.userId,
+      // Same in-game-login fallback as room:create above.
+      userId: session?.userId ?? getAuthUserId() ?? undefined,
       premiumTier: session?.premiumTier,
       avatarUrl: session?.avatarUrl,
       sessionToken: session?.sessionToken,

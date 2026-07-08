@@ -23,7 +23,10 @@ import {
   Volume2,
   ExternalLink,
   Home,
-  MessageSquareWarning
+  MessageSquareWarning,
+  LogIn,
+  Crown,
+  User
 } from 'lucide-react';
 import { t } from '../../utils/translations';
 import { hapticFeedback } from '../../utils/hapticFeedback';
@@ -67,6 +70,16 @@ interface MobileGameMenuProps {
   onReturnToLobby?: () => void;
   /** Callback to return to GameBuddies (only if launched from GB) */
   onReturnToGameBuddies?: () => void;
+  /** Callback to log in / sign up (guests only; leaves to the platform login) */
+  onLogin?: () => void;
+  /** Callback to log out (logged-in only; leaves to the platform logout) */
+  onLogout?: () => void;
+  /** Current player name (shown in the account row when logged in) */
+  playerName?: string;
+  /** Whether the player has premium (shows a crown in the account row) */
+  isPremium?: boolean;
+  /** Whether the player is logged in (shows the account row + Log out) */
+  isLoggedIn?: boolean;
   /** Custom class name */
   className?: string;
 }
@@ -93,6 +106,11 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   isLobby = false,
   onReturnToLobby,
   onReturnToGameBuddies,
+  onLogin,
+  onLogout,
+  playerName,
+  isPremium = false,
+  isLoggedIn = false,
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -104,6 +122,15 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   }, []);
 
   const menuItems = [
+    {
+      id: 'account',
+      icon: isPremium ? Crown : User,
+      label: playerName || 'Player',
+      sublabel: isPremium ? t('menu.premiumMember') : t('menu.loggedIn'),
+      action: undefined, // informational row
+      show: isLoggedIn && !!playerName,
+      highlight: true,
+    },
     {
       id: 'room-code',
       icon: linkCopied ? Check : Copy,
@@ -182,6 +209,22 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
       action: onReturnToGameBuddies ? () => handleMenuItemClick(onReturnToGameBuddies) : undefined,
       show: !!onReturnToGameBuddies,
       highlight: true,
+    },
+    {
+      id: 'login',
+      icon: LogIn,
+      label: t('menu.login'),
+      sublabel: t('menu.loginSublabel'),
+      action: onLogin ? () => handleMenuItemClick(onLogin) : undefined,
+      show: !!onLogin,
+      highlight: true,
+    },
+    {
+      id: 'logout',
+      icon: LogOut,
+      label: t('menu.logout'),
+      action: onLogout ? () => handleMenuItemClick(onLogout) : undefined,
+      show: !!onLogout,
     },
     {
       id: 'leave',

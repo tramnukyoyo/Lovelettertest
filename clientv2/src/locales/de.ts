@@ -99,6 +99,9 @@ export const de: Translations = {
     streamerMode: 'Streamer-Modus',
     copyRoomLink: 'Raum-Link kopieren',
     copyInviteLink: 'Einladungslink kopieren',
+    login: 'Anmelden',
+    loginTitle: 'Melde dich an oder registriere dich, um Fortschritt, GP und Premium zu sichern',
+    logout: 'Abmelden',
   },
 
   // Video
@@ -390,6 +393,11 @@ export const de: Translations = {
   // Mobile hamburger menu items + drawer titles
   // AI-TRANSLATED on 2026-06-12, please review
   menu: {
+    login: 'Anmelden / Registrieren',
+    loginSublabel: 'Sichere deine GP & Premium',
+    logout: 'Abmelden',
+    loggedIn: 'Angemeldet',
+    premiumMember: 'Premium-Mitglied',
     tapToCopy: 'Zum Kopieren tippen',
     linkCopied: 'Link kopiert!',
     streamerMode: 'Streamer-Modus',
@@ -451,6 +459,36 @@ export const de: Translations = {
     privacy: 'Datenschutz',
     terms: 'AGB',
     section: 'Rechtliches',
+  },
+
+  // In-game login/signup modal (GameAuthModal)
+  authModal: {
+    titleSignin: 'Anmelden',
+    titleSignup: 'Konto erstellen',
+    tabSignin: 'Anmelden',
+    tabSignup: 'Registrieren',
+    benefits: 'Sichere deine GP, Streak & Premium in allen GameBuddies-Spielen',
+    email: 'E-Mail',
+    password: 'Passwort',
+    confirmPassword: 'Passwort bestätigen',
+    rememberMe: 'Angemeldet bleiben',
+    consent: 'Ich bin mindestens 16 Jahre alt und akzeptiere die AGB & Datenschutzerklärung',
+    submitSignin: 'Anmelden',
+    submitSignup: 'Registrieren',
+    submitting: 'Bitte warten…',
+    orEmail: 'oder per E-Mail',
+    google: 'Weiter mit Google',
+    discord: 'Weiter mit Discord',
+    fillAllFields: 'Bitte alle Felder ausfüllen.',
+    passwordMinLength: 'Das Passwort muss mindestens 6 Zeichen haben.',
+    passwordsMismatch: 'Die Passwörter stimmen nicht überein.',
+    consentRequired: 'Bitte Alter und AGB bestätigen, um fortzufahren.',
+    emailAlreadyRegistered: 'Diese E-Mail ist bereits registriert — melde dich stattdessen an.',
+    authFailed: 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+    popupClosed: 'Das Anmeldefenster wurde vorzeitig geschlossen.',
+    pendingConfirmTitle: 'Prüfe deine E-Mails',
+    pendingConfirmBody: 'Wir haben dir einen Bestätigungslink geschickt. Nach der Bestätigung wirst du automatisch angemeldet.',
+    successTitle: 'Angemeldet!',
   },
 
   // Settings
