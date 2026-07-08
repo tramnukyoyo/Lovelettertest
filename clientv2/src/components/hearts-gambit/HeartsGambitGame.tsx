@@ -508,6 +508,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                       <DynamicCard
                                           cardType={cardToDisplay}
                                           showFace={cardToDisplay !== 0}
+                                          ownerCardStyle={player.cardStyle}
                                           className="hg-opponent-card"
                                       />
                                    </motion.div>
@@ -786,6 +787,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                 <DynamicCard
                                     cardType={card}
                                     selected={selectedCardIndex === idx}
+                                    ownerCardStyle={me?.cardStyle}
                                     className="hg-hand-card"
                                 />
                               </CardHoverZone>

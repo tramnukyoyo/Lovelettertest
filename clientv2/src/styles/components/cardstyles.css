@@ -247,3 +247,82 @@
   .gs-chip.lr-cardstyle-holo,
   .gs-chip.is-me.lr-cardstyle-holo { animation: none; box-shadow: 0 0 0 2px #ff6ec7, 4px 4px 0 var(--px-border-dark); }
 }
+
+/* ============================================================================
+ * Premium card-BACK skins (in-game flex). When a face-down card's OWNER has an
+ * equipped cardStyle, DynamicCard adds hg-back-<style> to the back container
+ * (MobileOpponentStrip adds it to its raw back wrapper). Visible to ALL
+ * players. Pure CSS ::after overlay on top of the shared back.png — no new
+ * assets; with cardStyle '' no class is added and the back is untouched.
+ * ==========================================================================*/
+
+.hg-back-neon,
+.hg-back-gold,
+.hg-back-holo,
+.hg-back-ink {
+  /* DynamicCard's back is already relative; MobileOpponentStrip's raw back
+   * wrapper isn't, and the overlay needs a positioned ancestor. */
+  position: relative;
+}
+.hg-back-neon::after,
+.hg-back-gold::after,
+.hg-back-holo::after,
+.hg-back-ink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Neon — cyan glowing border + subtle cyan tint over the back art. */
+.hg-back-neon::after {
+  background: rgba(0, 184, 217, 0.12);
+  box-shadow:
+    inset 0 0 0 2px #00b8d9,
+    inset 0 0 12px rgba(0, 184, 217, 0.55);
+}
+
+/* Gold — filigree framing (gold rule / dark pinline / inner gold rule) + warm
+ * tint. */
+.hg-back-gold::after {
+  background: rgba(212, 160, 23, 0.14);
+  box-shadow:
+    inset 0 0 0 2px #d4a017,
+    inset 0 0 0 3px rgba(40, 24, 8, 0.6),
+    inset 0 0 0 4px rgba(212, 160, 23, 0.75),
+    inset 0 0 10px rgba(212, 160, 23, 0.35);
+}
+
+/* Holo — foil ring + diagonal sheen that slowly cycles hue. The hue-rotate
+ * lives on the overlay only, so the back art itself never shifts color. */
+.hg-back-holo::after {
+  background: linear-gradient(
+    115deg,
+    rgba(255, 110, 199, 0.18) 0%,
+    rgba(255, 216, 110, 0.14) 30%,
+    rgba(110, 255, 166, 0.14) 55%,
+    rgba(110, 199, 255, 0.18) 80%,
+    rgba(255, 110, 199, 0.18) 100%
+  );
+  box-shadow:
+    inset 0 0 0 2px #ff6ec7,
+    inset 0 0 12px rgba(255, 110, 199, 0.3);
+  animation: hg-back-holo-shift 6s linear infinite;
+}
+@keyframes hg-back-holo-shift {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hg-back-holo::after { animation: none; }
+}
+
+/* Ink — deep black wash + high-contrast white border with a dark pinline. */
+.hg-back-ink::after {
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow:
+    inset 0 0 0 2px #ffffff,
+    inset 0 0 0 4px rgba(0, 0, 0, 0.85);
+}

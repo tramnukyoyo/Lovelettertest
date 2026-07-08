@@ -789,6 +789,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               <DynamicCard
                 cardType={card}
                 selected={selectedCardIndex === idx}
+                ownerCardStyle={me?.cardStyle}
                 className="hg-mobile-hand-card"
               />
             </button>

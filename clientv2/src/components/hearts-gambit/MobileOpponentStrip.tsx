@@ -158,7 +158,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
                             />
                           </div>
                         ) : (
-                          <div className="hg-mobile-opponent-card rounded-lg overflow-hidden shadow-lg">
+                          <div className={`hg-mobile-opponent-card rounded-lg overflow-hidden shadow-lg${player.cardStyle ? ` hg-back-${player.cardStyle}` : ''}`}>
                             <img
                               src={CARD_BACK_IMAGE}
                               alt="Hidden card"
