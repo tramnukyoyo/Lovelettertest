@@ -11,6 +11,7 @@ import { PlayerCard, ProfileAvatar, FlairName } from '../core';
 import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
 import socketService from '../../services/socketService';
+import { Avatar } from '../core/Avatar';
 
 interface PlayerListProps {
   players: Player[];
@@ -45,6 +46,21 @@ const getNormalizedTier = (tier?: string): 'premium' | 'pro' | null => {
   // lifetime and monthly are both "premium" tier
   if (tier === 'lifetime' || tier === 'monthly' || tier === 'premium') return 'premium';
   return null; // unknown tier
+};
+
+// Countdown until a disconnected player is removed (30s server grace period)
+const DisconnectedTimer = ({ disconnectedAt }: { disconnectedAt: number }) => {
+  const [timeLeft, setTimeLeft] = useState(30);
+
+  useEffect(() => {
+    const update = () => setTimeLeft(Math.max(0, 30 - Math.floor((Date.now() - disconnectedAt) / 1000)));
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [disconnectedAt]);
+
+  if (timeLeft <= 0) return <span className="player-disconnect-timer">{t('playerList.removing')}</span>;
+  return <span className="player-disconnect-timer">{t('playerList.removingIn', { seconds: timeLeft })}</span>;
 };
 
 const PlayerList: React.FC<PlayerListProps> = ({
@@ -161,13 +177,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
             style={{ zIndex: displayPlayers.length - index }}
             title={player.name}
           >
-            {player.avatarUrl ? (
-              <img src={player.avatarUrl} alt={player.name} className="avatar-strip-img" />
-            ) : (
-              <div className="avatar-strip-placeholder">
-                {player.name.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <Avatar src={player.avatarUrl} alt={player.name} className="avatar-strip-img" />
             {player.isHost && <Crown className="avatar-strip-crown" />}
           </div>
         ))}
@@ -190,9 +200,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
               key={player.id ?? player.socketId}
               className={`player-list-item compact ${player.socketId === mySocketId ? 'is-me' : ''} ${!player.connected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''}`}
             >
-              {player.avatarUrl && (
-                <img src={player.avatarUrl} alt="" className="player-avatar compact" />
-              )}
+              <Avatar src={player.avatarUrl} className="player-avatar compact" />
               <span className="player-name">{player.name}</span>
               {player.isHost && <Crown className="w-3 h-3 host-icon" />}
               {playerTeam && (
@@ -296,6 +304,11 @@ const PlayerList: React.FC<PlayerListProps> = ({
                   );
                 })()}
               </div>
+
+              {/* Disconnect removal countdown */}
+              {!isConnected && player.disconnectedAt && (
+                <DisconnectedTimer disconnectedAt={player.disconnectedAt} />
+              )}
 
               {/* Premium card-style picker — own card, lobby only. Premium players
                   pick a card style; free players see the options locked

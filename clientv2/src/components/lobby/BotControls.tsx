@@ -19,6 +19,8 @@ interface BotControlsProps {
   socket: Socket;
 }
 
+const MAX_BOTS = 3;
+
 const BotControls: React.FC<BotControlsProps> = ({
   roomCode,
   players,
@@ -45,7 +47,7 @@ const BotControls: React.FC<BotControlsProps> = ({
       <button
         className="bot-add-btn"
         onClick={handleAddBot}
-        disabled={players.length >= maxPlayers}
+        disabled={botPlayers.length >= MAX_BOTS || players.length >= maxPlayers}
         type="button"
       >
         <UserPlus size={16} />

@@ -4,6 +4,7 @@
  * its phase to a per-player status; the dock itself is game-agnostic.
  */
 import React from 'react';
+import { Avatar } from '../components/core/Avatar';
 
 export interface DockPlayer {
   id: string;
@@ -28,9 +29,7 @@ const PresenceDock: React.FC<{ players: DockPlayer[] }> = ({ players }) => (
         title={p.name}
       >
         <span className="gs-chip-av">
-          {p.avatarUrl
-            ? <img src={p.avatarUrl} alt="" />
-            : (p.name[0] ?? '?').toUpperCase()}
+          <Avatar src={p.avatarUrl} />
         </span>
         <span className="gs-chip-name">{p.name}</span>
         {p.isHost && <span className="gs-chip-host">👑</span>}

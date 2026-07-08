@@ -68,7 +68,7 @@ const ReconnectOverlay: React.FC<ReconnectOverlayProps> = ({
               <div className="reconnect-waiting-spinner" />
               {t('reconnect.waitingForHost')}
               {waitedTooLong && (
-                <button className="reconnect-resume-btn" style={{ marginTop: '0.75rem' }} onClick={() => window.location.reload()} aria-label="Reload page" title="Reload">
+                <button className="reconnect-resume-btn" style={{ marginTop: '0.75rem' }} onClick={() => window.location.reload()} aria-label={t('reconnect.reloadPage')} title={t('reconnect.reload')}>
                   🔄
                 </button>
               )}

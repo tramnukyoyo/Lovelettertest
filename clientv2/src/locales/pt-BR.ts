@@ -336,6 +336,8 @@ export const ptBR: Translations = {
   // Player list
   // AI-TRANSLATED on 2026-05-19, please review
   playerList: {
+    removingIn: 'Removendo em {seconds}s',
+    removing: 'Removendo...',
     kick: 'Expulsar',
     confirmKick: 'Confirmar expulsao',
     cancel: 'Cancelar',
@@ -542,6 +544,8 @@ export const ptBR: Translations = {
     playersReconnected: '{connected}/{total} reconectados',
     resumeGame: 'Continuar jogo',
     waitingForHost: 'Aguardando o host continuar...',
+    reloadPage: 'Recarregar página',
+    reload: 'Recarregar',
   },
   homeMenu: {
     howToPlay: 'Como jogar',
@@ -565,5 +569,75 @@ export const ptBR: Translations = {
     sent: 'Enviado!',
     failed: 'Falhou',
     qr: 'Código QR',
+  },
+  installPrompt: {
+    title: 'Instalar jogo',
+    iosSubtitle: 'Aproveite a experiência em tela cheia!',
+    androidSubtitle: 'Adicione à tela inicial para jogar em tela cheia!',
+    iosStep1Prefix: 'Toque no',
+    iosStep1Suffix: 'botão Compartilhar abaixo',
+    iosStep2: 'Role e toque em "Adicionar à Tela de Início"',
+    iosStep3: 'Toque em "Adicionar" para instalar',
+    installApp: 'Instalar app',
+    dontShowAgain: 'Não mostrar novamente',
+  },
+  portalClose: {
+    returningCountdown: 'Voltando ao GameBuddies em {countdown} segundos',
+    returningEveryone: 'Levando todos de volta à sala...',
+    returningToGameBuddies: 'Voltando ao GameBuddies...',
+  },
+  loadingScreen: {
+    connecting: 'Conectando',
+    hint1: 'Prepare-se para jogar!',
+    hint2: 'Reúna seus amigos!',
+    hint3: 'A diversão está prestes a começar!',
+    hint4: 'Carregando uma jogabilidade incrível...',
+    hint5: 'Preparando a sala de jogo!',
+    hint6: 'Quase lá!',
+  },
+  heartsGambit: {
+    cardValue: 'Valor:',
+  },
+  gameAd: {
+    support: 'Apoie o GameBuddies',
+    helpKeepFree: 'Os anúncios mantêm os jogos gratuitos!',
+  },
+  psDemo: {
+    seenByLou: 'VISTO POR LOU',
+    arrested: 'PRESO',
+    peek: 'ESPIAR',
+    correctArrested: '✓ CORRETO — PRESO',
+  },
+  xp: {
+    levelUp: 'SUBIU DE NÍVEL!',
+    xpGained: 'XP GANHO',
+    victory: '🏆 Vitória',
+    played: '💪 Jogou',
+    dismiss: 'Dispensar notificação',
+    base: 'Base',
+    win: 'Vitória',
+    length: 'duração',
+    streak: '{count} de sequência',
+    firstWin: 'Primeira vitória',
+    xpBoost: 'Bônus de XP 2×',
+    lv: 'Nv',
+    levelsGained: '+{count} níveis!',
+  },
+  adminMessage: {
+    title: 'Mensagem do GameBuddies',
+    replySent: 'Resposta enviada ✓',
+    replyPlaceholder: 'Responder ao GameBuddies…',
+    sendReply: 'Enviar resposta',
+  },
+  mute: {
+    mute: 'Silenciar',
+    unmute: 'Ativar som',
+    muteAudio: 'Silenciar áudio do jogo',
+    unmuteAudio: 'Ativar áudio do jogo',
+  },
+  shell: {
+    collapseSidebar: 'Recolher barra lateral',
+    showSidebar: 'Mostrar barra lateral',
+    hideSidebar: 'Ocultar barra lateral',
   },
 };

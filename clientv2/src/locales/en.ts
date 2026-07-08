@@ -329,6 +329,8 @@ export const en = {
 
   // Player list
   playerList: {
+    removingIn: 'Removing in {seconds}s',
+    removing: 'Removing...',
     kick: 'Kick',
     confirmKick: 'Confirm kick',
     cancel: 'Cancel',
@@ -528,6 +530,8 @@ export const en = {
     playersReconnected: '{connected}/{total} reconnected',
     resumeGame: 'Resume Game',
     waitingForHost: 'Waiting for host to resume...',
+    reloadPage: 'Reload page',
+    reload: 'Reload',
   },
   homeMenu: {
     howToPlay: 'How to Play',
@@ -551,6 +555,76 @@ export const en = {
     sent: 'Sent!',
     failed: 'Failed',
     qr: 'QR code',
+  },
+  installPrompt: {
+    title: 'Install Game',
+    iosSubtitle: 'Get the full-screen experience!',
+    androidSubtitle: 'Add to home screen for full-screen play!',
+    iosStep1Prefix: 'Tap the',
+    iosStep1Suffix: 'Share button below',
+    iosStep2: 'Scroll and tap "Add to Home Screen"',
+    iosStep3: 'Tap "Add" to install',
+    installApp: 'Install App',
+    dontShowAgain: "Don't show again",
+  },
+  portalClose: {
+    returningCountdown: 'Returning to GameBuddies in {countdown} seconds',
+    returningEveryone: 'Returning everyone to lobby...',
+    returningToGameBuddies: 'Returning to GameBuddies...',
+  },
+  loadingScreen: {
+    connecting: 'Connecting',
+    hint1: 'Get ready to play!',
+    hint2: 'Gather your friends!',
+    hint3: 'The fun is about to begin!',
+    hint4: 'Loading awesome gameplay...',
+    hint5: 'Preparing the game room!',
+    hint6: 'Almost there!',
+  },
+  heartsGambit: {
+    cardValue: 'Value:',
+  },
+  gameAd: {
+    support: 'Support GameBuddies',
+    helpKeepFree: 'Ads help keep games free!',
+  },
+  psDemo: {
+    seenByLou: 'SEEN BY LOU',
+    arrested: 'ARRESTED',
+    peek: 'PEEK',
+    correctArrested: '✓ CORRECT — ARRESTED',
+  },
+  xp: {
+    levelUp: 'LEVEL UP!',
+    xpGained: 'XP GAINED',
+    victory: '🏆 Victory',
+    played: '💪 Played',
+    dismiss: 'Dismiss notification',
+    base: 'Base',
+    win: 'Win',
+    length: 'length',
+    streak: '{count} streak',
+    firstWin: 'First win',
+    xpBoost: '2× XP Boost',
+    lv: 'Lv',
+    levelsGained: '+{count} Levels!',
+  },
+  adminMessage: {
+    title: 'Message from GameBuddies',
+    replySent: 'Reply sent ✓',
+    replyPlaceholder: 'Reply to GameBuddies…',
+    sendReply: 'Send reply',
+  },
+  mute: {
+    mute: 'Mute',
+    unmute: 'Unmute',
+    muteAudio: 'Mute game audio',
+    unmuteAudio: 'Unmute game audio',
+  },
+  shell: {
+    collapseSidebar: 'Collapse sidebar',
+    showSidebar: 'Show sidebar',
+    hideSidebar: 'Hide sidebar',
   },
 };
 

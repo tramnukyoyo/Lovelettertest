@@ -8,6 +8,7 @@ import DynamicCard from './DynamicCard';
 import { getTranslatedCardName, getTranslatedCardDescription } from './cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Portal } from '../../utils/portal';
+import { Avatar } from '../core/Avatar';
 
 // Step flow for playing cards that need targets/guesses
 type ModalStep = 'BROWSING' | 'SELECTED' | 'TARGET_SELECT' | 'GUESS_SELECT' | 'READY_TO_PLAY';
@@ -449,17 +450,11 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       `}
                     >
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 mb-2 overflow-hidden">
-                        {player.avatarUrl ? (
-                          <img
-                            src={player.avatarUrl}
-                            alt={player.name}
-                            className="w-full h-full rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full rounded-full bg-[#1a0f1e] flex items-center justify-center">
-                            <User size={28} color="var(--parchment)" />
-                          </div>
-                        )}
+                        <Avatar
+                          src={player.avatarUrl}
+                          alt={player.name}
+                          className="w-full h-full rounded-full object-cover"
+                        />
                       </div>
                       <span className="text-sm text-[var(--parchment)] font-medium truncate max-w-full">
                         {player.name}

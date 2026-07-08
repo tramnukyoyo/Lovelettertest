@@ -5,8 +5,7 @@ import type { CardType, Player } from '../../types';
 import DynamicCard from './DynamicCard';
 import { CARD_BACK_IMAGE } from './cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
-
-const FALLBACK_AVATAR_URL = 'https://dwrhhrhtsklskquipcci.supabase.co/storage/v1/object/public/game-thumbnails/Gabu.webp';
+import { Avatar } from '../core/Avatar';
 
 interface MobileOpponentStripProps {
   /** Other players to display */
@@ -82,15 +81,10 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
               <div className="relative mb-1 sm:mb-2">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden">
                   <div className="w-full h-full rounded-full bg-[var(--velvet-dark)] overflow-hidden">
-                    <img
-                      src={player.avatarUrl || FALLBACK_AVATAR_URL}
+                    <Avatar
+                      src={player.avatarUrl}
                       alt={`${player.name} avatar`}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        if (e.currentTarget.src !== FALLBACK_AVATAR_URL) {
-                          e.currentTarget.src = FALLBACK_AVATAR_URL;
-                        }
-                      }}
                     />
                   </div>
                 </div>

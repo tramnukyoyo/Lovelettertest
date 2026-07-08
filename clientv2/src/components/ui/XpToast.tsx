@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { t } from '../../utils/translations';
 import '../../styles/XpToast.css';
 
 interface XpReward {
@@ -76,15 +77,15 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
         <div className="xp-toast-header">
           <span className="xp-toast-header-icon">{leveledUp ? '🏆' : '⭐'}</span>
           <span className="xp-toast-header-title">
-            {leveledUp ? 'LEVEL UP!' : 'XP GAINED'}
+            {leveledUp ? t('xp.levelUp') : t('xp.xpGained')}
           </span>
           <span className={`xp-toast-outcome ${won ? '' : 'is-loss'}`}>
-            {won ? '🏆 Victory' : '💪 Played'}
+            {won ? t('xp.victory') : t('xp.played')}
           </span>
           <button
             className="xp-toast-close"
             onClick={handleDismiss}
-            aria-label="Dismiss notification"
+            aria-label={t('xp.dismiss')}
           >
             ×
           </button>
@@ -106,26 +107,26 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
             {breakdown && (
               <div className="xp-toast-chips">
                 {(breakdown.base ?? 0) > 0 && (
-                  <span className="xp-toast-chip">Base {breakdown.base}</span>
+                  <span className="xp-toast-chip">{t('xp.base')} {breakdown.base}</span>
                 )}
                 {(breakdown.winBonus ?? 0) > 0 && (
-                  <span className="xp-toast-chip is-bonus">Win +{breakdown.winBonus}</span>
+                  <span className="xp-toast-chip is-bonus">{t('xp.win')} +{breakdown.winBonus}</span>
                 )}
                 {breakdown.durationPercent != null && breakdown.durationPercent !== 0 && (
                   <span className={`xp-toast-chip ${breakdown.durationPercent < 0 ? 'is-negative' : 'is-bonus'}`}>
-                    {breakdown.durationPercent > 0 ? '+' : ''}{breakdown.durationPercent}% length
+                    {breakdown.durationPercent > 0 ? '+' : ''}{breakdown.durationPercent}% {t('xp.length')}
                   </span>
                 )}
                 {(breakdown.streakBonus ?? 0) > 0 && (
                   <span className="xp-toast-chip is-bonus">
-                    🔥 {winStreak > 0 ? `${winStreak} streak` : `+${breakdown.streakBonus}`}
+                    🔥 {winStreak > 0 ? t('xp.streak', { count: winStreak }) : `+${breakdown.streakBonus}`}
                   </span>
                 )}
                 {(breakdown.firstWinBonus ?? 0) > 0 && isFirstWinOfDay && (
-                  <span className="xp-toast-chip is-bonus">🌅 First win +{breakdown.firstWinBonus}</span>
+                  <span className="xp-toast-chip is-bonus">🌅 {t('xp.firstWin')} +{breakdown.firstWinBonus}</span>
                 )}
                 {xpBoostUsed && (
-                  <span className="xp-toast-chip is-boost">🚀 2× XP Boost</span>
+                  <span className="xp-toast-chip is-boost">🚀 {t('xp.xpBoost')}</span>
                 )}
               </div>
             )}
@@ -134,12 +135,12 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
             {leveledUp && (
               <div className="xp-toast-level-up">
                 <div className="xp-toast-level-transition">
-                  <span>Lv {previousLevel}</span>
+                  <span>{t('xp.lv')} {previousLevel}</span>
                   <span className="arrow">→</span>
-                  <span>Lv {newLevel}</span>
+                  <span>{t('xp.lv')} {newLevel}</span>
                 </div>
                 {(levelsGained ?? 0) > 1 && (
-                  <div className="xp-toast-levels-gained">+{levelsGained} Levels!</div>
+                  <div className="xp-toast-levels-gained">{t('xp.levelsGained', { count: levelsGained ?? 0 })}</div>
                 )}
               </div>
             )}
@@ -153,7 +154,7 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
                 />
               </div>
               <span className="xp-progress-text">
-                Lv {newLevel} · {Math.round(progressPercent)}%
+                {t('xp.lv')} {newLevel} · {Math.round(progressPercent)}%
               </span>
             </div>
           </div>

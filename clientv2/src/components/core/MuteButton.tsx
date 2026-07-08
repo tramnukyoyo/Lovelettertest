@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { backgroundMusic, soundEffects } from '../../utils/audio';
+import { t } from '../../utils/translations';
 
 const STORAGE_KEYS = {
   MUSIC_ENABLED: 'gamebuddies-music-enabled',
@@ -54,8 +55,8 @@ const MuteButton: React.FC<{ className?: string }> = ({ className = '' }) => {
     <button
       onClick={toggle}
       className={`game-header-mute-btn ${isMuted ? 'muted' : ''} ${className}`}
-      title={isMuted ? 'Unmute' : 'Mute'}
-      aria-label={isMuted ? 'Unmute game audio' : 'Mute game audio'}
+      title={isMuted ? t('mute.unmute') : t('mute.mute')}
+      aria-label={isMuted ? t('mute.unmuteAudio') : t('mute.muteAudio')}
     >
       {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
     </button>

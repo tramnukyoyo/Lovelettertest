@@ -14,6 +14,7 @@ import React, { useCallback, useState } from 'react';
 import { useShellOverflowGuard } from './useShellOverflowGuard';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { t } from '../utils/translations';
 
 const RAIL_COLLAPSED_KEY = 'gs_rail_collapsed';
 
@@ -91,8 +92,8 @@ const GameShell: React.FC<GameShellProps> = ({
             type="button"
             className="gs-rail-hide-btn"
             onClick={toggleRail}
-            aria-label="Collapse sidebar"
-            title="Collapse sidebar"
+            aria-label={t('shell.collapseSidebar')}
+            title={t('shell.collapseSidebar')}
           >
             ▸
           </button>
@@ -105,8 +106,8 @@ const GameShell: React.FC<GameShellProps> = ({
           type="button"
           className="gs-rail-collapse-btn"
           onClick={toggleRail}
-          aria-label={railCollapsed ? 'Show sidebar' : 'Hide sidebar'}
-          title={railCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+          aria-label={railCollapsed ? t('shell.showSidebar') : t('shell.hideSidebar')}
+          title={railCollapsed ? t('shell.showSidebar') : t('shell.hideSidebar')}
         >
           <span className="gs-rail-collapse-icon" aria-hidden="true">
             {railCollapsed ? '◂' : '▸'}

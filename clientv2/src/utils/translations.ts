@@ -9,9 +9,10 @@ import { de } from '../locales/de';
 import { es } from '../locales/es';
 import { ptBR } from '../locales/pt-BR';
 import { ptPT } from '../locales/pt-PT';
+import { zhHant } from '../locales/zh-Hant';
 import { STORAGE_KEYS } from '../config/storageKeys';
 
-export type Language = 'en' | 'de' | 'es' | 'pt-BR' | 'pt-PT';
+export type Language = 'en' | 'de' | 'es' | 'pt-BR' | 'pt-PT' | 'zh-Hant';
 
 const translations: Record<Language, Translations> = {
   en,
@@ -19,6 +20,7 @@ const translations: Record<Language, Translations> = {
   es,
   'pt-BR': ptBR,
   'pt-PT': ptPT,
+  'zh-Hant': zhHant,
 };
 
 // ---------------------------------------------------------------------------
@@ -37,7 +39,7 @@ const GAMEBUDDIES_LANGUAGE_KEY = 'gamebuddies-language';
 const HEARTSGAMBIT_LANGUAGE_KEY = 'heartsgambit-language';
 const SHELL_LANGUAGE_KEY = STORAGE_KEYS.LOCAL.LANGUAGE; // 'primesuspect_language'
 
-const SUPPORTED_LANGUAGES: Language[] = ['en', 'de', 'es', 'pt-BR', 'pt-PT'];
+const SUPPORTED_LANGUAGES: Language[] = ['en', 'de', 'es', 'pt-BR', 'pt-PT', 'zh-Hant'];
 function isSupportedLanguage(value: string | null): value is Language {
   return value !== null && (SUPPORTED_LANGUAGES as string[]).includes(value);
 }
@@ -66,6 +68,10 @@ export function getCurrentLanguage(): Language {
 
   // 4. Detect browser language
   const browserLang = navigator.language;
+  const lower = browserLang.toLowerCase();
+  if (lower.includes('hant') || lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo')) {
+    return 'zh-Hant';
+  }
   if (browserLang === 'pt-BR' || browserLang.startsWith('pt-BR')) {
     return 'pt-BR';
   }

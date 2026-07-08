@@ -7,6 +7,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { t } from '../utils/translations';
+import { Avatar } from './core/Avatar';
 import './PortalCloseOverlay.css';
 
 interface Player {
@@ -112,7 +114,7 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
       aria-labelledby="portal-message"
     >
       <div className="sr-only" aria-live="polite">
-        Returning to GameBuddies in {countdown} seconds
+        {t('portalClose.returningCountdown', { countdown })}
       </div>
 
       {/* Floating particles that converge to center */}
@@ -165,7 +167,7 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
 
       {/* Message */}
       <p className="portal-message" id="portal-message">
-        {message || (isGroupReturn ? 'Returning everyone to lobby...' : 'Returning to GameBuddies...')}
+        {message || (isGroupReturn ? t('portalClose.returningEveryone') : t('portalClose.returningToGameBuddies'))}
       </p>
 
       {/* Player avatars for group return */}
@@ -177,11 +179,7 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
               className="portal-player-avatar"
               title={player.name}
             >
-              {player.avatarUrl ? (
-                <img src={player.avatarUrl} alt={player.name} />
-              ) : (
-                player.name.charAt(0).toUpperCase()
-              )}
+              <Avatar src={player.avatarUrl} alt={player.name} />
             </div>
           ))}
           {players.length > 6 && (
