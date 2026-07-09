@@ -185,7 +185,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
             </div>
             {PREMIUM_REACTION_PACKS.map(pack => (
               <React.Fragment key={pack.id}>
-                <div className="video-reactions-pack-label">{t(pack.labelKey)}</div>
+                <div className="video-reactions-pack-label">👑 {t(pack.labelKey)}</div>
                 <div className="video-reactions-row">
                   {pack.emojis.map(emoji => (
                     <button
