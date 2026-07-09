@@ -223,16 +223,18 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                       aria-hidden="true"
                       className="lobby-mascot px-art gs-hide-short"
                     />
-                    <SoloInvitePanel
-                      roomCode={lobby.code}
-                      gameName={GAME_META.name}
-                      minPlayers={minPlayers}
-                      currentPlayers={connectedPlayers.length}
-                      hideRoomCode={gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode}
-                    />
-                    {/* Player list lives in the sidebar rail (Spieler tab) — no
-                        duplicate in the center pane. */}
-                    <ScrollHint />
+                    <div className="lobby-pane-scroll">
+                      <SoloInvitePanel
+                        roomCode={lobby.code}
+                        gameName={GAME_META.name}
+                        minPlayers={minPlayers}
+                        currentPlayers={connectedPlayers.length}
+                        hideRoomCode={gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode}
+                      />
+                      {/* Player list lives in the sidebar rail (Spieler tab) — no
+                          duplicate in the center pane. */}
+                      <ScrollHint />
+                    </div>
                   </div>
 
                   {/* RIGHT — host settings + explainer */}
@@ -248,29 +250,31 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                     ) : (
                       <p className="lobby-waiting-host">{t('game.waitingForHost')}</p>
                     )}
-                    {!isMobile && (
-                      <div className="gs-collapse-short" style={{ width: '100%' }}>
-                        <GameExplainer
-                          gameId={GAME_META.id}
-                          demoSpec={primeSuspectDemoSpec}
-                          t={(key: string) => getTranslation(key, language)}
-                        />
-                      </div>
-                    )}
-                    {/* Mobile: mount the explainer offscreen so the header Help
-                        button (which flips the shared explainer store) can open
-                        its modal. The modal portals to <body>, so a hidden host
-                        is fine and the closed-state sidebar stays out of the way. */}
-                    {isMobile && (
-                      <div style={{ display: 'none' }}>
-                        <GameExplainer
-                          gameId={GAME_META.id}
-                          demoSpec={primeSuspectDemoSpec}
-                          t={(key: string) => getTranslation(key, language)}
-                        />
-                      </div>
-                    )}
-                    <ScrollHint />
+                    <div className="lobby-pane-scroll">
+                      {!isMobile && (
+                        <div className="gs-collapse-short" style={{ width: '100%' }}>
+                          <GameExplainer
+                            gameId={GAME_META.id}
+                            demoSpec={primeSuspectDemoSpec}
+                            t={(key: string) => getTranslation(key, language)}
+                          />
+                        </div>
+                      )}
+                      {/* Mobile: mount the explainer offscreen so the header Help
+                          button (which flips the shared explainer store) can open
+                          its modal. The modal portals to <body>, so a hidden host
+                          is fine and the closed-state sidebar stays out of the way. */}
+                      {isMobile && (
+                        <div style={{ display: 'none' }}>
+                          <GameExplainer
+                            gameId={GAME_META.id}
+                            demoSpec={primeSuspectDemoSpec}
+                            t={(key: string) => getTranslation(key, language)}
+                          />
+                        </div>
+                      )}
+                      <ScrollHint />
+                    </div>
                   </div>
                 </div>
               </SceneBody>

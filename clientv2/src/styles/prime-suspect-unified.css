@@ -1778,8 +1778,35 @@
     0 26px 60px rgba(0, 0, 0, 0.55),
     0 0 30px rgba(231, 204, 122, 0.10),
     inset 0 0 0 1px rgba(210, 178, 90, 0.36);
-  /* clear the pixel-ring box-shadow recipe inherited from the shared template */
+  /* clear the pixel-ring box-shadow recipe inherited from the shared template.
+     Must stay `visible`: the CASE FILE/CASE SETTINGS tab (::after, top:-14px)
+     and the gold push-pin (mascot::after / first-child::before, top:-8px)
+     poke above the card and get clipped by any overflow set here. Content
+     taller than the card scrolls via the inner `.lobby-pane-scroll` wrapper
+     instead (see below) — that keeps decorations visible AND contains the
+     invite/friends content within the card's bounds. */
   overflow: visible;
+}
+/* Scroll containment lives on this inner wrapper (not the card) so the
+   card's own overflow can stay `visible` for its pseudo-element decorations.
+   Sits below the mascot / first-child anchor that the push-pin hangs off. */
+[data-theme="primesuspect"] .gs-pane.lobby-waiting-card .lobby-pane-scroll {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+[data-theme="primesuspect"] .gs-pane.lobby-waiting-card .lobby-pane-scroll::-webkit-scrollbar {
+  display: none;
+}
+/* Mobile flattens to ONE natural page scroll (shell.css, <=1024px) — the
+   inner wrapper must not open a second nested scroller there. */
+@media (max-width: 1024px) {
+  [data-theme="primesuspect"] .gs-pane.lobby-waiting-card .lobby-pane-scroll {
+    overflow: visible;
+  }
 }
 /* warm velvet grain + a faint candle glow on the folder */
 [data-theme="primesuspect"] .gs-pane.lobby-waiting-card::before {
