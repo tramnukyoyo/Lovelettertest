@@ -25,6 +25,8 @@ interface PlayerListProps {
   teams?: Team[];
   isHost?: boolean;
   onKickPlayer?: (playerId: string) => void;
+  /** Host only: transfer host to this player (server event host:transfer). */
+  onMakeHost?: (playerId: string) => void;
   isSpectator?: boolean;
   viewingAsSocketId?: string | null;
   onPlayerClick?: (socketId: string) => void;
@@ -88,6 +90,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
   teams = [],
   isHost = false,
   onKickPlayer,
+  onMakeHost,
   isSpectator = false,
   viewingAsSocketId,
   onPlayerClick,
@@ -176,6 +179,13 @@ const PlayerList: React.FC<PlayerListProps> = ({
 
   const handleCancelKick = () => {
     setPendingKickId(null);
+  };
+
+  // Make-host: same two-step inline confirm pattern as kick.
+  const [pendingHostId, setPendingHostId] = useState<string | null>(null);
+  const handleConfirmMakeHost = (playerId: string) => {
+    onMakeHost?.(playerId);
+    setPendingHostId(null);
   };
 
   // Helper to find a player's team
@@ -461,6 +471,42 @@ const PlayerList: React.FC<PlayerListProps> = ({
                   </div>
                 );
               })()}
+
+              {/* Make-Host Button (host only, not self, connected non-host,
+                  not spectators — the server rejects those targets anyway).
+                  Reuses the kick button/confirm styles so no CSS changes are
+                  needed; the crown icon distinguishes it. */}
+              {isHost && !isMe && isConnected && !player.isHost && !player.isSpectator && onMakeHost && (
+                pendingHostId === player.id ? (
+                  <div className="kick-confirm-buttons">
+                    <button
+                      className="kick-confirm-btn confirm"
+                      onClick={() => handleConfirmMakeHost(player.id!)}
+                      title={t('playerList.confirmMakeHost')}
+                      type="button"
+                    >
+                      <Crown className="w-3 h-3" />
+                    </button>
+                    <button
+                      className="kick-confirm-btn cancel"
+                      onClick={() => setPendingHostId(null)}
+                      title={t('playerList.cancel')}
+                      type="button"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className="kick-button make-host-button"
+                    onClick={() => setPendingHostId(player.id!)}
+                    title={t('playerList.makeHost')}
+                    type="button"
+                  >
+                    <Crown className="w-4 h-4" />
+                  </button>
+                )
+              )}
 
               {/* Kick Button (host only, not self, connected players) */}
               {isHost && !isMe && isConnected && onKickPlayer && (

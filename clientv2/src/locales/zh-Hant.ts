@@ -313,6 +313,8 @@ export const zhHant: Translations = {
     confirmKick: '確認踢出',
     cancel: '取消',
     kickPlayer: '踢出玩家',
+    makeHost: '設為房主',
+    confirmMakeHost: '確認移交房主',
     premium: 'Premium',
     pro: 'Pro',
     gameSkinLabel: '牌背造型',

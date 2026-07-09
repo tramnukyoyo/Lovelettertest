@@ -333,6 +333,8 @@ export const de: Translations = {
     confirmKick: 'Kick bestätigen',
     cancel: 'Abbrechen',
     kickPlayer: 'Spieler kicken',
+    makeHost: 'Zum Host machen',
+    confirmMakeHost: 'Host-Übergabe bestätigen',
     premium: 'Premium',
     pro: 'Pro',
     gameSkinLabel: 'Kartenrücken-Skin',

@@ -180,6 +180,9 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
   const handleKickPlayer = useCallback((playerId: string) => {
     socket?.emit('player:kick', { roomCode: lobby.code, playerId });
   }, [socket, lobby.code]);
+  const handleMakeHost = useCallback((playerId: string) => {
+    socket?.emit('host:transfer', { roomCode: lobby.code, playerId });
+  }, [socket, lobby.code]);
   const viewingAs = (lobby as any).viewingAs
     ? lobby.players.find(p => p.socketId === (lobby as any).viewingAs)
     : null;
@@ -306,6 +309,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
                       mySocketId={lobby.mySocketId}
                       isHost={isHost}
                       onKickPlayer={isHost ? handleKickPlayer : undefined}
+                      onMakeHost={isHost ? handleMakeHost : undefined}
                       isSpectator={isSpectator}
                       viewingAsSocketId={(lobby as any).viewingAs}
                       onPlayerClick={handleSpectatorPlayerClick}
@@ -339,6 +343,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
             players={lobby.players}
             isHost={isHost}
             onKickPlayer={isHost ? handleKickPlayer : undefined}
+            onMakeHost={isHost ? handleMakeHost : undefined}
             webcamPlayers={webcamPlayers}
             localPlayerName={lobby.players.find(p => p.socketId === lobby.mySocketId)?.name}
             onLeaveVideo={disableVideoChat}

@@ -31,6 +31,7 @@ interface MobileDrawerProps {
   players?: Player[];
   isHost?: boolean;
   onKickPlayer?: (playerId: string) => void;
+  onMakeHost?: (playerId: string) => void;
   // Video props
   webcamPlayers?: WebcamPlayer[];
   localPlayerName?: string;
@@ -51,6 +52,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
   players = [],
   isHost = false,
   onKickPlayer,
+  onMakeHost,
   webcamPlayers = [],
   localPlayerName,
   onLeaveVideo,
@@ -149,6 +151,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   mySocketId={mySocketId}
                   isHost={isHost}
                   onKickPlayer={onKickPlayer}
+                  onMakeHost={onMakeHost}
                   teams={teams}
                   showCardStylePicker={showCardStylePicker}
                 />

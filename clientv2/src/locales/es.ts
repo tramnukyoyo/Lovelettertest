@@ -240,6 +240,8 @@ export const es: Translations = {
     confirmKick: 'Confirmar expulsion',
     cancel: 'Cancelar',
     kickPlayer: 'Expulsar jugador',
+    makeHost: 'Hacer anfitrión',
+    confirmMakeHost: 'Confirmar transferencia de anfitrión',
     premium: 'Premium',
     pro: 'Pro',
     gameSkinLabel: 'Diseño del reverso',

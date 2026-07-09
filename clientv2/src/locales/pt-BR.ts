@@ -342,6 +342,8 @@ export const ptBR: Translations = {
     confirmKick: 'Confirmar expulsao',
     cancel: 'Cancelar',
     kickPlayer: 'Expulsar jogador',
+    makeHost: 'Tornar anfitrião',
+    confirmMakeHost: 'Confirmar transferência de anfitrião',
     premium: 'Premium',
     pro: 'Pro',
     gameSkinLabel: 'Verso da carta',

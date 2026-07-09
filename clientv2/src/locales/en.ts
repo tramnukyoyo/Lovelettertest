@@ -335,6 +335,8 @@ export const en = {
     confirmKick: 'Confirm kick',
     cancel: 'Cancel',
     kickPlayer: 'Kick player',
+    makeHost: 'Make host',
+    confirmMakeHost: 'Confirm host transfer',
     premium: 'Premium',
     pro: 'Pro',
     gameSkinLabel: 'Card-back skin',
