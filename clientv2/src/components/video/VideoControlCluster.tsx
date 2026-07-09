@@ -26,6 +26,14 @@ import { t } from '../../utils/translations';
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '🎉', '👏'];
 
+// Premium reaction packs: rendered after the free row, locked (dimmed + 🔒)
+// for free users, fully usable for premium. Receivers render any emoji string
+// sent over the data channel, so no receiving-side changes are needed.
+const PREMIUM_REACTION_PACKS: { id: string; labelKey: string; emojis: string[] }[] = [
+  { id: 'spicy', labelKey: 'videoControl.packSpicy', emojis: ['🔥', '💀', '🤡', '😈', '🫠', '🤯'] },
+  { id: 'wholesome', labelKey: 'videoControl.packWholesome', emojis: ['🥹', '✨', '🌈', '🫶', '🦄', '💖'] },
+];
+
 interface VideoControlClusterProps {
   isVideoEnabled?: boolean;
   isVideoPrepairing?: boolean;
@@ -40,6 +48,8 @@ interface VideoControlClusterProps {
   onToggleVideo?: () => void;
   isAudioEnabled?: boolean;
   onToggleAudio?: () => void;
+  /** Local player has a paid GameBuddies tier — unlocks the premium reaction packs. */
+  isPremium?: boolean;
   compact?: boolean;
   className?: string;
 }
@@ -57,6 +67,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
   onToggleVideo,
   isAudioEnabled = true,
   onToggleAudio,
+  isPremium = false,
   compact = false,
   className = ''
 }) => {
@@ -159,16 +170,39 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
         </button>
         {reactionsOpen && (
           <div className="video-reactions-popover" role="menu">
-            {REACTION_EMOJIS.map(emoji => (
-              <button
-                key={emoji}
-                type="button"
-                className="video-reaction-emoji"
-                onClick={() => { sendReaction(emoji); setReactionsOpen(false); }}
-                aria-label={`Send ${emoji} reaction`}
-              >
-                {emoji}
-              </button>
+            <div className="video-reactions-row">
+              {REACTION_EMOJIS.map(emoji => (
+                <button
+                  key={emoji}
+                  type="button"
+                  className="video-reaction-emoji"
+                  onClick={() => { sendReaction(emoji); setReactionsOpen(false); }}
+                  aria-label={`Send ${emoji} reaction`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+            {PREMIUM_REACTION_PACKS.map(pack => (
+              <React.Fragment key={pack.id}>
+                <div className="video-reactions-pack-label">{t(pack.labelKey)}</div>
+                <div className="video-reactions-row">
+                  {pack.emojis.map(emoji => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      className={`video-reaction-emoji${isPremium ? '' : ' locked'}`}
+                      onClick={isPremium ? () => { sendReaction(emoji); setReactionsOpen(false); } : undefined}
+                      title={isPremium ? undefined : t('videoControl.premiumLockTooltip')}
+                      aria-disabled={!isPremium}
+                      aria-label={isPremium ? `Send ${emoji} reaction` : `${emoji} — ${t('videoControl.premiumLockTooltip')}`}
+                    >
+                      {emoji}
+                      {!isPremium && <span className="video-reaction-lock" aria-hidden="true">🔒</span>}
+                    </button>
+                  ))}
+                </div>
+              </React.Fragment>
             ))}
           </div>
         )}

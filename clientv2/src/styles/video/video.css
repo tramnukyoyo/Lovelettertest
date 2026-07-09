@@ -930,6 +930,7 @@
   transform: translateX(-50%);
   z-index: 1001;
   display: flex;
+  flex-direction: column;
   gap: 2px;
   padding: 6px;
   border-radius: var(--radius-md, 10px);
@@ -937,6 +938,7 @@
   border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.12));
   box-shadow: var(--shadow-lg);
 }
+.video-reactions-row { display: flex; gap: 2px; }
 .video-reaction-emoji {
   border: none;
   background: transparent;
@@ -948,6 +950,43 @@
   transition: transform 0.1s ease, background 0.1s ease;
 }
 .video-reaction-emoji:hover { transform: scale(1.25); background: var(--bg-card-hover); }
+
+/* Premium reaction packs: thin labelled divider + locked state for free users */
+.video-reactions-pack-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  white-space: nowrap;
+}
+.video-reactions-pack-label::before,
+.video-reactions-pack-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--panel-border, rgba(255, 255, 255, 0.12));
+}
+.video-reaction-emoji.locked {
+  position: relative;
+  opacity: 0.45;
+  filter: grayscale(0.6);
+  cursor: not-allowed;
+}
+.video-reaction-emoji.locked:hover { transform: none; background: transparent; }
+.video-reaction-lock {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  font-size: 0.55rem;
+  line-height: 1;
+  filter: none;
+  pointer-events: none;
+}
 
 /* Push-to-talk live indicator */
 .video-ptt-indicator {

@@ -379,6 +379,9 @@ export const ptPT: Translations = {
     connecting: 'A ligar…',
     reactions: 'Reações',
     pttLive: 'Em direto',
+    premiumLockTooltip: 'Desbloqueia com o GameBuddies Premium',
+    packSpicy: 'Picante',
+    packWholesome: 'Fofo',
   },
 
   // Video enhancements panel

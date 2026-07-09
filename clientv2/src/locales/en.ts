@@ -370,6 +370,9 @@ export const en = {
     connecting: 'Connecting…',
     reactions: 'Reactions',
     pttLive: 'Live',
+    premiumLockTooltip: 'Unlock with GameBuddies Premium',
+    packSpicy: 'Spicy',
+    packWholesome: 'Wholesome',
   },
 
   // Video enhancements panel

@@ -348,6 +348,9 @@ export const zhHant: Translations = {
     connecting: '連線中…',
     reactions: '表情反應',
     pttLive: '即時',
+    premiumLockTooltip: '訂閱 GameBuddies Premium 解鎖',
+    packSpicy: '辛辣',
+    packWholesome: '暖心',
   },
 
   // Video enhancements panel

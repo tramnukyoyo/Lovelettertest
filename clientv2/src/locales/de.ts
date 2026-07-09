@@ -370,6 +370,9 @@ export const de: Translations = {
     connecting: 'Verbinde…',
     reactions: 'Reaktionen',
     pttLive: 'Live',
+    premiumLockTooltip: 'Mit GameBuddies Premium freischalten',
+    packSpicy: 'Scharf',
+    packWholesome: 'Herzig',
   },
 
   // Video enhancements panel

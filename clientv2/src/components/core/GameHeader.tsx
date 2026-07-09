@@ -287,6 +287,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               onToggleAudio={webrtc.toggleAudio}
               onOpenSettings={videoUI.openSettings}
               onOpenBroadcast={videoUI.requestStreamerBroadcast}
+              isPremium={isPremiumMe}
             />
             )}
 
