@@ -315,6 +315,13 @@ export const zhHant: Translations = {
     kickPlayer: '踢出玩家',
     premium: 'Premium',
     pro: 'Pro',
+    gameSkinLabel: '牌背造型',
+    gameSkinSameAsCardStyle: '與卡牌樣式相同',
+    gameSkinNone: '無',
+    gameSkinNeon: '霓虹',
+    gameSkinGold: '黃金',
+    gameSkinHolo: '全息',
+    gameSkinInk: '墨韻',
   },
 
   // Streamer broadcast stage

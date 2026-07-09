@@ -335,6 +335,13 @@ export const de: Translations = {
     kickPlayer: 'Spieler kicken',
     premium: 'Premium',
     pro: 'Pro',
+    gameSkinLabel: 'Kartenrücken-Skin',
+    gameSkinSameAsCardStyle: 'Wie Kartenstil',
+    gameSkinNone: 'Keiner',
+    gameSkinNeon: 'Neon',
+    gameSkinGold: 'Gold',
+    gameSkinHolo: 'Holo',
+    gameSkinInk: 'Tinte',
   },
 
   // Streamer broadcast stage

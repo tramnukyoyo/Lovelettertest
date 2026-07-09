@@ -28,6 +28,7 @@ import PassPlayToggle from '../lobby/PassPlayToggle';
 import BotControls from '../lobby/BotControls';
 import { usePassPlay } from '../../hooks/usePassPlay';
 import { GameExplainer, GameExplainerHelpButton } from '../lobby/GameExplainer';
+import { resolveGameSkin } from '../../utils/gameSkin';
 import { Avatar } from '../core/Avatar';
 import { primeSuspectDemoSpec } from '../lobby/GameExplainer/demos/PrimeSuspectDemo';
 import '../lobby/GameExplainer/GameExplainer.css';
@@ -789,7 +790,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               <DynamicCard
                 cardType={card}
                 selected={selectedCardIndex === idx}
-                ownerCardStyle={me?.cardStyle}
+                ownerCardStyle={resolveGameSkin(me)}
                 className="hg-mobile-hand-card"
               />
             </button>

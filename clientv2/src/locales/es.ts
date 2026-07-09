@@ -242,6 +242,13 @@ export const es: Translations = {
     kickPlayer: 'Expulsar jugador',
     premium: 'Premium',
     pro: 'Pro',
+    gameSkinLabel: 'Diseño del reverso',
+    gameSkinSameAsCardStyle: 'Igual que el estilo de carta',
+    gameSkinNone: 'Ninguno',
+    gameSkinNeon: 'Neón',
+    gameSkinGold: 'Oro',
+    gameSkinHolo: 'Holo',
+    gameSkinInk: 'Tinta',
   },
 
   // Streamer broadcast stage

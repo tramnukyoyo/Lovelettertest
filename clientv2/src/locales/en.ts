@@ -337,6 +337,13 @@ export const en = {
     kickPlayer: 'Kick player',
     premium: 'Premium',
     pro: 'Pro',
+    gameSkinLabel: 'Card-back skin',
+    gameSkinSameAsCardStyle: 'Same as card style',
+    gameSkinNone: 'None',
+    gameSkinNeon: 'Neon',
+    gameSkinGold: 'Gold',
+    gameSkinHolo: 'Holo',
+    gameSkinInk: 'Ink',
   },
 
   // Streamer broadcast stage

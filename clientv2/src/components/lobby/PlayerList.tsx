@@ -33,10 +33,23 @@ interface PlayerListProps {
 /** Premium card styles (ids validated server-side, see cardstyles.css). */
 const CARD_STYLE_OPTIONS: Array<{ id: string; label: string }> = [
   { id: '', label: 'None' },
-  { id: 'neon', label: 'Neon' },
-  { id: 'gold', label: 'Gold' },
-  { id: 'holo', label: 'Holo' },
-  { id: 'ink', label: 'Ink' },
+  { id: 'neon', label: '👑 Neon' },
+  { id: 'gold', label: '👑 Gold' },
+  { id: 'holo', label: '👑 Holo' },
+  { id: 'ink', label: '👑 Ink' },
+];
+
+/** Per-game card-back skin options (player:set-game-skin whitelist). '' follows
+ *  the lobby cardStyle, 'none' explicitly opts out, the rest are premium.
+ *  Built as a function (not a module constant) so labels stay reactive to
+ *  language switches — mirrors the inline t() calls used elsewhere in render. */
+const getGameSkinOptions = (): Array<{ id: string; label: string }> => [
+  { id: '', label: t('playerList.gameSkinSameAsCardStyle') },
+  { id: 'none', label: t('playerList.gameSkinNone') },
+  { id: 'neon', label: `👑 ${t('playerList.gameSkinNeon')}` },
+  { id: 'gold', label: `👑 ${t('playerList.gameSkinGold')}` },
+  { id: 'holo', label: `👑 ${t('playerList.gameSkinHolo')}` },
+  { id: 'ink', label: `👑 ${t('playerList.gameSkinInk')}` },
 ];
 
 // Normalize tier values (API returns 'lifetime' but CSS uses 'premium')
@@ -98,6 +111,20 @@ const PlayerList: React.FC<PlayerListProps> = ({
   // Collapsed by default so the picker stays a thin row in the player list;
   // tap the header to expand the chips + preview.
   const [cardStyleOpen, setCardStyleOpen] = useState(false);
+
+  // Per-game card-back skin — same optimistic-update pattern as cardStyle,
+  // but a separate field/event so it can diverge from the lobby card style.
+  const [pendingGameSkin, setPendingGameSkin] = useState<string | null>(null);
+  const handleSetGameSkin = (style: string) => {
+    setPendingGameSkin(style);
+    socketService.getSocket()?.emit('player:set-game-skin', { style });
+  };
+  useEffect(() => {
+    if (pendingGameSkin !== null && (me?.gameSkin ?? '') === pendingGameSkin) {
+      setPendingGameSkin(null);
+    }
+  }, [me?.gameSkin, pendingGameSkin]);
+  const [gameSkinOpen, setGameSkinOpen] = useState(false);
   // Game is active if any player has any Bluffalo game fields set (score exists)
   const gameActive = players.some(p => 'score' in p && typeof (p as any).score === 'number' && (((p as any).hasSubmittedLie || (p as any).hasVoted || (p as any).score > 0)));
   // State for inline kick confirmation
@@ -244,6 +271,9 @@ const PlayerList: React.FC<PlayerListProps> = ({
           // Optimistic pending style applies to my own card only — other players
           // always reflect their own equipped style from the broadcast.
           const equippedCardStyle = (isMe ? pendingCardStyle : null) ?? (player.cardStyle ?? '');
+          // Raw picker selection for the card-back skin picker (not the resolved
+          // in-game skin — that resolution lives in the hero surface components).
+          const equippedGameSkin = (isMe ? pendingGameSkin : null) ?? (player.gameSkin ?? '');
 
           return (
             <li
@@ -366,6 +396,54 @@ const PlayerList: React.FC<PlayerListProps> = ({
                   )}
                 </div>
               )}
+
+              {/* Per-game card-back skin picker — own card, lobby only. '' follows
+                  cardStyle, 'none' is explicitly plain; premium named skins are
+                  gated the same way as the card-style picker above it. */}
+              {withStylePicker && (() => {
+                const gameSkinOptions = getGameSkinOptions();
+                return (
+                  <div className={`lr-cardstyle-picker ${gameSkinOpen ? 'is-open' : ''}`}>
+                    <button
+                      type="button"
+                      className="lr-cardstyle-toggle"
+                      aria-expanded={gameSkinOpen}
+                      onClick={(e) => { e.stopPropagation(); setGameSkinOpen(o => !o); }}
+                    >
+                      <span className="lr-cardstyle-label">
+                        {t('playerList.gameSkinLabel')}
+                      </span>
+                      <span className="lr-cardstyle-current">
+                        <span className={`lr-cardstyle-swatch ${equippedGameSkin && equippedGameSkin !== 'none' ? `lr-cardstyle-${equippedGameSkin}` : ''}`} />
+                        {gameSkinOptions.find(o => o.id === equippedGameSkin)?.label ?? t('playerList.gameSkinSameAsCardStyle')}
+                      </span>
+                      <span className="lr-cardstyle-chevron">{gameSkinOpen ? '▾' : '▸'}</span>
+                    </button>
+                    {gameSkinOpen && (
+                      <div className="lr-cardstyle-chips">
+                        {gameSkinOptions.map((opt) => {
+                          const locked = !isPremium && opt.id !== '' && opt.id !== 'none';
+                          const selected = equippedGameSkin === opt.id;
+                          return (
+                            <button
+                              key={opt.id || 'same'}
+                              type="button"
+                              className={`lr-cardstyle-chip ${opt.id && opt.id !== 'none' ? `lr-cardstyle-${opt.id}` : ''} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+                              title={locked ? 'Premium card-back skin — unlock with GameBuddies Premium' : opt.label}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!locked) handleSetGameSkin(opt.id);
+                              }}
+                            >
+                              {locked ? `🔒 ${opt.label}` : selected ? `✓ ${opt.label}` : opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Kick Button (host only, not self, connected players) */}
               {isHost && !isMe && isConnected && onKickPlayer && (

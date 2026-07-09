@@ -344,6 +344,13 @@ export const ptBR: Translations = {
     kickPlayer: 'Expulsar jogador',
     premium: 'Premium',
     pro: 'Pro',
+    gameSkinLabel: 'Verso da carta',
+    gameSkinSameAsCardStyle: 'Igual ao estilo de carta',
+    gameSkinNone: 'Nenhum',
+    gameSkinNeon: 'Neon',
+    gameSkinGold: 'Ouro',
+    gameSkinHolo: 'Holo',
+    gameSkinInk: 'Tinta',
   },
 
   // Streamer broadcast stage

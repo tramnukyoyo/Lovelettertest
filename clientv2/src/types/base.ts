@@ -24,6 +24,11 @@ export interface BasePlayer {
   premiumTier?: 'free' | 'premium' | 'pro' | 'monthly' | 'lifetime';
   /** Premium card style ('' | 'neon' | 'gold' | 'holo' | 'ink') — server-validated. */
   cardStyle?: string;
+  /**
+   * Per-game card-back skin ('' = follow cardStyle | 'none' | 'neon' | 'gold'
+   * | 'holo' | 'ink') — server-validated. Decoupled from the lobby cardStyle.
+   */
+  gameSkin?: string;
   avatarUrl?: string;
   id?: string;
   isPassPlayPlayer?: boolean;

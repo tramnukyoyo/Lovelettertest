@@ -22,6 +22,7 @@ import { VictoryScreen } from './VictoryScreen';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { translateGameMessage } from '../../utils/gameLog';
 import { Portal } from '../../utils/portal';
+import { resolveGameSkin } from '../../utils/gameSkin';
 import { CardHoverProvider, CardHoverZone } from './CardHoverContext';
 import CardHoverPreview from './CardHoverPreview';
 import { Avatar } from '../core/Avatar';
@@ -508,7 +509,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                       <DynamicCard
                                           cardType={cardToDisplay}
                                           showFace={cardToDisplay !== 0}
-                                          ownerCardStyle={player.cardStyle}
+                                          ownerCardStyle={resolveGameSkin(player)}
                                           className="hg-opponent-card"
                                       />
                                    </motion.div>
@@ -787,7 +788,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                 <DynamicCard
                                     cardType={card}
                                     selected={selectedCardIndex === idx}
-                                    ownerCardStyle={me?.cardStyle}
+                                    ownerCardStyle={resolveGameSkin(me)}
                                     className="hg-hand-card"
                                 />
                               </CardHoverZone>
