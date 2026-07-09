@@ -322,6 +322,7 @@ export const zhHant: Translations = {
     gameSkinGold: '黃金',
     gameSkinHolo: '全息',
     gameSkinInk: '墨韻',
+    gameSkinPreviewCaption: '預覽',
   },
 
   // Streamer broadcast stage

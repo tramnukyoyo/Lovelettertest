@@ -344,6 +344,7 @@ export const en = {
     gameSkinGold: 'Gold',
     gameSkinHolo: 'Holo',
     gameSkinInk: 'Ink',
+    gameSkinPreviewCaption: 'Preview',
   },
 
   // Streamer broadcast stage

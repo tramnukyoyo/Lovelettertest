@@ -12,6 +12,8 @@ import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
 import socketService from '../../services/socketService';
 import { Avatar } from '../core/Avatar';
+import DynamicCard from '../hearts-gambit/DynamicCard';
+import { resolveGameSkin } from '../../utils/gameSkin';
 
 interface PlayerListProps {
   players: Player[];
@@ -420,26 +422,41 @@ const PlayerList: React.FC<PlayerListProps> = ({
                       <span className="lr-cardstyle-chevron">{gameSkinOpen ? '▾' : '▸'}</span>
                     </button>
                     {gameSkinOpen && (
-                      <div className="lr-cardstyle-chips">
-                        {gameSkinOptions.map((opt) => {
-                          const locked = !isPremium && opt.id !== '' && opt.id !== 'none';
-                          const selected = equippedGameSkin === opt.id;
-                          return (
-                            <button
-                              key={opt.id || 'same'}
-                              type="button"
-                              className={`lr-cardstyle-chip ${opt.id && opt.id !== 'none' ? `lr-cardstyle-${opt.id}` : ''} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''}`}
-                              title={locked ? 'Premium card-back skin — unlock with GameBuddies Premium' : opt.label}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (!locked) handleSetGameSkin(opt.id);
-                              }}
-                            >
-                              {locked ? `🔒 ${opt.label}` : selected ? `✓ ${opt.label}` : opt.label}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      <>
+                        <div className="lr-cardstyle-chips">
+                          {gameSkinOptions.map((opt) => {
+                            const locked = !isPremium && opt.id !== '' && opt.id !== 'none';
+                            const selected = equippedGameSkin === opt.id;
+                            return (
+                              <button
+                                key={opt.id || 'same'}
+                                type="button"
+                                className={`lr-cardstyle-chip ${opt.id && opt.id !== 'none' ? `lr-cardstyle-${opt.id}` : ''} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+                                title={locked ? 'Premium card-back skin — unlock with GameBuddies Premium' : opt.label}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!locked) handleSetGameSkin(opt.id);
+                                }}
+                              >
+                                {locked ? `🔒 ${opt.label}` : selected ? `✓ ${opt.label}` : opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {/* Live preview: the REAL in-game card-back markup/classes
+                            (DynamicCard back + hg-back-<style> overlay), resolved
+                            the same way HeartsGambitGame does, so the pending pick
+                            reads exactly like the hand/opponent backs will. */}
+                        <div className="lr-cardstyle-preview-row">
+                          <span className="lr-cardstyle-preview-caption">{t('playerList.gameSkinPreviewCaption')}</span>
+                          <DynamicCard
+                            cardType={0}
+                            showFace={false}
+                            ownerCardStyle={resolveGameSkin({ cardStyle: equippedCardStyle, gameSkin: equippedGameSkin })}
+                            className="hg-gameskin-preview-card hg-opponent-card"
+                          />
+                        </div>
+                      </>
                     )}
                   </div>
                 );

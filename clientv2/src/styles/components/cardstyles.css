@@ -196,6 +196,21 @@
   transition: box-shadow 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Card-back skin picker preview — a real (mini) card back rendered with the
+ * SAME markup/classes the game uses (DynamicCard's hg-dynamic-card hg-card-back
+ * + hg-back-<style> overlay from above), just sized down to fit the lobby row.
+ * Non-interactive: neutralize the base card's pointer cursor + hover lift. */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-gameskin-preview-card {
+  --hg-card-width: 60px;
+  --hg-card-height: 90px;
+  flex-shrink: 0;
+  cursor: default;
+}
+[data-theme="primesuspect"] .hg-dynamic-card.hg-gameskin-preview-card:hover {
+  transform: none;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
 /* Equipped style also frames the player's card in the roster: the border takes
  * the style's color while the card keeps its pressed drop-shadow. Scoped under
  * .player-list-items so it beats the .is-me border; box-shadow is reset here

@@ -342,6 +342,7 @@ export const de: Translations = {
     gameSkinGold: 'Gold',
     gameSkinHolo: 'Holo',
     gameSkinInk: 'Tinte',
+    gameSkinPreviewCaption: 'Vorschau',
   },
 
   // Streamer broadcast stage

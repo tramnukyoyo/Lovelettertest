@@ -351,6 +351,7 @@ export const ptBR: Translations = {
     gameSkinGold: 'Ouro',
     gameSkinHolo: 'Holo',
     gameSkinInk: 'Tinta',
+    gameSkinPreviewCaption: 'Pré-visualização',
   },
 
   // Streamer broadcast stage
