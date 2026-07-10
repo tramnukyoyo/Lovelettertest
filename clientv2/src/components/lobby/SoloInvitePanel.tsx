@@ -44,11 +44,12 @@ const InviteFriends: React.FC = () => {
     let cancelled = false;
     socket.emit('gb:friends:list', {}, (resp: { friends?: InviteFriend[] }) => {
       if (!cancelled && Array.isArray(resp?.friends)) {
-        // Online friends first, then alphabetical.
-        const sorted = [...resp.friends].sort((a, b) =>
-          Number(b.online) - Number(a.online) || a.username.localeCompare(b.username)
-        );
-        setFriends(sorted);
+        // Only friends who can receive the invite right now (online on the
+        // platform or in a game) — offline friends are noise in this panel.
+        const online = resp.friends
+          .filter((f) => f.online)
+          .sort((a, b) => a.username.localeCompare(b.username));
+        setFriends(online);
       }
     });
     return () => { cancelled = true; };
