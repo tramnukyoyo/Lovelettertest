@@ -5,7 +5,6 @@
 
 import { isDiscordActivity } from './discordActivity';
 import { setCurrentLanguage, type Language } from '../utils/translations';
-import { STORAGE_KEYS } from '../config/storageKeys';
 
 export type GameBuddiesSession = {
   roomCode: string;
@@ -28,26 +27,17 @@ export type GameBuddiesSession = {
 
 const SUPPORTED_LANGUAGES: Language[] = ['en', 'de', 'es', 'pt-BR', 'pt-PT'];
 
-// Manual in-game language choice can live under any of the three keys the two
-// translation systems write (see utils/translations.ts) — if any is set, it wins.
-const MANUAL_LANGUAGE_KEYS = [
-  'gamebuddies-language',
-  'heartsgambit-language',
-  STORAGE_KEYS.LOCAL.LANGUAGE,
-];
-
 /**
- * Initialize the game's i18n from the platform locale. A language the player
- * picked manually in-game (stored in localStorage) always wins; otherwise the
- * lobby language beats browser detection. Unsupported locales are ignored.
+ * Initialize the game's i18n from the platform locale. On a platform launch
+ * the lobby language always wins (a stale in-game pick must not shadow it);
+ * unsupported locales fall back to English. Without a platform locale
+ * (standalone play), the stored choice / browser detection applies.
  */
 export function applySessionLocale(locale?: string): void {
   if (!locale) return;
-  if (MANUAL_LANGUAGE_KEYS.some((key) => localStorage.getItem(key))) return; // manual in-game choice wins
-  if ((SUPPORTED_LANGUAGES as string[]).includes(locale)) {
-    setCurrentLanguage(locale as Language);
-    console.log(`[GameBuddies] i18n initialized from platform locale: ${locale}`);
-  }
+  const lang = (SUPPORTED_LANGUAGES as string[]).includes(locale) ? locale : 'en';
+  setCurrentLanguage(lang as Language);
+  console.log(`[GameBuddies] i18n initialized from platform locale: ${locale} -> ${lang}`);
 }
 
 const SESSION_KEY = 'gamebuddies:session';
