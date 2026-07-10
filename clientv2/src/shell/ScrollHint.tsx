@@ -1,9 +1,12 @@
 /**
  * ScrollHint — "there's more below" affordance for hidden-scrollbar panes.
  *
- * Place as the LAST child inside a scrollable container (e.g. the lobby
- * waiting cards). Renders a sticky bottom fade + bouncing ▾ that is only
- * visible while the parent has unscrolled content below the fold.
+ * Default (`watch="parent"`): place as the LAST child inside a scrollable
+ * container. Renders a sticky bottom fade + bouncing ▾ that is only visible
+ * while the parent has unscrolled content below the fold.
+ * `watch="prev"`: place as the SIBLING right after the scrollable element —
+ * lets the hint live outside the scroller's clip (e.g. absolutely positioned
+ * on the lobby card so the ▾ can straddle the card's border).
  * Styles: .gs-scroll-hint in styles/shell/stage.css.
  */
 
@@ -11,16 +14,20 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const BOTTOM_THRESHOLD_PX = 12;
 
-const ScrollHint: React.FC = () => {
+const ScrollHint: React.FC<{ watch?: 'parent' | 'prev' }> = ({ watch = 'parent' }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [canDown, setCanDown] = useState(false);
+  const [canUp, setCanUp] = useState(false);
 
   useEffect(() => {
-    const el = ref.current?.parentElement;
+    const el = watch === 'prev'
+      ? (ref.current?.previousElementSibling as HTMLElement | null)
+      : ref.current?.parentElement;
     if (!el) return;
 
     const update = () => {
-      setVisible(el.scrollHeight - el.clientHeight - el.scrollTop > BOTTOM_THRESHOLD_PX);
+      setCanDown(el.scrollHeight - el.clientHeight - el.scrollTop > BOTTOM_THRESHOLD_PX);
+      setCanUp(el.scrollTop > BOTTOM_THRESHOLD_PX);
     };
 
     update();
@@ -40,12 +47,19 @@ const ScrollHint: React.FC = () => {
       ro.disconnect();
       mo.disconnect();
     };
-  }, []);
+  }, [watch]);
 
   return (
-    <div ref={ref} className={`gs-scroll-hint ${visible ? 'is-visible' : ''}`} aria-hidden="true">
-      <span className="gs-scroll-hint-chevron">▾</span>
-    </div>
+    <>
+      {/* ref must stay on the FIRST element: `watch="prev"` resolves the
+          scroller via previousElementSibling. */}
+      <div ref={ref} className={`gs-scroll-hint ${canDown ? 'is-visible' : ''}`} aria-hidden="true">
+        <span className="gs-scroll-hint-chevron">▾</span>
+      </div>
+      <div className={`gs-scroll-hint gs-scroll-hint-up ${canUp ? 'is-visible' : ''}`} aria-hidden="true">
+        <span className="gs-scroll-hint-chevron">▴</span>
+      </div>
+    </>
   );
 };
 

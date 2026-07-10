@@ -222,6 +222,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                 <div className="gs-lobby-panes">
                   {/* LEFT — invite + players */}
                   <div className="gs-pane lobby-waiting-card">
+                    <div className="gs-pane-scroll">
                     <img
                       src={`${import.meta.env.BASE_URL}mascot.webp`}
                       alt=""
@@ -238,12 +239,14 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                       />
                       {/* Player list lives in the sidebar rail (Spieler tab) — no
                           duplicate in the center pane. */}
-                      <ScrollHint />
+                      </div>
+                      <ScrollHint watch="prev" />
                     </div>
                   </div>
 
                   {/* RIGHT — host settings + explainer */}
                   <div className="gs-pane lobby-waiting-card lobby-settings-pane">
+                    <div className="gs-pane-scroll">
                     {isHost ? (
                       isMobile ? (
                         <CollapsibleSection title={t('settings.title')}>
@@ -278,7 +281,8 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                           />
                         </div>
                       )}
-                      <ScrollHint />
+                      </div>
+                      <ScrollHint watch="prev" />
                     </div>
                   </div>
                 </div>
