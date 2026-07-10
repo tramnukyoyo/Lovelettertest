@@ -56,9 +56,13 @@ const ScrollHint: React.FC<{ watch?: 'parent' | 'prev' }> = ({ watch = 'parent' 
       <div ref={ref} className={`gs-scroll-hint ${canDown ? 'is-visible' : ''}`} aria-hidden="true">
         <span className="gs-scroll-hint-chevron">▾</span>
       </div>
-      <div className={`gs-scroll-hint gs-scroll-hint-up ${canUp ? 'is-visible' : ''}`} aria-hidden="true">
-        <span className="gs-scroll-hint-chevron">▴</span>
-      </div>
+      {/* The ▴ tab needs the out-of-scroller (absolute) placement; in legacy
+          sticky mode it would just sit in the content flow — skip it there. */}
+      {watch === 'prev' && (
+        <div className={`gs-scroll-hint gs-scroll-hint-up ${canUp ? 'is-visible' : ''}`} aria-hidden="true">
+          <span className="gs-scroll-hint-chevron">▴</span>
+        </div>
+      )}
     </>
   );
 };
