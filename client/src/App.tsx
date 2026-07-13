@@ -147,7 +147,7 @@ function VideoSettingsManager() {
   );
 }
 
-function AppContent() {
+function AppContent({ setSiteNotification }: { setSiteNotification: (n: SiteNotification) => void }) {
   const mobileNav = useMobileNavigation();
 
   // Force re-render when language changes (no page reload needed)
@@ -275,6 +275,32 @@ function AppContent() {
       };
       socket.on('admin:message', onAdminMessage);
 
+      // In-room server rejections (content filter, validation, permission
+      // errors). The core hook stores these in `error` (red floating toast) —
+      // in a room we surface them via SiteNotificationToast instead, with a
+      // clear message for content-filter blocks, and clear the hook error so
+      // the same rejection isn't shown twice.
+      let lastErrToast = { msg: '', at: 0 };
+      const onServerError = (data: { message?: string; code?: string }) => {
+        const msg = data?.message;
+        if (!msg) return;
+        if (!lastLobbyRef.current) return; // pre-lobby: keep the hook's red error toast
+        if (data.code === 'NOT_IN_ROOM' || msg === 'Not in a room') return; // hook self-heals this one
+        helpers.setError(''); // suppress the duplicate red toast while in a room
+        const now = Date.now();
+        if (msg === lastErrToast.msg && now - lastErrToast.at < 3000) return; // rapid resubmits
+        lastErrToast = { msg, at: now };
+        const isFilter = data.code === 'PROFANITY_DETECTED';
+        setSiteNotification({
+          id: `srv-err-${now}`,
+          type: 'warning',
+          title: isFilter ? 'Content filter' : 'Error',
+          message: isFilter ? 'Blocked by the content filter — try different wording.' : msg,
+          target: 'all',
+        });
+      };
+      socket.on('error', onServerError);
+
       return () => {
         socket.off('roomStateUpdated', handleRoomStateUpdated);
         socket.off('timer:update', handleTimerUpdate);
@@ -287,6 +313,7 @@ function AppContent() {
         socket.off('game:resumed', onGameResumed);
         socket.off('player:reconnected', onPlayerReconnected);
         socket.off('admin:message', onAdminMessage);
+        socket.off('error', onServerError);
       };
     },
     []
@@ -600,7 +627,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <AppContent />
+      <AppContent setSiteNotification={setSiteNotification} />
       <InstallPrompt />
       <SiteNotificationToast notification={siteNotification} onClose={() => setSiteNotification(null)} />
     </ThemeProvider>
