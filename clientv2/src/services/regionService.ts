@@ -54,19 +54,36 @@ function writeRegionCache(region: Region): void {
   }
 }
 
+// Room→region pin: the platform appends ?gbRegion=eu|us to every game URL it
+// builds (start, late-join, session links), carrying the ROOM's pinned region.
+// All players of a room must land on the same regional server — an individual
+// client's latency preference must never override the room's pin, so this
+// beats the sessionStorage handoff AND the probe race.
+function readUrlRegionPin(): Region | null {
+  try {
+    const value = new URLSearchParams(window.location.search).get('gbRegion');
+    return value === 'us' || value === 'eu' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 async function measureLatency(serverUrl: string): Promise<number> {
   const start = performance.now();
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-    await fetch(`${serverUrl}/api/health`, {
+    const res = await fetch(`${serverUrl}/api/health`, {
       method: 'GET',
       signal: controller.signal,
       cache: 'no-store',
     });
 
     clearTimeout(timeoutId);
+    // A reachable-but-broken host (404/5xx — e.g. a decommissioned server
+    // whose edge still answers fast) must not win the race.
+    if (!res.ok) return Infinity;
     return performance.now() - start;
   } catch {
     return Infinity;
@@ -74,6 +91,16 @@ async function measureLatency(serverUrl: string): Promise<number> {
 }
 
 export async function detectFastestRegion(): Promise<Region> {
+  const urlPin = readUrlRegionPin();
+  if (urlPin) {
+    if (cachedRegion !== urlPin) {
+      console.log(`[Region] Pinned to ${urlPin.toUpperCase()} by gbRegion URL param (room pin)`);
+    }
+    cachedRegion = urlPin;
+    writeRegionCache(urlPin);
+    return cachedRegion;
+  }
+
   if (cachedRegion) return cachedRegion;
 
   const handoff = readRegionCache();
