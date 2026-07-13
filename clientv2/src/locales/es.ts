@@ -539,6 +539,8 @@ export const es: Translations = {
     roomFull: 'La sala esta llena',
     invalidName: 'Por favor ingresa un nombre valido',
     invalidRoomCode: 'Por favor ingresa un codigo de sala valido',
+    contentFilterTitle: 'Filtro de contenido',
+    contentFilterBody: 'Bloqueado por el filtro de contenido, prueba con otras palabras.',
   },
 
   // Reconnect

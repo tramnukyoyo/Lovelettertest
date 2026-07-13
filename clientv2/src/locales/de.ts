@@ -540,6 +540,8 @@ export const de: Translations = {
     roomFull: 'Raum ist voll',
     invalidName: 'Bitte gib einen gültigen Namen ein',
     invalidRoomCode: 'Bitte gib einen gültigen Raum-Code ein',
+    contentFilterTitle: 'Inhaltsfilter',
+    contentFilterBody: 'Vom Inhaltsfilter blockiert — bitte anders formulieren.',
   },
 
   reconnect: {

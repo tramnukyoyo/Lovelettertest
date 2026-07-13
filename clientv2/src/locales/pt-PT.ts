@@ -549,6 +549,8 @@ export const ptPT: Translations = {
     roomFull: 'Sala cheia',
     invalidName: 'Por favor, introduz um nome valido',
     invalidRoomCode: 'Por favor, introduz um codigo de sala valido',
+    contentFilterTitle: 'Filtro de conteudo',
+    contentFilterBody: 'Bloqueado pelo filtro de conteudo, tenta outras palavras.',
   },
 
   // Reconnect Overlay

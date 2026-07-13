@@ -456,6 +456,8 @@ export const zhHant: Translations = {
     roomFull: '房間已滿',
     invalidName: '請輸入有效的名字',
     invalidRoomCode: '請輸入有效的房間代碼',
+    contentFilterTitle: '內容過濾',
+    contentFilterBody: '已被內容過濾器攔截，請換個說法。',
   },
 
   // Reconnect Overlay

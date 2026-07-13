@@ -535,6 +535,8 @@ export const en = {
     roomFull: 'Room is full',
     invalidName: 'Please enter a valid name',
     invalidRoomCode: 'Please enter a valid room code',
+    contentFilterTitle: 'Content filter',
+    contentFilterBody: 'Blocked by the content filter — try different wording.',
   },
 
   // Reconnect Overlay

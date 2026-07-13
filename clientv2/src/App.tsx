@@ -24,6 +24,7 @@ import {
   type PostgameUnlock,
 } from './services/postgame';
 import { getTranslation, getCurrentLanguage } from './utils/gameTranslations';
+import { t } from './utils/translations';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { WebRTCProvider, useWebRTC } from './contexts/WebRTCContext';
 import { VideoUIProvider, useVideoUI } from './contexts/VideoUIContext';
@@ -298,6 +299,29 @@ function App() {
       if (data?.playerId && data?.achievement?.id) addUnlock(data);
     };
 
+    // In-room server rejections (content filter, validation, permission
+    // errors). The core hook stores these in `error`, but that state only
+    // renders pre-lobby (HomePage/BigScreenPage) — in a room the rejection
+    // was invisible and players thought the game was bugged. Toast it.
+    let lastErrToast = { msg: '', at: 0 };
+    const onServerError = (data: { message?: string; code?: string }) => {
+      const msg = data?.message;
+      if (!msg) return;
+      if (!lastLobbyRef.current) return; // pre-lobby: HomePage renders `error` inline
+      if (data.code === 'NOT_IN_ROOM' || msg === 'Not in a room') return; // hook self-heals this one
+      const now = Date.now();
+      if (msg === lastErrToast.msg && now - lastErrToast.at < 3000) return; // rapid resubmits
+      lastErrToast = { msg, at: now };
+      const isFilter = data.code === 'PROFANITY_DETECTED';
+      setSiteNotification({
+        id: `srv-err-${now}`,
+        type: 'warning',
+        title: isFilter ? t('errors.contentFilterTitle') : 'Error',
+        message: isFilter ? t('errors.contentFilterBody') : msg,
+        target: 'all',
+      });
+    };
+
     socket.on('roomStateUpdated', onRoomStateUpdated);
     socket.on('gamebuddies:return-redirect', onReturnRedirect);
     socket.on('gamebuddies:lobby-redirect', onLobbyRedirect);
@@ -307,6 +331,7 @@ function App() {
     socket.on('game:resumed', onGameResumed);
     socket.on('player:reconnected', onPlayerReconnected);
     socket.on('game:log', onGameLog);
+    socket.on('error', onServerError);
     socket.on('gb:player:profile', onPlayerProfile);
     socket.on('gb:postgame:summary', onPostgameSummary);
     socket.on('gb:postgame:rematch-update', onRematchUpdate);
@@ -324,6 +349,7 @@ function App() {
       socket.off('game:resumed', onGameResumed);
       socket.off('player:reconnected', onPlayerReconnected);
       socket.off('game:log', onGameLog);
+      socket.off('error', onServerError);
       socket.off('gb:player:profile', onPlayerProfile);
       socket.off('gb:postgame:summary', onPostgameSummary);
       socket.off('gb:postgame:rematch-update', onRematchUpdate);
