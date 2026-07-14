@@ -30,6 +30,19 @@ import type {
   Settings,
 } from '../types';
 
+// Captured at module load: the entry URL's join intent (?room= / ?invite=).
+// HomePage strips the URL via history.replaceState before the socket connects,
+// so a live read inside onConnect would miss it. Used by the wrong-region
+// redirect replay below.
+const _initialJoinParam: string | null = (() => {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    return p.get('room') || p.get('invite');
+  } catch {
+    return null;
+  }
+})();
+
 // Response types for socket callbacks
 interface SessionReconnectResponse {
   success: boolean;
@@ -259,6 +272,11 @@ export function useGameBuddiesClient(
     // Remember the attempted invite token so onError can retry the other
     // region once for legacy pin-less invite links (INVALID_INVITE).
     if (isInviteToken) sessionStorage.setItem('gb_lastInviteToken', roomCode);
+    // Remember the full join intent (code + name) so a wrong-region redirect
+    // can replay the join automatically after the pinned navigation reload.
+    try {
+      sessionStorage.setItem('gb_lastJoinAttempt', JSON.stringify({ code: roomCode, playerName, ts: Date.now() }));
+    } catch { /* storage blocked — replay just won't happen */ }
     socket.emit('room:join', {
       roomCode: isInviteToken ? undefined : roomCode,
       inviteToken: isInviteToken ? roomCode : undefined,
@@ -416,6 +434,28 @@ export function useGameBuddiesClient(
         } else if (session.playerName) {
           joinRoom(session.roomCode, session.playerName!, session);
         }
+      } else if (_initialJoinParam && hadUrlRegionPin()) {
+        // Wrong-region redirect replay: the redirect navigated with
+        // ?room=/?invite= + gbRegion but the reload lost the user's entered
+        // name and click. If this load matches a join attempted seconds ago,
+        // replay it automatically instead of making the user re-type.
+        try {
+          const raw = sessionStorage.getItem('gb_lastJoinAttempt');
+          if (raw) {
+            const attempt = JSON.parse(raw) as { code?: string; playerName?: string; ts?: number };
+            const fresh = !!attempt.ts && Date.now() - attempt.ts < 45_000;
+            const matches = !!attempt.code && attempt.code.toUpperCase() === _initialJoinParam.toUpperCase();
+            if (fresh && matches && attempt.playerName) {
+              sessionStorage.removeItem('gb_lastJoinAttempt');
+              const now = Date.now();
+              if (now - lastAutoJoinAt.current >= 5000) {
+                lastAutoJoinAt.current = now;
+                console.log('[useGameBuddiesClient] replaying join after region redirect');
+                joinRoom(attempt.code!, attempt.playerName, null);
+              }
+            }
+          }
+        } catch { /* malformed stash — fall through to the normal join form */ }
       }
     };
 
