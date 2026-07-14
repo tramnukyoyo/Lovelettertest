@@ -106,7 +106,9 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   const copyRoomLink = useCallback(async () => {
     const baseUrl = window.location.origin;
     const basePath = import.meta.env.BASE_URL || '/';
-    const joinUrl = `${baseUrl}${basePath}?invite=${lobby.code}`;
+    // gbRegion: room→region pin — invitees must land on THIS room's regional
+    // server, not their own latency race (split-brain guard).
+    const joinUrl = `${baseUrl}${basePath}?invite=${lobby.code}&gbRegion=${socketService.getCurrentRegion()}`;
 
     try {
       await navigator.clipboard.writeText(joinUrl);

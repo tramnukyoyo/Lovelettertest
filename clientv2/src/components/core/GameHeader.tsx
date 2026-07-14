@@ -138,7 +138,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({
     const onInviteCreated = async (data: { inviteToken: string }) => {
       const baseUrl = window.location.origin;
       const basePath = import.meta.env.BASE_URL || '/';
-      const joinUrl = `${baseUrl}${basePath}?invite=${data.inviteToken}`;
+      // gbRegion: room→region pin — invitees must land on THIS room's regional
+      // server, not their own latency race (split-brain guard).
+      const joinUrl = `${baseUrl}${basePath}?invite=${data.inviteToken}&gbRegion=${socketService.getCurrentRegion()}`;
 
       const success = await copyToClipboard(joinUrl);
       if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
@@ -165,7 +167,8 @@ const GameHeader: React.FC<GameHeaderProps> = ({
     const basePath = import.meta.env.BASE_URL || '/';
 
     if (!gameBuddiesSession && !hideRoomCode) {
-      const joinUrl = `${baseUrl}${basePath}?invite=${lobby.code}`;
+      // gbRegion: room→region pin (see onInviteCreated above).
+      const joinUrl = `${baseUrl}${basePath}?invite=${lobby.code}&gbRegion=${socketService.getCurrentRegion()}`;
       const success = await copyToClipboard(joinUrl);
       if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
 

@@ -107,7 +107,9 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
   const pendingActionRef = useRef<'copy' | 'share' | null>(null);
 
   // Direct room-code URL (non-streamer). Safe to compute synchronously.
-  const directRoomUrl = `${window.location.origin}${import.meta.env.BASE_URL}?room=${roomCode}`;
+  // gbRegion: room→region pin — invitees (copy/share/QR) must land on THIS
+  // room's regional server, not their own latency race (split-brain guard).
+  const directRoomUrl = `${window.location.origin}${import.meta.env.BASE_URL}?room=${roomCode}&gbRegion=${socketService.getCurrentRegion()}`;
 
   // Streamer mode: ask server for a real invite-token UUID, then copy/share the ?invite=<uuid> URL
   useEffect(() => {
@@ -115,7 +117,8 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
     const socket = socketService.getSocket();
     if (!socket) return;
     const onInviteCreated = (data: { inviteToken: string }) => {
-      const url = `${window.location.origin}${import.meta.env.BASE_URL}?invite=${data.inviteToken}`;
+      // gbRegion: room→region pin (see directRoomUrl above).
+      const url = `${window.location.origin}${import.meta.env.BASE_URL}?invite=${data.inviteToken}&gbRegion=${socketService.getCurrentRegion()}`;
       const action = pendingActionRef.current;
       pendingActionRef.current = null;
       if (action === 'share' && navigator.share) {

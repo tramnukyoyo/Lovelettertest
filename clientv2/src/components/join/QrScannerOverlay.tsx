@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { X, Camera } from 'lucide-react';
 import { useQrScanner } from '../../hooks/useQrScanner';
 import { parseJoinQr } from '../../utils/parseJoinQr';
+import { pinRegion } from '../../services/regionService';
 import { decodeQrFromFile } from '../../utils/decodeQrFromImage';
 import { trackEvent } from '../../services/analyticsService';
 import { t } from '../../utils/translations';
@@ -50,11 +51,15 @@ const QrScannerOverlay: React.FC<QrScannerOverlayProps> = ({ onRoomCode, onInvit
     const parsed = parseJoinQr(text);
     if (parsed.type === 'room') {
       trackEvent('qr_scan_succeeded', { payload: 'room' });
+      // Room→region pin from the scanned URL: pin BEFORE the join flow opens
+      // the socket, so we connect to the room's regional server.
+      if (parsed.region) pinRegion(parsed.region);
       onRoomCode(parsed.roomCode);
       return true;
     }
     if (parsed.type === 'invite') {
       trackEvent('qr_scan_succeeded', { payload: 'invite' });
+      if (parsed.region) pinRegion(parsed.region);
       onInviteToken(parsed.token);
       return true;
     }

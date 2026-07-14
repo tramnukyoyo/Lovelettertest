@@ -15,6 +15,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Socket } from 'socket.io-client';
 import socketService from '../services/socketService';
+import { pinRegion, getCachedRegion, hadUrlRegionPin } from '../services/regionService';
 import {
   getCurrentSession,
   resolvePendingSession,
@@ -36,6 +37,8 @@ interface SessionReconnectResponse {
   sessionToken?: string;
   reason?: string;
   roomCode?: string;
+  /** Owning region when reason === 'wrong_region' (multi-region split-brain guard) */
+  region?: 'eu' | 'us';
 }
 
 interface GameSyncResponse {
@@ -253,6 +256,9 @@ export function useGameBuddiesClient(
 
 
     const isInviteToken = roomCode.length > 10;
+    // Remember the attempted invite token so onError can retry the other
+    // region once for legacy pin-less invite links (INVALID_INVITE).
+    if (isInviteToken) sessionStorage.setItem('gb_lastInviteToken', roomCode);
     socket.emit('room:join', {
       roomCode: isInviteToken ? undefined : roomCode,
       inviteToken: isInviteToken ? roomCode : undefined,
@@ -321,6 +327,25 @@ export function useGameBuddiesClient(
             return;
           }
           console.warn('[useGameBuddiesClient] session:reconnect wrong worker — reload throttled');
+          resolve(false);
+        } else if (response.reason === 'wrong_region' && (response.region === 'eu' || response.region === 'us')) {
+          // Multi-region: the room lives on the OTHER regional server. The
+          // session is still valid there — do NOT clear it. Pin the owning
+          // region (sessionStorage handoff) and do ONE guarded reload; the
+          // rebuilt socket then connects to the right server and this same
+          // session:reconnect succeeds there.
+          if (response.roomCode) sessionStorage.setItem('lastRoomCode', response.roomCode);
+          pinRegion(response.region);
+          const nowWR = Date.now();
+          const lastWR = Number(sessionStorage.getItem('gb_wrongRegionReloadAt') || 0);
+          if (nowWR - lastWR > 15000) {
+            sessionStorage.setItem('gb_wrongRegionReloadAt', String(nowWR));
+            console.warn(`[useGameBuddiesClient] session:reconnect wrong region — reloading pinned to ${response.region.toUpperCase()}`);
+            resolve(false);
+            window.location.reload();
+            return;
+          }
+          console.warn('[useGameBuddiesClient] session:reconnect wrong region — reload throttled');
           resolve(false);
         } else {
           sessionStorage.removeItem('gameSessionToken');
@@ -471,7 +496,7 @@ export function useGameBuddiesClient(
 
     const onChatBlocked = () => pushChatMessage({ id: `sys-blocked-${Date.now()}`, playerId: 'system', playerName: 'System', message: 'Your message wasn’t sent — please keep it friendly.', timestamp: Date.now(), isSystem: true });
 
-    const onError = (data: { message: string; code?: string }) => {
+    const onError = (data: { message: string; code?: string; region?: 'eu' | 'us'; roomCode?: string }) => {
       // Self-heal: a cluster reboot / cross-worker split can leave the socket
       // bound to a worker that no longer knows this room ("Not in a room").
       // Re-fire session:reconnect to rebind instead of dead-ending on an error.
@@ -482,6 +507,37 @@ export function useGameBuddiesClient(
           socketService.getSocket()?.emit('session:reconnect', { sessionToken });
           return;
         }
+      }
+      // Multi-region: a legacy pin-less streamer invite (?invite=<uuid>) can
+      // land on the wrong region, which can't resolve it (tokens are in-memory
+      // per instance) and can't name the owner. Retry the OTHER region once —
+      // the retry URL carries a pin, so a second failure falls through to the
+      // error (genuinely expired invite).
+      if (data.code === 'INVALID_INVITE' && !hadUrlRegionPin()) {
+        const lastInviteToken = sessionStorage.getItem('gb_lastInviteToken');
+        if (lastInviteToken) {
+          const other = getCachedRegion() === 'us' ? 'eu' : 'us';
+          pinRegion(other);
+          console.warn(`[useGameBuddiesClient] invite unknown here — retrying on ${other.toUpperCase()}`);
+          window.location.href = `${window.location.pathname}?invite=${encodeURIComponent(lastInviteToken)}&gbRegion=${other}`;
+          return;
+        }
+      }
+      // Multi-region: this room lives on the OTHER regional server (a legacy
+      // pin-less link landed us here). Pin the owning region and navigate with
+      // the room code + pin — HomePage re-enters the join flow on the right
+      // server. Navigation (not reload): HomePage already stripped the URL.
+      if (data.code === 'WRONG_REGION' && (data.region === 'eu' || data.region === 'us') && data.roomCode) {
+        const nowWR = Date.now();
+        const lastWR = Number(sessionStorage.getItem('gb_wrongRegionReloadAt') || 0);
+        if (nowWR - lastWR > 15000) {
+          sessionStorage.setItem('gb_wrongRegionReloadAt', String(nowWR));
+          pinRegion(data.region);
+          console.warn(`[useGameBuddiesClient] room is on ${data.region.toUpperCase()} — redirecting with region pin`);
+          window.location.href = `${window.location.pathname}?room=${encodeURIComponent(data.roomCode)}&gbRegion=${data.region}`;
+          return;
+        }
+        // Throttled — fall through to showing the server's message.
       }
       setError(data.message);
     };

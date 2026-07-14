@@ -13,8 +13,8 @@
  */
 
 export type ParsedJoinQr =
-  | { type: 'room'; roomCode: string }
-  | { type: 'invite'; token: string }
+  | { type: 'room'; roomCode: string; region?: 'eu' | 'us' }
+  | { type: 'invite'; token: string; region?: 'eu' | 'us' }
   | { type: 'reject' };
 
 const ROOM_CODE_RE = /^[A-Za-z0-9]{4,8}$/;
@@ -50,7 +50,12 @@ export function parseJoinQr(raw: string, currentHostname?: string): ParsedJoinQr
   const value = url.searchParams.get('room') || url.searchParams.get('join') || url.searchParams.get('invite');
   if (!value) return { type: 'reject' };
 
-  if (value.length > 10) return { type: 'invite', token: value };
-  if (ROOM_CODE_RE.test(value)) return { type: 'room', roomCode: value.toUpperCase() };
+  // Room→region pin: preserve gbRegion from the scanned URL so the joiner
+  // connects to the room's regional server instead of racing latency.
+  const rawRegion = url.searchParams.get('gbRegion');
+  const region = rawRegion === 'us' || rawRegion === 'eu' ? rawRegion : undefined;
+
+  if (value.length > 10) return { type: 'invite', token: value, region };
+  if (ROOM_CODE_RE.test(value)) return { type: 'room', roomCode: value.toUpperCase(), region };
   return { type: 'reject' };
 }
