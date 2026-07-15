@@ -25,8 +25,19 @@ let posthogRef: PostHog | null = null;
 let initialized = false;
 let loading = false;
 
+// Identify can be requested before PostHog is initialized (the session often
+// resolves before consent/init). Stash the latest request and flush on init.
+let pendingIdentify: { userId: string; props: Record<string, unknown> } | null = null;
+
 function hasConsent(): boolean {
   return localStorage.getItem(CONSENT_KEY) === 'all';
+}
+
+function flushIdentify(): void {
+  if (!initialized || !posthogRef || !pendingIdentify) return;
+  const { userId, props } = pendingIdentify;
+  pendingIdentify = null;
+  posthogRef.identify(userId, props);
 }
 
 function doInit(): void {
@@ -41,16 +52,52 @@ function doInit(): void {
         persistence: 'localStorage+cookie',
         capture_pageview: false,
         capture_pageleave: false,
+        // Dead clicks + heatmaps must be opted into explicitly here: the
+        // project's remote config leaves dead clicks OFF, and only the platform
+        // client enables them — in-game surfaces (e.g. the return button) need
+        // the same interaction data (fleet rollout 2026-07-15).
+        capture_dead_clicks: true,
+        capture_heatmaps: true,
         person_profiles: 'identified_only',
         property_denylist: ['sessionToken', 'inviteToken', 'password', 'email', 'access_token', 'refresh_token'],
       });
       posthogRef = posthog;
       initialized = true;
       loading = false;
+      flushIdentify();
     })
     .catch(() => {
       loading = false; // load failed (offline/adblock) — retry on next consent event
     });
+}
+
+/**
+ * Stitch this game's PostHog events to the platform person. Games are frequently
+ * served cross-origin (*.onrender.com, Discord *.discordsays.com) where the
+ * shared .gamebuddies.io cookie doesn't reach, so posthog-js starts a fresh
+ * anonymous distinct_id and game events are orphaned from the platform user.
+ * Calling identify() with the platform userId (resolved from the session token)
+ * reunites them. No-op for unresolved guests (no userId). Safe to call before
+ * init — it's stashed and flushed once consent/init completes.
+ */
+export function identifyGamePlayer(session: {
+  userId?: string;
+  playerId?: string;
+  roomCode?: string;
+  isHost?: boolean;
+  premiumTier?: string;
+}): void {
+  if (!session?.userId) return;
+  pendingIdentify = {
+    userId: session.userId,
+    props: {
+      player_id: session.playerId,
+      room_code: session.roomCode,
+      is_host: session.isHost,
+      premium_tier: session.premiumTier,
+    },
+  };
+  if (initialized && hasConsent()) flushIdentify();
 }
 
 /** Call once from App.tsx. Inits PostHog if consent exists, listens for future consent changes. */
@@ -94,8 +141,15 @@ export function trackReconnect(success: boolean, method: string): void {
   trackEvent('reconnection_attempted', { success, method });
 }
 
-/** Track when the server sends an error to the client. */
+/** Track when the server sends an error to the client.
+ *  Dedupes identical messages within 30s: retry/error loops otherwise flood
+ *  PostHog with repeats that carry no new information — one TV left on a dead
+ *  room emitted 6,152 "Room not found" events over 40h (fleet audit 2026-07-13). */
+let _lastTrackedError = { msg: '', at: 0 };
 export function trackGameError(errorMessage: string): void {
+  const now = Date.now();
+  if (errorMessage === _lastTrackedError.msg && now - _lastTrackedError.at < 30000) return;
+  _lastTrackedError = { msg: errorMessage, at: now };
   trackEvent('game_error_shown', { error_message: errorMessage });
 }
 
@@ -127,6 +181,14 @@ const _phaseTracker: { current: string | undefined; startTime: number | null } =
   startTime: null,
 };
 
+// Phase-name matching MUST be case-insensitive and include the aliases below —
+// exact-match trackers silently dropped game_started/game_finished in fleet
+// clients whose phases are uppercase ('LOBBY_WAITING'/'GAME_OVER') or unaliased
+// ('gameover'): letter-rush shipped 5,304 game_phase_entered events in 30d with
+// ZERO starts/finishes before this fix (fleet audit 2026-07-13).
+const LOBBYISH_PHASES = new Set(["lobby", "lobby_waiting", "waiting"]);
+const FINISHED_PHASES = new Set(["finished", "ended", "game_over", "gameover"]);
+
 export function trackPhaseFromRoomState(data: unknown): void {
   if (!data || typeof data !== "object") return;
   const d = data as Record<string, any>;
@@ -135,15 +197,29 @@ export function trackPhaseFromRoomState(data: unknown): void {
   if (!newPhase) return;
   if (newPhase === _phaseTracker.current) return;
   const prev = _phaseTracker.current;
+  const newNorm = String(newPhase).toLowerCase();
+  const prevNorm = prev ? String(prev).toLowerCase() : undefined;
   trackEvent("game_phase_entered", { phase: newPhase, from: prev ?? null, room_code: d?.code });
-  if (prev === "lobby" && newPhase !== "lobby") {
+  if (prevNorm && LOBBYISH_PHASES.has(prevNorm) && !LOBBYISH_PHASES.has(newNorm) && !FINISHED_PHASES.has(newNorm)) {
     _phaseTracker.startTime = Date.now();
     trackEvent("game_started", { room_code: d?.code });
   }
-  if ((newPhase === "finished" || newPhase === "ended" || newPhase === "game_over") && _phaseTracker.startTime) {
+  if (FINISHED_PHASES.has(newNorm) && _phaseTracker.startTime) {
     const dur = Math.round((Date.now() - _phaseTracker.startTime) / 1000);
     trackGameFinished(1, dur, { room_code: d?.code });
     _phaseTracker.startTime = null;
   }
   _phaseTracker.current = newPhase;
+}
+
+/** Explicit finish hook for games whose room state never enters a terminal
+ *  phase — e.g. Bad Actor returns straight to 'lobby' after the final reveal,
+ *  so the tracker above can never fire game_finished. Call from the
+ *  end-of-game screen. The armed startTime doubles as the double-fire guard
+ *  (remounts no-op). */
+export function trackGameFinishedNow(totalRounds: number, extra?: Record<string, unknown>): void {
+  if (!_phaseTracker.startTime) return;
+  const dur = Math.round((Date.now() - _phaseTracker.startTime) / 1000);
+  _phaseTracker.startTime = null;
+  trackGameFinished(totalRounds, dur, extra);
 }
