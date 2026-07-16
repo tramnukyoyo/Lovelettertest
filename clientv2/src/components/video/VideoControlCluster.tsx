@@ -18,11 +18,15 @@ import {
   Mic,
   MicOff,
   PhoneOff,
-  Smile
+  Smile,
+  Crown,
+  Lock
 } from 'lucide-react';
 import { getBroadcastCopy } from './broadcastCopy';
 import { useWebRTC } from '../../contexts/WebRTCContext';
 import { t } from '../../utils/translations';
+import PremiumUpsellChip from '../ui/PremiumUpsellChip';
+import { trackPremiumLocked } from '../../services/premiumUpsell';
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '🎉', '👏'];
 
@@ -185,25 +189,32 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
             </div>
             {PREMIUM_REACTION_PACKS.map(pack => (
               <React.Fragment key={pack.id}>
-                <div className="video-reactions-pack-label">👑 {t(pack.labelKey)}</div>
+                <div className="video-reactions-pack-label"><Crown size={11} aria-hidden="true" /> {t(pack.labelKey)}</div>
                 <div className="video-reactions-row">
                   {pack.emojis.map(emoji => (
                     <button
                       key={emoji}
                       type="button"
                       className={`video-reaction-emoji${isPremium ? '' : ' locked'}`}
-                      onClick={isPremium ? () => { sendReaction(emoji); setReactionsOpen(false); } : undefined}
+                      onClick={isPremium
+                        ? () => { sendReaction(emoji); setReactionsOpen(false); }
+                        : () => trackPremiumLocked('reactions', emoji)}
                       title={isPremium ? undefined : t('videoControl.premiumLockTooltip')}
                       aria-disabled={!isPremium}
                       aria-label={isPremium ? `Send ${emoji} reaction` : `${emoji} — ${t('videoControl.premiumLockTooltip')}`}
                     >
                       {emoji}
-                      {!isPremium && <span className="video-reaction-lock" aria-hidden="true">🔒</span>}
+                      {!isPremium && <span className="video-reaction-lock" aria-hidden="true"><Lock size={9} /></span>}
                     </button>
                   ))}
                 </div>
               </React.Fragment>
             ))}
+            {!isPremium && PREMIUM_REACTION_PACKS.length > 0 && (
+              <div className="video-reactions-upsell-row">
+                <PremiumUpsellChip surface="reactions" />
+              </div>
+            )}
           </div>
         )}
       </div>

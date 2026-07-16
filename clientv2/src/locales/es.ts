@@ -292,6 +292,11 @@ export const es: Translations = {
     packWholesome: 'Tierno',
   },
 
+  premiumUpsell: {
+    getPremium: 'Conseguir Premium',
+    tryTrial: 'Prueba Premium con Puntos Gabu',
+  },
+
   // Video enhancements panel
   // AI-TRANSLATED on 2026-05-19, please review
   videoEnhancements: {

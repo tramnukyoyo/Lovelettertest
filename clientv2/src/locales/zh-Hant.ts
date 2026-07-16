@@ -363,6 +363,11 @@ export const zhHant: Translations = {
     packWholesome: '暖心',
   },
 
+  premiumUpsell: {
+    getPremium: '取得進階版',
+    tryTrial: '用 Gabu 點數試用進階版',
+  },
+
   // Video enhancements panel
   videoEnhancements: {
     virtualBackground: '虛擬背景',

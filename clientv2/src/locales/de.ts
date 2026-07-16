@@ -385,6 +385,11 @@ export const de: Translations = {
     packWholesome: 'Herzig',
   },
 
+  premiumUpsell: {
+    getPremium: 'Premium holen',
+    tryTrial: 'Premium mit Gabu-Punkten testen',
+  },
+
   // Video enhancements panel
   // AI-TRANSLATED on 2026-05-19, please review
   videoEnhancements: {

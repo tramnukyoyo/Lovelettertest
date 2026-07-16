@@ -6,11 +6,13 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Crown, Eye, Wifi, WifiOff, UserMinus, X } from 'lucide-react';
+import { Crown, Eye, Wifi, WifiOff, UserMinus, X, Lock } from 'lucide-react';
 import { PlayerCard, ProfileAvatar, FlairName } from '../core';
 import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
 import socketService from '../../services/socketService';
+import PremiumUpsellChip from '../ui/PremiumUpsellChip';
+import { trackPremiumLocked } from '../../services/premiumUpsell';
 import { Avatar } from '../core/Avatar';
 import DynamicCard from '../hearts-gambit/DynamicCard';
 import { resolveGameSkin } from '../../utils/gameSkin';
@@ -37,10 +39,10 @@ interface PlayerListProps {
 /** Premium card styles (ids validated server-side, see cardstyles.css). */
 const CARD_STYLE_OPTIONS: Array<{ id: string; label: string }> = [
   { id: '', label: 'None' },
-  { id: 'neon', label: '👑 Neon' },
-  { id: 'gold', label: '👑 Gold' },
-  { id: 'holo', label: '👑 Holo' },
-  { id: 'ink', label: '👑 Ink' },
+  { id: 'neon', label: 'Neon' },
+  { id: 'gold', label: 'Gold' },
+  { id: 'holo', label: 'Holo' },
+  { id: 'ink', label: 'Ink' },
 ];
 
 /** Per-game card-back skin options (player:set-game-skin whitelist). '' follows
@@ -50,10 +52,10 @@ const CARD_STYLE_OPTIONS: Array<{ id: string; label: string }> = [
 const getGameSkinOptions = (): Array<{ id: string; label: string }> => [
   { id: '', label: t('playerList.gameSkinSameAsCardStyle') },
   { id: 'none', label: t('playerList.gameSkinNone') },
-  { id: 'neon', label: `👑 ${t('playerList.gameSkinNeon')}` },
-  { id: 'gold', label: `👑 ${t('playerList.gameSkinGold')}` },
-  { id: 'holo', label: `👑 ${t('playerList.gameSkinHolo')}` },
-  { id: 'ink', label: `👑 ${t('playerList.gameSkinInk')}` },
+  { id: 'neon', label: t('playerList.gameSkinNeon') },
+  { id: 'gold', label: t('playerList.gameSkinGold') },
+  { id: 'holo', label: t('playerList.gameSkinHolo') },
+  { id: 'ink', label: t('playerList.gameSkinInk') },
 ];
 
 // Normalize tier values (API returns 'lifetime' but CSS uses 'premium')
@@ -389,13 +391,19 @@ const PlayerList: React.FC<PlayerListProps> = ({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (!locked) handleSetCardStyle(opt.id);
+                                else trackPremiumLocked('card_style', opt.id);
                               }}
                             >
-                              {locked ? `🔒 ${opt.label}` : selected ? `✓ ${opt.label}` : opt.label}
+                              {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : selected ? `✓ ${opt.label}` : opt.label}
                             </button>
                           );
                         })}
                       </div>
+                      {!isPremium && (
+                        <div className="lr-cardstyle-upsell-row">
+                          <PremiumUpsellChip surface="card_style" />
+                        </div>
+                      )}
                       {/* Live preview: the equipped style frames your roster card and
                           dock chip — mirror it here so picking clearly does something. */}
                       <div className="lr-cardstyle-preview-row">
@@ -446,13 +454,19 @@ const PlayerList: React.FC<PlayerListProps> = ({
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (!locked) handleSetGameSkin(opt.id);
+                                  else trackPremiumLocked('game_skin', opt.id);
                                 }}
                               >
-                                {locked ? `🔒 ${opt.label}` : selected ? `✓ ${opt.label}` : opt.label}
+                                {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : selected ? `✓ ${opt.label}` : opt.label}
                               </button>
                             );
                           })}
                         </div>
+                        {!isPremium && (
+                          <div className="lr-cardstyle-upsell-row">
+                            <PremiumUpsellChip surface="game_skin" />
+                          </div>
+                        )}
                         {/* Live preview: the REAL in-game card-back markup/classes
                             (DynamicCard back + hg-back-<style> overlay), resolved
                             the same way HeartsGambitGame does, so the pending pick

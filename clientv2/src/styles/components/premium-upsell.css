@@ -1,0 +1,49 @@
+/* Premium upsell chip (premium growth P1-A, 2026-07-16) — canonical fleet
+   pattern, but the LOOK is per-game: this is Prime Suspect's "noir, upgraded"
+   royal treatment — candlelit gold face (royal-gold ramp) with engraved dark
+   ink text, gold-dark border, Special Elite typewriter caps and the theme's
+   soft --radius-sm rounding. Mirrors the .btn-secondary gold buttons. */
+.premium-upsell-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 9px;
+  background: linear-gradient(
+    180deg,
+    var(--royal-gold-light, #e7cc7a) 0%,
+    var(--royal-gold, #d2b25a) 60%,
+    var(--royal-gold-dark, #a77e22) 100%
+  );
+  color: var(--noir-ink, #2d2416);
+  border: 1px solid var(--royal-gold-dark, #a77e22);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 214, 0.5),
+    0 2px 0 rgba(18, 13, 17, 0.6);
+  font-family: var(--font-typewriter, 'Special Elite', 'Courier New', monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+}
+.premium-upsell-chip:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 214, 0.5),
+    0 3px 0 rgba(18, 13, 17, 0.6),
+    0 0 10px var(--accent-glow, rgba(210, 178, 90, 0.35));
+}
+.premium-upsell-chip:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(18, 13, 17, 0.4);
+}
+
+/* Spacing rows for chip placements */
+.lr-cardstyle-upsell-row { margin: 4px 0 2px; }
+.video-reactions-upsell-row { margin: 2px 0 4px; }

@@ -385,6 +385,11 @@ export const en = {
     packWholesome: 'Wholesome',
   },
 
+  premiumUpsell: {
+    getPremium: 'Get Premium',
+    tryTrial: 'Try Premium with Gabu Points',
+  },
+
   // Video enhancements panel
   videoEnhancements: {
     virtualBackground: 'Virtual Background',

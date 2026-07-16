@@ -445,6 +445,27 @@ function App() {
     maybeUpgradeRoomIdentity();
   }, [socket, lobby, auth.status, auth.userId]);
 
+  // Premium freshness (2026-07-16): a player who buys premium in another tab
+  // (the upsell chip opens gamebuddies.io/premium) comes back to a seat still
+  // marked 'free'. On tab re-focus, if we're authed but the seat has no
+  // premium, re-run the seat upgrade — the server re-validates the token and
+  // rebroadcasts the roster, so pickers unlock live without a rejoin.
+  const premiumRefreshAt = useRef(0);
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!socket || !lobby || auth.status !== 'authed') return;
+      const me = lobby.players.find(p => p.socketId === lobby.mySocketId);
+      if (!me || (me.premiumTier && me.premiumTier !== 'free')) return;
+      const now = Date.now();
+      if (now - premiumRefreshAt.current < 30_000) return; // server rate-limits too
+      premiumRefreshAt.current = now;
+      maybeUpgradeRoomIdentity();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [socket, lobby, auth.status]);
+
   const handleCreateRoom = useCallback((playerName: string, streamerMode?: boolean) => {
     createRoom(playerName, gameBuddiesSession, streamerMode);
   }, [createRoom, gameBuddiesSession]);

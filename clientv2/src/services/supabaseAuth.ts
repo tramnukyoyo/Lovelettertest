@@ -69,7 +69,21 @@ export interface AuthState {
   signedOutLocally: boolean;
 }
 
-let state: AuthState = { status: 'unknown', userId: null, user: null, isPremium: false, signedOutLocally: false };
+// The explicit-logout marker must survive a reload (F5): without persistence
+// the header falls back to the server-validated room seat (which keeps its
+// identity until the player leaves) and shows "logged in" again.
+const SIGNED_OUT_KEY = 'gb_signed_out_locally';
+const readSignedOut = (): boolean => {
+  try { return localStorage.getItem(SIGNED_OUT_KEY) === '1'; } catch { return false; }
+};
+const persistSignedOut = (v: boolean): void => {
+  try {
+    if (v) localStorage.setItem(SIGNED_OUT_KEY, '1');
+    else localStorage.removeItem(SIGNED_OUT_KEY);
+  } catch { /* ignore */ }
+};
+
+let state: AuthState = { status: 'unknown', userId: null, user: null, isPremium: false, signedOutLocally: readSignedOut() };
 const listeners = new Set<() => void>();
 
 function setState(next: Partial<AuthState>): void {
@@ -238,16 +252,19 @@ async function applySession(session: Session | null): Promise<void> {
   if (!session?.user?.id) {
     // Session gone. If we were authed before (e.g. logout in a platform tab
     // synced over), flag it so headers don't fall back to the stale room seat.
+    const signedOut = state.status === 'authed' ? true : state.signedOutLocally;
+    if (state.status === 'authed') persistSignedOut(true);
     setState({
       status: 'guest',
       userId: null,
       user: null,
       isPremium: false,
-      signedOutLocally: state.status === 'authed' ? true : state.signedOutLocally,
+      signedOutLocally: signedOut,
     });
     return;
   }
   const userId = session.user.id;
+  persistSignedOut(false);
   setState({ status: 'authed', userId, signedOutLocally: false });
   await refreshUserRow(userId, session.access_token);
 }
@@ -531,5 +548,6 @@ export async function signOutEverywhere(): Promise<void> {
   try {
     localStorage.removeItem('gb-cached-user');
   } catch { /* ignore */ }
+  persistSignedOut(true);
   setState({ status: 'guest', userId: null, user: null, isPremium: false, signedOutLocally: true });
 }

@@ -394,6 +394,11 @@ export const ptPT: Translations = {
     packWholesome: 'Fofo',
   },
 
+  premiumUpsell: {
+    getPremium: 'Obter Premium',
+    tryTrial: 'Testa o Premium com Pontos Gabu',
+  },
+
   // Video enhancements panel
   // AI-TRANSLATED on 2026-05-19, please review
   videoEnhancements: {
