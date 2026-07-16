@@ -357,6 +357,13 @@ const GameHeader: React.FC<GameHeaderProps> = ({
             {/* Account control — utmost right in every header (platform
                 convention). Logged-in → platform account name + premium +
                 Log out; guest → Log in / Sign up via the in-game GameAuthModal. */}
+            {/* Gabu Points - beside the account chip so the balance is always
+                visible in-game (platform header parity). Fed by the
+                gb:player:profile push; hidden for guests. */}
+            {isLoggedIn && myProfile && (
+              <div className="game-header-gp" title="Gabu Points">&#9672; {myProfile.gabuPoints} GP</div>
+            )}
+
             <GameAccountControl
               name={accountName}
               isLoggedIn={isLoggedIn}

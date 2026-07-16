@@ -366,3 +366,19 @@
 .player-count { display: flex; align-items: center; gap: 0.375rem; color: var(--text-secondary); }
 .header-right { display: flex; align-items: center; gap: var(--spacing-sm); }
 .header-btn.danger:hover { background: color-mix(in srgb, var(--danger-500) 20%, transparent); border-color: var(--danger-500); color: var(--danger-400); }
+
+/* Gabu Points balance chip (2026-07-16) - platform-header parity in-game.
+   Neutral gold-on-dark; theme tokens with safe fallbacks. */
+.game-header-gp {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: rgba(10, 10, 18, 0.72);
+  border: 2px solid var(--gold-400, #ffd23a);
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--gold-400, #ffd23a);
+  white-space: nowrap;
+}
