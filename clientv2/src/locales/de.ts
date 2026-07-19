@@ -6,6 +6,21 @@
 import type { Translations } from './en';
 
 export const de: Translations = {
+  presets: {
+    title: 'Gespeicherte Einstellungen',
+    namePlaceholder: 'Name der Vorlage…',
+    save: 'Speichern',
+    saved: 'Vorlage gespeichert.',
+    apply: 'Vorlage anwenden',
+    applied: 'Einstellungen übernommen.',
+    delete: 'Vorlage löschen',
+    empty: 'Speichere deine aktuellen Einstellungen für das nächste Mal.',
+    signInHint: 'Melde dich an, um deine Lieblingseinstellungen zu speichern.',
+    errorDuplicate: 'Du hast bereits eine Vorlage mit diesem Namen.',
+    errorLimit: 'Limit erreicht (10 Vorlagen). Lösche zuerst eine.',
+    errorNotInLobby: 'Vorlagen können nur in der Lobby angewendet werden.',
+    errorGeneric: 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
+  },
   // Lobby explainer (animated demo)
   explainer: {
     bluffalo: {

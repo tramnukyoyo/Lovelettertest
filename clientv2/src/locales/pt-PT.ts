@@ -6,6 +6,21 @@
 import type { Translations } from './en';
 
 export const ptPT: Translations = {
+  presets: {
+    title: 'Definições guardadas',
+    namePlaceholder: 'Nome do preset…',
+    save: 'Guardar',
+    saved: 'Preset guardado.',
+    apply: 'Aplicar este preset',
+    applied: 'Definições aplicadas.',
+    delete: 'Eliminar preset',
+    empty: 'Guarda as tuas definições atuais para reutilizar da próxima vez.',
+    signInHint: 'Inicia sessão para guardar as tuas definições favoritas.',
+    errorDuplicate: 'Já tens um preset com este nome.',
+    errorLimit: 'Limite atingido (10 presets). Elimina um primeiro.',
+    errorNotInLobby: 'Os presets só podem ser aplicados no lobby.',
+    errorGeneric: 'Algo correu mal. Tenta novamente.',
+  },
   // Lobby explainer (animated demo)
   explainer: {
     bluffalo: {

@@ -1,0 +1,127 @@
+/* SettingsPresetsPanel — self-contained so games don't need unified.css
+   changes. Uses shared CSS variables with safe fallbacks. */
+
+.gb-presets {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm, 8px);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.gb-presets-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.gb-presets-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+}
+
+.gb-presets-locked,
+.gb-presets-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary, #b8b8c8);
+}
+
+.gb-presets-save {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.gb-presets-save input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.8rem;
+  color: var(--text-primary, #fff);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm, 6px);
+}
+
+.gb-presets-save input:focus {
+  outline: none;
+  border-color: var(--gb-cyan, #00d9ff);
+}
+
+.gb-presets-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.55rem;
+  min-height: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  background: rgba(0, 217, 255, 0.12);
+  border: 1px solid rgba(0, 217, 255, 0.35);
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  transition: background var(--transition-fast, 0.15s);
+}
+
+.gb-presets-btn:hover:not(:disabled) {
+  background: rgba(0, 217, 255, 0.25);
+}
+
+.gb-presets-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gb-presets-btn-danger {
+  background: rgba(233, 69, 96, 0.12);
+  border-color: rgba(233, 69, 96, 0.35);
+}
+
+.gb-presets-btn-danger:hover:not(:disabled) {
+  background: rgba(233, 69, 96, 0.25);
+}
+
+.gb-presets-notice {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+}
+
+.gb-presets-notice.ok { color: var(--gb-cyan, #00d9ff); }
+.gb-presets-notice.err { color: var(--gb-pink, #e94560); }
+
+.gb-presets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 10rem;
+  overflow-y: auto;
+}
+
+.gb-presets-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gb-presets-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: var(--text-primary, #fff);
+}

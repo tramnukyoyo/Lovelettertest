@@ -1,6 +1,21 @@
 import type { Translations } from './en';
 
 export const zhHant: Translations = {
+  presets: {
+    title: '已儲存的設定',
+    namePlaceholder: '預設組合名稱…',
+    save: '儲存',
+    saved: '已儲存預設組合。',
+    apply: '套用此預設組合',
+    applied: '設定已套用。',
+    delete: '刪除預設組合',
+    empty: '儲存目前的設定，下次即可快速重用。',
+    signInHint: '登入即可儲存你最愛的設定。',
+    errorDuplicate: '你已有同名的預設組合。',
+    errorLimit: '已達上限（10 個）。請先刪除一個。',
+    errorNotInLobby: '只能在大廳套用預設組合。',
+    errorGeneric: '發生錯誤，請再試一次。',
+  },
   // Lobby explainer (animated demo)
   explainer: {
     bluffalo: {

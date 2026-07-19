@@ -5,6 +5,21 @@
 import type { Translations } from './en';
 
 export const es: Translations = {
+  presets: {
+    title: 'Ajustes guardados',
+    namePlaceholder: 'Nombre del preset…',
+    save: 'Guardar',
+    saved: 'Preset guardado.',
+    apply: 'Aplicar este preset',
+    applied: 'Ajustes aplicados.',
+    delete: 'Eliminar preset',
+    empty: 'Guarda tus ajustes actuales para reutilizarlos la próxima vez.',
+    signInHint: 'Inicia sesión para guardar tus ajustes favoritos.',
+    errorDuplicate: 'Ya tienes un preset con este nombre.',
+    errorLimit: 'Límite alcanzado (10 presets). Elimina uno primero.',
+    errorNotInLobby: 'Los presets solo se pueden aplicar en la sala de espera.',
+    errorGeneric: 'Algo salió mal. Inténtalo de nuevo.',
+  },
   // Lobby explainer (animated demo)
   explainer: {
     bluffalo: {

@@ -16,6 +16,7 @@ import type { Lobby } from '../../types';
 import { GAME_META } from '../../config/gameMeta';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import BotControls from './BotControls';
+import SettingsPresetsPanel from './SettingsPresetsPanel';
 
 interface HostSettingsProps {
   lobby: Lobby;
@@ -45,6 +46,8 @@ const HostSettings: React.FC<HostSettingsProps> = ({ lobby, socket, isHost }) =>
           />
         </div>
       )}
+
+      <SettingsPresetsPanel isHost={isHost} />
     </div>
   );
 };

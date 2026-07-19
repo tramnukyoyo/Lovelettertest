@@ -4,6 +4,22 @@
  */
 
 export const en = {
+  presets: {
+    title: 'Saved Settings',
+    namePlaceholder: 'Preset name…',
+    save: 'Save',
+    saved: 'Preset saved.',
+    apply: 'Apply this preset',
+    applied: 'Settings applied.',
+    delete: 'Delete preset',
+    empty: 'Save your current settings to reuse them next time.',
+    signInHint: 'Sign in to save your favorite settings for next time.',
+    errorDuplicate: 'You already have a preset with this name.',
+    errorLimit: 'Preset limit reached (10). Delete one first.',
+    errorNotInLobby: 'Presets can only be applied in the lobby.',
+    errorGeneric: 'Something went wrong. Please try again.',
+  },
+
   // Lobby explainer (animated demo)
   explainer: {
     bluffalo: {
