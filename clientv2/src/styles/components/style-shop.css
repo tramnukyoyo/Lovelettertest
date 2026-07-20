@@ -1,0 +1,194 @@
+/* ============================================================================
+   "Your card back" designer modal — ps_style (GP shop). Royal-noir theme.
+   Hybrid: Premium free, others buy per item. One style themes the player card
+   AND the card backs on the table. Player-list pickers stay equip-only.
+   ============================================================================ */
+
+.psshop-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(10, 6, 8, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+.psshop-panel {
+  position: relative;
+  width: min(440px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 18px 18px 20px;
+  border-radius: 14px;
+  background: var(--velvet-900, #1c0f14);
+  border: 2px solid var(--gold-500, #c9a227);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--parchment, #eadfc8);
+}
+.psshop-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--parchment, #eadfc8);
+  cursor: pointer;
+  padding: 4px;
+  min-height: 0;
+  opacity: 0.7;
+}
+.psshop-close:hover { opacity: 1; }
+
+.psshop-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-right: 28px; }
+.psshop-title { margin: 0; font-size: 1.1rem; font-weight: 900; color: var(--gold-400, #e6c777); }
+.psshop-balance {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.76rem; font-weight: 800; color: var(--gold-400, #e6c777);
+  background: rgba(201, 162, 39, 0.12); border: 1px solid rgba(201, 162, 39, 0.45);
+  border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+}
+
+/* Preview: a fan of REAL DynamicCard backs (hg-back-<style> overlays). */
+.psshop-preview { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.psshop-fan { position: relative; height: 128px; width: 200px; }
+/* DynamicCard sizes itself from --hg-card-width/height (defaults 160x240) —
+   override the vars, and the theme-scoped selector out-ranks the game rules. */
+.psshop-fan .psshop-fan-card,
+[data-theme="primesuspect"] .psshop-fan .hg-dynamic-card.psshop-fan-card {
+  --hg-card-width: 82px;
+  --hg-card-height: 114px;
+  position: absolute;
+  top: 8px;
+  width: 82px;
+  height: 114px;
+  cursor: default;
+}
+.psshop-fan .psshop-fan-card-0 { left: 8px; transform: rotate(-10deg); }
+.psshop-fan .psshop-fan-card-1 { left: 58px; top: 0; z-index: 1; }
+.psshop-fan .psshop-fan-card-2 { left: 108px; transform: rotate(10deg); }
+.psshop-prev-caption { font-size: 0.72rem; font-weight: 700; color: var(--parchment, #eadfc8); opacity: 0.75; }
+
+/* "Your player card" mini — real roster row + dock chip, compactly framed. */
+.psshop-pcard { display: flex; flex-direction: column; gap: 6px; }
+.psshop-pcard-caption { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--parchment, #eadfc8); opacity: 0.8; }
+.psshop-pcard-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.psshop-pcard-row .player-list-items { margin: 0; padding: 0; list-style: none; }
+.psshop-pcard-row .player-list-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  max-width: 220px;
+  margin: 0;
+  padding: 6px 12px 6px 8px;
+  cursor: default;
+}
+.psshop-pcard-row .player-list-item .player-avatar { width: 30px; height: 30px; }
+.psshop-pcard-row .player-list-item .player-name { font-size: 0.82rem; }
+.psshop-pcard-row .gs-chip { cursor: default; }
+
+.psshop-note { margin: 0; font-size: 0.74rem; color: var(--parchment, #eadfc8); opacity: 0.85; }
+.psshop-note-premium { display: inline-flex; align-items: center; gap: 5px; color: var(--gold-400, #e6c777); font-weight: 700; opacity: 1; }
+
+.psshop-section { display: flex; flex-direction: column; gap: 6px; }
+.psshop-section-title { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--parchment, #eadfc8); opacity: 0.9; }
+.psshop-hint { font-weight: 600; letter-spacing: 0; text-transform: none; opacity: 0.65; }
+.psshop-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.psshop-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--parchment, #eadfc8);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  transition: border-color 0.12s ease, transform 0.12s ease;
+  min-height: 0;
+}
+.psshop-chip:hover { border-color: var(--gold-400, #e6c777); transform: translateY(-1px); }
+.psshop-chip.selected { border-color: var(--gold-400, #e6c777); box-shadow: 0 0 0 1px var(--gold-400, #e6c777); }
+.psshop-chip.locked { opacity: 0.85; }
+.psshop-price {
+  font-size: 9px; font-weight: 800; line-height: 1; padding: 2px 5px;
+  border-radius: 999px; color: #1c0f14; background: var(--gold-400, #e6c777);
+}
+
+/* Purchase confirmation — bottom sheet, transparent top: the fan + minis stay
+   visible while deciding. */
+.psshop-confirm-backdrop {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(to top, rgba(10, 6, 8, 0.78) 0%, rgba(10, 6, 8, 0.38) 30%, transparent 55%);
+  display: flex; align-items: flex-end; justify-content: center; padding: 16px;
+}
+.psshop-confirm {
+  width: min(340px, 92vw); padding: 14px 16px; border-radius: 14px;
+  background: var(--velvet-900, #1c0f14); border: 2px solid var(--gold-500, #c9a227);
+  box-shadow: 0 -6px 40px rgba(0, 0, 0, 0.6);
+  display: flex; flex-direction: column; gap: 7px;
+  color: var(--parchment, #eadfc8);
+}
+.psshop-confirm-title { font-size: 0.95rem; font-weight: 900; color: var(--gold-400, #e6c777); }
+.psshop-crow { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; }
+.psshop-crow > span:last-child { font-weight: 800; }
+.psshop-gold { color: var(--gold-400, #e6c777); display: inline-flex; align-items: center; gap: 4px; }
+.psshop-ok { color: #6fdc8c; }
+.psshop-short { color: #ff6b81; }
+.psshop-error { margin: 0; font-size: 0.72rem; font-weight: 700; color: #ff6b81; }
+.psshop-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.psshop-cancel, .psshop-buy {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.78rem; font-weight: 800; padding: 6px 12px; border-radius: 999px; cursor: pointer; min-height: 0;
+}
+.psshop-cancel { color: var(--parchment, #eadfc8); background: transparent; border: 1px solid rgba(234, 223, 200, 0.5); }
+.psshop-buy { color: #1c0f14; background: var(--gold-400, #e6c777); border: 1px solid rgba(0, 0, 0, 0.35); }
+.psshop-cancel:disabled, .psshop-buy:disabled { opacity: 0.55; cursor: not-allowed; }
+.psshop-buy:not(:disabled):hover { filter: brightness(1.1); }
+
+/* "Your card back" launch button in the invite pane. */
+.ps-designer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--gold-400, #e6c777);
+  background: rgba(201, 162, 39, 0.08);
+  border: 1px dashed var(--gold-500, #c9a227);
+  transition: background 0.12s ease;
+}
+.ps-designer-btn:hover { background: rgba(201, 162, 39, 0.16); }
+
+/* Player-list pickers: hint under a locked try-on, pointing to the designer. */
+.lr-cardstyle-designer-hint { font-size: 0.68rem; color: var(--parchment, #eadfc8); opacity: 0.7; }
+.lr-cardstyle-designer-link {
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  min-height: 0;
+  opacity: 0.85;
+  color: inherit;
+}
+.lr-cardstyle-designer-link:hover { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .psshop-chip { transition: none; }
+  .psshop-chip:hover { transform: none; }
+}

@@ -11,8 +11,7 @@ import { PlayerCard, ProfileAvatar, FlairName } from '../core';
 import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
 import socketService from '../../services/socketService';
-import PremiumUpsellChip from '../ui/PremiumUpsellChip';
-import { trackPremiumLocked } from '../../services/premiumUpsell';
+import { useCosmeticsShop, requestCosmeticsState } from '../../services/cosmeticsShop';
 import { Avatar } from '../core/Avatar';
 import DynamicCard from '../hearts-gambit/DynamicCard';
 import { resolveGameSkin } from '../../utils/gameSkin';
@@ -34,6 +33,8 @@ interface PlayerListProps {
   onPlayerClick?: (socketId: string) => void;
   /** Lobby only: show the premium card-style picker on the viewer's own card. */
   showCardStylePicker?: boolean;
+  /** Opens the "Your card back" designer (where locked styles are bought). */
+  onOpenDesigner?: () => void;
 }
 
 /** Premium card styles (ids validated server-side, see cardstyles.css). */
@@ -96,11 +97,18 @@ const PlayerList: React.FC<PlayerListProps> = ({
   isSpectator = false,
   viewingAsSocketId,
   onPlayerClick,
-  showCardStylePicker = false
+  showCardStylePicker = false,
+  onOpenDesigner
 }) => {
-  // Premium detection for the card-style picker (LetterRush pattern).
+  // Style gate (HYBRID GP model): usable when Premium OR the ps_style item is
+  // owned. Pickers here are EQUIP + PREVIEW only — no prices; buying lives in
+  // the "Your card back" designer.
   const me = players.find(p => p.socketId === mySocketId);
-  const isPremium = !!me?.premiumTier && me.premiumTier !== 'free';
+  const sessionPremium = !!me?.premiumTier && me.premiumTier !== 'free';
+  const shop = useCosmeticsShop();
+  const isPremium = shop.status === 'ready' ? shop.premium : sessionPremium;
+  const styleUnlocked = (id: string) =>
+    !id || id === 'none' || isPremium || shop.owned.includes(`ps_style_${id}`);
 
   // Optimistic card-style selection: reflect the click instantly, then let the
   // server broadcast (source of truth) reconcile it. Without this the only
@@ -132,6 +140,14 @@ const PlayerList: React.FC<PlayerListProps> = ({
     }
   }, [me?.gameSkin, pendingGameSkin]);
   const [gameSkinOpen, setGameSkinOpen] = useState(false);
+  // Ownership is needed to know which styles are equippable here.
+  useEffect(() => { if (cardStyleOpen || gameSkinOpen) requestCosmeticsState(); }, [cardStyleOpen, gameSkinOpen]);
+  // Tapping a LOCKED chip previews it locally (own row / card-back preview)
+  // without equipping — buying stays in the designer. Cleared on close.
+  const [tryOnStyle, setTryOnStyle] = useState<string | null>(null);
+  useEffect(() => { if (!cardStyleOpen) setTryOnStyle(null); }, [cardStyleOpen]);
+  const [tryOnSkin, setTryOnSkin] = useState<string | null>(null);
+  useEffect(() => { if (!gameSkinOpen) setTryOnSkin(null); }, [gameSkinOpen]);
   // Game is active if any player has any Bluffalo game fields set (score exists)
   const gameActive = players.some(p => 'score' in p && typeof (p as any).score === 'number' && (((p as any).hasSubmittedLie || (p as any).hasVoted || (p as any).score > 0)));
   // State for inline kick confirmation
@@ -285,6 +301,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
           // Optimistic pending style applies to my own card only — other players
           // always reflect their own equipped style from the broadcast.
           const equippedCardStyle = (isMe ? pendingCardStyle : null) ?? (player.cardStyle ?? '');
+          const displayCardStyle = isMe ? (tryOnStyle ?? equippedCardStyle) : equippedCardStyle;
           // Raw picker selection for the card-back skin picker (not the resolved
           // in-game skin — that resolution lives in the hero surface components).
           const equippedGameSkin = (isMe ? pendingGameSkin : null) ?? (player.gameSkin ?? '');
@@ -292,7 +309,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
           return (
             <li
               key={player.id ?? player.socketId}
-              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''} ${withStylePicker ? 'has-cardstyle-picker' : ''} ${equippedCardStyle ? `lr-cardstyle-${equippedCardStyle}` : ''}`}
+              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''} ${withStylePicker ? 'has-cardstyle-picker' : ''} ${displayCardStyle ? `lr-cardstyle-${displayCardStyle}` : ''}`}
               onClick={() => isSpectator && !isMe && onPlayerClick?.(player.socketId)}
             >
               {/* Avatar (tap opens the platform profile card, cosmetics-aware) */}
@@ -354,9 +371,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
                 <DisconnectedTimer disconnectedAt={player.disconnectedAt} />
               )}
 
-              {/* Premium card-style picker — own card, lobby only. Premium players
-                  pick a card style; free players see the options locked
-                  (shown-but-locked upsell, mirrors the LetterRush package). */}
+              {/* Card-style picker — own card, lobby only. Unlocked styles equip
+                  directly; LOCKED styles show as previews (chip wears the real
+                  frame) and tapping one tries it on locally — buying stays in
+                  the "Your card back" designer (no prices here). */}
               {withStylePicker && (
                 <div className={`lr-cardstyle-picker ${cardStyleOpen ? 'is-open' : ''}`}>
                   {/* Thin header row — collapsed by default, tap to expand. */}
@@ -366,10 +384,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                     aria-expanded={cardStyleOpen}
                     onClick={(e) => { e.stopPropagation(); setCardStyleOpen(o => !o); }}
                   >
-                    <span className="lr-cardstyle-label">
-                      Card style
-                      {!isPremium && <span className="lr-cardstyle-hint"> · Premium</span>}
-                    </span>
+                    <span className="lr-cardstyle-label">Card style</span>
                     <span className="lr-cardstyle-current">
                       <span className={`lr-cardstyle-swatch ${equippedCardStyle ? `lr-cardstyle-${equippedCardStyle}` : ''}`} />
                       {CARD_STYLE_OPTIONS.find(o => o.id === equippedCardStyle)?.label ?? 'None'}
@@ -380,35 +395,46 @@ const PlayerList: React.FC<PlayerListProps> = ({
                     <>
                       <div className="lr-cardstyle-chips">
                         {CARD_STYLE_OPTIONS.map((opt) => {
-                          const locked = !isPremium && opt.id !== '';
-                          const selected = equippedCardStyle === opt.id;
+                          const locked = !!opt.id && !styleUnlocked(opt.id);
+                          const active = (tryOnStyle ?? equippedCardStyle) === opt.id;
+                          const isEquipped = tryOnStyle === null && equippedCardStyle === opt.id;
                           return (
                             <button
                               key={opt.id || 'none'}
                               type="button"
-                              className={`lr-cardstyle-chip ${opt.id ? `lr-cardstyle-${opt.id}` : ''} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''}`}
-                              title={locked ? 'Premium card style — unlock with GameBuddies Premium' : opt.label}
+                              className={`lr-cardstyle-chip ${opt.id ? `lr-cardstyle-${opt.id}` : ''} ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+                              title={locked ? `${opt.label} — preview; unlock in 🂠 Your card back` : opt.label}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (!locked) handleSetCardStyle(opt.id);
-                                else trackPremiumLocked('card_style', opt.id);
+                                if (locked) { setTryOnStyle(opt.id); return; }
+                                setTryOnStyle(null);
+                                handleSetCardStyle(opt.id);
                               }}
                             >
-                              {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : selected ? `✓ ${opt.label}` : opt.label}
+                              {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : isEquipped ? `✓ ${opt.label}` : opt.label}
                             </button>
                           );
                         })}
                       </div>
-                      {!isPremium && (
-                        <div className="lr-cardstyle-upsell-row">
-                          <PremiumUpsellChip surface="card_style" />
-                        </div>
+                      {/* Locked try-on: point to the designer to actually unlock it. */}
+                      {tryOnStyle !== null && (
+                        onOpenDesigner ? (
+                          <button
+                            type="button"
+                            className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
+                            onClick={(e) => { e.stopPropagation(); onOpenDesigner(); }}
+                          >
+                            Preview only — unlock it in 🂠 Your card back →
+                          </button>
+                        ) : (
+                          <span className="lr-cardstyle-designer-hint">Preview only — unlock it in 🂠 Your card back (invite pane)</span>
+                        )
                       )}
-                      {/* Live preview: the equipped style frames your roster card and
-                          dock chip — mirror it here so picking clearly does something. */}
+                      {/* Live preview: mirrors the tried-on style (or the equipped
+                          one) exactly as it frames your roster card + dock chip. */}
                       <div className="lr-cardstyle-preview-row">
                         <span className="lr-cardstyle-preview-caption">Your player card</span>
-                        <div className={`lr-cardstyle-preview ${equippedCardStyle ? `lr-cardstyle-${equippedCardStyle}` : ''}`}>
+                        <div className={`lr-cardstyle-preview ${displayCardStyle ? `lr-cardstyle-${displayCardStyle}` : ''}`}>
                           {player.name}
                         </div>
                       </div>
@@ -443,40 +469,50 @@ const PlayerList: React.FC<PlayerListProps> = ({
                       <>
                         <div className="lr-cardstyle-chips">
                           {gameSkinOptions.map((opt) => {
-                            const locked = !isPremium && opt.id !== '' && opt.id !== 'none';
-                            const selected = equippedGameSkin === opt.id;
+                            const locked = !styleUnlocked(opt.id);
+                            const active = (tryOnSkin ?? equippedGameSkin) === opt.id;
+                            const isEquipped = tryOnSkin === null && equippedGameSkin === opt.id;
                             return (
                               <button
                                 key={opt.id || 'same'}
                                 type="button"
-                                className={`lr-cardstyle-chip ${opt.id && opt.id !== 'none' ? `lr-cardstyle-${opt.id}` : ''} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''}`}
-                                title={locked ? 'Premium card-back skin — unlock with GameBuddies Premium' : opt.label}
+                                className={`lr-cardstyle-chip ${opt.id && opt.id !== 'none' ? `lr-cardstyle-${opt.id}` : ''} ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+                                title={locked ? `${opt.label} — preview; unlock in 🂠 Your card back` : opt.label}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (!locked) handleSetGameSkin(opt.id);
-                                  else trackPremiumLocked('game_skin', opt.id);
+                                  if (locked) { setTryOnSkin(opt.id); return; }
+                                  setTryOnSkin(null);
+                                  handleSetGameSkin(opt.id);
                                 }}
                               >
-                                {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : selected ? `✓ ${opt.label}` : opt.label}
+                                {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : isEquipped ? `✓ ${opt.label}` : opt.label}
                               </button>
                             );
                           })}
                         </div>
-                        {!isPremium && (
-                          <div className="lr-cardstyle-upsell-row">
-                            <PremiumUpsellChip surface="game_skin" />
-                          </div>
+                        {tryOnSkin !== null && (
+                          onOpenDesigner ? (
+                            <button
+                              type="button"
+                              className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
+                              onClick={(e) => { e.stopPropagation(); onOpenDesigner(); }}
+                            >
+                              Preview only — unlock it in 🂠 Your card back →
+                            </button>
+                          ) : (
+                            <span className="lr-cardstyle-designer-hint">Preview only — unlock it in 🂠 Your card back (invite pane)</span>
+                          )
                         )}
                         {/* Live preview: the REAL in-game card-back markup/classes
                             (DynamicCard back + hg-back-<style> overlay), resolved
-                            the same way HeartsGambitGame does, so the pending pick
-                            reads exactly like the hand/opponent backs will. */}
+                            the same way HeartsGambitGame does — mirrors the
+                            tried-on skin so locked picks preview faithfully. */}
                         <div className="lr-cardstyle-preview-row">
                           <span className="lr-cardstyle-preview-caption">{t('playerList.gameSkinPreviewCaption')}</span>
                           <DynamicCard
                             cardType={0}
                             showFace={false}
-                            ownerCardStyle={resolveGameSkin({ cardStyle: equippedCardStyle, gameSkin: equippedGameSkin })}
+                            ownerCardStyle={resolveGameSkin({ cardStyle: displayCardStyle, gameSkin: tryOnSkin ?? equippedGameSkin })}
                             className="hg-gameskin-preview-card hg-opponent-card"
                           />
                         </div>

@@ -3,6 +3,7 @@ import { initAnalytics, trackPhaseFromRoomState } from './services/analyticsServ
 import { initErrorReporter } from './services/errorReporter';
 import { prefetchLobbyAssets } from './services/lobbyPrefetch';
 import socketService from './services/socketService';
+import { registerCosmeticsShopEvents, clearCosmeticsShop } from './services/cosmeticsShop';
 import { isDiscordActivity } from './services/discordActivity';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
@@ -339,7 +340,12 @@ function App() {
     socket.on('gb:postgame:crewstreak', onCrewStreak);
     socket.on('gb:achievement:unlocked', onAchievementUnlocked);
 
+    // GP cosmetics shop (card-back designer): owned/balance state + buy results.
+    const offCosmeticsShop = registerCosmeticsShopEvents(socket);
+
     return () => {
+      offCosmeticsShop();
+      clearCosmeticsShop();
       socket.off('roomStateUpdated', onRoomStateUpdated);
       socket.off('gamebuddies:return-redirect', onReturnRedirect);
       socket.off('gamebuddies:lobby-redirect', onLobbyRedirect);

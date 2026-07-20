@@ -36,6 +36,9 @@ import ScrollHint from '../shell/ScrollHint';
 import type { DockPlayer } from '../shell/PresenceDock';
 import { Scene, SceneHeader, SceneBody, SceneActions } from '../shell/Scene';
 
+// GP card-back designer (ps_style) — lazy: opened on demand.
+const CardBackDesigner = React.lazy(() => import('../components/lobby/CardBackDesigner'));
+
 interface LobbyPageProps {
   lobby: Lobby;
   messages: ChatMessage[];
@@ -54,6 +57,8 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
 
   const [drawerContent, setDrawerContent] = useState<DrawerContent>(null);
   const hasAutoOpenedVideoRef = useRef(false);
+  // "Your card back" GP designer modal (ps_style).
+  const [showDesigner, setShowDesigner] = useState(false);
 
   // Player chat ONLY (system / game-log events belong in the Case Log, not chat).
   const chatMessages = messages.filter(m => m.playerId !== 'system' && !m.isSystem);
@@ -191,6 +196,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                   isHost={isHost}
                   onKickPlayer={isHost ? handleKickPlayer : undefined}
                   onMakeHost={isHost ? handleMakeHost : undefined}
+                  onOpenDesigner={() => setShowDesigner(true)}
                   showCardStylePicker
                 />
               ) : (
@@ -237,6 +243,9 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                         currentPlayers={connectedPlayers.length}
                         hideRoomCode={gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode}
                       />
+                      <button type="button" className="ps-designer-btn" onClick={() => setShowDesigner(true)}>
+                        🂠 Your card back
+                      </button>
                       {/* Player list lives in the sidebar rail (Spieler tab) — no
                           duplicate in the center pane. */}
                       </div>
@@ -331,7 +340,19 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
         onLeaveVideo={disableVideoChat}
         teams={[]}
         showCardStylePicker
+        onOpenDesigner={() => { handleCloseDrawer(); setShowDesigner(true); }}
       />
+
+      {/* "Your card back" designer — the only place ps_style items are bought. */}
+      {showDesigner && (
+        <React.Suspense fallback={null}>
+          <CardBackDesigner
+            players={lobby.players}
+            mySocketId={lobby.mySocketId}
+            onClose={() => setShowDesigner(false)}
+          />
+        </React.Suspense>
+      )}
     </>
   );
 };
