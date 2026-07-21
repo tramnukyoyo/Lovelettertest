@@ -29,6 +29,7 @@ import BotControls from '../lobby/BotControls';
 import { usePassPlay } from '../../hooks/usePassPlay';
 import { GameExplainer, GameExplainerHelpButton } from '../lobby/GameExplainer';
 import { resolveGameSkin } from '../../utils/gameSkin';
+import { trackBlockedClick } from '../../services/analyticsService';
 import { Avatar } from '../core/Avatar';
 import { primeSuspectDemoSpec } from '../lobby/GameExplainer/demos/PrimeSuspectDemo';
 import '../lobby/GameExplainer/GameExplainer.css';
@@ -257,8 +258,17 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   }, []);
 
   // When card is tapped in hand
-  const handleCardTap = useCallback((idx: number) => {
-    if (!isMyTurn || waitingToDraw || amEliminated) return;
+  const handleCardTap = useCallback((idx: number, el?: HTMLElement | null) => {
+    if (!isMyTurn || waitingToDraw || amEliminated) {
+      // Gated tap: pulse the card + log it — never swallow silently.
+      if (isSpectator) return;
+      el?.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }],
+        { duration: 180, easing: 'ease-out' }
+      );
+      trackBlockedClick('hand_card', amEliminated ? 'eliminated' : waitingToDraw ? 'must_draw_first' : 'not_your_turn');
+      return;
+    }
 
     if (selectedCardIndex === idx) {
       // Deselect
@@ -270,7 +280,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       setTargetId(null);
       setGuessCard(null);
     }
-  }, [isMyTurn, waitingToDraw, amEliminated, selectedCardIndex, resetPlayState]);
+  }, [isMyTurn, waitingToDraw, amEliminated, isSpectator, selectedCardIndex, resetPlayState]);
 
   // When Confirm is clicked in SELECTED step
   const handleConfirmSelection = useCallback(() => {
@@ -775,7 +785,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           {myHand.map((card, idx) => (
             <button
               key={`hand-${card}-${idx}`}
-              onClick={() => handleCardTap(idx)}
+              onClick={(e) => handleCardTap(idx, e.currentTarget)}
               onTouchStart={(e) => {
                 e.stopPropagation();
                 setPreviewCard(card);

@@ -23,6 +23,7 @@ import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations
 import { translateGameMessage } from '../../utils/gameLog';
 import { Portal } from '../../utils/portal';
 import { resolveGameSkin } from '../../utils/gameSkin';
+import { trackBlockedClick } from '../../services/analyticsService';
 import { CardHoverProvider, CardHoverZone } from './CardHoverContext';
 import CardHoverPreview from './CardHoverPreview';
 import { Avatar } from '../core/Avatar';
@@ -782,7 +783,19 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                  relative group
                                  ${!isMyTurn || amEliminated ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer'}
                               `}
-                              onClick={() => isMyTurn && !waitingToDraw && !amEliminated && setSelectedCardIndex(idx)}
+                              onClick={(e) => {
+                                if (!isMyTurn || waitingToDraw || amEliminated) {
+                                  // Gated tap: pulse the card + log it — never swallow silently.
+                                  if (isSpectator) return;
+                                  e.currentTarget.animate(
+                                    [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }],
+                                    { duration: 180, easing: 'ease-out' }
+                                  );
+                                  trackBlockedClick('hand_card', amEliminated ? 'eliminated' : waitingToDraw ? 'must_draw_first' : 'not_your_turn');
+                                  return;
+                                }
+                                setSelectedCardIndex(idx);
+                              }}
                            >
                               <CardHoverZone card={card}>
                                 <DynamicCard
@@ -873,8 +886,19 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 {selectedCard !== 1 && (
                   <>
                     <button
-                      onClick={handlePlayCard}
-                      disabled={[2, 3, 5, 6].includes(selectedCard) && !allOpponentsProtected && !targetId}
+                      onClick={(e) => {
+                        if ([2, 3, 5, 6].includes(selectedCard) && !allOpponentsProtected && !targetId) {
+                          // aria-disabled button: the click reaches us — shake + track instead of swallowing.
+                          e.currentTarget.animate(
+                            [{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }],
+                            { duration: 200, easing: 'ease-out' }
+                          );
+                          trackBlockedClick('confirm_play', 'empty_input');
+                          return;
+                        }
+                        handlePlayCard();
+                      }}
+                      aria-disabled={[2, 3, 5, 6].includes(selectedCard) && !allOpponentsProtected && !targetId}
                       className="ps-btn ps-btn--primary"
                     >
                       {t('game.confirm')}
@@ -929,8 +953,19 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
               {selectedCard === 1 && (
                 <div className="flex items-center justify-center gap-4 pt-2 border-t border-[rgba(var(--accent-color-rgb),0.18)]">
                   <button
-                    onClick={handlePlayCard}
-                    disabled={(!allOpponentsProtected && !targetId) || (!allOpponentsProtected && !guessCard)}
+                    onClick={(e) => {
+                      if ((!allOpponentsProtected && !targetId) || (!allOpponentsProtected && !guessCard)) {
+                        // aria-disabled button: the click reaches us — shake + track instead of swallowing.
+                        e.currentTarget.animate(
+                          [{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }],
+                          { duration: 200, easing: 'ease-out' }
+                        );
+                        trackBlockedClick('confirm_play', 'empty_input');
+                        return;
+                      }
+                      handlePlayCard();
+                    }}
+                    aria-disabled={(!allOpponentsProtected && !targetId) || (!allOpponentsProtected && !guessCard)}
                     className="ps-btn ps-btn--primary"
                   >
                     {t('game.confirm')}

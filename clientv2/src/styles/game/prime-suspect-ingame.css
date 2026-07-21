@@ -68,7 +68,7 @@
     0 10px 22px rgba(61, 12, 19, 0.5),
     inset 0 1px 0 rgba(231, 204, 122, 0.28);
 }
-[data-theme="primesuspect"] .ps-btn--primary:hover {
+[data-theme="primesuspect"] .ps-btn--primary:hover:not([aria-disabled="true"]):not(:disabled) {
   filter: brightness(1.06);
   box-shadow:
     0 4px 0 var(--royal-crimson-dark),
@@ -76,7 +76,7 @@
     0 0 18px rgba(231, 204, 122, 0.22),
     inset 0 1px 0 rgba(231, 204, 122, 0.3);
 }
-[data-theme="primesuspect"] .ps-btn--primary:active {
+[data-theme="primesuspect"] .ps-btn--primary:active:not([aria-disabled="true"]):not(:disabled) {
   transform: translateY(4px);
   box-shadow: 0 0 0 var(--royal-crimson-dark), inset 0 1px 0 rgba(231, 204, 122, 0.28);
 }
@@ -133,6 +133,16 @@
 /* disabled state — shared across variants */
 [data-theme="primesuspect"] .ps-btn:disabled,
 [data-theme="primesuspect"] .ps-btn[disabled] {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* aria-disabled mirror: dimmed like :disabled but clicks still reach the
+   handler, which gives shake/pulse feedback instead of a swallowed click */
+[data-theme="primesuspect"] .ps-btn[aria-disabled="true"] {
   opacity: 0.45;
   filter: grayscale(0.5);
   cursor: not-allowed;

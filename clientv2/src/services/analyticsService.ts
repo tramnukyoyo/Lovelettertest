@@ -168,6 +168,18 @@ export function trackGameAction(action: string, extra?: Record<string, unknown>)
   trackEvent("game_action", { action, ...extra });
 }
 
+/** Throttled blocked-interaction event: max 1 per control per 3s.
+ *  Fired when a player clicks/taps a gated control (empty input, not their
+ *  turn, cooldown) — natively `disabled` buttons swallow these clicks, so
+ *  without this the friction is invisible to analytics (churn audit 2026-07-21). */
+const _blockedAt: Record<string, number> = {};
+export function trackBlockedClick(control: string, reason: string): void {
+  const now = Date.now();
+  if (now - (_blockedAt[control] ?? 0) < 3000) return;
+  _blockedAt[control] = now;
+  trackGameAction('blocked_click', { control, reason });
+}
+
 // ── Universal phase tracker ────────────────────────────────────────
 // Maintains a private singleton state. Call from your roomStateUpdated
 // handler with the full state payload — it auto-detects the phase across
