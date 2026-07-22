@@ -8,6 +8,7 @@ import { soundEffects } from '../../utils/soundEffects';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Portal } from '../../utils/portal';
 import { usePostgame, resetPostgame } from '../../services/postgame';
+import { trackGameFinishedNow } from '../../services/analyticsService';
 import { GameAdRectangle } from '../ads';
 
 /**
@@ -154,6 +155,17 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
       soundEffects.play('win');
     }
   }, [isBroadcastMirror, isGameWin]);
+
+  // Explicit game_finished: Prime Suspect returns to lobby with no terminal
+  // room-state phase (LOBBY/PLAYING only), so the phase tracker never fires it
+  // and the game showed 0 finishes despite 16 starts (audit 2026-07-22). Fire
+  // from the real player client on the actual game win; trackGameFinishedNow is
+  // internally double-fire-guarded.
+  useEffect(() => {
+    if (isGameWin && !isBroadcastMirror) {
+      trackGameFinishedNow(1, { room_code: lobby.code });
+    }
+  }, [isGameWin, isBroadcastMirror, lobby.code]);
 
   // ── Round-Over Mode (no game winner yet) ──
   if (!isGameWin) {
