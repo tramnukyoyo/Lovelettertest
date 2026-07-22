@@ -9,6 +9,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import socketService from '../../services/socketService';
+import { trackGameLeft } from '../../services/analyticsService';
 import { t } from '../../utils/translations';
 
 interface GameBuddiesReturnButtonProps {
@@ -46,6 +47,7 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   };
 
   const handleClick = () => {
+    trackGameLeft('return_button', { room_code: roomCode, is_host: isHost });
     const socket = socketService.getSocket();
     if (!socket) {
       redirectWithReturning('https://gamebuddies.io');

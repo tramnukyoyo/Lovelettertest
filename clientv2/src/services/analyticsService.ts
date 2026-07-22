@@ -1,13 +1,13 @@
 /**
  * Analytics Service — Lightweight PostHog wrapper for game clients.
+ * Canonical version: 2026-07-22 (event audit bump).
  *
  * Reuses the same PostHog project as Gamebuddies.Io (same domain, same cookies).
  * Respects GDPR consent stored in localStorage['gb-cookie-consent'] by the main site.
  *
  * Usage:
- *   import { initAnalytics, trackEvent, trackShare } from '../services/analyticsService';
+ *   import { initAnalytics, trackEvent } from '../services/analyticsService';
  *   // Call initAnalytics() once in App.tsx useEffect
- *   // Call trackShare('whatsapp') in share handlers
  */
 
 import type { PostHog } from 'posthog-js';
@@ -16,6 +16,19 @@ import { GAME_META } from '../config/gameMeta';
 const POSTHOG_KEY = 'phc_lXhLxEeir5ZB9MjrDuvKiZsj6A0VGvZIIgduZsL20ji';
 const POSTHOG_HOST = 'https://eu.i.posthog.com';
 const CONSENT_KEY = 'gb-cookie-consent';
+
+// `game` property on every event. GAME_META.id is REQUIRED — display-name
+// fallbacks split the same game across two breakdown values depending on
+// which build is live ("thinkalike" vs "ThinkAlike", fleet audit 2026-07-22).
+// Prod stays resilient (falls back) but dev fails loudly.
+const GAME_SLUG: string = (() => {
+  const meta = GAME_META as { id?: string; name: string };
+  if (meta.id) return meta.id;
+  if (import.meta.env.DEV) {
+    throw new Error('[analytics] GAME_META.id is missing — set the canonical slug in config/gameMeta.ts');
+  }
+  return meta.name;
+})();
 
 // posthog-js is dynamic-imported so its ~50KB gz stays out of the eager
 // bundle (it is only needed post-consent). Events fired before the module
@@ -40,6 +53,28 @@ function flushIdentify(): void {
   posthogRef.identify(userId, props);
 }
 
+/**
+ * The platform hands its PostHog distinct_id over in the game-launch URL
+ * (`phid`, set by RoomLobby.withPlatformLang). Same-origin proxy serving
+ * already shares the id via localStorage; this covers the cross-origin tail
+ * (Discord Activity hosts, direct/QR entries, *.onrender.com) where posthog-js
+ * would otherwise mint a fresh anonymous id and orphan the game session from
+ * the platform person (identity audit 2026-07-22: ~29% of game persons were
+ * unstitched). Persisted to sessionStorage so in-game reloads keep it.
+ */
+function platformDistinctId(): string | null {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get('phid');
+    if (fromUrl) {
+      sessionStorage.setItem('gb_phid', fromUrl);
+      return fromUrl;
+    }
+    return sessionStorage.getItem('gb_phid');
+  } catch {
+    return null;
+  }
+}
+
 function doInit(): void {
   if (initialized || loading) return;
   if (!hasConsent()) return;
@@ -47,6 +82,7 @@ function doInit(): void {
   loading = true;
   import('posthog-js')
     .then(({ default: posthog }) => {
+      const phid = platformDistinctId();
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
         persistence: 'localStorage+cookie',
@@ -60,6 +96,9 @@ function doInit(): void {
         capture_heatmaps: true,
         person_profiles: 'identified_only',
         property_denylist: ['sessionToken', 'inviteToken', 'password', 'email', 'access_token', 'refresh_token'],
+        // Only applies when no persisted id exists on this origin — a fresh
+        // cross-origin visitor adopts the platform's chain instead of forking.
+        ...(phid ? { bootstrap: { distinctID: phid } } : {}),
       });
       posthogRef = posthog;
       initialized = true;
@@ -77,8 +116,9 @@ function doInit(): void {
  * shared .gamebuddies.io cookie doesn't reach, so posthog-js starts a fresh
  * anonymous distinct_id and game events are orphaned from the platform user.
  * Calling identify() with the platform userId (resolved from the session token)
- * reunites them. No-op for unresolved guests (no userId). Safe to call before
- * init — it's stashed and flushed once consent/init completes.
+ * reunites them. No-op for unresolved guests (no userId) — those are covered by
+ * the `phid` bootstrap above. Safe to call before init — it's stashed and
+ * flushed once consent/init completes.
  */
 export function identifyGamePlayer(session: {
   userId?: string;
@@ -116,19 +156,7 @@ export function initAnalytics(): void {
 /** Fire a custom event to PostHog. No-op if not initialized or no consent. */
 export function trackEvent(name: string, properties?: Record<string, unknown>): void {
   if (!initialized || !posthogRef || !hasConsent()) return;
-  // Emit `game` as the slug (id) so dashboards can group cleanly. Fall back to
-  // display name only if id was never declared on this game's GAME_META.
-  posthogRef.capture(name, { game: (GAME_META as any).id || GAME_META.name, ...properties });
-}
-
-/** Convenience: track a share action. */
-export function trackShare(method: string, extra?: Record<string, unknown>): void {
-  trackEvent('share_clicked', { method, ...extra });
-}
-
-/** Track a game round completing. */
-export function trackGameRound(roundNumber: number, durationSeconds: number, extra?: Record<string, unknown>): void {
-  trackEvent('game_round_completed', { round_number: roundNumber, duration_seconds: durationSeconds, ...extra });
+  posthogRef.capture(name, { game: GAME_SLUG, ...properties });
 }
 
 /** Track a game finishing (all rounds done). */
@@ -144,13 +172,23 @@ export function trackReconnect(success: boolean, method: string): void {
 /** Track when the server sends an error to the client.
  *  Dedupes identical messages within 30s: retry/error loops otherwise flood
  *  PostHog with repeats that carry no new information — one TV left on a dead
- *  room emitted 6,152 "Room not found" events over 40h (fleet audit 2026-07-13). */
+ *  room emitted 6,152 "Room not found" events over 40h (fleet audit 2026-07-13).
+ *  Carries the current phase so errors are locatable in the game flow. */
 let _lastTrackedError = { msg: '', at: 0 };
+const _errorCounts: Record<string, number> = {};
+const ERROR_SESSION_CAP = 5;
 export function trackGameError(errorMessage: string): void {
   const now = Date.now();
   if (errorMessage === _lastTrackedError.msg && now - _lastTrackedError.at < 30000) return;
+  // Session cap: a client stuck in a retry loop (letter-rush "Room not found"
+  // = 6.2k events from 20 users in 30d, audit 2026-07-22) re-emits the same
+  // error for hours — the 30s dedupe alone still lets ~2/min through. After
+  // the cap the signal is already unambiguous; more repeats are pure noise.
+  const count = (_errorCounts[errorMessage] ?? 0) + 1;
+  if (count > ERROR_SESSION_CAP) return;
+  _errorCounts[errorMessage] = count;
   _lastTrackedError = { msg: errorMessage, at: now };
-  trackEvent('game_error_shown', { error_message: errorMessage });
+  trackEvent('game_error_shown', { error_message: errorMessage, phase: _phaseTracker.current ?? null, repeat_count: count });
 }
 
 /** Track every phase transition. Call from a useEffect that watches phase. */
@@ -180,6 +218,21 @@ export function trackBlockedClick(control: string, reason: string): void {
   trackGameAction('blocked_click', { control, reason });
 }
 
+/** Explicit player-level quit signal ("I'm leaving, and THIS is where"):
+ *  fired from the GameBuddies return button / in-game leave actions with the
+ *  phase the player was in. Complements the server-side room-level
+ *  game_session_ended (drop-off audit 2026-07-22). */
+export function trackGameLeft(reason: 'return_button' | 'leave_button', extra?: Record<string, unknown>): void {
+  trackEvent('game_left', {
+    reason,
+    phase: _phaseTracker.current ?? null,
+    seconds_in_game: _phaseTracker.startTime
+      ? Math.round((Date.now() - _phaseTracker.startTime) / 1000)
+      : null,
+    ...extra,
+  });
+}
+
 // ── Universal phase tracker ────────────────────────────────────────
 // Maintains a private singleton state. Call from your roomStateUpdated
 // handler with the full state payload — it auto-detects the phase across
@@ -187,7 +240,7 @@ export function trackBlockedClick(control: string, reason: string): void {
 // data.gameState.phase, data.state, data.phase) and emits PostHog events:
 //   game_phase_entered  (every transition, with from/to)
 //   game_started        (lobby → non-lobby)
-//   game_finished       (entering finished/ended/game_over)
+//   game_finished       (entering finished/ended/game_over/game_end/finale)
 const _phaseTracker: { current: string | undefined; startTime: number | null } = {
   current: undefined,
   startTime: null,
@@ -198,8 +251,12 @@ const _phaseTracker: { current: string | undefined; startTime: number | null } =
 // clients whose phases are uppercase ('LOBBY_WAITING'/'GAME_OVER') or unaliased
 // ('gameover'): letter-rush shipped 5,304 game_phase_entered events in 30d with
 // ZERO starts/finishes before this fix (fleet audit 2026-07-13).
+// 'game_end' (ClueScale GAME_END) + 'finale' (Last Brain Standing) added
+// 2026-07-22 — those games reported ZERO finishes for a month. When a game
+// introduces a new terminal phase name, add it here AND in the gameserver's
+// posthogCapture TERMINAL_PHASES (kept in sync manually).
 const LOBBYISH_PHASES = new Set(["lobby", "lobby_waiting", "waiting"]);
-const FINISHED_PHASES = new Set(["finished", "ended", "game_over", "gameover"]);
+const FINISHED_PHASES = new Set(["finished", "ended", "game_over", "gameover", "game_end", "finale"]);
 
 export function trackPhaseFromRoomState(data: unknown): void {
   if (!data || typeof data !== "object") return;
