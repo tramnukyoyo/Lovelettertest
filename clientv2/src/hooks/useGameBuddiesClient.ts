@@ -544,7 +544,7 @@ export function useGameBuddiesClient(
       if (isNotInRoom) {
         const sessionToken = sessionStorage.getItem('gameSessionToken');
         if (sessionToken) {
-          socketService.getSocket()?.emit('session:reconnect', { sessionToken });
+          void handleReconnection(sessionToken); // region-aware NOT_IN_ROOM recovery: re-pins wrong_region + dedupes (root-cause fix 2026-07-23)
           return;
         }
       }
