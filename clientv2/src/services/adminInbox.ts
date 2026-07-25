@@ -85,9 +85,12 @@ let localSeq = 0;
  * Deliberately a module-level flag rather than a field of `state`, because
  * `clearAdminInbox()` resets state on every room leave AND on the registerGameEvents
  * cleanup — keeping it in state would make the icon vanish on a reconnect or a hop
- * to another room, mid-conversation. Once revealed it stays for the life of the tab;
- * a reload starts over and is re-seeded by `gb:messages:unread` only if the thread is
- * still unread or recent (platform-side 30min window).
+ * to another room, mid-conversation. Once revealed it stays for the life of the tab.
+ *
+ * A reload starts over, and the server re-seeds via `gb:messages:unread` on both join
+ * and reconnect whenever the player has a thread at all — so this flag only has to
+ * cover what the seed cannot: a message that arrives mid-session, and the player
+ * opening the panel from the account menu.
  */
 let revealed = false;
 
@@ -152,15 +155,17 @@ export function registerAdminInboxEvents(socket: Socket): () => void {
     if (state.open) markInboxRead();
   };
 
-  const onUnread = (data: { count?: number; recent?: boolean }) => {
-    // Seeded once from profile hydration, so a message that arrived while the
-    // player was away still lights the badge. Never lowers a live count.
+  const onUnread = (data: { count?: number; hasThread?: boolean }) => {
+    // Seeded from profile hydration on every join AND reconnect, so a message
+    // that arrived while the player was away still lights the badge. Never
+    // lowers a live count.
     const count = typeof data?.count === 'number' ? data.count : 0;
-    // `recent` covers the already-read-but-still-live conversation: no badge to
-    // show, but the player should still be able to reach the thread and reply.
-    // Absent on gameservers older than this change, hence the truthiness check
-    // rather than a default — the icon then waits for an unread or a live push.
-    if (count > 0 || data?.recent) reveal();
+    // `hasThread` is what actually reveals the icon: `count` drops to 0 the
+    // instant the panel is opened, so keying visibility off unread alone hid the
+    // entry point from exactly the player who had just read a message and wanted
+    // to reply. Absent on gameservers older than this change, hence the
+    // truthiness check rather than a default.
+    if (count > 0 || data?.hasThread) reveal();
     if (count > state.unread && !state.open) patch({ unread: count });
   };
 

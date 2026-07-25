@@ -14,11 +14,11 @@ import { useAdminInbox, openInbox } from '../../services/adminInbox';
  * point, deliberately unbadged, and it reaches this store via an onOpenMessages
  * prop so GameAccountControl stays contractually presentational.
  *
- * Rendered ONLY while there is a conversation to see — unread, a message received
- * this session, or a thread whose last message is inside the platform's 30min
- * recency window (see `visible`/`revealed` in services/adminInbox). The vast
- * majority of sessions never involve a support thread, and a permanent mail icon
- * in every game header was header furniture for a feature they had never used.
+ * Rendered ONLY for players who actually have a conversation — the server seeds
+ * `hasThread` on join and reconnect, and a live message or opening the panel
+ * reveals it mid-session (see `visible`/`revealed` in services/adminInbox). The
+ * vast majority of players have never been messaged, and for them a permanent
+ * mail icon was header furniture for a feature they had never used.
  *
  * Starting a conversation from cold now lives in the account menu (desktop) and the
  * hamburger (mobile), both of which call openInbox() — which reveals this button, so

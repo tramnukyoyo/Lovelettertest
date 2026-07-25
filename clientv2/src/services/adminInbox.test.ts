@@ -56,23 +56,35 @@ describe('adminInbox visibility', () => {
     expect(mod.getAdminInboxState().unread).toBe(2);
   });
 
-  it('reveals on a recent-but-already-read thread, without inventing a badge', async () => {
+  // The regression this rule exists for: a player reads their messages, so unread
+  // goes to 0 — the icon must NOT disappear, or replying becomes undiscoverable.
+  // Shipped once with a 30-minute window instead and it hid the icon from a guest
+  // with 5 read messages.
+  it('reveals on an already-read thread, without inventing a badge', async () => {
     const { mod, handlers } = await freshInbox();
-    unread(handlers, { count: 0, recent: true });
+    unread(handlers, { count: 0, hasThread: true });
     expect(mod.getAdminInboxState().visible).toBe(true);
     expect(mod.getAdminInboxState().unread).toBe(0);
   });
 
-  it('stays hidden when the seed says neither unread nor recent', async () => {
+  it('stays hidden when the seed reports no thread', async () => {
     const { mod, handlers } = await freshInbox();
-    unread(handlers, { count: 0, recent: false });
+    unread(handlers, { count: 0, hasThread: false });
     expect(mod.getAdminInboxState().visible).toBe(false);
   });
 
-  it('stays hidden when an older gameserver omits `recent` and nothing is unread', async () => {
+  it('stays hidden when an older gameserver omits `hasThread` and nothing is unread', async () => {
     const { mod, handlers } = await freshInbox();
     unread(handlers, { count: 0 });
     expect(mod.getAdminInboxState().visible).toBe(false);
+  });
+
+  it('re-seeding on reconnect keeps the icon after a reload', async () => {
+    const { mod, handlers } = await freshInbox();
+    // Fresh tab: nothing revealed yet, exactly as after an F5.
+    expect(mod.getAdminInboxState().visible).toBe(false);
+    unread(handlers, { count: 0, hasThread: true });
+    expect(mod.getAdminInboxState().visible).toBe(true);
   });
 
   it('reveals on a live admin message', async () => {
