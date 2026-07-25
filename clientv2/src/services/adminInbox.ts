@@ -25,6 +25,26 @@ const READ_EVENT = 'gb:messages:read';
 /** Server max. Support threads never approach it, so the panel needs no paging. */
 const HISTORY_LIMIT = 200;
 
+/**
+ * Ack deadline. socket.io applies NONE by default, so an emit nobody answers hangs
+ * forever: the panel sits on "loading" with no retry, and the composer stays
+ * disabled. That is not hypothetical — a gameserver still running a build from
+ * before these handlers existed has no listener at all, and socket.io happily
+ * buffers an emit-with-ack while the socket is down and flushes it on reconnect.
+ * The timer starts at emit time, so it covers both cases — and socket.io only
+ * reports a mid-flight disconnect to acks registered WITH a timeout (_clearAcks
+ * skips handlers that have no error channel), so a bare ack is dropped in silence
+ * there as well.
+ *
+ * Sized well above the server's own budget: a read's platform call is a 3s axios
+ * timeout that may first queue behind the reward semaphore; a send's is 5s on the
+ * critical profile. One value covers all three — a second knob to keep in sync
+ * across 18 copies of this file buys nothing, and a send that times out is handed
+ * back to the player rather than retried, so a slightly early deadline costs a
+ * tap, not a duplicate.
+ */
+const ACK_TIMEOUT_MS = 10_000;
+
 export interface InboxMessage {
   id: string;
   sender_role: 'admin' | 'user';
@@ -121,16 +141,25 @@ export function registerAdminInboxEvents(socket: Socket): () => void {
 /** Fetch the conversation. Safe to call repeatedly; the panel calls it on open. */
 export function requestInbox(): void {
   const socket = socketService.getSocket();
-  if (!socket) return;
+  // No socket at all is an outage, not an empty inbox — leaving status 'idle' here
+  // rendered the "no messages yet" empty state to players who do have history.
+  if (!socket) return patch({ status: 'error' });
   if (state.status === 'idle' || state.status === 'error') patch({ status: 'loading' });
 
-  socket.emit(GET_EVENT, { limit: HISTORY_LIMIT }, (res: {
+  socket.timeout(ACK_TIMEOUT_MS).emit(GET_EVENT, { limit: HISTORY_LIMIT }, (err: Error | null, res: {
     ok?: boolean; threadId?: string | null; messages?: InboxMessage[]; unread?: number;
   }) => {
-    if (!res?.ok) {
-      // Keep whatever we already have on screen — an outage must not look like an
-      // empty conversation, or the player retypes a message they already sent.
-      patch({ status: 'error' });
+    if (err || !res?.ok) {
+      // Names the failure in the console. A silent hang is what turned "the inbox
+      // spins forever" into build archaeology instead of one glance.
+      if (err) console.warn('[adminInbox] gb:messages:get got no ack:', err.message);
+      // Only fail the fetch that is still pending. openInbox() and the push handler
+      // can both have a get in flight; without this guard a 10s-late timeout
+      // overwrites the fresher answer that already landed.
+      // Keep whatever we already have on screen either way — an outage must not
+      // look like an empty conversation, or the player retypes a message they
+      // already sent.
+      if (state.status === 'loading') patch({ status: 'error' });
       return;
     }
     patch({
@@ -144,7 +173,9 @@ export function requestInbox(): void {
 
 /** Clear the unread flag server-side (also clears the platform bell badge). */
 export function markInboxRead(): void {
-  socketService.getSocket()?.emit(READ_EVENT, {}, () => { /* best-effort */ });
+  // Timed out rather than bare so socket.io reclaims the ack entry instead of
+  // holding it for the life of the socket; the result stays ignored either way.
+  socketService.getSocket()?.timeout(ACK_TIMEOUT_MS).emit(READ_EVENT, {}, () => { /* best-effort */ });
 }
 
 export function openInbox(): void {
@@ -170,23 +201,35 @@ export function dismissToast(): void {
 export function sendInboxMessage(body: string): void {
   const socket = socketService.getSocket();
   const text = body.trim();
-  if (!socket || !text) return;
+  if (!text) return;
 
   const localId = `local-${++localSeq}`;
-  patch({
-    sending: true,
-    messages: [...state.messages, {
-      id: localId,
-      sender_role: 'user',
-      body: text,
-      created_at: new Date().toISOString(),
-    }],
-  });
+  const bubble: InboxMessage = {
+    id: localId,
+    sender_role: 'user',
+    body: text,
+    created_at: new Date().toISOString(),
+  };
 
-  socket.emit(SEND_EVENT, { threadId: state.threadId, body: text }, (res: {
+  // No socket: draw the bubble and fail it on the spot rather than bailing. The
+  // panel clears the composer the instant this returns, so the old early return
+  // destroyed the player's typed message with nothing left on screen to retry.
+  if (!socket) {
+    patch({ messages: [...state.messages, bubble], failedIds: [...state.failedIds, localId] });
+    return;
+  }
+
+  patch({ sending: true, messages: [...state.messages, bubble] });
+
+  socket.timeout(ACK_TIMEOUT_MS).emit(SEND_EVENT, { threadId: state.threadId, body: text }, (err: Error | null, res: {
     ok?: boolean; threadId?: string | null; message?: InboxMessage | null;
   }) => {
-    if (!res?.ok) {
+    // A timeout is a rejection: without this the bubble never resolves AND
+    // `sending` stays true, which disables the send button permanently. Retrying
+    // is deliberately left to the player — we cannot know whether the write landed
+    // before the silence, and re-sending it for them posts the message twice.
+    if (err || !res?.ok) {
+      if (err) console.warn('[adminInbox] gb:messages:send got no ack:', err.message);
       patch({ sending: false, failedIds: [...state.failedIds, localId] });
       return;
     }
