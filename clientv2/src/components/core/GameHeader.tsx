@@ -22,6 +22,7 @@ import GameAuthModal from './GameAuthModal';
 import SimpleLanguageSelector from './SimpleLanguageSelector';
 import GameBuddiesReturnButton from './GameBuddiesReturnButton';
 import GameAccountControl from './GameAccountControl';
+import GameMessagesButton from './GameMessagesButton';
 import MuteButton from './MuteButton';
 import { VideoControlCluster } from '../video';
 import { isDiscordActivity } from '../../services/discordActivity';
@@ -364,6 +365,11 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               <div className="game-header-gp" title="Gabu Points">&#9672; {myProfile.gabuPoints} GP</div>
             )}
 
+            {/* Inbox — between GP and the account chip, mirroring the platform
+                header's money → messages → account order. Shown for guests too:
+                they have a real platform user row, so admin can message them. */}
+            <GameMessagesButton />
+
             <GameAccountControl
               name={accountName}
               isLoggedIn={isLoggedIn}
@@ -379,6 +385,10 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         {isMobile && (
           <div className="game-header-right">
             <MuteButton />
+            {/* Same component as desktop rather than a MobileGameMenu entry: the
+                hamburger's badge already belongs to room chat, and a second unread
+                source inside a closed menu would be both ambiguous and invisible. */}
+            <GameMessagesButton />
             <button onClick={copyRoomLink} className="game-header-copy-btn"
               title={hideRoomCode ? t('header.copyInviteLink') : t('header.copyRoomLink')}>
               {copyFeedback ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}

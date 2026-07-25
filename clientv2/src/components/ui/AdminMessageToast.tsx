@@ -1,88 +1,59 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { MessageSquare, Send, X } from 'lucide-react';
+import { Mail, X } from 'lucide-react';
 import { t } from '../../utils/translations';
+import { useAdminInbox, openInbox, dismissToast } from '../../services/adminInbox';
 import './AdminMessageToast.css';
 
 /**
- * AdminMessageToast — shows a message sent by a GameBuddies admin to a player
- * who is currently in a game, and lets the player reply without leaving.
+ * Quiet notice that a GameBuddies admin has messaged this player. Clicking it opens
+ * the full conversation in MessagesPanel.
  *
- * Delivery: the game server emits `admin:message` ({ threadId, body, fromName, at })
- * to this player's socket. Reply: App emits `admin:message:reply` ({ threadId, body }),
- * which the game server relays to the platform's existing message thread.
+ * Deliberately has NO composer and NEVER touches keyboard focus. The previous
+ * version autofocused a reply box 50ms after appearing, which stole input from
+ * players mid-round in every real-time game; it also only ever held one message
+ * (a second arrival overwrote the first) and allowed exactly one reply. The
+ * conversation itself now lives in the panel, so this is only an attention hook.
  *
- * Styling is class-based and themed entirely from the game's unified.css custom
- * properties (--bg-secondary, --gb-cyan, --text-primary, fonts, radius …), so the
- * window automatically matches whichever game it's dropped into. See AdminMessageToast.css.
+ * Delivery: the game server emits `admin:message` to this player's socket; the
+ * adminInbox store owns the state and this renders whatever it puts in `toast`.
+ *
+ * Styling is class-based and themed from the host game's unified.css tokens.
  */
-export interface AdminMessage {
-  threadId: string | null;
-  body: string;
-  fromName: string;
-  at: number;
-}
 
-interface Props {
-  message: AdminMessage | null;
-  onReply: (threadId: string | null, body: string) => void;
-  onClose: () => void;
-}
+/** Long enough to notice mid-round, short enough not to camp on the HUD. */
+const AUTO_DISMISS_MS = 8000;
 
-const AdminMessageToast: React.FC<Props> = ({ message, onReply, onClose }) => {
-  const [reply, setReply] = useState('');
-  const [sent, setSent] = useState(false);
-  const taRef = useRef<HTMLTextAreaElement>(null);
+const AdminMessageToast: React.FC = () => {
+  const { toast } = useAdminInbox();
 
   useEffect(() => {
-    if (message) {
-      setReply('');
-      setSent(false);
-      const t = setTimeout(() => taRef.current?.focus(), 50);
-      return () => clearTimeout(t);
-    }
-  }, [message]);
+    if (!toast) return;
+    const timer = setTimeout(dismissToast, AUTO_DISMISS_MS);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
-  if (!message) return null;
-
-  const send = () => {
-    const text = reply.trim();
-    if (!text) return;
-    onReply(message.threadId, text);
-    setSent(true);
-    setReply('');
-  };
+  if (!toast) return null;
 
   return createPortal(
-    <div className="gb-admsg" role="dialog" aria-label={t('adminMessage.title')}>
+    <div className="gb-admsg" role="status" aria-live="polite">
       <div className="gb-admsg-header">
-        <MessageSquare className="gb-admsg-icon" size={18} />
-        <strong className="gb-admsg-from">{message.fromName || 'GameBuddies'}</strong>
-        <button className="gb-admsg-close" onClick={onClose} type="button" aria-label={t('common.close')}>
+        <Mail className="gb-admsg-icon" size={18} />
+        <strong className="gb-admsg-from">{toast.fromName || 'GameBuddies'}</strong>
+        <button
+          className="gb-admsg-close"
+          onClick={dismissToast}
+          type="button"
+          aria-label={t('adminMessage.close')}
+        >
           <X size={16} />
         </button>
       </div>
-      <div className="gb-admsg-body">
-        <p className="gb-admsg-text">{message.body}</p>
-        {sent ? (
-          <p className="gb-admsg-sent">{t('adminMessage.replySent')}</p>
-        ) : (
-          <div className="gb-admsg-composer">
-            <textarea
-              ref={taRef}
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-              rows={2}
-              maxLength={4000}
-              placeholder={t('adminMessage.replyPlaceholder')}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-            />
-            <button className="gb-admsg-send" onClick={send} type="button" disabled={!reply.trim()} aria-label={t('adminMessage.sendReply')}>
-              <Send size={16} />
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Spans, not <p>: a button's content model is phrasing content only. */}
+      <button className="gb-admsg-body" type="button" onClick={openInbox}>
+        <span className="gb-admsg-text">{toast.body}</span>
+        <span className="gb-admsg-cta">{t('adminMessage.newMessageHint')}</span>
+      </button>
     </div>,
     document.body
   );

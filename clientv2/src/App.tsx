@@ -11,7 +11,8 @@ import KickToast from './components/ui/KickToast';
 import SiteNotificationToast from './components/ui/SiteNotificationToast';
 import type { SiteNotification } from './components/ui/SiteNotificationToast';
 import AdminMessageToast from './components/ui/AdminMessageToast';
-import type { AdminMessage } from './components/ui/AdminMessageToast';
+import MessagesPanel from './components/ui/MessagesPanel';
+import { registerAdminInboxEvents, clearAdminInbox } from './services/adminInbox';
 import type { Lobby, PlayerPlatformProfile } from './types';
 import { setPlayerProfile } from './services/playerProfiles';
 import { initSupabaseAuth, maybeUpgradeRoomIdentity, useAuthState } from './services/supabaseAuth';
@@ -187,7 +188,6 @@ function App() {
   }, []);
 
   const [siteNotification, setSiteNotification] = useState<SiteNotification | null>(null);
-  const [adminMessage, setAdminMessage] = useState<AdminMessage | null>(null);
   const [restoreInfo, setRestoreInfo] = useState<{ phase: string; connectedCount: number; totalPlayers: number } | null>(null);
   const audioInitialized = useRef(false);
   const lastLobbyRef = useRef<Lobby | null>(null);
@@ -243,7 +243,6 @@ function App() {
     };
 
     const onSiteNotification = (data: SiteNotification) => setSiteNotification(data);
-    const onAdminMessage = (data: AdminMessage) => setAdminMessage(data);
 
     const onGameRestored = (data: { phase: string; connectedCount: number; totalPlayers: number }) => {
       setRestoreInfo(data);
@@ -327,7 +326,9 @@ function App() {
     socket.on('gamebuddies:return-redirect', onReturnRedirect);
     socket.on('gamebuddies:lobby-redirect', onLobbyRedirect);
     socket.on('site:notification', onSiteNotification);
-    socket.on('admin:message', onAdminMessage);
+    // In-game inbox (admin ↔ player conversation) — external store, so the header
+    // badge and the panel share one source of truth.
+    const offAdminInbox = registerAdminInboxEvents(socket);
     socket.on('game:restored', onGameRestored);
     socket.on('game:resumed', onGameResumed);
     socket.on('player:reconnected', onPlayerReconnected);
@@ -350,7 +351,8 @@ function App() {
       socket.off('gamebuddies:return-redirect', onReturnRedirect);
       socket.off('gamebuddies:lobby-redirect', onLobbyRedirect);
       socket.off('site:notification', onSiteNotification);
-      socket.off('admin:message', onAdminMessage);
+      offAdminInbox();
+      clearAdminInbox();
       socket.off('game:restored', onGameRestored);
       socket.off('game:resumed', onGameResumed);
       socket.off('player:reconnected', onPlayerReconnected);
@@ -550,11 +552,10 @@ function App() {
             )}
             <KickToast message={kickMessage} onClose={clearKickMessage} />
             <SiteNotificationToast notification={siteNotification} onClose={() => setSiteNotification(null)} />
-            <AdminMessageToast
-              message={adminMessage}
-              onReply={(threadId, body) => socketService.getSocket()?.emit('admin:message:reply', { threadId, body })}
-              onClose={() => setAdminMessage(null)}
-            />
+            {/* Admin ↔ player conversation: a quiet arrival notice, plus the full
+                thread the header's Messages button opens. Both read the same store. */}
+            <AdminMessageToast />
+            <MessagesPanel />
           </VideoUIProvider>
         </WebRTCProvider>
       </AdProvider>

@@ -51,43 +51,37 @@
 }
 .gb-admsg-close:hover { color: var(--text-primary, #fff); }
 
-.gb-admsg-body { padding: 12px 14px; }
+/* The whole body is the "open the conversation" affordance. A button rather than a
+   div so it's keyboard-reachable — but note nothing here ever CALLS focus(): the
+   toast must not steal input from a player mid-round. */
+.gb-admsg-body {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.gb-admsg-body:hover { background: var(--panel-bg-hover, rgba(255, 255, 255, 0.04)); }
+
 .gb-admsg-text {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   font-size: 0.9rem;
-  line-height: 1.45;
   white-space: pre-wrap;
+  line-height: 1.45;
+  /* Two lines max: this is a notice, not the message view. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   word-break: break-word;
   color: var(--text-primary, #f8fafc);
 }
-.gb-admsg-sent { margin: 0; font-size: 0.85rem; color: var(--gb-cyan, #3fb950); }
-
-.gb-admsg-composer { display: flex; gap: 8px; }
-.gb-admsg-composer textarea {
-  flex: 1;
-  resize: none;
-  background: var(--bg-primary, #0d0f1a);
-  border: 2px solid var(--px-border, rgba(255, 255, 255, 0.12));
-  border-radius: 0;
-  color: var(--text-primary, #e2e8f0);
-  padding: 8px 10px;
-  font-size: 0.85rem;
-  font-family: inherit;
+.gb-admsg-cta {
+  font-size: 0.75rem;
+  color: var(--gb-cyan, #00d9ff);
+  font-family: var(--font-title, inherit);
 }
-.gb-admsg-composer textarea:focus {
-  outline: none;
-  border-color: var(--gb-cyan, rgba(0, 217, 255, 0.5));
-}
-.gb-admsg-send {
-  background: var(--primary, #00d9ff);
-  border: none;
-  color: var(--bg-darker, #06121a);
-  border-radius: 0;
-  box-shadow: 2px 2px 0 var(--px-border-dark, rgba(0, 0, 0, 0.5));
-  padding: 0 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-.gb-admsg-send:disabled { opacity: 0.5; cursor: not-allowed; }
