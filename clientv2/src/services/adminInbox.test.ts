@@ -56,34 +56,45 @@ describe('adminInbox visibility', () => {
     expect(mod.getAdminInboxState().unread).toBe(2);
   });
 
-  // The regression this rule exists for: a player reads their messages, so unread
-  // goes to 0 — the icon must NOT disappear, or replying becomes undiscoverable.
-  // Shipped once with a 30-minute window instead and it hid the icon from a guest
-  // with 5 read messages.
-  it('reveals on an already-read thread, without inventing a badge', async () => {
+  // Read, but the conversation is still live — the reply path must stay open.
+  it('reveals on a read-but-recent thread, without inventing a badge', async () => {
     const { mod, handlers } = await freshInbox();
-    unread(handlers, { count: 0, hasThread: true });
+    unread(handlers, { count: 0, recent: true });
     expect(mod.getAdminInboxState().visible).toBe(true);
     expect(mod.getAdminInboxState().unread).toBe(0);
   });
 
-  it('stays hidden when the seed reports no thread', async () => {
+  // The regression that forced this rule back from "has a thread at all": a
+  // player who was messaged hours ago and read it must NOT carry the icon
+  // forever. Guests reuse their stored gb_guestUserId, so "a fresh test player"
+  // is usually the same platform user as yesterday — under a thread-existence
+  // rule every one of them showed the icon on join.
+  it('stays hidden for an old, already-read conversation', async () => {
     const { mod, handlers } = await freshInbox();
-    unread(handlers, { count: 0, hasThread: false });
+    unread(handlers, { count: 0, recent: false });
     expect(mod.getAdminInboxState().visible).toBe(false);
   });
 
-  it('stays hidden when an older gameserver omits `hasThread` and nothing is unread', async () => {
+  it('stays hidden when an older gameserver omits `recent` and nothing is unread', async () => {
     const { mod, handlers } = await freshInbox();
     unread(handlers, { count: 0 });
     expect(mod.getAdminInboxState().visible).toBe(false);
+  });
+
+  // Unread wins regardless of age: a message sent while the player was offline
+  // gets no popup, so the badge is the only way they can ever discover it.
+  it('reveals an old but still-unread message', async () => {
+    const { mod, handlers } = await freshInbox();
+    unread(handlers, { count: 1, recent: false });
+    expect(mod.getAdminInboxState().visible).toBe(true);
+    expect(mod.getAdminInboxState().unread).toBe(1);
   });
 
   it('re-seeding on reconnect keeps the icon after a reload', async () => {
     const { mod, handlers } = await freshInbox();
     // Fresh tab: nothing revealed yet, exactly as after an F5.
     expect(mod.getAdminInboxState().visible).toBe(false);
-    unread(handlers, { count: 0, hasThread: true });
+    unread(handlers, { count: 0, recent: true });
     expect(mod.getAdminInboxState().visible).toBe(true);
   });
 

@@ -155,17 +155,19 @@ export function registerAdminInboxEvents(socket: Socket): () => void {
     if (state.open) markInboxRead();
   };
 
-  const onUnread = (data: { count?: number; hasThread?: boolean }) => {
+  const onUnread = (data: { count?: number; recent?: boolean }) => {
     // Seeded from profile hydration on every join AND reconnect, so a message
     // that arrived while the player was away still lights the badge. Never
     // lowers a live count.
     const count = typeof data?.count === 'number' ? data.count : 0;
-    // `hasThread` is what actually reveals the icon: `count` drops to 0 the
-    // instant the panel is opened, so keying visibility off unread alone hid the
-    // entry point from exactly the player who had just read a message and wanted
-    // to reply. Absent on gameservers older than this change, hence the
-    // truthiness check rather than a default.
-    if (count > 0 || data?.hasThread) reveal();
+    // The server sends this only when there is something to surface: an unread
+    // message (any age — they have never seen it) or one inside the recency
+    // window (read, but the conversation is still live). Deliberately NOT "has a
+    // thread at all": that was tried and left the icon on permanently for anyone
+    // who had ever been messaged, which is the thing this feature exists to
+    // avoid. Absent on gameservers older than this change, hence the truthiness
+    // check rather than a default.
+    if (count > 0 || data?.recent) reveal();
     if (count > state.unread && !state.open) patch({ unread: count });
   };
 
