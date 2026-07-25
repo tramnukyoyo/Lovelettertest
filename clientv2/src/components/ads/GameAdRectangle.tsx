@@ -1,8 +1,9 @@
 import React from 'react';
 import { useAds } from './AdContext';
 import AdSenseUnit from './AdSenseUnit';
-import { ADSENSE_ENABLED, AD_SLOTS } from '../../config/adsense';
-import { t } from '../../utils/translations';
+import { ADSENSE_ENABLED, AD_TELEMETRY_ENABLED, AD_SLOTS } from '../../config/adsense';
+import { useAdSlotTelemetry } from './useAdSlotTelemetry';
+import type { AdBlockedBy } from './useAdSlotTelemetry';
 import './ads.css';
 
 interface GameAdRectangleProps {
@@ -42,8 +43,29 @@ const GameAdRectangle: React.FC<GameAdRectangleProps> = ({
     }
   }, [showing, onAdImpression]);
 
+  // Inventory telemetry — runs whether or not an ad serves, so the real in-game
+  // slot count is known before AdSense is ever switched on.
+  const anchorRef = React.useRef<HTMLDivElement | null>(null);
+  const blockedBy: AdBlockedBy =
+    !ADSENSE_ENABLED ? 'ads_disabled'
+    : isAdBlocked ? 'adblock'
+    : !shouldShowAds ? 'premium'
+    : !canShowAd ? 'frequency_cap'
+    : null;
+
+  useAdSlotTelemetry({
+    ref: anchorRef,
+    slot: placement,
+    wouldServe: showing,
+    blockedBy,
+    enabled: AD_TELEMETRY_ENABLED,
+  });
+
   if (!showing) {
-    return null;
+    // Zero-area anchor so the slot can still be measured. Deliberately NOT
+    // .game-ad-container — that carries `margin: 1.5rem auto`, which would open a
+    // 3rem gap on every game-over screen while ads are off.
+    return <div ref={anchorRef} aria-hidden="true" style={{ width: 0, height: 0, overflow: 'hidden' }} />;
   }
 
   const slotId =
@@ -52,7 +74,7 @@ const GameAdRectangle: React.FC<GameAdRectangleProps> = ({
     AD_SLOTS.GAME_RESULTS;
 
   return (
-    <div className={`game-ad-container ${className}`}>
+    <div ref={anchorRef} className={`game-ad-container ${className}`}>
       {ADSENSE_ENABLED ? (
         <AdSenseUnit
           slot={slotId}
@@ -62,10 +84,10 @@ const GameAdRectangle: React.FC<GameAdRectangleProps> = ({
       ) : (
         // Development placeholder
         <div className="game-ad-placeholder">
-          <div className="ad-badge">{t('ads.adLabel')}</div>
+          <div className="ad-badge">AD</div>
           <div className="ad-text">
-            <span className="ad-title">{t('ads.support')}</span>
-            <span className="ad-subtitle">{t('ads.adsHelp')}</span>
+            <span className="ad-title">Support GameBuddies</span>
+            <span className="ad-subtitle">Ads help keep games free!</span>
           </div>
         </div>
       )}
