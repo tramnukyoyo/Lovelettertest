@@ -490,12 +490,18 @@ class SocketService {
     }
   }
 
-  emit(event: string, data?: unknown): void {
+  /**
+   * Emit an event. Returns true only when it actually went out on the wire.
+   * Callers that render success (haptics, optimistic UI, "submitted!" state)
+   * MUST check the result — with a dead socket the event is silently dropped.
+   */
+  emit(event: string, data?: unknown): boolean {
     if (this.socket?.connected) {
       this.socket.emit(event, data);
-    } else {
-      console.error('[Video/socket] Cannot emit - not connected');
+      return true;
     }
+    console.error('[Video/socket] Cannot emit - not connected');
+    return false;
   }
 
   on(event: string, callback: (...args: unknown[]) => void): void {

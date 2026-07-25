@@ -1,0 +1,102 @@
+/* FreezeOverlay - blocking curtain while the socket is dead mid-game.
+   The positioning block mirrors ReconnectOverlay so both outage screens live
+   on the same layer. Every colour falls back to a literal, because this file
+   is byte-identical across the client fleet and not every game defines the
+   same theme variables. */
+
+.freeze-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-darker, #0d0f1a);
+  animation: freeze-fade-in 0.2s ease-out;
+  /* Swallow every pointer / touch / scroll gesture aimed at the frozen game
+     underneath. The game tree stays mounted behind this, so without these the
+     player could still drag, tap and scroll a world that is not advancing. */
+  pointer-events: auto;
+  touch-action: none;
+  overscroll-behavior: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: wait;
+}
+
+@keyframes freeze-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.freeze-card {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  max-width: 380px;
+  width: 90%;
+  border-radius: 0;
+  background: var(--panel-bg, #171a2b);
+  border: 2px solid var(--px-border, #2a2f47);
+  box-shadow: 6px 6px 0 var(--px-border-dark, #0a0c16);
+}
+
+.freeze-icon {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+  animation: freeze-pulse 2s ease-in-out infinite;
+}
+
+@keyframes freeze-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.freeze-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #f7e7c5);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-title, 'Orbitron', sans-serif);
+}
+
+.freeze-body {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #9aa0b5);
+  margin-bottom: 1.5rem;
+}
+
+.freeze-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.freeze-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 0;
+  background: var(--primary, #e94560);
+  animation: freeze-dot-blink 1.2s ease-in-out infinite;
+}
+
+.freeze-dot:nth-child(2) { animation-delay: 0.2s; }
+.freeze-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes freeze-dot-blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .freeze-overlay,
+  .freeze-icon,
+  .freeze-dot {
+    animation: none;
+  }
+}

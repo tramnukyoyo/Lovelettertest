@@ -575,6 +575,8 @@ export const ptBR: Translations = {
 
   // Reconnect Overlay
   reconnect: {
+    frozenTitle: 'Conexão perdida',
+    frozenBody: 'Jogo pausado. Reconectando — você continua exatamente de onde parou.',
     title: 'Jogo restaurado',
     playersReconnected: '{connected}/{total} reconectados',
     resumeGame: 'Continuar jogo',

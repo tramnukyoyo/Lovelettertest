@@ -565,6 +565,8 @@ export const es: Translations = {
 
   // Reconnect
   reconnect: {
+    frozenTitle: 'Conexión perdida',
+    frozenBody: 'Juego en pausa. Reconectando: continuarás justo donde lo dejaste.',
     title: 'Juego restaurado',
     playersReconnected: '{connected}/{total} reconectados',
     resumeGame: 'Reanudar juego',

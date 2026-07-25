@@ -565,6 +565,8 @@ export const de: Translations = {
   },
 
   reconnect: {
+    frozenTitle: 'Verbindung unterbrochen',
+    frozenBody: 'Spiel pausiert. Verbindung wird wiederhergestellt – es geht genau dort weiter, wo ihr aufgehört habt.',
     title: 'Spiel wiederhergestellt',
     playersReconnected: '{connected}/{total} verbunden',
     resumeGame: 'Spiel fortsetzen',

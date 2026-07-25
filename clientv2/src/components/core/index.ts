@@ -11,6 +11,7 @@ export { default as JoinFromInviteModal } from './JoinFromInviteModal';
 export { default as MobileGameMenu } from './MobileGameMenu';
 export { default as LoadingScreen } from './LoadingScreen';
 export { default as ReconnectOverlay } from './ReconnectOverlay';
+export { default as FreezeOverlay } from './FreezeOverlay';
 export { default as SettingsModal } from './SettingsModal';
 export { default as SimpleLanguageSelector } from './SimpleLanguageSelector';
 export { default as SidebarTabs } from './SidebarTabs';

@@ -72,6 +72,11 @@ export function useTimer(options: UseTimerOptions): UseTimerResult {
     if (!isRunning || isPaused) return;
 
     intervalRef.current = setInterval(() => {
+      // FREEZE-ON-DISCONNECT: the server's clock is not running either, and the
+      // player is behind the blocking FreezeOverlay with no way to act. Skip the
+      // tick entirely so the countdown never reaches 0 (and never fires
+      // onComplete) during an outage; it resumes where it stopped.
+      if (!socketService.isConnected()) return;
       setTimeRemaining(prev => {
         if (prev <= 1) {
           clearTimer();

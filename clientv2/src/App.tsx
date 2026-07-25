@@ -44,6 +44,7 @@ const GamePage = lazy(() => import('./pages/GamePage'));
 import { InstallPrompt } from './components/InstallPrompt';
 import { AdProvider } from './components/ads';
 import ReconnectOverlay from './components/core/ReconnectOverlay';
+import FreezeOverlay from './components/core/FreezeOverlay';
 import { MotionConfig } from 'framer-motion';
 import type { WebcamPlayer } from './config/WebcamConfig';
 import type { Socket } from 'socket.io-client';
@@ -550,6 +551,12 @@ function App() {
                 onResume={() => socket?.emit('game:resume')}
               />
             )}
+            {/* FREEZE-ON-DISCONNECT: socket is dead mid-game. Curtain goes over
+                the still-mounted game tree (local drafts survive) until the
+                connection is back; then game:restored hands off to
+                ReconnectOverlay above. Rendered last so it wins the tie on
+                z-index — you cannot resume a game you cannot talk to. */}
+            {!isConnected && lobby && lobby.state !== 'LOBBY' && <FreezeOverlay />}
             <KickToast message={kickMessage} onClose={clearKickMessage} />
             <SiteNotificationToast notification={siteNotification} onClose={() => setSiteNotification(null)} />
             {/* Admin ↔ player conversation: a quiet arrival notice, plus the full

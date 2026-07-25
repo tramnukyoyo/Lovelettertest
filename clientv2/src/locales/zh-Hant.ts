@@ -482,6 +482,8 @@ export const zhHant: Translations = {
 
   // Reconnect Overlay
   reconnect: {
+    frozenTitle: '連線中斷',
+    frozenBody: '遊戲已暫停。正在重新連線 — 稍後會從中斷處繼續。',
     title: '遊戲已復原',
     playersReconnected: '{connected}/{total} 已重新連線',
     resumeGame: '繼續遊戲',

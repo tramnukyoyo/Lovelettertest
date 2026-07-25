@@ -562,6 +562,8 @@ export const en = {
 
   // Reconnect Overlay
   reconnect: {
+    frozenTitle: 'Connection lost',
+    frozenBody: 'Game paused. Reconnecting — you will pick up right where you left off.',
     title: 'Game Restored',
     playersReconnected: '{connected}/{total} reconnected',
     resumeGame: 'Resume Game',
