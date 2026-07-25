@@ -64,16 +64,43 @@ export interface AdminInboxState {
   failedIds: string[];
   /** Transient "new message" notice. Never focuses anything — see AdminMessageToast. */
   toast: { body: string; fromName: string; at: number } | null;
+  /** Whether the header entry point should exist at all — see `revealed` below. */
+  visible: boolean;
 }
 
 const initial: AdminInboxState = {
   status: 'idle', threadId: null, messages: [], unread: 0,
-  open: false, sending: false, failedIds: [], toast: null,
+  open: false, sending: false, failedIds: [], toast: null, visible: false,
 };
 
 let state: AdminInboxState = initial;
 const listeners = new Set<() => void>();
 let localSeq = 0;
+
+/**
+ * Has this tab seen a conversation yet? Drives whether the header shows a mail
+ * icon at all: the icon is not permanent furniture, it appears when there is
+ * actually something there.
+ *
+ * Deliberately a module-level flag rather than a field of `state`, because
+ * `clearAdminInbox()` resets state on every room leave AND on the registerGameEvents
+ * cleanup — keeping it in state would make the icon vanish on a reconnect or a hop
+ * to another room, mid-conversation. Once revealed it stays for the life of the tab;
+ * a reload starts over and is re-seeded by `gb:messages:unread` only if the thread is
+ * still unread or recent (platform-side 30min window).
+ */
+let revealed = false;
+
+/** Whether `state` is already the cleared snapshot — guards a redundant re-render
+ *  on the repeat clears that a leave + disconnect produce. Replaces an identity
+ *  check against `initial`, which stopped holding once `visible` could differ. */
+let isCleared = true;
+
+function reveal() {
+  if (revealed) return;
+  revealed = true;
+  patch({ visible: true });
+}
 
 function emitChange() {
   listeners.forEach((l) => l());
@@ -81,6 +108,7 @@ function emitChange() {
 
 function patch(p: Partial<AdminInboxState>) {
   state = { ...state, ...p };
+  isCleared = false;
   emitChange();
 }
 
@@ -102,6 +130,7 @@ export function registerAdminInboxEvents(socket: Socket): () => void {
   const onPush = (data: { threadId?: string | null; body?: string; fromName?: string; at?: number }) => {
     if (!data?.body) return;
     const at = typeof data.at === 'number' ? data.at : Date.now();
+    reveal();
 
     // Show it immediately rather than waiting on the refetch — if the platform is
     // unreachable this local copy is the only thing standing between the player and
@@ -123,10 +152,15 @@ export function registerAdminInboxEvents(socket: Socket): () => void {
     if (state.open) markInboxRead();
   };
 
-  const onUnread = (data: { count?: number }) => {
+  const onUnread = (data: { count?: number; recent?: boolean }) => {
     // Seeded once from profile hydration, so a message that arrived while the
     // player was away still lights the badge. Never lowers a live count.
     const count = typeof data?.count === 'number' ? data.count : 0;
+    // `recent` covers the already-read-but-still-live conversation: no badge to
+    // show, but the player should still be able to reach the thread and reply.
+    // Absent on gameservers older than this change, hence the truthiness check
+    // rather than a default — the icon then waits for an unread or a live push.
+    if (count > 0 || data?.recent) reveal();
     if (count > state.unread && !state.open) patch({ unread: count });
   };
 
@@ -179,6 +213,9 @@ export function markInboxRead(): void {
 }
 
 export function openInbox(): void {
+  // Reachable from the account menu even with no conversation — once used, the
+  // header icon sticks around so the reply isn't buried back under the menu.
+  reveal();
   patch({ open: true, unread: 0, toast: null });
   requestInbox();
   markInboxRead();
@@ -203,6 +240,7 @@ export function sendInboxMessage(body: string): void {
   const text = body.trim();
   if (!text) return;
 
+  reveal();
   const localId = `local-${++localSeq}`;
   const bubble: InboxMessage = {
     id: localId,
@@ -257,8 +295,11 @@ export function retryInboxMessage(localId: string): void {
 
 /** Reset on room leave/disconnect so the next room refetches. */
 export function clearAdminInbox(): void {
-  if (state === initial) return;
-  state = initial;
+  if (isCleared && state.visible === revealed) return;
+  // `visible` survives the reset — see `revealed`. A room hop must not retract an
+  // entry point the player is actively using.
+  state = { ...initial, visible: revealed };
+  isCleared = true;
   emitChange();
 }
 
@@ -267,11 +308,12 @@ function subscribe(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-function getSnapshot(): AdminInboxState {
+/** Current inbox state outside React (the useSyncExternalStore snapshot). */
+export function getAdminInboxState(): AdminInboxState {
   return state;
 }
 
 /** React hook: the live inbox state (messages / unread / open / busy). */
 export function useAdminInbox(): AdminInboxState {
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return useSyncExternalStore(subscribe, getAdminInboxState, getAdminInboxState);
 }

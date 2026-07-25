@@ -23,6 +23,7 @@ import SimpleLanguageSelector from './SimpleLanguageSelector';
 import GameBuddiesReturnButton from './GameBuddiesReturnButton';
 import GameAccountControl from './GameAccountControl';
 import GameMessagesButton from './GameMessagesButton';
+import { openInbox } from '../../services/adminInbox';
 import MuteButton from './MuteButton';
 import { VideoControlCluster } from '../video';
 import { isDiscordActivity } from '../../services/discordActivity';
@@ -357,7 +358,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({
 
             {/* Account control — utmost right in every header (platform
                 convention). Logged-in → platform account name + premium +
-                Log out; guest → Log in / Sign up via the in-game GameAuthModal. */}
+                Messages + Log out; guest → Log in / Sign up via the in-game
+                GameAuthModal (so desktop guests reach the team via Feedback
+                until they're messaged; the mobile hamburger has no such gap). */}
             {/* Gabu Points - beside the account chip so the balance is always
                 visible in-game (platform header parity). Fed by the
                 gb:player:profile push; hidden for guests. */}
@@ -367,7 +370,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({
 
             {/* Inbox — between GP and the account chip, mirroring the platform
                 header's money → messages → account order. Shown for guests too:
-                they have a real platform user row, so admin can message them. */}
+                they have a real platform user row, so admin can message them.
+                Renders itself away unless a conversation is live — the cold-start
+                entry point is the account menu below. */}
             <GameMessagesButton />
 
             <GameAccountControl
@@ -377,6 +382,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               canAuth={canAuth}
               onLogin={handleLogin}
               onLogout={handleLogout}
+              onOpenMessages={openInbox}
             />
           </div>
         )}
@@ -387,7 +393,9 @@ const GameHeader: React.FC<GameHeaderProps> = ({
             <MuteButton />
             {/* Same component as desktop rather than a MobileGameMenu entry: the
                 hamburger's badge already belongs to room chat, and a second unread
-                source inside a closed menu would be both ambiguous and invisible. */}
+                source inside a closed menu would be both ambiguous and invisible.
+                It only renders while a conversation is live; the hamburger carries
+                the unbadged cold-start entry (onMessages below). */}
             <GameMessagesButton />
             <button onClick={copyRoomLink} className="game-header-copy-btn"
               title={hideRoomCode ? t('header.copyInviteLink') : t('header.copyRoomLink')}>
@@ -400,6 +408,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               onLeave={handleLeave}
               onLogin={canAuth && !isLoggedIn ? handleLogin : undefined}
               onLogout={canAuth && isLoggedIn ? handleLogout : undefined}
+              onMessages={openInbox}
               playerName={accountName}
               isPremium={isPremiumMe}
               isLoggedIn={isLoggedIn}

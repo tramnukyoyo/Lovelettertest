@@ -26,7 +26,8 @@ import {
   MessageSquareWarning,
   LogIn,
   Crown,
-  User
+  User,
+  Mail
 } from 'lucide-react';
 import { t } from '../../utils/translations';
 import { hapticFeedback } from '../../utils/hapticFeedback';
@@ -70,6 +71,11 @@ interface MobileGameMenuProps {
   onReturnToLobby?: () => void;
   /** Callback to return to GameBuddies (only if launched from GB) */
   onReturnToGameBuddies?: () => void;
+  /** Callback to open the in-game inbox (conversation with the GameBuddies team).
+   *  The permanent way in on mobile — the header's mail icon only exists while a
+   *  conversation is live. Unlike the desktop account dropdown this is offered to
+   *  guests too, since the hamburger renders for them. */
+  onMessages?: () => void;
   /** Callback to log in / sign up (guests only; leaves to the platform login) */
   onLogin?: () => void;
   /** Callback to log out (logged-in only; leaves to the platform logout) */
@@ -106,6 +112,7 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
   isLobby = false,
   onReturnToLobby,
   onReturnToGameBuddies,
+  onMessages,
   onLogin,
   onLogout,
   playerName,
@@ -184,6 +191,16 @@ const MobileGameMenu: React.FC<MobileGameMenuProps> = ({
       label: t('menu.settings'),
       action: onSettings ? () => handleMenuItemClick(onSettings) : undefined,
       show: !!onSettings,
+    },
+    {
+      // Beside report-bug: both are "talk to the GameBuddies team". Deliberately
+      // not badged — the header's mail icon owns the unread count, and this menu's
+      // badge already means room chat.
+      id: 'messages',
+      icon: Mail,
+      label: t('adminMessage.buttonLabel'),
+      action: onMessages ? () => handleMenuItemClick(onMessages) : undefined,
+      show: !!onMessages,
     },
     {
       id: 'report-bug',

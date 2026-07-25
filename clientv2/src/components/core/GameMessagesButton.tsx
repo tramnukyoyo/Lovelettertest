@@ -6,19 +6,28 @@ import { useAdminInbox, openInbox } from '../../services/adminInbox';
 /**
  * Header entry point for the in-game inbox (conversation with the GameBuddies team).
  *
- * A sibling of the account chip rather than an item inside its dropdown, for three
- * reasons: guests never render the chip at all (GameAccountControl falls back to a
- * bare Log-in button, so a menu item would be invisible to exactly the players who
- * most need this); an unread badge inside a closed dropdown can't be seen; and
- * GameAccountControl is contractually presentational, so it must not subscribe to a
- * store.
+ * The BADGE lives here, a sibling of the account chip, and not inside its dropdown:
+ * an unread count inside a closed menu can't be seen, and guests never render the
+ * chip at all (GameAccountControl falls back to a bare Log-in button), so a menu
+ * item alone would be invisible to exactly the players who most need this.
+ * The dropdown does carry a plain "Messages" item — that's the cold-start entry
+ * point, deliberately unbadged, and it reaches this store via an onOpenMessages
+ * prop so GameAccountControl stays contractually presentational.
  *
- * Always rendered in-game, even with an empty thread — the empty state is the
- * feature that lets a player start a conversation, which was previously impossible
- * without leaving the game.
+ * Rendered ONLY while there is a conversation to see — unread, a message received
+ * this session, or a thread whose last message is inside the platform's 30min
+ * recency window (see `visible`/`revealed` in services/adminInbox). The vast
+ * majority of sessions never involve a support thread, and a permanent mail icon
+ * in every game header was header furniture for a feature they had never used.
+ *
+ * Starting a conversation from cold now lives in the account menu (desktop) and the
+ * hamburger (mobile), both of which call openInbox() — which reveals this button, so
+ * the thread stays one click away for the rest of the session.
  */
 const GameMessagesButton: React.FC = () => {
-  const { unread } = useAdminInbox();
+  const { unread, visible } = useAdminInbox();
+  if (!visible) return null;
+
   const label = unread > 0
     ? t('adminMessage.unreadTitle', { count: unread })
     : t('adminMessage.buttonLabel');

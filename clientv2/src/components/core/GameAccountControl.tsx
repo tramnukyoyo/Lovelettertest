@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LogIn, LogOut, Crown, User } from 'lucide-react';
+import { LogIn, LogOut, Crown, User, Mail } from 'lucide-react';
 import { t } from '../../utils/translations';
 
 interface GameAccountControlProps {
@@ -10,6 +10,11 @@ interface GameAccountControlProps {
   canAuth: boolean;
   onLogin: () => void;
   onLogout: () => void;
+  /** Opens the in-game inbox. The permanent way in: the header's mail icon only
+   *  exists while a conversation is live, so without this a player could never
+   *  start one from inside a game. Passed as a callback so this component stays
+   *  presentational and does not subscribe to the inbox store. */
+  onOpenMessages?: () => void;
 }
 
 /**
@@ -27,6 +32,7 @@ const GameAccountControl: React.FC<GameAccountControlProps> = ({
   canAuth,
   onLogin,
   onLogout,
+  onOpenMessages,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +78,16 @@ const GameAccountControl: React.FC<GameAccountControlProps> = ({
       </button>
       {menuOpen && canAuth && (
         <div className="game-header-account-menu" role="menu">
+          {onOpenMessages && (
+            <button
+              type="button"
+              className="game-header-account-menu-item"
+              onClick={() => { setMenuOpen(false); onOpenMessages(); }}
+            >
+              <Mail className="w-4 h-4" />
+              {t('adminMessage.buttonLabel')}
+            </button>
+          )}
           <button
             type="button"
             className="game-header-account-menu-item"
