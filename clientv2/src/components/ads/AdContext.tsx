@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { loadAdSense } from '../../services/adsenseLoader';
+import { ADSENSE_ENABLED } from '../../config/adsense';
 
 interface AdContextType {
   shouldShowAds: boolean;
@@ -25,11 +26,16 @@ export const AdProvider: React.FC<AdProviderProps> = ({ children, isPremium = fa
   const [adCount, setAdCount] = useState(0);
   const [lastAdTime, setLastAdTime] = useState<number | null>(null);
 
-  // Base check - show ads to non-premium users
-  const shouldShowAds = !isPremium;
+  // Ads are off entirely until AdSense approves the site, THEN gated on premium.
+  // The ADSENSE_ENABLED half is load-bearing: without it every non-premium player
+  // renders GameAdRectangle's dev placeholder ("Support GameBuddies — Ads help keep
+  // games free!") on real game-over screens and TV lobbies, because that component
+  // only consults the flag to pick placeholder-vs-AdSenseUnit, never to decide
+  // whether to render at all. The platform's own AdContext has always gated on it.
+  const shouldShowAds = ADSENSE_ENABLED && !isPremium;
 
   // Inject the AdSense loader only when this client may actually show ads
-  // (no-op while ADSENSE_ENABLED is false or the publisher ID is a placeholder).
+  // (also a no-op on its own side while the flag is false).
   useEffect(() => {
     if (shouldShowAds) {
       loadAdSense();
