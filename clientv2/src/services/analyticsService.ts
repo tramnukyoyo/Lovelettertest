@@ -160,7 +160,7 @@ export function trackEvent(name: string, properties?: Record<string, unknown>): 
 }
 
 /** Track a game finishing (all rounds done). */
-export function trackGameFinished(totalRounds: number, gameDurationSeconds: number, extra?: Record<string, unknown>): void {
+export function trackGameFinished(totalRounds: number, gameDurationSeconds: number | null, extra?: Record<string, unknown>): void {
   trackEvent('game_finished', { total_rounds: totalRounds, game_duration_seconds: gameDurationSeconds, ...extra });
 }
 
@@ -246,6 +246,32 @@ const _phaseTracker: { current: string | undefined; startTime: number | null } =
   startTime: null,
 };
 
+// startTime lives in sessionStorage as well as memory. It is set only on the
+// lobby->playing transition, so a reload, a remount, or joining mid-game left it
+// null — and both finish paths below used to treat "no start time" as "do not
+// report", silently dropping the finish. Measured 2026-07-26: schooled logged 22
+// game_over phases but only 11 game_finished, cluescale 32 GAME_END but only 6.
+// Persisting survives the reload; reporting a null duration (below) survives the
+// rest. A missing duration is a gap in one field — a missing event is a gap in
+// the funnel.
+const PHASE_STORE_KEY = 'gb-phase-tracker';
+type PhaseStore = { startTime: number | null; finishedFor: string | null };
+
+function readPhaseStore(): PhaseStore {
+  try {
+    const raw = sessionStorage.getItem(PHASE_STORE_KEY);
+    if (raw) return JSON.parse(raw) as PhaseStore;
+  } catch { /* private mode / quota — fall through to memory */ }
+  return { startTime: _phaseTracker.startTime, finishedFor: null };
+}
+
+function writePhaseStore(store: PhaseStore): void {
+  _phaseTracker.startTime = store.startTime;
+  try {
+    sessionStorage.setItem(PHASE_STORE_KEY, JSON.stringify(store));
+  } catch { /* memory copy above is the fallback */ }
+}
+
 // Phase-name matching MUST be case-insensitive and include the aliases below —
 // exact-match trackers silently dropped game_started/game_finished in fleet
 // clients whose phases are uppercase ('LOBBY_WAITING'/'GAME_OVER') or unaliased
@@ -270,13 +296,19 @@ export function trackPhaseFromRoomState(data: unknown): void {
   const prevNorm = prev ? String(prev).toLowerCase() : undefined;
   trackEvent("game_phase_entered", { phase: newPhase, from: prev ?? null, room_code: d?.code });
   if (prevNorm && LOBBYISH_PHASES.has(prevNorm) && !LOBBYISH_PHASES.has(newNorm) && !FINISHED_PHASES.has(newNorm)) {
-    _phaseTracker.startTime = Date.now();
+    writePhaseStore({ startTime: Date.now(), finishedFor: null });
     trackEvent("game_started", { room_code: d?.code });
   }
-  if (FINISHED_PHASES.has(newNorm) && _phaseTracker.startTime) {
-    const dur = Math.round((Date.now() - _phaseTracker.startTime) / 1000);
-    trackGameFinished(1, dur, { room_code: d?.code });
-    _phaseTracker.startTime = null;
+  if (FINISHED_PHASES.has(newNorm)) {
+    const store = readPhaseStore();
+    const key = String(d?.code ?? "_");
+    // The armed startTime used to double as the double-fire guard. Now that a
+    // finish reports with or without it, the guard has to be explicit.
+    if (store.finishedFor !== key) {
+      const dur = store.startTime ? Math.round((Date.now() - store.startTime) / 1000) : null;
+      trackGameFinished(1, dur, { room_code: d?.code });
+      writePhaseStore({ startTime: null, finishedFor: key });
+    }
   }
   _phaseTracker.current = newPhase;
 }
@@ -287,8 +319,10 @@ export function trackPhaseFromRoomState(data: unknown): void {
  *  end-of-game screen. The armed startTime doubles as the double-fire guard
  *  (remounts no-op). */
 export function trackGameFinishedNow(totalRounds: number, extra?: Record<string, unknown>): void {
-  if (!_phaseTracker.startTime) return;
-  const dur = Math.round((Date.now() - _phaseTracker.startTime) / 1000);
-  _phaseTracker.startTime = null;
+  const store = readPhaseStore();
+  const key = String((extra as { room_code?: unknown } | undefined)?.room_code ?? "_");
+  if (store.finishedFor === key) return; // remount / re-render — already reported
+  const dur = store.startTime ? Math.round((Date.now() - store.startTime) / 1000) : null;
+  writePhaseStore({ startTime: null, finishedFor: key });
   trackGameFinished(totalRounds, dur, extra);
 }
