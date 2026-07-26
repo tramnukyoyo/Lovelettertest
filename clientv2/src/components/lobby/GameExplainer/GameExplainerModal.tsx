@@ -147,7 +147,7 @@ const GameExplainerModal: React.FC<Props> = ({
           className="game-explainer-skip"
           onClick={handleClose}
         >
-          Skip
+          {t('gameExplainer.skip')}
         </button>
       </div>
     </div>,

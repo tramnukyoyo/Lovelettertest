@@ -1,0 +1,31 @@
+/**
+ * Idle hint (useIdleHint) — the player has content ready but hasn't pressed the
+ * action that moves the round forward, and everyone else is waiting on them.
+ *
+ * A nudge, never a block: no overlay, no modal, nothing to dismiss. Automatic
+ * and time-linked rather than an on-demand "help" button, because players
+ * reliably avoid asking for help in front of others.
+ *
+ * Animates `outline-color` instead of `box-shadow` so it composes with whatever
+ * shadow the host button already has — dropping a box-shadow animation on top
+ * would flatten each game's own button styling for the duration of the pulse.
+ * Outline also sits outside the box model, so nothing reflows.
+ */
+@keyframes gbIdleHintPulse {
+  0%, 100% { outline-color: rgba(0, 217, 255, 0); }
+  50%      { outline-color: var(--gb-cyan, #00d9ff); }
+}
+
+.idle-hint {
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  animation: gbIdleHintPulse 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idle-hint {
+    animation: none;
+    outline: 3px solid var(--gb-cyan, #00d9ff);
+    outline-offset: 2px;
+  }
+}

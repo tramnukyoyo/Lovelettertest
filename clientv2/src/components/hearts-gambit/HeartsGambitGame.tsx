@@ -4,6 +4,8 @@ import type { Socket } from 'socket.io-client';
 import { Shield, Crown, Skull, BookOpen, HelpCircle, ScrollText, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CardTooltip from './CardTooltip';
+import { useIdleHint } from '../../hooks/useIdleHint';
+import '../../styles/idleHint.css';
 import Toast from './Toast';
 import DynamicCard from './DynamicCard';
 import {
@@ -169,6 +171,12 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
   // Use server state for draw phase
   const waitingToDraw = isMyTurn && lobby.gameData?.turnPhase === 'draw';
+
+  // Prime Suspect is turn-based with NO turn timer and no host skip-turn — an
+  // idle player halts the table outright. Pulse the deck so a distracted
+  // player notices the game is waiting on them. (A server-side skip is a
+  // separate design decision; this is the cheap client-side half.)
+  const drawHint = useIdleHint(waitingToDraw, 12000, lobby.gameData?.currentTurn);
   const drawPendingRef = useRef(false);
   if (!waitingToDraw) drawPendingRef.current = false;
 
@@ -654,7 +662,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
                 </h3>
                 <div
-                    className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}`}
+                    className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}${drawHint ? ' idle-hint' : ''}`}
                     onClick={() => { if (waitingToDraw && socket.connected && !drawPendingRef.current) { drawPendingRef.current = true; playDrawSound(); socket.emit('player:draw', {}); } }}
                 >
                   {/* Detective decoration: rotated rubber CLASSIFIED stamp (decorative only) */}
