@@ -35,6 +35,8 @@ import PresenceDock from '../shell/PresenceDock';
 import ScrollHint from '../shell/ScrollHint';
 import type { DockPlayer } from '../shell/PresenceDock';
 import { Scene, SceneHeader, SceneBody, SceneActions } from '../shell/Scene';
+import { useIdleHint } from '../hooks/useIdleHint';
+import '../styles/idleHint.css';
 
 // GP card-back designer (ps_style) — lazy: opened on demand.
 const CardBackDesigner = React.lazy(() => import('../components/lobby/CardBackDesigner'));
@@ -90,6 +92,10 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
   const connectedPlayers = lobby.players.filter(p => p.connected);
   const minPlayers = lobby.settings?.minPlayers || GAME_META.minPlayers;
   const canStart = isHost && connectedPlayers.length >= minPlayers;
+  // Enough players are in and everyone is waiting on the host to press
+  // Start. canStart already means "host AND enough players", so this only
+  // ever fires for the one person who can actually act.
+  const startHint = useIdleHint(canStart, 12000);
 
   const handleStartGame = useCallback(() => {
     if (!canStart) return;
@@ -306,7 +312,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                     <button
                       onClick={handleStartGame}
                       disabled={!canStart}
-                      className="lobby-start-btn"
+                      className={`lobby-start-btn${startHint ? ' idle-hint' : ''}`}
                     >
                       <Play className="w-5 h-5" />
                       {t('game.startGame')}
