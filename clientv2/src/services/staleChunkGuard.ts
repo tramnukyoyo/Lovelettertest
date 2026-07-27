@@ -35,26 +35,35 @@ function isStaleChunkMessage(message: string): boolean {
   return STALE_CHUNK_PATTERNS.some((re) => re.test(message));
 }
 
-function reloadOnce(): void {
+/** Returns true only when a reload was actually triggered. */
+function reloadOnce(): boolean {
   // Inside a Discord Activity a hard reload unloads the Activity entry document
   // and churns the host session — never reload there.
-  if (isDiscordActivity()) return;
+  if (isDiscordActivity()) return false;
   try {
-    if (sessionStorage.getItem(RELOAD_KEY) === '1') return;
+    if (sessionStorage.getItem(RELOAD_KEY) === '1') return false;
     sessionStorage.setItem(RELOAD_KEY, '1');
   } catch {
     // No sessionStorage (private mode) means no way to remember we already
     // tried, and an unguarded reload would loop. Leave the page alone.
-    return;
+    return false;
   }
   console.warn('[staleChunkGuard] stale chunk after deploy — reloading once');
   window.location.reload();
+  return true;
 }
 
 export function installStaleChunkGuard(): void {
   window.addEventListener('vite:preloadError', (event) => {
-    event.preventDefault(); // stop Vite rethrowing into an unhandled rejection
-    reloadOnce();
+    // preventDefault() stops Vite rethrowing — but Vite's preload helper then
+    // RESOLVES the import with `undefined`, and React.lazy immediately reads
+    // `moduleObject.default` off it and crashes the whole tree. That is strictly
+    // worse than the dead click this guard exists to prevent, and it is what
+    // shipped on 2026-07-26 (31 crashes in the first day: "Cannot read
+    // properties of undefined (reading 'default')" inside a Lazy/Suspense
+    // boundary). So only swallow the rejection when we are genuinely reloading
+    // out of the page; otherwise let it throw and reach the ErrorBoundary.
+    if (reloadOnce()) event.preventDefault();
   });
 
   window.addEventListener('unhandledrejection', (event) => {
