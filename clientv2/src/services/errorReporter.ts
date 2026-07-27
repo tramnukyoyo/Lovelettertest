@@ -45,6 +45,15 @@ const BENIGN_PATTERNS: RegExp[] = [
   // host activity is destroyed mid-page-life, JS bridge calls return "Java
   // object is gone". Not actionable.
   /Java object is gone/i,
+  // A browser extension's own storage failing — "browser.storage" is the
+  // WebExtension API, which our code never calls. It reaches us only because
+  // the report carries no stack for isPureExtensionStack to match on.
+  /browser\.storage\.(local|sync)\.(set|get)/i,
+  /Failed to open extension storage database/i,
+  // Interrupting playback with a new play() is how audio is *supposed* to be
+  // driven — the browser rejects the superseded promise and we already ignore
+  // it at the call sites. Not a fault, and never visible to the player.
+  /The play\(\) request was interrupted/i,
 ];
 
 // User-facing UX validations the player already saw in the UI as a toast.

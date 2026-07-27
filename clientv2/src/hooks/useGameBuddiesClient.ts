@@ -579,6 +579,38 @@ export function useGameBuddiesClient(
         }
         // Throttled — fall through to showing the server's message.
       }
+      // "Room not found" usually means we asked the WRONG WORKER, not that the
+      // room is gone. Rooms live in per-worker memory and the cluster picks the
+      // worker from the roomCode hint in the handshake query. A player who TYPED
+      // the code — rather than following an invite link, which carries ?room= —
+      // connects with no hint at all, IP-hashes to an arbitrary worker, and is
+      // told the room doesn't exist while their friends are playing in it.
+      // Measured 2026-07-27 against room_history: 41 of 48 affected users were
+      // joining a room that was alive (avg 16 min old) and went on to finish
+      // normally. Reload once with ?room= so the module-load hint capture in
+      // socketService routes us to the owning worker. A second failure falls
+      // through to the real message — then the room genuinely is gone.
+      const isBigScreenSeat = new URLSearchParams(window.location.search).get('bigscreen') === '1';
+      if (data.code === 'ROOM_NOT_FOUND' && !isBigScreenSeat) {
+        let attempted: string | null = data.roomCode ?? null;
+        if (!attempted) {
+          try {
+            const raw = sessionStorage.getItem('gb_lastJoinAttempt');
+            if (raw) attempted = (JSON.parse(raw)?.code as string | undefined) ?? null;
+          } catch { /* storage blocked — fall through to the error */ }
+        }
+        const nowRNF = Date.now();
+        const lastRNF = Number(sessionStorage.getItem('gb_roomNotFoundRetryAt') || 0);
+        // length > 10 is an invite token, which INVALID_INVITE already handles.
+        if (attempted && attempted.length <= 10 && nowRNF - lastRNF > 30000) {
+          sessionStorage.setItem('gb_roomNotFoundRetryAt', String(nowRNF));
+          const upper = attempted.toUpperCase();
+          try { sessionStorage.setItem('lastRoomCode', upper); } catch { /* ignore */ }
+          console.warn(`[useGameBuddiesClient] room ${upper} not found on this worker — retrying with the cluster routing hint`);
+          window.location.href = `${window.location.pathname}?room=${encodeURIComponent(upper)}`;
+          return;
+        }
+      }
       setError(data.message);
     };
 
