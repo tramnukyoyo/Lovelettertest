@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import ErrorBoundary from './components/core/ErrorBoundary';
 import { installStaleChunkGuard } from './services/staleChunkGuard';
 import './fonts.css';
 import './styles/index.css';
@@ -23,4 +24,11 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 // Note: StrictMode removed to prevent socket double-connection issues
 // React StrictMode causes useEffect to run twice in development, which
 // interferes with WebSocket connections
-createRoot(document.getElementById('root')!).render(<App />);
+// Root error boundary. Every client already shipped this component but none
+// mounted it, so any render-time throw took the whole tree to a white screen
+// instead of the reported, retryable panel it exists to show.
+createRoot(document.getElementById('root')!).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);
