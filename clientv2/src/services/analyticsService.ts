@@ -42,8 +42,46 @@ let loading = false;
 // resolves before consent/init). Stash the latest request and flush on init.
 let pendingIdentify: { userId: string; props: Record<string, unknown> } | null = null;
 
+/**
+ * The platform relays its consent decision in the game-launch URL (`consent`,
+ * set by RoomLobby.withPlatformLang). localStorage is origin-scoped, so a player
+ * who accepted on gamebuddies.io and then landed on a cross-origin game host
+ * (Discord Activity, *.onrender.com, direct/QR) read an empty store and their
+ * granted consent was silently discarded - analytics stayed dark for them even
+ * though they had opted in (consent audit 2026-07-28). Same relay mechanism as
+ * `phid` below; persisted to sessionStorage so in-game reloads keep it.
+ *
+ * This only ever HONOURS a decision the user already made on the platform. A
+ * game client never asks for consent and never grants it on the user's behalf:
+ * 'essential' is stored just as faithfully as 'all', and an absent param leaves
+ * the previous (default-deny) behaviour untouched.
+ */
+function platformConsent(): string | null {
+  try {
+    const url = new URL(window.location.href);
+    const fromUrl = url.searchParams.get('consent');
+    if (fromUrl === 'all' || fromUrl === 'essential') {
+      sessionStorage.setItem('gb_consent', fromUrl);
+      // Strip it from the visible URL immediately. A consent decision must not
+      // survive a copy-pasted link and pre-grant consent for whoever opens it
+      // next — it belongs to the person who made it, for this session only.
+      url.searchParams.delete('consent');
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+      return fromUrl;
+    }
+    return sessionStorage.getItem('gb_consent');
+  } catch {
+    return null;
+  }
+}
+
 function hasConsent(): boolean {
-  return localStorage.getItem(CONSENT_KEY) === 'all';
+  try {
+    if (localStorage.getItem(CONSENT_KEY) === 'all') return true;
+  } catch {
+    /* localStorage unavailable (private mode / blocked) - fall through */
+  }
+  return platformConsent() === 'all';
 }
 
 function flushIdentify(): void {
