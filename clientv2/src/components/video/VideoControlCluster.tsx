@@ -26,7 +26,7 @@ import { getBroadcastCopy } from './broadcastCopy';
 import { useWebRTC } from '../../contexts/WebRTCContext';
 import { t } from '../../utils/translations';
 import PremiumUpsellChip from '../ui/PremiumUpsellChip';
-import { trackPremiumLocked } from '../../services/premiumUpsell';
+import { trackPremiumLocked, openPremium } from '../../services/premiumUpsell';
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '🎉', '👏'];
 
@@ -198,7 +198,7 @@ const VideoControlCluster: React.FC<VideoControlClusterProps> = ({
                       className={`video-reaction-emoji${isPremium ? '' : ' locked'}`}
                       onClick={isPremium
                         ? () => { sendReaction(emoji); setReactionsOpen(false); }
-                        : () => trackPremiumLocked('reactions', emoji)}
+                        : () => { trackPremiumLocked('reactions', emoji); openPremium('reactions'); }}
                       title={isPremium ? undefined : t('videoControl.premiumLockTooltip')}
                       aria-disabled={!isPremium}
                       aria-label={isPremium ? `Send ${emoji} reaction` : `${emoji} — ${t('videoControl.premiumLockTooltip')}`}
