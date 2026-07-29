@@ -292,15 +292,20 @@ const _phaseTracker: { current: string | undefined; startTime: number | null } =
 // Persisting survives the reload; reporting a null duration (below) survives the
 // rest. A missing duration is a gap in one field — a missing event is a gap in
 // the funnel.
-const PHASE_STORE_KEY = 'gb-phase-tracker';
-type PhaseStore = { startTime: number | null; finishedFor: string | null };
+// Suffixed per game: every client is served same-origin under
+// gamebuddies.io/<slug>/, so an unsuffixed key is SHARED across all of them.
+// A startTime armed in one game then leaked into the next game opened in the
+// same tab, and finishedFor (keyed on room code alone) could swallow a second
+// game's finish. GAME_SLUG is already the `game` dimension on every event.
+const PHASE_STORE_KEY = `gb-phase-tracker:${GAME_SLUG}`;
+type PhaseStore = { startTime: number | null; finishedFor: string | null; startedFor: string | null };
 
 function readPhaseStore(): PhaseStore {
   try {
     const raw = sessionStorage.getItem(PHASE_STORE_KEY);
     if (raw) return JSON.parse(raw) as PhaseStore;
   } catch { /* private mode / quota — fall through to memory */ }
-  return { startTime: _phaseTracker.startTime, finishedFor: null };
+  return { startTime: _phaseTracker.startTime, finishedFor: null, startedFor: null };
 }
 
 function writePhaseStore(store: PhaseStore): void {
@@ -320,7 +325,14 @@ function writePhaseStore(store: PhaseStore): void {
 // introduces a new terminal phase name, add it here AND in the gameserver's
 // posthogCapture TERMINAL_PHASES (kept in sync manually).
 const LOBBYISH_PHASES = new Set(["lobby", "lobby_waiting", "waiting"]);
-const FINISHED_PHASES = new Set(["finished", "ended", "game_over", "gameover", "game_end", "finale"]);
+// Two sets, mirroring the split the gameserver documents in
+// core/services/terminalPhases.ts. 'finale' is DDF's FINAL ROUND — still being
+// played. It must suppress a spurious game_started (entering it is not starting
+// a new game) but must NOT fire game_finished. Verified 2026-07-29: DDF's
+// game_finished landed 2ms after entry into finale, so its "3.8% completion
+// rate" was measuring reaching the finale, not finishing the game.
+const NON_START_PHASES = new Set(["finished", "ended", "game_over", "gameover", "game_end", "finale"]);
+const FINISHED_PHASES = new Set(["finished", "ended", "game_over", "gameover", "game_end"]);
 
 export function trackPhaseFromRoomState(data: unknown): void {
   if (!data || typeof data !== "object") return;
@@ -331,11 +343,26 @@ export function trackPhaseFromRoomState(data: unknown): void {
   if (newPhase === _phaseTracker.current) return;
   const prev = _phaseTracker.current;
   const newNorm = String(newPhase).toLowerCase();
-  const prevNorm = prev ? String(prev).toLowerCase() : undefined;
   trackEvent("game_phase_entered", { phase: newPhase, from: prev ?? null, room_code: d?.code });
-  if (prevNorm && LOBBYISH_PHASES.has(prevNorm) && !LOBBYISH_PHASES.has(newNorm) && !FINISHED_PHASES.has(newNorm)) {
-    writePhaseStore({ startTime: Date.now(), finishedFor: null });
-    trackEvent("game_started", { room_code: d?.code });
+  const roomKey = String(d?.code ?? "_");
+  // Returning to a lobby clears the start guard, so a rematch in the same room
+  // still counts as a new game.
+  if (LOBBYISH_PHASES.has(newNorm)) {
+    const s = readPhaseStore();
+    if (s.startedFor !== null) writePhaseStore({ ...s, startedFor: null });
+  }
+  // Guarded on the room code in sessionStorage rather than on the in-memory
+  // previous phase. _phaseTracker.current does not survive a reload, so a
+  // refresh or a mid-game join left prevNorm undefined and skipped this branch
+  // entirely: prime-suspect logged 110 entries into PLAYING against 40
+  // game_started. It also left startTime unarmed, which is why so many finishes
+  // report a null duration.
+  if (!LOBBYISH_PHASES.has(newNorm) && !NON_START_PHASES.has(newNorm)) {
+    const s = readPhaseStore();
+    if (s.startedFor !== roomKey) {
+      writePhaseStore({ startTime: Date.now(), finishedFor: null, startedFor: roomKey });
+      trackEvent("game_started", { room_code: d?.code });
+    }
   }
   if (FINISHED_PHASES.has(newNorm)) {
     const store = readPhaseStore();
@@ -345,7 +372,7 @@ export function trackPhaseFromRoomState(data: unknown): void {
     if (store.finishedFor !== key) {
       const dur = store.startTime ? Math.round((Date.now() - store.startTime) / 1000) : null;
       trackGameFinished(1, dur, { room_code: d?.code });
-      writePhaseStore({ startTime: null, finishedFor: key });
+      writePhaseStore({ startTime: null, finishedFor: key, startedFor: store.startedFor });
     }
   }
   _phaseTracker.current = newPhase;
@@ -361,6 +388,6 @@ export function trackGameFinishedNow(totalRounds: number, extra?: Record<string,
   const key = String((extra as { room_code?: unknown } | undefined)?.room_code ?? "_");
   if (store.finishedFor === key) return; // remount / re-render — already reported
   const dur = store.startTime ? Math.round((Date.now() - store.startTime) / 1000) : null;
-  writePhaseStore({ startTime: null, finishedFor: key });
+  writePhaseStore({ startTime: null, finishedFor: key, startedFor: store.startedFor });
   trackGameFinished(totalRounds, dur, extra);
 }
