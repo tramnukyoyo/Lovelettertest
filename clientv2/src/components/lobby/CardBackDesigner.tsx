@@ -1,37 +1,33 @@
 /**
- * CardBackDesigner — the dedicated "Your card back" modal (opened from the
- * lobby invite pane). The ONLY place ps_style items are bought; equipping
- * happens here too (the player-list pickers stay equip-only).
+ * CardBackDesigner — the dedicated identity designer (opened from the lobby
+ * invite pane). Sells + equips the PLATFORM identity cosmetics (avatar frames
+ * + username flairs — one economy, prices from the platform catalog, one
+ * equip shows on gamebuddies.io and in every game).
  *
- * One ps_style item unlocks the style EVERYWHERE: the lobby player-card frame
- * (cardStyle) and the card backs everyone sees across the table (gameSkin).
- * Equipping here sets cardStyle to the pick and gameSkin to '' (follow), so
- * one tap themes both; the player-list pickers still allow splitting them.
+ * Your equipped FRAME themes the card backs everyone sees across the table
+ * (DynamicCard fr-theme token rule) and rings your avatar on the roster/dock.
  *
  * Live preview: a fan of REAL DynamicCard backs (the exact component the table
- * renders, hg-back-<style> overlay) + the "Your player card" roster/dock mini.
- * HYBRID GP economy: Premium keeps everything free; locked styles can be TRIED
- * ON before the bottom-sheet confirmation commits the buy.
+ * renders) tinted by the tried-on frame + the "Your player card" roster/dock
+ * mini with the frame ring + name flair. Premium includes every platform item;
+ * locked items can be TRIED ON before the bottom-sheet confirmation commits
+ * the buy.
  */
 import { useEffect, useState } from 'react';
 import { X, Crown, Lock, Coins, Check } from 'lucide-react';
 import type { Player } from '../../types';
-import socketService from '../../services/socketService';
-import { useCosmeticsShop, requestCosmeticsState, buyCosmetic } from '../../services/cosmeticsShop';
+import { t } from '../../utils/translations';
+import {
+  usePlatformCosmetics, requestPlatformCosmetics, buyPlatformCosmetic, equipPlatformCosmetic,
+  type IdentityCatalogItem,
+} from '../../services/platformCosmetics';
+import { usePlayerProfile } from '../../services/playerProfiles';
+import { cosmeticClass } from '../../utils/cosmetics';
+import { FRAME_THEMES, frameThemeClass } from '../../utils/frameThemes';
 import { Avatar } from '../core/Avatar';
 import DynamicCard from '../hearts-gambit/DynamicCard';
 
-/** Mirrors the server (games/hearts-gambit PS_STYLE_ITEM_IDS) + platform catalog. */
-const CARD_STYLES: Array<{ id: string; label: string; price: number }> = [
-  { id: '', label: 'Classic', price: 0 },
-  { id: 'neon', label: 'Neon', price: 250 },
-  { id: 'gold', label: 'Gold', price: 250 },
-  { id: 'holo', label: 'Holo', price: 250 },
-  { id: 'ink', label: 'Ink', price: 250 },
-];
-const ITEM_IDS: Record<string, string> = {
-  neon: 'ps_style_neon', gold: 'ps_style_gold', holo: 'ps_style_holo', ink: 'ps_style_ink',
-};
+type Slot = 'frame' | 'flair';
 
 interface Props {
   players: Player[];
@@ -41,60 +37,109 @@ interface Props {
 
 export default function CardBackDesigner({ players, mySocketId, onClose }: Props) {
   const me = players.find(p => p.socketId === mySocketId);
-  const shop = useCosmeticsShop();
-  useEffect(() => { requestCosmeticsState(); }, []);
+  const platform = usePlatformCosmetics();
+  useEffect(() => { requestPlatformCosmetics(); }, []);
   const sessionPremium = !!me?.premiumTier && me.premiumTier !== 'free';
-  const premium = shop.status === 'ready' ? shop.premium : sessionPremium;
-  const unlocked = (id: string) => !id || premium || shop.owned.includes(ITEM_IDS[id]);
+  const premium = platform.status === 'ready' ? platform.premium : sessionPremium;
 
-  // Optimistic equip reconciled against the room broadcast. One tap themes
-  // BOTH slots: cardStyle = pick, gameSkin = '' (follow).
-  const [pending, setPending] = useState<string | null>(null);
-  const equipped = pending ?? me?.cardStyle ?? '';
-  useEffect(() => { if (pending !== null && (me?.cardStyle ?? '') === pending) setPending(null); }, [me, pending]);
-  const equip = (id: string) => {
-    setPending(id);
-    const socket = socketService.getSocket();
-    socket?.emit('player:set-card-style', { style: id });
-    socket?.emit('player:set-game-skin', { style: '' });
+  const catalogOf = (slot: Slot): IdentityCatalogItem[] =>
+    slot === 'frame' ? platform.catalog.frames : platform.catalog.flairs;
+  const unlocked = (slot: Slot, id: string) => {
+    if (!id) return true;
+    const item = catalogOf(slot).find(c => c.id === id);
+    if (item?.premiumOnly) return premium;
+    return premium || platform.owned[slot].includes(id);
+  };
+
+  // Equipped state from the platform store (echoed live via gb:player:profile).
+  const myProfile = usePlayerProfile(me?.id);
+  const [pendingFrame, setPendingFrame] = useState<string | null>(null);
+  const [pendingFlair, setPendingFlair] = useState<string | null>(null);
+  const frame = pendingFrame ?? platform.equipped.frame ?? myProfile?.cosmetics.frameId ?? '';
+  const flair = pendingFlair ?? platform.equipped.flair ?? myProfile?.cosmetics.flairId ?? '';
+  useEffect(() => { if (pendingFrame !== null && (myProfile?.cosmetics.frameId ?? '') === pendingFrame) setPendingFrame(null); }, [myProfile?.cosmetics.frameId, pendingFrame]);
+  useEffect(() => { if (pendingFlair !== null && (myProfile?.cosmetics.flairId ?? '') === pendingFlair) setPendingFlair(null); }, [myProfile?.cosmetics.flairId, pendingFlair]);
+  const equip = (slot: Slot, id: string) => {
+    if (slot === 'frame') { setPendingFrame(id); equipPlatformCosmetic('frame', id || null); }
+    else { setPendingFlair(id); equipPlatformCosmetic('flair', id || null); }
   };
 
   // Try-on + purchase confirmation.
-  const [tryOn, setTryOn] = useState<string | null>(null);
-  const [confirm, setConfirm] = useState<string | null>(null);
+  const [tryOn, setTryOn] = useState<{ slot: Slot; id: string } | null>(null);
+  const [confirm, setConfirm] = useState<{ slot: Slot; id: string } | null>(null);
+  const ownedNow = confirm ? unlocked(confirm.slot, confirm.id) : false;
   useEffect(() => {
-    if (confirm && unlocked(confirm)) {
-      equip(confirm);
+    if (confirm && ownedNow) {
+      equip(confirm.slot, confirm.id);
       setConfirm(null); setTryOn(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shop.owned]);
+  }, [ownedNow]);
 
-  const previewId = tryOn ?? equipped;
-  const previewDef = CARD_STYLES.find(s => s.id === previewId) ?? CARD_STYLES[0];
+  const previewFrameId = tryOn?.slot === 'frame' ? tryOn.id : frame;
+  const previewFlairId = tryOn?.slot === 'flair' ? tryOn.id : flair;
+  const previewFrameWrap = cosmeticClass(previewFrameId || null);
+  const previewFlairClass = cosmeticClass(previewFlairId || null);
+  const previewFrameName = previewFrameId
+    ? (catalogOf('frame').find(c => c.id === previewFrameId)?.name ?? previewFrameId)
+    : t('designer.classic');
 
-  const pick = (id: string) => {
-    if (unlocked(id)) { setTryOn(null); equip(id); }
-    else { setTryOn(id); setConfirm(id); }
+  const pick = (slot: Slot, id: string) => {
+    if (unlocked(slot, id)) { setTryOn(null); equip(slot, id); }
+    else { setTryOn({ slot, id }); setConfirm({ slot, id }); }
   };
 
-  const confirmDef = confirm ? CARD_STYLES.find(s => s.id === confirm) : undefined;
-  const confirmItemId = confirm ? ITEM_IDS[confirm] : undefined;
-  const confirmPrice = confirmDef?.price ?? 0;
+  const priceOf = (slot: Slot, id: string): number => catalogOf(slot).find(c => c.id === id)?.costGp ?? 0;
+  const labelOf = (slot: Slot, id: string): string => {
+    if (!id) return t('designer.classic');
+    return catalogOf(slot).find(c => c.id === id)?.name ?? id;
+  };
+  const confirmPremiumOnly = confirm ? !!catalogOf(confirm.slot).find(c => c.id === confirm.id)?.premiumOnly : false;
+  const confirmPrice = confirm ? priceOf(confirm.slot, confirm.id) : 0;
+  const confirmBusy = confirm ? platform.busyItemId === confirm.id : false;
+
+  const renderChips = (slot: Slot, current: string) => {
+    const defs: Array<{ id: string; name: string; premiumOnly?: boolean }> = [
+      { id: '', name: t('designer.classic') },
+      ...catalogOf(slot),
+    ];
+    return defs.map((opt) => {
+      const locked = !!opt.id && !unlocked(slot, opt.id);
+      const active = (tryOn?.slot === slot ? tryOn.id : current) === opt.id;
+      const isEquipped = !tryOn && current === opt.id;
+      const price = opt.id ? priceOf(slot, opt.id) : 0;
+      const theme = slot === 'frame' && opt.id ? FRAME_THEMES[opt.id] : undefined;
+      return (
+        <button
+          key={opt.id || 'classic'}
+          type="button"
+          className={`psshop-chip ${slot === 'flair' && opt.id ? cosmeticClass(opt.id) : ''} ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+          style={theme ? { borderColor: theme.accent, boxShadow: `inset 0 0 6px ${theme.glow}` } : undefined}
+          onClick={() => pick(slot, opt.id)}
+          title={opt.name}
+        >
+          {opt.premiumOnly && <Crown size={9} aria-hidden="true" />}
+          {locked ? <Lock size={9} aria-hidden="true" /> : isEquipped ? <Check size={10} aria-hidden="true" /> : null}
+          {opt.name}
+          {locked && !opt.premiumOnly && <span className="psshop-price" aria-hidden="true">{price}</span>}
+        </button>
+      );
+    });
+  };
 
   return (
     <div className="psshop-backdrop" onClick={onClose}>
-      <div className="psshop-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Your card back">
+      <div className="psshop-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t('designer.title')}>
         <button className="psshop-close" onClick={onClose} aria-label="Close"><X size={18} /></button>
         <div className="psshop-head">
-          <h2 className="psshop-title">Your card back</h2>
-          {shop.status === 'ready' && !premium && (
-            <span className="psshop-balance" title="Your Gabu Points"><Coins size={12} aria-hidden="true" /> {shop.balance.toLocaleString()} GP</span>
+          <h2 className="psshop-title">{t('designer.title')}</h2>
+          {platform.status === 'ready' && !premium && (
+            <span className="psshop-balance" title={t('designer.yourGp')}><Coins size={12} aria-hidden="true" /> {platform.balance.toLocaleString()} GP</span>
           )}
         </div>
 
         {/* Live preview — the REAL card backs the table renders (DynamicCard
-            hg-back-<style> overlay), fanned like an opponent's hand. */}
+            fr-theme token rule), fanned like an opponent's hand. */}
         <div className="psshop-preview">
           <div className="psshop-fan">
             {[0, 1, 2].map((i) => (
@@ -102,90 +147,86 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
                 key={i}
                 cardType={0}
                 showFace={false}
-                ownerCardStyle={previewId}
+                ownerFrameClass={frameThemeClass(previewFrameId || null)}
                 className={`psshop-fan-card psshop-fan-card-${i}`}
               />
             ))}
           </div>
-          <span className="psshop-prev-caption">{previewDef.label} — how your hand looks to the table</span>
+          <span className="psshop-prev-caption">{previewFrameName} — how your hand looks to the table</span>
         </div>
 
-        {/* "Your player card" mini — the same style frames your roster row +
-            dock chip; real themed classes, follows try-ons. */}
+        {/* "Your player card" mini — frame ring + name flair exactly as the
+            roster row + dock chip render them; follows try-ons. */}
         <div className="psshop-pcard">
-          <span className="psshop-pcard-caption">Your player card</span>
+          <span className="psshop-pcard-caption">{t('designer.playerCardCaption')}</span>
           <div className="psshop-pcard-row">
             <div className="player-list-items">
-              <div className={`player-list-item is-me ${previewId ? `lr-cardstyle-${previewId}` : ''}`}>
-                <div className="player-avatar-container"><Avatar src={me?.avatarUrl} className="player-avatar" /></div>
-                <div className="player-info"><span className="player-name">{me?.name ?? 'You'}</span></div>
+              <div className="player-list-item is-me">
+                <div className="player-avatar-container">
+                  <span className={previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : undefined} style={previewFrameWrap ? { ['--frame-ring' as string]: '2px' } : undefined}>
+                    <Avatar src={me?.avatarUrl} className="player-avatar" />
+                  </span>
+                </div>
+                <div className="player-info"><span className={`player-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span></div>
               </div>
             </div>
-            <span className={`gs-chip is-me ${previewId ? `lr-cardstyle-${previewId}` : ''}`} title={me?.name}>
-              <span className="gs-chip-av"><Avatar src={me?.avatarUrl} /></span>
-              <span className="gs-chip-name">{me?.name ?? 'You'}</span>
+            <span className="gs-chip is-me" title={me?.name}>
+              <span className={`gs-chip-av ${previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : ''}`.trim()}>
+                <Avatar src={me?.avatarUrl} />
+              </span>
+              <span className={`gs-chip-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span>
             </span>
           </div>
         </div>
 
         {premium && (
-          <p className="psshop-note psshop-note-premium"><Crown size={12} aria-hidden="true" /> Premium — everything is included for you.</p>
+          <p className="psshop-note psshop-note-premium"><Crown size={12} aria-hidden="true" /> {t('designer.premiumIncluded')}</p>
+        )}
+        {platform.status === 'guest' && (
+          <p className="psshop-note">{t('playerList.signInToBuyStyles')}</p>
         )}
 
         <div className="psshop-section">
-          <div className="psshop-section-title">Card style <span className="psshop-hint">· one style for your player card AND your card backs</span></div>
-          <div className="psshop-chips">
-            {CARD_STYLES.map((opt) => {
-              const locked = !!opt.id && !unlocked(opt.id);
-              const active = (tryOn ?? equipped) === opt.id;
-              const isEquipped = tryOn === null && equipped === opt.id;
-              return (
-                <button
-                  key={opt.id || 'classic'}
-                  type="button"
-                  className={`psshop-chip ${opt.id ? `lr-cardstyle-${opt.id}` : ''} ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
-                  onClick={() => pick(opt.id)}
-                  title={locked ? `${opt.label} — ${opt.price} GP (or free with Premium)` : opt.label}
-                >
-                  {!!opt.id && <Crown size={9} aria-hidden="true" />}
-                  {locked ? <Lock size={9} aria-hidden="true" /> : isEquipped ? <Check size={10} aria-hidden="true" /> : null}
-                  {opt.label}
-                  {locked && <span className="psshop-price" aria-hidden="true">{opt.price}</span>}
-                </button>
-              );
-            })}
-          </div>
+          <div className="psshop-section-title">{t('designer.framesTitle')} <span className="psshop-hint">· {t('designer.framesHint')}</span></div>
+          <div className="psshop-chips">{renderChips('frame', frame)}</div>
+        </div>
+
+        <div className="psshop-section">
+          <div className="psshop-section-title">{t('designer.flairsTitle')} <span className="psshop-hint">· {t('designer.flairsHint')}</span></div>
+          <div className="psshop-chips">{renderChips('flair', flair)}</div>
         </div>
 
         {/* Purchase confirmation — bottom sheet so the live preview stays visible. */}
-        {confirm && confirmDef && confirmItemId && (() => {
-          const buying = shop.buyingItemId === confirmItemId;
-          const affordable = shop.balance >= confirmPrice;
+        {confirm && (() => {
+          const label = labelOf(confirm.slot, confirm.id);
+          const affordable = platform.balance >= confirmPrice;
           return (
-            <div className="psshop-confirm-backdrop" onClick={() => { if (!buying) { setConfirm(null); setTryOn(null); } }}>
-              <div className="psshop-confirm" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={`Buy ${confirmDef.label}`}>
-                <div className="psshop-confirm-title">Buy {confirmDef.label}?</div>
-                {shop.status === 'guest' ? (
-                  <p className="psshop-note">Sign in with your GameBuddies account to buy cosmetics with Gabu Points.</p>
+            <div className="psshop-confirm-backdrop" onClick={() => { if (!confirmBusy) { setConfirm(null); setTryOn(null); } }}>
+              <div className="psshop-confirm" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={`${t('designer.buy')} ${label}`}>
+                <div className="psshop-confirm-title">{t('designer.buyQuestion', { name: label })}</div>
+                {confirmPremiumOnly ? (
+                  <p className="psshop-note">{t('designer.premiumExclusive')}</p>
+                ) : platform.status === 'guest' ? (
+                  <p className="psshop-note">{t('playerList.signInToBuyStyles')}</p>
                 ) : (
                   <>
-                    <div className="psshop-crow"><span>Price</span><span className="psshop-gold"><Coins size={12} aria-hidden="true" /> {confirmPrice} GP</span></div>
-                    <div className="psshop-crow"><span>Your Gabu Points</span><span>{shop.balance.toLocaleString()} GP</span></div>
+                    <div className="psshop-crow"><span>{t('designer.price')}</span><span className="psshop-gold"><Coins size={12} aria-hidden="true" /> {confirmPrice} GP</span></div>
+                    <div className="psshop-crow"><span>{t('designer.yourGp')}</span><span>{platform.balance.toLocaleString()} GP</span></div>
                     <div className="psshop-crow">
-                      <span>After purchase</span>
+                      <span>{t('designer.afterPurchase')}</span>
                       <span className={affordable ? 'psshop-ok' : 'psshop-short'}>
-                        {affordable ? `${(shop.balance - confirmPrice).toLocaleString()} GP` : `${confirmPrice - shop.balance} GP short`}
+                        {affordable ? `${(platform.balance - confirmPrice).toLocaleString()} GP` : t('designer.gpShort', { gp: confirmPrice - platform.balance })}
                       </span>
                     </div>
-                    <p className="psshop-note">{confirmDef.label} is yours forever, in every Prime Suspect game.</p>
-                    {shop.lastError && <p className="psshop-error" role="alert">{shop.lastError}</p>}
+                    <p className="psshop-note">{t('designer.foreverEverywhere', { name: label })}</p>
+                    {platform.lastError && <p className="psshop-error" role="alert">{platform.lastError}</p>}
                   </>
                 )}
                 <div className="psshop-confirm-actions">
-                  <button type="button" className="psshop-cancel" onClick={() => { setConfirm(null); setTryOn(null); }} disabled={buying}>Cancel</button>
-                  {shop.status !== 'guest' && (
-                    <button type="button" className="psshop-buy" disabled={buying || shop.status !== 'ready' || !affordable} onClick={() => buyCosmetic('ps_style', confirmItemId)}>
-                      <Coins size={12} aria-hidden="true" />{buying ? 'Buying…' : `Buy · ${confirmPrice} GP`}
+                  <button type="button" className="psshop-cancel" onClick={() => { setConfirm(null); setTryOn(null); }} disabled={confirmBusy}>{t('playerList.cancel')}</button>
+                  {platform.status !== 'guest' && !confirmPremiumOnly && (
+                    <button type="button" className="psshop-buy" disabled={confirmBusy || !affordable} onClick={() => buyPlatformCosmetic(confirm.slot, confirm.id)}>
+                      <Coins size={12} aria-hidden="true" />{confirmBusy ? t('designer.buying') : t('designer.buyFor', { gp: confirmPrice })}
                     </button>
                   )}
                 </div>

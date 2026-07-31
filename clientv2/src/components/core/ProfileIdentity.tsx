@@ -16,11 +16,13 @@ interface ProfileAvatarProps {
   player: Player;
   className?: string;
   onClick?: () => void;
+  /** Picker try-on: overrides the profile frame (null = force unframed). */
+  frameOverride?: string | null;
 }
 
-export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ player, className = '', onClick }) => {
+export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ player, className = '', onClick, frameOverride }) => {
   const profile = usePlayerProfile(player.id);
-  const frameClass = cosmeticClass(profile?.cosmetics.frameId);
+  const frameClass = cosmeticClass(frameOverride !== undefined ? frameOverride : profile?.cosmetics.frameId);
 
   // Same markup as the plain player-list avatar (img or initial placeholder).
   const avatar = player.avatarUrl ? (

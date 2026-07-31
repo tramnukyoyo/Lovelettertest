@@ -167,7 +167,6 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
         isHost: p.isHost,
         isMe: p.socketId === lobby.mySocketId,
         connected: p.connected,
-        cardStyle: p.cardStyle,
       })),
     [lobby.players, lobby.mySocketId]
   );

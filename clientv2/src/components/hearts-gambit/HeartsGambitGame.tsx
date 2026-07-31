@@ -24,13 +24,13 @@ import { VictoryScreen } from './VictoryScreen';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { translateGameMessage } from '../../utils/gameLog';
 import { Portal } from '../../utils/portal';
-import { resolveGameSkin } from '../../utils/gameSkin';
+import { frameThemeClass } from '../../utils/frameThemes';
 import { trackBlockedClick } from '../../services/analyticsService';
 import { CardHoverProvider, CardHoverZone } from './CardHoverContext';
 import CardHoverPreview from './CardHoverPreview';
 import { Avatar } from '../core/Avatar';
 import { FlairName } from '../core/ProfileIdentity';
-import { usePlayerProfile } from '../../services/playerProfiles';
+import { usePlayerProfile, getPlayerProfile } from '../../services/playerProfiles';
 import { cosmeticClass } from '../../utils/cosmetics';
 // GameExplainer / BotControls / GAME_META were only used by the bespoke LOBBY
 // overlay, which now lives in src/pages/LobbyPage.tsx (standard two-pane lobby).
@@ -529,7 +529,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                       <DynamicCard
                                           cardType={cardToDisplay}
                                           showFace={cardToDisplay !== 0}
-                                          ownerCardStyle={resolveGameSkin(player)}
+                                          ownerFrameClass={frameThemeClass(getPlayerProfile(player.id)?.cosmetics.frameId)}
                                           className="hg-opponent-card"
                                       />
                                    </motion.div>
@@ -820,7 +820,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                 <DynamicCard
                                     cardType={card}
                                     selected={selectedCardIndex === idx}
-                                    ownerCardStyle={resolveGameSkin(me)}
+                                    ownerFrameClass={frameThemeClass(getPlayerProfile(me?.id)?.cosmetics.frameId)}
                                     className="hg-hand-card"
                                 />
                               </CardHoverZone>

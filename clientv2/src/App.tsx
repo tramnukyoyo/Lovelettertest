@@ -4,6 +4,7 @@ import { initErrorReporter } from './services/errorReporter';
 import { prefetchLobbyAssets } from './services/lobbyPrefetch';
 import socketService from './services/socketService';
 import { registerCosmeticsShopEvents, clearCosmeticsShop } from './services/cosmeticsShop';
+import { registerPlatformCosmeticsEvents, clearPlatformCosmetics } from './services/platformCosmetics';
 import { isDiscordActivity } from './services/discordActivity';
 import { useGameBuddiesClient } from './hooks/useGameBuddiesClient';
 import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
@@ -344,10 +345,13 @@ function App() {
 
     // GP cosmetics shop (card-back designer): owned/balance state + buy results.
     const offCosmeticsShop = registerCosmeticsShopEvents(socket);
+    const offPlatformCosmetics = registerPlatformCosmeticsEvents(socket);
 
     return () => {
       offCosmeticsShop();
       clearCosmeticsShop();
+      clearPlatformCosmetics();
+      offPlatformCosmetics();
       socket.off('roomStateUpdated', onRoomStateUpdated);
       socket.off('gamebuddies:return-redirect', onReturnRedirect);
       socket.off('gamebuddies:lobby-redirect', onLobbyRedirect);

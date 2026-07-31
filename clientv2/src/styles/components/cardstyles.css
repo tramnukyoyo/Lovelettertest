@@ -1,61 +1,16 @@
 /* ============================================================================
- * Premium card styles (game-native cosmetic, LetterRush package port).
+ * Lobby avatar-frame picker layout (retained from the retired card styles).
  *
- * Prime Suspect has no per-answer card surface, so the equipped style shows on
- * the lobby roster card, the presence-dock chip, and the picker preview.
- * Server-validated: only premium players can equip one (player:set-card-style),
- * style ids whitelisted server-side.
- *
- * Visual language: royal-noir velvet (--velvet-* / --parchment / royal crimson
- * + gold). Canonical neon/gold/holo ring colors are kept fleet-wide; the ink
- * style is adapted to a pale parchment-ink line (--parchment-dark #d9cfbe)
- * because LetterRush's navy ink is invisible on the dark velvet surfaces.
+ * The per-style color rules (neon/gold/holo/ink), the roster/dock chip ring
+ * rules and the per-style hg-back-* card-back overlays were removed when the
+ * game-native card styles were replaced by the platform identity cosmetics
+ * (avatar frames + name flairs). The frame preview is now the avatar ring
+ * itself; face-down card backs follow the owner's equipped frame via the
+ * fr-theme token rule at the bottom of this file.
  * ==========================================================================*/
-
-/* Neon — electric cyan outline with a soft glow. */
-.lr-cardstyle-neon {
-  box-shadow:
-    inset 0 0 0 2px #00b8d9,
-    inset 0 0 10px rgba(0, 184, 217, 0.28);
-}
-
-/* Gold — gold-foil framing, warm inner sheen. */
-.lr-cardstyle-gold {
-  box-shadow:
-    inset 0 0 0 2px #d4a017,
-    inset 0 0 10px rgba(212, 160, 23, 0.3);
-}
-
-/* Holo — holographic sticker: the ring slowly cycles foil colors. */
-.lr-cardstyle-holo {
-  box-shadow:
-    inset 0 0 0 2px #ff6ec7,
-    inset 0 0 12px rgba(255, 110, 199, 0.22);
-  animation: lr-holo-shift 4.5s linear infinite;
-}
-@keyframes lr-holo-shift {
-  0%, 100% { box-shadow: inset 0 0 0 2px #ff6ec7, inset 0 0 12px rgba(255, 110, 199, 0.22); }
-  25%      { box-shadow: inset 0 0 0 2px #ffd86e, inset 0 0 12px rgba(255, 216, 110, 0.22); }
-  50%      { box-shadow: inset 0 0 0 2px #6effa6, inset 0 0 12px rgba(110, 255, 166, 0.22); }
-  75%      { box-shadow: inset 0 0 0 2px #6ec7ff, inset 0 0 12px rgba(110, 199, 255, 0.22); }
-}
-
-/* Ink — double pen rule, like a hand-inked frame. Pale parchment ink on the
- * dark velvet card (navy would vanish); the middle stripe is the card tone. */
-.lr-cardstyle-ink {
-  box-shadow:
-    inset 0 0 0 1px var(--parchment-dark, #d9cfbe),
-    inset 0 0 0 3px var(--velvet-card, #3d2c36),
-    inset 0 0 0 4px var(--parchment-dark, #d9cfbe);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lr-cardstyle-holo { animation: none; }
-}
 
 /* ============================================================================
  * Lobby picker — a compact row on the player's OWN card in PlayerList.
- * Premium players pick a style; free players see the options locked (🔒).
  * ==========================================================================*/
 
 /* The own-card <li> gains this class so the picker can wrap to a full row. */
@@ -196,148 +151,34 @@
   transition: box-shadow 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* Card-back skin picker preview — a real (mini) card back rendered with the
- * SAME markup/classes the game uses (DynamicCard's hg-dynamic-card hg-card-back
- * + hg-back-<style> overlay from above), just sized down to fit the lobby row.
- * Non-interactive: neutralize the base card's pointer cursor + hover lift. */
-[data-theme="primesuspect"] .hg-dynamic-card.hg-gameskin-preview-card {
-  --hg-card-width: 60px;
-  --hg-card-height: 90px;
-  flex-shrink: 0;
-  cursor: default;
-}
-[data-theme="primesuspect"] .hg-dynamic-card.hg-gameskin-preview-card:hover {
-  transform: none;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-}
-
-/* Equipped style also frames the player's card in the roster: the border takes
- * the style's color while the card keeps its pressed drop-shadow. Scoped under
- * .player-list-items so it beats the .is-me border; box-shadow is reset here
- * (the bare .lr-cardstyle-* class would otherwise swap in its inset ring and
- * drop the card's depth). Ink border goes pale parchment — navy or crimson
- * lines vanish on the dark velvet card. */
-.player-list-items .player-list-item.lr-cardstyle-neon { border-color: #00b8d9; box-shadow: 2px 2px 0 var(--px-border-dark); }
-.player-list-items .player-list-item.lr-cardstyle-gold { border-color: #d4a017; box-shadow: 2px 2px 0 var(--px-border-dark); }
-.player-list-items .player-list-item.lr-cardstyle-ink  { border-color: var(--parchment-dark, #d9cfbe); box-shadow: 2px 2px 0 var(--px-border-dark); }
-.player-list-items .player-list-item.lr-cardstyle-holo {
-  border-color: #ff6ec7;
-  box-shadow: 2px 2px 0 var(--px-border-dark);
-  animation: lr-holo-border 4.5s linear infinite;
-}
-@keyframes lr-holo-border {
-  0%, 100% { border-color: #ff6ec7; }
-  25%      { border-color: #ffd86e; }
-  50%      { border-color: #6effa6; }
-  75%      { border-color: #6ec7ff; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .player-list-items .player-list-item.lr-cardstyle-holo { animation: none; }
-}
-
-/* Presence-dock chip (bottom roster) takes the equipped style as a ring while
- * keeping its pressed drop-shadow. The .is-me variants outrank the
- * .gs-chip.is-me ring (shell.css + hearts-gambit-old.css load later, so
- * specificity must win) — the equipped style beats is-me, same rule as the
- * lobby roster cards. Shadow ORDER matters: the first shadow paints on top, so
- * the ring must come first or the offset pressed shadow covers its
- * right/bottom edges. The pressed shadow is pushed to 4px so it still peeks
- * out past the 2px ring. */
-.gs-chip.lr-cardstyle-neon,
-.gs-chip.is-me.lr-cardstyle-neon { box-shadow: 0 0 0 2px #00b8d9, 4px 4px 0 var(--px-border-dark); }
-.gs-chip.lr-cardstyle-gold,
-.gs-chip.is-me.lr-cardstyle-gold { box-shadow: 0 0 0 2px #d4a017, 4px 4px 0 var(--px-border-dark); }
-/* Ink ring is drawn INSET in pale parchment — an outer dark-ink ring is
- * invisible against the dock's near-black velvet strip (#120d11). */
-.gs-chip.lr-cardstyle-ink,
-.gs-chip.is-me.lr-cardstyle-ink  { box-shadow: 2px 2px 0 var(--px-border-dark), inset 0 0 0 2px var(--parchment-dark, #d9cfbe); }
-.gs-chip.lr-cardstyle-holo { animation: lr-holo-chip 4.5s linear infinite; }
-@keyframes lr-holo-chip {
-  0%, 100% { box-shadow: 0 0 0 2px #ff6ec7, 4px 4px 0 var(--px-border-dark); }
-  25%      { box-shadow: 0 0 0 2px #ffd86e, 4px 4px 0 var(--px-border-dark); }
-  50%      { box-shadow: 0 0 0 2px #6effa6, 4px 4px 0 var(--px-border-dark); }
-  75%      { box-shadow: 0 0 0 2px #6ec7ff, 4px 4px 0 var(--px-border-dark); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .gs-chip.lr-cardstyle-holo,
-  .gs-chip.is-me.lr-cardstyle-holo { animation: none; box-shadow: 0 0 0 2px #ff6ec7, 4px 4px 0 var(--px-border-dark); }
-}
+/* Roster-card + presence-dock chip per-style ring rules, the card-back skin
+ * picker preview and the hg-back-* per-style overlays were removed with the
+ * card-style system — the equipped platform avatar frame now supplies the
+ * ring (ProfileIdentity + cosmetics.css) and the card-back tint below. */
 
 /* ============================================================================
- * Premium card-BACK skins (in-game flex). When a face-down card's OWNER has an
- * equipped cardStyle, DynamicCard adds hg-back-<style> to the back container
- * (MobileOpponentStrip adds it to its raw back wrapper). Visible to ALL
- * players. Pure CSS ::after overlay on top of the shared back.png — no new
- * assets; with cardStyle '' no class is added and the back is untouched.
+ * Frame-themed card backs. When a face-down card's OWNER has an equipped
+ * platform avatar frame, DynamicCard adds the fr-theme-<id> token class to
+ * the back container (MobileOpponentStrip adds it to its raw back wrapper).
+ * Visible to ALL players. ONE generic token rule replaces the four per-style
+ * hg-back-* overlays; with no frame no class is added and the back art is
+ * untouched. --fr-accent/--fr-glow come from cosmetics.css.
  * ==========================================================================*/
-
-.hg-back-neon,
-.hg-back-gold,
-.hg-back-holo,
-.hg-back-ink {
+.hg-card-back[class*="fr-theme-"],
+.hg-mobile-opponent-card[class*="fr-theme-"] {
   /* DynamicCard's back is already relative; MobileOpponentStrip's raw back
    * wrapper isn't, and the overlay needs a positioned ancestor. */
   position: relative;
 }
-.hg-back-neon::after,
-.hg-back-gold::after,
-.hg-back-holo::after,
-.hg-back-ink::after {
+.hg-card-back[class*="fr-theme-"]::after,
+.hg-mobile-opponent-card[class*="fr-theme-"]::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 6;
   pointer-events: none;
   border-radius: inherit;
-}
-
-/* Neon — cyan glowing border + subtle cyan tint over the back art. */
-.hg-back-neon::after {
-  background: rgba(0, 184, 217, 0.12);
   box-shadow:
-    inset 0 0 0 2px #00b8d9,
-    inset 0 0 12px rgba(0, 184, 217, 0.55);
-}
-
-/* Gold — filigree framing (gold rule / dark pinline / inner gold rule) + warm
- * tint. */
-.hg-back-gold::after {
-  background: rgba(212, 160, 23, 0.14);
-  box-shadow:
-    inset 0 0 0 2px #d4a017,
-    inset 0 0 0 3px rgba(40, 24, 8, 0.6),
-    inset 0 0 0 4px rgba(212, 160, 23, 0.75),
-    inset 0 0 10px rgba(212, 160, 23, 0.35);
-}
-
-/* Holo — foil ring + diagonal sheen that slowly cycles hue. The hue-rotate
- * lives on the overlay only, so the back art itself never shifts color. */
-.hg-back-holo::after {
-  background: linear-gradient(
-    115deg,
-    rgba(255, 110, 199, 0.18) 0%,
-    rgba(255, 216, 110, 0.14) 30%,
-    rgba(110, 255, 166, 0.14) 55%,
-    rgba(110, 199, 255, 0.18) 80%,
-    rgba(255, 110, 199, 0.18) 100%
-  );
-  box-shadow:
-    inset 0 0 0 2px #ff6ec7,
-    inset 0 0 12px rgba(255, 110, 199, 0.3);
-  animation: hg-back-holo-shift 6s linear infinite;
-}
-@keyframes hg-back-holo-shift {
-  0%   { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hg-back-holo::after { animation: none; }
-}
-
-/* Ink — deep black wash + high-contrast white border with a dark pinline. */
-.hg-back-ink::after {
-  background: rgba(0, 0, 0, 0.55);
-  box-shadow:
-    inset 0 0 0 2px #ffffff,
-    inset 0 0 0 4px rgba(0, 0, 0, 0.85);
+    inset 0 0 0 2px var(--fr-accent),
+    inset 0 0 12px var(--fr-glow);
 }

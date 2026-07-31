@@ -7,7 +7,8 @@ import { CARD_BACK_IMAGE } from './cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Avatar } from '../core/Avatar';
 import { FlairName } from '../core/ProfileIdentity';
-import { resolveGameSkin } from '../../utils/gameSkin';
+import { getPlayerProfile } from '../../services/playerProfiles';
+import { frameThemeClass } from '../../utils/frameThemes';
 
 interface MobileOpponentStripProps {
   /** Other players to display */
@@ -160,7 +161,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
                             />
                           </div>
                         ) : (
-                          <div className={`hg-mobile-opponent-card rounded-lg overflow-hidden shadow-lg${resolveGameSkin(player) ? ` hg-back-${resolveGameSkin(player)}` : ''}`}>
+                          <div className={`hg-mobile-opponent-card rounded-lg overflow-hidden shadow-lg ${frameThemeClass(getPlayerProfile(player.id)?.cosmetics.frameId)}`.trim()}>
                             <img
                               src={CARD_BACK_IMAGE}
                               alt="Hidden card"

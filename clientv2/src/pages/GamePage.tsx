@@ -206,7 +206,6 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
         isHost: p.isHost,
         isMe: p.socketId === lobby.mySocketId,
         connected: p.connected,
-        cardStyle: p.cardStyle,
         status: lobby.state === 'PLAYING'
           ? (p.isEliminated ? undefined : 'waiting')
           : undefined,

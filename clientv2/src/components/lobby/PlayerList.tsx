@@ -10,12 +10,11 @@ import { Crown, Eye, Wifi, WifiOff, UserMinus, X, Lock } from 'lucide-react';
 import { PlayerCard, ProfileAvatar, FlairName } from '../core';
 import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
-import socketService from '../../services/socketService';
-import { useCosmeticsShop, requestCosmeticsState } from '../../services/cosmeticsShop';
+import { usePlatformCosmetics, requestPlatformCosmetics, equipPlatformCosmetic } from '../../services/platformCosmetics';
+import { usePlayerProfile } from '../../services/playerProfiles';
+import { FRAME_THEMES } from '../../utils/frameThemes';
 import { useAuthState } from '../../services/supabaseAuth';
 import GameAuthModal from '../core/GameAuthModal';
-import DynamicCard from '../hearts-gambit/DynamicCard';
-import { resolveGameSkin } from '../../utils/gameSkin';
 
 interface PlayerListProps {
   players: Player[];
@@ -32,33 +31,12 @@ interface PlayerListProps {
   isSpectator?: boolean;
   viewingAsSocketId?: string | null;
   onPlayerClick?: (socketId: string) => void;
-  /** Lobby only: show the premium card-style picker on the viewer's own card. */
+  /** Lobby only: show the equip-only avatar-frame picker on the viewer's own card. */
   showCardStylePicker?: boolean;
-  /** Opens the "Your card back" designer (where locked styles are bought). */
+  /** Opens the identity designer (where locked frames/flairs are bought). */
   onOpenDesigner?: () => void;
 }
 
-/** Premium card styles (ids validated server-side, see cardstyles.css). */
-const CARD_STYLE_OPTIONS: Array<{ id: string; label: string }> = [
-  { id: '', label: 'None' },
-  { id: 'neon', label: 'Neon' },
-  { id: 'gold', label: 'Gold' },
-  { id: 'holo', label: 'Holo' },
-  { id: 'ink', label: 'Ink' },
-];
-
-/** Per-game card-back skin options (player:set-game-skin whitelist). '' follows
- *  the lobby cardStyle, 'none' explicitly opts out, the rest are premium.
- *  Built as a function (not a module constant) so labels stay reactive to
- *  language switches — mirrors the inline t() calls used elsewhere in render. */
-const getGameSkinOptions = (): Array<{ id: string; label: string }> => [
-  { id: '', label: t('playerList.gameSkinSameAsCardStyle') },
-  { id: 'none', label: t('playerList.gameSkinNone') },
-  { id: 'neon', label: t('playerList.gameSkinNeon') },
-  { id: 'gold', label: t('playerList.gameSkinGold') },
-  { id: 'holo', label: t('playerList.gameSkinHolo') },
-  { id: 'ink', label: t('playerList.gameSkinInk') },
-];
 
 // Normalize tier values (API returns 'lifetime' but CSS uses 'premium')
 const getNormalizedTier = (tier?: string): 'premium' | 'pro' | null => {
@@ -101,15 +79,21 @@ const PlayerList: React.FC<PlayerListProps> = ({
   showCardStylePicker = false,
   onOpenDesigner
 }) => {
-  // Style gate (HYBRID GP model): usable when Premium OR the ps_style item is
-  // owned. Pickers here are EQUIP + PREVIEW only — no prices; buying lives in
-  // the "Your card back" designer.
+  // Platform avatar frames (one economy for every game): equippable when
+  // owned OR Premium (Premium includes everything); premium-exclusive frames
+  // need live Premium. The equipped frame also themes the table card backs
+  // (DynamicCard fr-theme token rule). The picker here is EQUIP + PREVIEW
+  // only — buying lives in the identity designer.
   const me = players.find(p => p.socketId === mySocketId);
   const sessionPremium = !!me?.premiumTier && me.premiumTier !== 'free';
-  const shop = useCosmeticsShop();
+  const shop = usePlatformCosmetics();
   const isPremium = shop.status === 'ready' ? shop.premium : sessionPremium;
-  const styleUnlocked = (id: string) =>
-    !id || id === 'none' || isPremium || shop.owned.includes(`ps_style_${id}`);
+  const frameUnlocked = (id: string) => {
+    if (!id) return true;
+    const item = shop.catalog.frames.find(f => f.id === id);
+    if (item?.premiumOnly) return isPremium;
+    return isPremium || shop.owned.frame.includes(id);
+  };
   // Logged-out guests get a sign-in nudge in the picker: GP purchases need an
   // account (owner request) — same precedence logic as the header.
   const auth = useAuthState();
@@ -120,44 +104,34 @@ const PlayerList: React.FC<PlayerListProps> = ({
       : me?.isGuest === false;
   const [authOpen, setAuthOpen] = useState(false);
 
-  // Optimistic card-style selection: reflect the click instantly, then let the
-  // server broadcast (source of truth) reconcile it. Without this the only
-  // feedback was a faint chip border ~200ms after the round-trip.
-  const [pendingCardStyle, setPendingCardStyle] = useState<string | null>(null);
-  const handleSetCardStyle = (style: string) => {
-    setPendingCardStyle(style);
-    socketService.getSocket()?.emit('player:set-card-style', { style });
+  // Equipped frame source of truth: my platform profile (updates live via the
+  // room-wide gb:player:profile rebroadcast after an equip). Optimistic pick
+  // for instant feedback; reconciled when the profile echoes the change.
+  const myProfile = usePlayerProfile(me?.id);
+  const [pendingFrame, setPendingFrame] = useState<string | null>(null);
+  const equippedFrame = pendingFrame ?? shop.equipped.frame ?? myProfile?.cosmetics.frameId ?? '';
+  const handleEquipFrame = (frameId: string) => {
+    setPendingFrame(frameId);
+    equipPlatformCosmetic('frame', frameId || null);
   };
   useEffect(() => {
-    if (pendingCardStyle !== null && (me?.cardStyle ?? '') === pendingCardStyle) {
-      setPendingCardStyle(null);
+    if (pendingFrame !== null && (myProfile?.cosmetics.frameId ?? '') === pendingFrame) {
+      setPendingFrame(null);
     }
-  }, [me?.cardStyle, pendingCardStyle]);
+  }, [myProfile?.cosmetics.frameId, pendingFrame]);
   // Collapsed by default so the picker stays a thin row in the player list;
   // tap the header to expand the chips + preview.
   const [cardStyleOpen, setCardStyleOpen] = useState(false);
-
-  // Per-game card-back skin — same optimistic-update pattern as cardStyle,
-  // but a separate field/event so it can diverge from the lobby card style.
-  const [pendingGameSkin, setPendingGameSkin] = useState<string | null>(null);
-  const handleSetGameSkin = (style: string) => {
-    setPendingGameSkin(style);
-    socketService.getSocket()?.emit('player:set-game-skin', { style });
-  };
-  useEffect(() => {
-    if (pendingGameSkin !== null && (me?.gameSkin ?? '') === pendingGameSkin) {
-      setPendingGameSkin(null);
-    }
-  }, [me?.gameSkin, pendingGameSkin]);
-  const [gameSkinOpen, setGameSkinOpen] = useState(false);
-  // Ownership is needed to know which styles are equippable here.
-  useEffect(() => { if (cardStyleOpen || gameSkinOpen) requestCosmeticsState(); }, [cardStyleOpen, gameSkinOpen]);
-  // Tapping a LOCKED chip previews it locally (own row / card-back preview)
-  // without equipping — buying stays in the designer. Cleared on close.
+  // Catalog + ownership are needed to know which frames are equippable here.
+  useEffect(() => { if (cardStyleOpen) requestPlatformCosmetics(); }, [cardStyleOpen]);
+  // Tapping a LOCKED chip previews it locally (own avatar ring) without
+  // equipping — buying stays in the designer. Cleared when the picker closes.
   const [tryOnStyle, setTryOnStyle] = useState<string | null>(null);
   useEffect(() => { if (!cardStyleOpen) setTryOnStyle(null); }, [cardStyleOpen]);
-  const [tryOnSkin, setTryOnSkin] = useState<string | null>(null);
-  useEffect(() => { if (!gameSkinOpen) setTryOnSkin(null); }, [gameSkinOpen]);
+  const frameOptions: Array<{ id: string; name: string }> = [
+    { id: '', name: t('playerList.frameNone') },
+    ...shop.catalog.frames.map(f => ({ id: f.id, name: f.name })),
+  ];
   // Game is active if any player has any Bluffalo game fields set (score exists)
   const gameActive = players.some(p => 'score' in p && typeof (p as any).score === 'number' && (((p as any).hasSubmittedLie || (p as any).hasVoted || (p as any).score > 0)));
   // State for inline kick confirmation
@@ -308,23 +282,18 @@ const PlayerList: React.FC<PlayerListProps> = ({
           const isConnected = player.connected;
           const playerTeam = getPlayerTeam(player.socketId);
           const withStylePicker = showCardStylePicker && isMe && !player.isSpectator;
-          // Optimistic pending style applies to my own card only — other players
-          // always reflect their own equipped style from the broadcast.
-          const equippedCardStyle = (isMe ? pendingCardStyle : null) ?? (player.cardStyle ?? '');
-          const displayCardStyle = isMe ? (tryOnStyle ?? equippedCardStyle) : equippedCardStyle;
-          // Raw picker selection for the card-back skin picker (not the resolved
-          // in-game skin — that resolution lives in the hero surface components).
-          const equippedGameSkin = (isMe ? pendingGameSkin : null) ?? (player.gameSkin ?? '');
+          // A locked try-on previews the frame on my own avatar without equipping.
+          const displayFrame = isMe ? (tryOnStyle ?? equippedFrame) : '';
 
           return (
             <li
               key={player.id ?? player.socketId}
-              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''} ${withStylePicker ? 'has-cardstyle-picker' : ''} ${displayCardStyle ? `lr-cardstyle-${displayCardStyle}` : ''}`}
+              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''} ${withStylePicker ? 'has-cardstyle-picker' : ''}`}
               onClick={() => isSpectator && !isMe && onPlayerClick?.(player.socketId)}
             >
               {/* Avatar (tap opens the platform profile card, cosmetics-aware) */}
               <div className="player-avatar-container">
-                <ProfileAvatar player={player} className="player-avatar" onClick={() => setCardPlayer(player)} />
+                <ProfileAvatar player={player} className="player-avatar" frameOverride={isMe && withStylePicker ? (displayFrame || null) : undefined} onClick={() => setCardPlayer(player)} />
                 {showStatus && (
                   <span className={`player-status ${isConnected ? 'online' : 'offline'}`}>
                     {isConnected ? (
@@ -380,11 +349,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
               {!isConnected && player.disconnectedAt && (
                 <DisconnectedTimer disconnectedAt={player.disconnectedAt} />
               )}
-
-              {/* Card-style picker — own card, lobby only. Unlocked styles equip
-                  directly; LOCKED styles show as previews (chip wears the real
-                  frame) and tapping one tries it on locally — buying stays in
-                  the "Your card back" designer (no prices here). */}
+              {/* Platform avatar-frame picker — own card, lobby only. One economy
+                  for every game: locked frames preview on the avatar; buying
+                  lives in the identity designer. The equipped frame also themes
+                  your table card backs (fr-theme token rule on DynamicCard). */}
               {withStylePicker && (
                 <div className={`lr-cardstyle-picker ${cardStyleOpen ? 'is-open' : ''}`}>
                   {/* Thin header row — collapsed by default, tap to expand. */}
@@ -394,39 +362,48 @@ const PlayerList: React.FC<PlayerListProps> = ({
                     aria-expanded={cardStyleOpen}
                     onClick={(e) => { e.stopPropagation(); setCardStyleOpen(o => !o); }}
                   >
-                    <span className="lr-cardstyle-label">Card style</span>
+                    <span className="lr-cardstyle-label">{t('playerList.frameLabel')}</span>
                     <span className="lr-cardstyle-current">
-                      <span className={`lr-cardstyle-swatch ${equippedCardStyle ? `lr-cardstyle-${equippedCardStyle}` : ''}`} />
-                      {CARD_STYLE_OPTIONS.find(o => o.id === equippedCardStyle)?.label ?? 'None'}
+                      <span
+                        className="lr-cardstyle-swatch"
+                        style={equippedFrame && FRAME_THEMES[equippedFrame] ? { background: FRAME_THEMES[equippedFrame].accent } : undefined}
+                      />
+                      {frameOptions.find(o => o.id === equippedFrame)?.name ?? t('playerList.frameNone')}
                     </span>
                     <span className="lr-cardstyle-chevron">{cardStyleOpen ? '▾' : '▸'}</span>
                   </button>
                   {cardStyleOpen && (
                     <>
+                      {shop.status === 'loading' || (shop.status === 'ready' && frameOptions.length === 1) ? (
+                        <span className="lr-cardstyle-designer-hint">…</span>
+                      ) : null}
                       <div className="lr-cardstyle-chips">
-                        {CARD_STYLE_OPTIONS.map((opt) => {
-                          const locked = !!opt.id && !styleUnlocked(opt.id);
-                          const active = (tryOnStyle ?? equippedCardStyle) === opt.id;
-                          const isEquipped = tryOnStyle === null && equippedCardStyle === opt.id;
+                        {frameOptions.map((opt) => {
+                          const locked = !!opt.id && !frameUnlocked(opt.id);
+                          const active = (tryOnStyle ?? equippedFrame) === opt.id;
+                          const isEquipped = tryOnStyle === null && equippedFrame === opt.id;
+                          const theme = opt.id ? FRAME_THEMES[opt.id] : undefined;
                           return (
                             <button
                               key={opt.id || 'none'}
                               type="button"
-                              className={`lr-cardstyle-chip ${opt.id ? `lr-cardstyle-${opt.id}` : ''} ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
-                              title={locked ? `${opt.label} — preview; unlock in 🂠 Your card back` : opt.label}
+                              className={`lr-cardstyle-chip ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+                              style={theme ? { borderColor: theme.accent, boxShadow: `inset 0 0 6px ${theme.glow}` } : undefined}
+                              title={opt.name}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (locked) { setTryOnStyle(opt.id); return; }
                                 setTryOnStyle(null);
-                                handleSetCardStyle(opt.id);
+                                handleEquipFrame(opt.id);
                               }}
                             >
-                              {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : isEquipped ? `✓ ${opt.label}` : opt.label}
+                              {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.name}</> : isEquipped ? `✓ ${opt.name}` : opt.name}
                             </button>
                           );
                         })}
                       </div>
-                      {/* Locked try-on: point to the designer to actually unlock it. */}
+                      {/* Locked try-on: guests are nudged to sign in (GP buys need
+                          an account); logged-in players are pointed to the designer. */}
                       {tryOnStyle !== null && (
                         !isLoggedIn ? (
                           <button
@@ -442,111 +419,16 @@ const PlayerList: React.FC<PlayerListProps> = ({
                             className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
                             onClick={(e) => { e.stopPropagation(); onOpenDesigner(); }}
                           >
-                            Preview only — unlock it in 🂠 Your card back →
+                            {t('playerList.previewUnlockHint')}
                           </button>
                         ) : (
                           <span className="lr-cardstyle-designer-hint">{t('playerList.buyStyleInDesigner')}</span>
                         )
                       )}
-                      {/* Live preview: mirrors the tried-on style (or the equipped
-                          one) exactly as it frames your roster card + dock chip. */}
-                      <div className="lr-cardstyle-preview-row">
-                        <span className="lr-cardstyle-preview-caption">Your player card</span>
-                        <div className={`lr-cardstyle-preview ${displayCardStyle ? `lr-cardstyle-${displayCardStyle}` : ''}`}>
-                          {player.name}
-                        </div>
-                      </div>
                     </>
                   )}
                 </div>
               )}
-
-              {/* Per-game card-back skin picker — own card, lobby only. '' follows
-                  cardStyle, 'none' is explicitly plain; premium named skins are
-                  gated the same way as the card-style picker above it. */}
-              {withStylePicker && (() => {
-                const gameSkinOptions = getGameSkinOptions();
-                return (
-                  <div className={`lr-cardstyle-picker ${gameSkinOpen ? 'is-open' : ''}`}>
-                    <button
-                      type="button"
-                      className="lr-cardstyle-toggle"
-                      aria-expanded={gameSkinOpen}
-                      onClick={(e) => { e.stopPropagation(); setGameSkinOpen(o => !o); }}
-                    >
-                      <span className="lr-cardstyle-label">
-                        {t('playerList.gameSkinLabel')}
-                      </span>
-                      <span className="lr-cardstyle-current">
-                        <span className={`lr-cardstyle-swatch ${equippedGameSkin && equippedGameSkin !== 'none' ? `lr-cardstyle-${equippedGameSkin}` : ''}`} />
-                        {gameSkinOptions.find(o => o.id === equippedGameSkin)?.label ?? t('playerList.gameSkinSameAsCardStyle')}
-                      </span>
-                      <span className="lr-cardstyle-chevron">{gameSkinOpen ? '▾' : '▸'}</span>
-                    </button>
-                    {gameSkinOpen && (
-                      <>
-                        <div className="lr-cardstyle-chips">
-                          {gameSkinOptions.map((opt) => {
-                            const locked = !styleUnlocked(opt.id);
-                            const active = (tryOnSkin ?? equippedGameSkin) === opt.id;
-                            const isEquipped = tryOnSkin === null && equippedGameSkin === opt.id;
-                            return (
-                              <button
-                                key={opt.id || 'same'}
-                                type="button"
-                                className={`lr-cardstyle-chip ${opt.id && opt.id !== 'none' ? `lr-cardstyle-${opt.id}` : ''} ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
-                                title={locked ? `${opt.label} — preview; unlock in 🂠 Your card back` : opt.label}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (locked) { setTryOnSkin(opt.id); return; }
-                                  setTryOnSkin(null);
-                                  handleSetGameSkin(opt.id);
-                                }}
-                              >
-                                {locked ? <><Lock size={9} style={{ verticalAlign: -1, marginRight: 3 }} aria-hidden="true" />{opt.label}</> : isEquipped ? `✓ ${opt.label}` : opt.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {tryOnSkin !== null && (
-                          !isLoggedIn ? (
-                            <button
-                              type="button"
-                              className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
-                              onClick={(e) => { e.stopPropagation(); setAuthOpen(true); }}
-                            >
-                              {t('playerList.signInToBuyStyles')}
-                            </button>
-                          ) : onOpenDesigner ? (
-                            <button
-                              type="button"
-                              className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
-                              onClick={(e) => { e.stopPropagation(); onOpenDesigner(); }}
-                            >
-                              Preview only — unlock it in 🂠 Your card back →
-                            </button>
-                          ) : (
-                            <span className="lr-cardstyle-designer-hint">{t('playerList.buyStyleInDesigner')}</span>
-                          )
-                        )}
-                        {/* Live preview: the REAL in-game card-back markup/classes
-                            (DynamicCard back + hg-back-<style> overlay), resolved
-                            the same way HeartsGambitGame does — mirrors the
-                            tried-on skin so locked picks preview faithfully. */}
-                        <div className="lr-cardstyle-preview-row">
-                          <span className="lr-cardstyle-preview-caption">{t('playerList.gameSkinPreviewCaption')}</span>
-                          <DynamicCard
-                            cardType={0}
-                            showFace={false}
-                            ownerCardStyle={resolveGameSkin({ cardStyle: displayCardStyle, gameSkin: tryOnSkin ?? equippedGameSkin })}
-                            className="hg-gameskin-preview-card hg-opponent-card"
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-              })()}
 
               {/* Make-Host Button (host only, not self, connected non-host,
                   not spectators — the server rejects those targets anyway).

@@ -28,7 +28,8 @@ import PassPlayToggle from '../lobby/PassPlayToggle';
 import BotControls from '../lobby/BotControls';
 import { usePassPlay } from '../../hooks/usePassPlay';
 import { GameExplainer, GameExplainerHelpButton } from '../lobby/GameExplainer';
-import { resolveGameSkin } from '../../utils/gameSkin';
+import { getPlayerProfile } from '../../services/playerProfiles';
+import { frameThemeClass } from '../../utils/frameThemes';
 import { trackBlockedClick } from '../../services/analyticsService';
 import { Avatar } from '../core/Avatar';
 import { FlairName } from '../core/ProfileIdentity';
@@ -803,7 +804,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               <DynamicCard
                 cardType={card}
                 selected={selectedCardIndex === idx}
-                ownerCardStyle={resolveGameSkin(me)}
+                ownerFrameClass={frameThemeClass(getPlayerProfile(me?.id)?.cosmetics.frameId)}
                 className="hg-mobile-hand-card"
               />
             </button>

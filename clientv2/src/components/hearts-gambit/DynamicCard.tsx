@@ -26,10 +26,11 @@ interface DynamicCardProps {
   onClick?: () => void;     // Click handler
   selected?: boolean;       // Selection state
   style?: React.CSSProperties; // Additional inline styles
-  /** Premium card style of the card's OWNER ('' | 'neon' | 'gold' | 'holo' |
-   *  'ink'). Only affects the face-down back (hg-back-<style> overlay in
-   *  cardstyles.css); pass nothing for ownerless backs (deck, previews). */
-  ownerCardStyle?: string;
+  /** Frame-theme token class of the card's OWNER ('fr-theme-<frameId>' from
+   *  utils/frameThemes.frameThemeClass, '' = plain). Only affects the
+   *  face-down back (the fr-theme token rule in cardstyles.css); pass nothing
+   *  for ownerless backs (deck, previews). */
+  ownerFrameClass?: string;
 }
 
 /**
@@ -47,7 +48,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   onClick,
   selected = false,
   style,
-  ownerCardStyle = ''
+  ownerFrameClass = ''
 }) => {
   // Get translated card data from database
   const language = getCurrentLanguage();
@@ -57,7 +58,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   if (!showFace || !cardData) {
     return (
       <div
-        className={`hg-dynamic-card hg-card-back ${ownerCardStyle ? `hg-back-${ownerCardStyle} ` : ''}${className} ${selected ? 'selected' : ''}`}
+        className={`hg-dynamic-card hg-card-back ${ownerFrameClass ? `${ownerFrameClass} ` : ''}${className} ${selected ? 'selected' : ''}`}
         onClick={onClick}
         style={style}
       >

@@ -18,8 +18,6 @@ export interface DockPlayer {
   isHost?: boolean;
   isMe?: boolean;
   connected?: boolean;
-  /** Equipped premium card style (neon/gold/holo/ink) — frames the chip. */
-  cardStyle?: string;
   /** 'done' = ✓, 'waiting' = animated …, undefined = no status shown */
   status?: 'done' | 'waiting';
 }
@@ -30,7 +28,7 @@ const DockChip: React.FC<{ p: DockPlayer }> = ({ p }) => {
   const flairClass = cosmeticClass(profile?.cosmetics.flairId);
   return (
     <span
-      className={`gs-chip ${p.isMe ? 'is-me' : ''} ${p.connected === false ? 'is-disconnected' : ''} ${p.cardStyle ? `lr-cardstyle-${p.cardStyle}` : ''}`.trim()}
+      className={`gs-chip ${p.isMe ? 'is-me' : ''} ${p.connected === false ? 'is-disconnected' : ''}`.trim()}
       title={p.name}
     >
       <span className={`gs-chip-av ${frameClass ? `avatar-frame-wrap ${frameClass}` : ''}`.trim()}>

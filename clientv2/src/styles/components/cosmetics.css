@@ -585,3 +585,24 @@
   .frame-phoenix,
   .frame-aurora { animation: none; }
 }
+
+/* ============ FRAME THEME TOKENS — game-surface tinting ============ */
+/* Game-native surfaces (boards, cards, bars, …) consume these two custom
+ * props via ONE generic rule per surface instead of per-style rules. Values
+ * mirror utils/frameThemes.ts (accent + ~53%-alpha glow). */
+.fr-theme-frame_bronze    { --fr-accent: #cd7f32; --fr-glow: #cd7f3288; }
+.fr-theme-frame_silver    { --fr-accent: #c0c0c0; --fr-glow: #c0c0c088; }
+.fr-theme-frame_gold      { --fr-accent: #ffd700; --fr-glow: #ffd70088; }
+.fr-theme-frame_sapphire  { --fr-accent: #1e88e5; --fr-glow: #1e88e588; }
+.fr-theme-frame_ruby      { --fr-accent: #e53935; --fr-glow: #e5393588; }
+.fr-theme-frame_emerald   { --fr-accent: #2ecc71; --fr-glow: #2ecc7188; }
+.fr-theme-frame_rosegold  { --fr-accent: #e8a89b; --fr-glow: #e8a89b88; }
+.fr-theme-frame_obsidian  { --fr-accent: #1c1c28; --fr-glow: #9d4edd66; }
+.fr-theme-frame_flame     { --fr-accent: #ff6b35; --fr-glow: #ff6b3588; }
+.fr-theme-frame_ice       { --fr-accent: #aee0ff; --fr-glow: #aee0ff88; }
+.fr-theme-frame_lightning { --fr-accent: #ffe066; --fr-glow: #ffe06688; }
+.fr-theme-frame_galaxy    { --fr-accent: #8a2be2; --fr-glow: #8a2be288; }
+.fr-theme-frame_prismatic { --fr-accent: #ffd700; --fr-glow: #ffd70088; }
+.fr-theme-frame_diamond   { --fr-accent: #ffffff; --fr-glow: #cfefff88; }
+.fr-theme-frame_phoenix   { --fr-accent: #ffc04d; --fr-glow: #ff8a1e88; }
+.fr-theme-frame_aurora    { --fr-accent: #7cffc4; --fr-glow: #56e0a088; }
