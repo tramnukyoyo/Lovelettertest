@@ -6,6 +6,7 @@ import DynamicCard from './DynamicCard';
 import { CARD_BACK_IMAGE } from './cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Avatar } from '../core/Avatar';
+import { FlairName } from '../core/ProfileIdentity';
 import { resolveGameSkin } from '../../utils/gameSkin';
 
 interface MobileOpponentStripProps {
@@ -107,7 +108,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
 
               {/* Player name */}
               <div className="flex items-center gap-1 max-w-full">
-                <span className="text-xs font-bold text-[var(--parchment)] truncate">{player.name}</span>
+                <FlairName player={player} className="text-xs font-bold text-[var(--parchment)] truncate" />
                 {player.isHost && <Crown size={12} color="var(--royal-gold)" style={{flexShrink:0}} />}
                 {player.isBot && <Bot size={12} color="var(--parchment-dark)" style={{flexShrink:0}} />}
               </div>

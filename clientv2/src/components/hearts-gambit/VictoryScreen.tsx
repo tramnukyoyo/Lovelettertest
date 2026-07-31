@@ -4,12 +4,23 @@ import type { Socket } from 'socket.io-client';
 import { motion } from 'framer-motion';
 import { Crown } from 'lucide-react';
 import { Confetti, ScoreCountUp } from '../juice';
+import { FlairName } from '../core/ProfileIdentity';
+import { usePlayerProfile } from '../../services/playerProfiles';
+import { cosmeticClass } from '../../utils/cosmetics';
 import { soundEffects } from '../../utils/soundEffects';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Portal } from '../../utils/portal';
 import { usePostgame, resetPostgame } from '../../services/postgame';
 import { trackGameFinishedNow } from '../../services/analyticsService';
 import { GameAdRectangle } from '../ads';
+
+/** Flair for reward/unlock rows, which only carry a platform playerId + name
+ *  string (gb:postgame:summary) — same rendering as FlairName, keyed by id. */
+const FlairNameById: React.FC<{ playerId?: string; name: string; className?: string }> = ({ playerId, name, className = '' }) => {
+  const profile = usePlayerProfile(playerId);
+  const flairClass = cosmeticClass(profile?.cosmetics.flairId);
+  return <span className={`${className} ${flairClass}`.trim()}>{name}</span>;
+};
 
 /**
  * Shared platform rewards strip on the results screen: per-player +XP/+GP,
@@ -36,7 +47,7 @@ const PostGameRewards: React.FC = () => {
               title={u.achievement.description}
               className="font-bold text-[var(--royal-gold-light)]"
             >
-              🏅 {u.playerName} unlocked “{u.achievement.name}”!
+              🏅 <FlairNameById playerId={u.playerId} name={u.playerName} /> unlocked “{u.achievement.name}”!
             </div>
           ))}
         </div>
@@ -45,7 +56,7 @@ const PostGameRewards: React.FC = () => {
         <div className="flex flex-col gap-0.5 max-h-28 overflow-y-auto">
           {rewards.map((r) => (
             <div key={r.playerId} className="flex items-center justify-center gap-2 text-[var(--parchment)]">
-              <span className="truncate max-w-[120px]">{r.playerName}</span>
+              <FlairNameById playerId={r.playerId} name={r.playerName} className="truncate max-w-[120px]" />
               <span className="text-[#4ea7ea] font-semibold whitespace-nowrap">+{r.totalXp} XP</span>
               {r.gabuPoints > 0 && <span className="text-[var(--royal-gold)] font-semibold whitespace-nowrap">+{r.gabuPoints} GP</span>}
               {r.leveledUp && r.newLevel != null && <span className="text-[#7cffb2] font-semibold whitespace-nowrap">⬆ Lv {r.newLevel}</span>}
@@ -180,7 +191,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
           <div className="my-4 sm:my-6">
             <div className="text-[var(--parchment-dark)] mb-1 uppercase text-xs tracking-widest">{t('game.winner')}</div>
             <div className="text-xl sm:text-3xl font-bold text-white">
-              {winnerPlayer?.name}
+              {winnerPlayer && <FlairName player={winnerPlayer} />}
             </div>
             {lastMessage && (
               <div className="text-sm text-[var(--parchment)] opacity-80 mt-2 italic leading-relaxed px-4">
@@ -199,7 +210,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                   p.id === winnerId ? 'bg-[rgba(var(--accent-color-rgb),0.15)] text-[var(--royal-gold-light)] font-bold' : 'text-[var(--parchment-dark)]'
                 }`}
               >
-                <span className="truncate mr-2">{p.name}</span>
+                <FlairName player={p} className="truncate mr-2" />
                 <span className="font-mono whitespace-nowrap">{p.tokens} / {tokensToWin}</span>
               </div>
             ))}
@@ -251,7 +262,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
           >
             <Crown size={40} color="var(--royal-gold)" className="mx-auto mb-2" strokeWidth={1.5} />
             <div className="text-2xl sm:text-3xl font-black text-white">
-              {winnerPlayer?.name}
+              {winnerPlayer && <FlairName player={winnerPlayer} />}
             </div>
           </motion.div>
 
@@ -277,7 +288,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
               >
                 <span className="flex items-center gap-1.5 truncate mr-2">
                   {p.id === winnerId && <Crown size={14} style={{flexShrink:0}} />}
-                  {p.name}
+                  <FlairName player={p} />
                 </span>
                 <span className="font-mono whitespace-nowrap"><ScoreCountUp value={p.tokens} from={0} /> / {tokensToWin}</span>
               </motion.div>

@@ -282,7 +282,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
                 <>
                   {isSpectator && (
                     <SpectatorBanner
-                      viewingAs={viewingAs ? { name: viewingAs.name } : null}
+                      viewingAs={viewingAs ? { id: viewingAs.id, name: viewingAs.name } : null}
                       onResetView={handleResetView}
                     />
                   )}

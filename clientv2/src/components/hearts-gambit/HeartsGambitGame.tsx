@@ -29,6 +29,9 @@ import { trackBlockedClick } from '../../services/analyticsService';
 import { CardHoverProvider, CardHoverZone } from './CardHoverContext';
 import CardHoverPreview from './CardHoverPreview';
 import { Avatar } from '../core/Avatar';
+import { FlairName } from '../core/ProfileIdentity';
+import { usePlayerProfile } from '../../services/playerProfiles';
+import { cosmeticClass } from '../../utils/cosmetics';
 // GameExplainer / BotControls / GAME_META were only used by the bespoke LOBBY
 // overlay, which now lives in src/pages/LobbyPage.tsx (standard two-pane lobby).
 
@@ -57,6 +60,14 @@ type ZoomCard = {
   caption: string;
   meta?: string;
   stamp?: string;
+};
+
+/** Flair for surfaces that only carry a platform playerId + name string
+ *  (discard-timeline events) — same rendering as FlairName, keyed by id. */
+const FlairNameById: React.FC<{ playerId?: string; name: string; className?: string }> = ({ playerId, name, className = '' }) => {
+  const profile = usePlayerProfile(playerId);
+  const flairClass = cosmeticClass(profile?.cosmetics.flairId);
+  return <span className={`${className} ${flairClass}`.trim()}>{name}</span>;
 };
 
 type ZoomContext = {
@@ -477,7 +488,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                     </div>
                     <div className="overflow-hidden">
                         <div className="flex items-center gap-1">
-                            <span className="text-sm font-bold text-[var(--parchment)] truncate">{player.name}</span>
+                            <FlairName player={player} className="text-sm font-bold text-[var(--parchment)] truncate" />
                             {player.isHost && <Crown size={12} color="var(--royal-gold)" />}
                             {player.isBot && <Bot size={12} color="var(--parchment-dark)" />}
                         </div>
@@ -884,7 +895,11 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                           targetId ? 'text-[var(--royal-gold-light)]' : 'text-[var(--royal-crimson-light)] animate-pulse'
                         }`}
                       >
-                        {targetId ? lobby.players.find(p => p.id === targetId)?.name : t('game.selectPlayerAbove')}
+                        {(() => {
+                          if (!targetId) return t('game.selectPlayerAbove');
+                          const targetPlayer = lobby.players.find(p => p.id === targetId);
+                          return targetPlayer ? <FlairName player={targetPlayer} /> : null;
+                        })()}
                       </span>
                     )}
                   </div>
@@ -1191,7 +1206,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                   </button>
                                 </CardTooltip>
                                 <div className="text-[11px] text-[rgba(246,240,230,0.8)] text-center max-w-[220px]">
-                                  <span className="text-white font-bold">{evt.playerName}</span> - {actionLabel}
+                                  <FlairNameById playerId={evt.playerId} name={evt.playerName} className="text-white font-bold" /> - {actionLabel}
                                 </div>
                               </div>
                             );
@@ -1216,7 +1231,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                                   return (
                                     <div key={`discard-by-player-${p.id}`} className="space-y-3">
                                       <div className="flex items-baseline justify-between">
-                                        <div className="text-white font-bold">{entry.playerName}</div>
+                                        <div><FlairNameById playerId={p.id} name={entry.playerName} className="text-white font-bold" /></div>
                                         <div className="text-xs text-[rgba(246,240,230,0.88)]">{events.length} {t('evidence.items')}</div>
                                       </div>
                                       <div className="flex flex-wrap gap-3 justify-center">
@@ -1272,7 +1287,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                           .map(p => (
                             <div key={`discard-section-${p.id}`} className="space-y-3">
                               <div className="flex items-baseline justify-between">
-                                <div className="text-white font-bold">{p.name}</div>
+                                <div><FlairName player={p} className="text-white font-bold" /></div>
                                 <div className="text-xs text-[rgba(246,240,230,0.88)]">{p.discarded.length} items</div>
                               </div>
                               <div className="flex flex-wrap gap-3 justify-center">

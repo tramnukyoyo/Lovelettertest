@@ -10,6 +10,7 @@
 
 import React from 'react';
 import { Trophy } from 'lucide-react';
+import { FlairName } from '../core/ProfileIdentity';
 import type { Lobby, Player } from '../../types';
 import type { BroadcastOverlays } from './StreamerSettingsPanel';
 import { getBroadcastCopy } from './broadcastCopy';
@@ -31,7 +32,7 @@ const SuspectRow: React.FC<{ players: Player[]; currentTurn?: string | null }> =
       return (
         <span key={id} className={`sbx-chip ${elim ? 'waiting' : 'done'}`}>
           <span className="sbx-chip-state">{elim ? '✕' : active ? '▶' : '♥'}</span>
-          {p.name}
+          <FlairName player={p} />
           {typeof p.tokens === 'number' && p.tokens > 0 && (
             <span className="sbx-chip-score"> · {p.tokens}</span>
           )}
@@ -69,7 +70,7 @@ const StreamerGameStage: React.FC<StreamerGameStageProps> = ({ lobby }) => {
           {winner && (
             <div className="sbx-winner">
               <div className="sbx-winner-label">{copy.content.winnerLabel}</div>
-              <div className="sbx-winner-name">{winner.name}</div>
+              <div className="sbx-winner-name"><FlairName player={winner} /></div>
               {typeof winner.tokens === 'number' && (
                 <div className="sbx-winner-score">
                   <Trophy className="w-4 h-4" /> {winner.tokens}

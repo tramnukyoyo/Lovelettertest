@@ -14,7 +14,6 @@ import socketService from '../../services/socketService';
 import { useCosmeticsShop, requestCosmeticsState } from '../../services/cosmeticsShop';
 import { useAuthState } from '../../services/supabaseAuth';
 import GameAuthModal from '../core/GameAuthModal';
-import { Avatar } from '../core/Avatar';
 import DynamicCard from '../hearts-gambit/DynamicCard';
 import { resolveGameSkin } from '../../utils/gameSkin';
 
@@ -245,7 +244,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
             style={{ zIndex: displayPlayers.length - index }}
             title={player.name}
           >
-            <Avatar src={player.avatarUrl} alt={player.name} className="avatar-strip-img" />
+            <ProfileAvatar player={player} className="avatar-strip-img" />
             {player.isHost && <Crown className="avatar-strip-crown" />}
           </div>
         ))}
@@ -268,8 +267,8 @@ const PlayerList: React.FC<PlayerListProps> = ({
               key={player.id ?? player.socketId}
               className={`player-list-item compact ${player.socketId === mySocketId ? 'is-me' : ''} ${!player.connected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''}`}
             >
-              <Avatar src={player.avatarUrl} className="player-avatar compact" />
-              <span className="player-name">{player.name}</span>
+              <ProfileAvatar player={player} className="player-avatar compact" />
+              <FlairName player={player} className="player-name" />
               {player.isHost && <Crown className="w-3 h-3 host-icon" />}
               {playerTeam && (
                 <span

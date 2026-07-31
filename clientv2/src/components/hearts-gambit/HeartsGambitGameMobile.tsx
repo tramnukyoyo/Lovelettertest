@@ -31,6 +31,7 @@ import { GameExplainer, GameExplainerHelpButton } from '../lobby/GameExplainer';
 import { resolveGameSkin } from '../../utils/gameSkin';
 import { trackBlockedClick } from '../../services/analyticsService';
 import { Avatar } from '../core/Avatar';
+import { FlairName } from '../core/ProfileIdentity';
 import { primeSuspectDemoSpec } from '../lobby/GameExplainer/demos/PrimeSuspectDemo';
 import '../lobby/GameExplainer/GameExplainer.css';
 import { GAME_META } from '../../config/gameMeta';
@@ -872,9 +873,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                         <Avatar src={player.avatarUrl} alt={player.name} className="w-full h-full object-cover" />
                       </div>
                     </div>
-                    <span className="text-xs text-[var(--parchment)] font-medium truncate max-w-full">
-                      {player.name}
-                    </span>
+                    <FlairName player={player} className="text-xs text-[var(--parchment)] font-medium truncate max-w-full" />
                     {player.isImmune && (
                       <span className="text-[10px] text-yellow-400 mt-0.5">{t('cardInspector.protected')}</span>
                     )}
@@ -1009,9 +1008,11 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 {targetId && (
                   <div className="text-[10px] text-[var(--parchment)]">
                     {t('game.targetPrefix')} <span className="font-bold">
-                      {targetId === me?.id
-                        ? t('cardInspector.yourself')
-                        : otherPlayers.find(p => p.id === targetId)?.name || t('game.unknown')}
+                      {(() => {
+                        if (targetId === me?.id) return t('cardInspector.yourself');
+                        const targetPlayer = otherPlayers.find(p => p.id === targetId);
+                        return targetPlayer ? <FlairName player={targetPlayer} /> : t('game.unknown');
+                      })()}
                     </span>
                   </div>
                 )}

@@ -4,6 +4,7 @@ import type { PanInfo } from 'framer-motion';
 import { ChevronUp, Layers } from 'lucide-react';
 import type { CardType, Player, Lobby } from '../../types';
 import DynamicCard from './DynamicCard';
+import { FlairName } from '../core/ProfileIdentity';
 import { getTranslatedCardName } from './cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 
@@ -242,7 +243,10 @@ const CaseFileSheet: React.FC<CaseFileSheetProps> = ({
                           </span>
                         ) : targetId ? (
                           <span className="text-xs text-[var(--royal-gold-light)]">
-                            {lobby.players.find(p => p.id === targetId)?.name}
+                            {(() => {
+                              const targetPlayer = lobby.players.find(p => p.id === targetId);
+                              return targetPlayer ? <FlairName player={targetPlayer} /> : null;
+                            })()}
                           </span>
                         ) : (
                           <span className="text-xs text-[var(--royal-crimson-light)] animate-pulse">
