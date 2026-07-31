@@ -251,6 +251,8 @@ export const es: Translations = {
   playerList: {
     removingIn: 'Eliminando en {seconds}s',
     removing: 'Eliminando...',
+    signInToBuyStyles: 'Inicia sesión para comprar estilos con Gabu Points',
+    buyStyleInDesigner: "Desbloquéalo en 'Tu estilo' con Gabu Points",
     kick: 'Expulsar',
     confirmKick: 'Confirmar expulsion',
     cancel: 'Cancelar',

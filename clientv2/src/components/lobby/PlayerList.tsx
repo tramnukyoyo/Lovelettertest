@@ -12,6 +12,8 @@ import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
 import socketService from '../../services/socketService';
 import { useCosmeticsShop, requestCosmeticsState } from '../../services/cosmeticsShop';
+import { useAuthState } from '../../services/supabaseAuth';
+import GameAuthModal from '../core/GameAuthModal';
 import { Avatar } from '../core/Avatar';
 import DynamicCard from '../hearts-gambit/DynamicCard';
 import { resolveGameSkin } from '../../utils/gameSkin';
@@ -109,6 +111,15 @@ const PlayerList: React.FC<PlayerListProps> = ({
   const isPremium = shop.status === 'ready' ? shop.premium : sessionPremium;
   const styleUnlocked = (id: string) =>
     !id || id === 'none' || isPremium || shop.owned.includes(`ps_style_${id}`);
+  // Logged-out guests get a sign-in nudge in the picker: GP purchases need an
+  // account (owner request) — same precedence logic as the header.
+  const auth = useAuthState();
+  const isLoggedIn = auth.signedOutLocally
+    ? false
+    : auth.status === 'authed'
+      ? true
+      : me?.isGuest === false;
+  const [authOpen, setAuthOpen] = useState(false);
 
   // Optimistic card-style selection: reflect the click instantly, then let the
   // server broadcast (source of truth) reconcile it. Without this the only
@@ -418,7 +429,15 @@ const PlayerList: React.FC<PlayerListProps> = ({
                       </div>
                       {/* Locked try-on: point to the designer to actually unlock it. */}
                       {tryOnStyle !== null && (
-                        onOpenDesigner ? (
+                        !isLoggedIn ? (
+                          <button
+                            type="button"
+                            className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
+                            onClick={(e) => { e.stopPropagation(); setAuthOpen(true); }}
+                          >
+                            {t('playerList.signInToBuyStyles')}
+                          </button>
+                        ) : onOpenDesigner ? (
                           <button
                             type="button"
                             className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
@@ -427,7 +446,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                             Preview only — unlock it in 🂠 Your card back →
                           </button>
                         ) : (
-                          <span className="lr-cardstyle-designer-hint">Preview only — unlock it in 🂠 Your card back (invite pane)</span>
+                          <span className="lr-cardstyle-designer-hint">{t('playerList.buyStyleInDesigner')}</span>
                         )
                       )}
                       {/* Live preview: mirrors the tried-on style (or the equipped
@@ -491,7 +510,15 @@ const PlayerList: React.FC<PlayerListProps> = ({
                           })}
                         </div>
                         {tryOnSkin !== null && (
-                          onOpenDesigner ? (
+                          !isLoggedIn ? (
+                            <button
+                              type="button"
+                              className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
+                              onClick={(e) => { e.stopPropagation(); setAuthOpen(true); }}
+                            >
+                              {t('playerList.signInToBuyStyles')}
+                            </button>
+                          ) : onOpenDesigner ? (
                             <button
                               type="button"
                               className="lr-cardstyle-designer-hint lr-cardstyle-designer-link"
@@ -500,7 +527,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                               Preview only — unlock it in 🂠 Your card back →
                             </button>
                           ) : (
-                            <span className="lr-cardstyle-designer-hint">Preview only — unlock it in 🂠 Your card back (invite pane)</span>
+                            <span className="lr-cardstyle-designer-hint">{t('playerList.buyStyleInDesigner')}</span>
                           )
                         )}
                         {/* Live preview: the REAL in-game card-back markup/classes
@@ -597,6 +624,11 @@ const PlayerList: React.FC<PlayerListProps> = ({
 
       {cardPlayer && (
         <PlayerCard player={cardPlayer} onClose={() => setCardPlayer(null)} />
+      )}
+
+      {/* In-place login/signup so guests can buy styles with GP (owner). */}
+      {authOpen && (
+        <GameAuthModal onClose={() => setAuthOpen(false)} playerName={me?.name} />
       )}
     </div>
   );

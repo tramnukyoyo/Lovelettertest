@@ -353,6 +353,8 @@ export const ptBR: Translations = {
   playerList: {
     removingIn: 'Removendo em {seconds}s',
     removing: 'Removendo...',
+    signInToBuyStyles: 'Entre para comprar estilos com Gabu Points',
+    buyStyleInDesigner: "Desbloqueie em 'Seu estilo' com Gabu Points",
     kick: 'Expulsar',
     confirmKick: 'Confirmar expulsao',
     cancel: 'Cancelar',

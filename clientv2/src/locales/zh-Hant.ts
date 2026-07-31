@@ -324,6 +324,8 @@ export const zhHant: Translations = {
   playerList: {
     removingIn: '{seconds} 秒後移除',
     removing: '移除中...',
+    signInToBuyStyles: '登入即可用 Gabu Points 購買樣式',
+    buyStyleInDesigner: '在「你的樣式」中用 Gabu Points 解鎖',
     kick: '踢出',
     confirmKick: '確認踢出',
     cancel: '取消',

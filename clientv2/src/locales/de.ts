@@ -344,6 +344,8 @@ export const de: Translations = {
   playerList: {
     removingIn: 'Entfernt in {seconds}s',
     removing: 'Wird entfernt...',
+    signInToBuyStyles: 'Melde dich an, um Stile mit Gabu Points zu kaufen',
+    buyStyleInDesigner: "Schalte ihn in 'Dein Stil' mit Gabu Points frei",
     kick: 'Kicken',
     confirmKick: 'Kick bestätigen',
     cancel: 'Abbrechen',
