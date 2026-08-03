@@ -34,9 +34,21 @@ export function isNativeWrapper(): boolean {
   }
 }
 
-/** Fire when a free player taps a locked premium option. */
+/** Fire when a free player taps a locked premium option.
+ *  MUST be called from a click/tap handler only — never from a useEffect. A
+ *  mount-fired call turns an impression into fake intent, and three clients
+ *  doing that made the platform's biggest "paywall" numbers pure noise. */
 export function trackPremiumLocked(surface: string, item: string): void {
   trackEvent('premium_feature_locked', { surface, item });
+}
+
+/** Fire when a free player merely SEES a locked premium surface (mount-based
+ *  impression). Deliberately a separate event from trackPremiumLocked: both
+ *  are useful, but mixing them makes the funnel unreadable — impressions size
+ *  the top of the desire funnel, locks measure actual intent. Same
+ *  {surface, item} shape so the two slice identically in PostHog. */
+export function trackPremiumGateShown(surface: string, item: string): void {
+  trackEvent('premium_gate_shown', { surface, item });
 }
 
 /** Open the platform premium page in a new tab (room stays alive). */
