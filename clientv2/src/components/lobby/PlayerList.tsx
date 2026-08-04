@@ -242,7 +242,9 @@ const PlayerList: React.FC<PlayerListProps> = ({
               className={`player-list-item compact ${player.socketId === mySocketId ? 'is-me' : ''} ${!player.connected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''}`}
             >
               <ProfileAvatar player={player} className="player-avatar compact" />
-              <FlairName player={player} className="player-name" />
+              <span className="player-name">
+                <FlairName player={player} className="player-name__text" />
+              </span>
               {player.isHost && <Crown className="w-3 h-3 host-icon" />}
               {playerTeam && (
                 <span
@@ -307,10 +309,15 @@ const PlayerList: React.FC<PlayerListProps> = ({
 
               {/* Player Info */}
               <div className="player-info">
-                <FlairName player={player} className="player-name">
-                  {player.name}
+                {/* The flair rides its OWN span, never the row: gradient flairs
+                    set -webkit-text-fill-color:transparent, which every child
+                    inherits — with the tag inside, "(You)" painted transparent
+                    over no background and vanished. A flex row also kills
+                    text-overflow, so long names were cut mid-glyph. */}
+                <span className="player-name">
+                  <FlairName player={player} className="player-name__text" />
                   {isMe && <span className="player-me-tag">({t('lobby.you')})</span>}
-                </FlairName>
+                </span>
                 {/* Show score during game (always, including 0) */}
                 {gameActive && 'score' in player && typeof (player as any).score === 'number' && (
                   <span className="player-score-badge">{(player as any).score} {t('bluffalo.pts') || 'pts'}</span>

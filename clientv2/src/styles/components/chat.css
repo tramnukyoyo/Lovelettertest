@@ -511,6 +511,17 @@
   text-overflow: ellipsis;
 }
 
+/* The name itself — the node the platform flair class lands on (PlayerList).
+   It must be its OWN element: `text-overflow` is inert on the flex row above,
+   so a long name was chopped mid-glyph instead of ellipsised, and a gradient
+   flair painted across the whole row width rather than the glyphs. */
+.player-name__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .player-me-tag {
   font-size: 0.75rem;
   font-weight: 400;

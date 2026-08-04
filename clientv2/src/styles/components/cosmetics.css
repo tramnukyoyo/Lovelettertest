@@ -598,3 +598,34 @@
 .fr-theme-frame_diamond   { --fr-accent: #ffffff; --fr-glow: #cfefff88; }
 .fr-theme-frame_phoenix   { --fr-accent: #ffc04d; --fr-glow: #ff8a1e88; }
 .fr-theme-frame_aurora    { --fr-accent: #7cffc4; --fr-glow: #56e0a088; }
+
+/* ============ GRADIENT FLAIRS OWN THE GLYPH — NO SURFACE SHADOW ============ */
+/* Ten flairs paint the name with a gradient clipped to the text, which means
+ * the glyph's own fill is TRANSPARENT (`-webkit-text-fill-color`). A
+ * text-shadow or a text-stroke is drawn from the glyph OUTLINE and is not
+ * transparent — so any surface that gives its names a hard offset shadow
+ * printed a solid copy of the name under the transparent gradient. At caption
+ * size that copy covers most of the glyph body, so the black copy IS what you
+ * read and the paid effect looks broken.
+ *
+ * The shadow is therefore dropped for exactly those ten. The solid-colour and
+ * glow flairs (neon / electric / pulse / toxic) are NOT listed: their glow IS
+ * a text-shadow they declare themselves, and it works because their fill is
+ * opaque. `filter: drop-shadow()` (fire, frost, …) also stays — it is built
+ * from the painted pixels, so it follows the gradient instead of the outline.
+ *
+ * !important + last-in-file: this file is imported BEFORE the game surfaces
+ * that set those shadows. */
+.flair-shimmer,
+.flair-rainbow,
+.flair-fire,
+.flair-frost,
+.flair-galaxy,
+.flair-royal,
+.flair-premium-aura,
+.flair-chrome,
+.flair-holographic,
+.flair-molten {
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
+}
