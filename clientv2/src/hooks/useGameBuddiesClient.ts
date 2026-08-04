@@ -536,7 +536,7 @@ export function useGameBuddiesClient(
 
     const onChatBlocked = () => pushChatMessage({ id: `sys-blocked-${Date.now()}`, playerId: 'system', playerName: 'System', message: 'Your message wasn’t sent — please keep it friendly.', timestamp: Date.now(), isSystem: true });
 
-    const onError = (data: { message: string; code?: string; region?: 'eu' | 'us'; roomCode?: string }) => {
+    const onError = (data: { message: string; code?: string; region?: 'eu' | 'us'; roomCode?: string; correctGameId?: string; isRoomHost?: boolean }) => {
       // Self-heal: a cluster reboot / cross-worker split can leave the socket
       // bound to a worker that no longer knows this room ("Not in a room").
       // Re-fire session:reconnect to rebind instead of dead-ending on an error.
@@ -610,6 +610,35 @@ export function useGameBuddiesClient(
           window.location.href = `${window.location.pathname}?room=${encodeURIComponent(upper)}`;
           return;
         }
+      }
+      // Game-switch recovery: the room this client tried to join still belongs
+      // to a DIFFERENT game (the server already waited ~15s for the switch).
+      // If the server validated us as the room's HOST, our client evidently
+      // navigated here to switch games but sent room:join instead of
+      // room:create (stale session.isHost) — complete the switch properly by
+      // creating the room under this game. Non-hosts retry once (the host's
+      // create may land just after the server's wait window), then surface
+      // the error and drop the stale cross-game session so a reload starts
+      // clean instead of re-attempting the same doomed join.
+      if (data.code === 'WRONG_GAME_TYPE') {
+        const session = getCurrentSession();
+        if (data.isRoomHost) {
+          console.warn('[useGameBuddiesClient] room still on', data.correctGameId, '— we are host, completing the game switch via room:create');
+          createRoom(session?.playerName || 'Host', session, session?.isStreamerMode || false);
+          return;
+        }
+        const nowWG = Date.now();
+        const lastWG = Number(sessionStorage.getItem('gb_wrongGameRetryAt') || 0);
+        if (nowWG - lastWG > 30000 && session?.roomCode && session.playerName) {
+          sessionStorage.setItem('gb_wrongGameRetryAt', String(nowWG));
+          console.warn('[useGameBuddiesClient] room still on', data.correctGameId, '— retrying join once in 3s');
+          setTimeout(() => joinRoom(session.roomCode, session.playerName!, session), 3000);
+          return;
+        }
+        clearSession();
+        socketService.clearReconnectionData();
+        sessionStorage.removeItem('gameSessionToken');
+        // Fall through to setError with the server's message.
       }
       setError(data.message);
     };

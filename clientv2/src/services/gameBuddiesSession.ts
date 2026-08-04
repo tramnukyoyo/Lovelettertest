@@ -5,6 +5,7 @@
 
 import { isDiscordActivity } from './discordActivity';
 import { setCurrentLanguage, type Language } from '../utils/translations';
+import { GAME_META } from '../config/gameMeta';
 
 export type GameBuddiesSession = {
   roomCode: string;
@@ -23,6 +24,13 @@ export type GameBuddiesSession = {
   avatarUrl?: string;
   /** Platform-chosen UI language (en|de|es|pt-BR|pt-PT) */
   locale?: string;
+  /**
+   * Which game this session was issued for (platform gameType). All game
+   * clients share the same sessionStorage origin (gamebuddies.io/<slug>/),
+   * so after a game switch the previous game's session is still readable
+   * here — loadSession() uses this field to discard cross-game leftovers.
+   */
+  gameType?: string;
 };
 
 const SUPPORTED_LANGUAGES: Language[] = ['en', 'de', 'es', 'pt-BR', 'pt-PT'];
@@ -161,7 +169,19 @@ export function loadSession(): GameBuddiesSession | null {
   if (!stored) return null;
 
   try {
-    return JSON.parse(stored);
+    const session: GameBuddiesSession = JSON.parse(stored);
+    // Cross-game leftover guard: sessionStorage is shared across all game
+    // paths on gamebuddies.io, so a session issued for ANOTHER game can
+    // survive navigation here (e.g. after a game switch). Acting on it would
+    // join the previous game's room from this client — a frozen screen.
+    // Discard ONLY when gameType is present AND differs: URL-parsed legacy
+    // sessions carry no gameType and must keep working.
+    if (session.gameType && session.gameType !== GAME_META.id) {
+      console.warn(`[GameBuddies] Discarding stale session for '${session.gameType}' (this client is '${GAME_META.id}')`);
+      clearSession();
+      return null;
+    }
+    return session;
   } catch (e) {
     console.error('[GameBuddies] Failed to parse session:', e);
     return null;
@@ -307,6 +327,7 @@ export async function resolvePendingSession(): Promise<GameBuddiesSession | null
       premiumTier: (resolved.premiumTier as 'free' | 'premium' | 'pro') || 'free',
       avatarUrl: resolved.avatarUrl,
       locale: resolved.locale || pending.locale,
+      gameType: resolved.gameType,
     };
 
     applySessionLocale(finalSession.locale);
