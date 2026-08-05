@@ -87,6 +87,22 @@ export function parseGameBuddiesSession(): GameBuddiesSession | null {
     const existingSession = loadSession();
 
     if (existingSession && existingSession.sessionToken === sessionToken) {
+      // Same-token relaunch: the platform sent us here again (e.g. game
+      // switch back, lobby re-launch). The stored resolution may carry a
+      // stale role — the host can change between launches, and a host whose
+      // stored session says isHost:false sends room:join instead of
+      // room:create, stranding the whole group in the previous game's room
+      // (the 7.3% dead-switch class). The launch URL's role param is
+      // platform truth at THIS moment, so it wins over storage. No
+      // re-resolve: the token may not be resolvable twice.
+      if (role === 'gm' || role === 'host' || role === 'player') {
+        const urlIsHost = role === 'gm' || role === 'host';
+        if (existingSession.isHost !== urlIsHost) {
+          console.warn(`[GameBuddies] Same-token relaunch with changed role (stored isHost=${existingSession.isHost}, url role=${role}) — URL wins`);
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...existingSession, isHost: urlIsHost }));
+        }
+      }
+      cleanSensitiveUrlParams();
       return null; // Let getCurrentSession fall through to loadSession
     }
 
