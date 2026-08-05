@@ -11,6 +11,7 @@ import type { RegisterGameEventsHelpers } from './hooks/useGameBuddiesClient';
 import KickToast from './components/ui/KickToast';
 import SiteNotificationToast from './components/ui/SiteNotificationToast';
 import type { SiteNotification } from './components/ui/SiteNotificationToast';
+import AchievementToastHost, { showAchievementToast } from './components/ui/AchievementToast';
 import AdminMessageToast from './components/ui/AdminMessageToast';
 import MessagesPanel from './components/ui/MessagesPanel';
 import { registerAdminInboxEvents, clearAdminInbox } from './services/adminInbox';
@@ -298,7 +299,16 @@ function App() {
       }
     };
     const onAchievementUnlocked = (data: PostgameUnlock) => {
-      if (data?.playerId && data?.achievement?.id) addUnlock(data);
+      if (!(data?.playerId && data?.achievement?.id)) return;
+      addUnlock(data);
+      // Fallback visibility: outside an active run there is no results overlay
+      // (PostGameRewards, inside VictoryScreen) to surface the unlock card —
+      // e.g. unlocks granted on a restart-to-lobby path. Rich rarity/icon toast
+      // (AchievementToastHost) so the unlock is never silent. During 'PLAYING'
+      // the run-end overlay handles it.
+      if (lastLobbyRef.current?.state !== 'PLAYING') {
+        showAchievementToast(data);
+      }
     };
 
     // In-room server rejections (content filter, validation, permission
@@ -563,6 +573,7 @@ function App() {
             {!isConnected && lobby && lobby.state !== 'LOBBY' && <FreezeOverlay />}
             <KickToast message={kickMessage} onClose={clearKickMessage} />
             <SiteNotificationToast notification={siteNotification} onClose={() => setSiteNotification(null)} />
+            <AchievementToastHost />
             {/* Admin ↔ player conversation: a quiet arrival notice, plus the full
                 thread the header's Messages button opens. Both read the same store. */}
             <AdminMessageToast />

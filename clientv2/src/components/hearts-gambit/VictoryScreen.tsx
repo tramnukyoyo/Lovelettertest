@@ -13,6 +13,7 @@ import { Portal } from '../../utils/portal';
 import { usePostgame, resetPostgame } from '../../services/postgame';
 import { trackGameFinishedNow } from '../../services/analyticsService';
 import { GameAdRectangle } from '../ads';
+import PostGameShareCta from '../ui/PostGameShareCta';
 
 /** Flair for reward/unlock rows, which only carry a platform playerId + name
  *  string (gb:postgame:summary) — same rendering as FlairName, keyed by id. */
@@ -328,6 +329,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
 
             {/* Rematch vote (platform-wide majority vote) */}
             {!isBroadcastMirror && <RematchControls socket={socket} isHost={isHost} />}
+            {!isBroadcastMirror && <PostGameShareCta roomCode={lobby.code} gameName="Prime Suspect" />}
 
             {lobby.isGameBuddiesRoom && (
               <button
