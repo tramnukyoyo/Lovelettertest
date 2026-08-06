@@ -147,12 +147,19 @@
 
 /* Hide / show sidebar toggle — a compact chevron tab on the rail's right edge,
    vertically centred. Shows ▸ (hide) when the rail is open and ◂ (show) when
-   collapsed. */
+   collapsed. Fleet standard: this tab is the ONLY collapse control.
+   Centering uses auto block margins, NOT `top:50% + translateY(-50%)`: the
+   prime-suspect theme layer loads last and overrides `transform` on
+   :hover/:active (translateY(-1px)/(2px)), which would drop a
+   transform-centred tab by half its height the moment the cursor touches it. */
 .gs-rail-collapse-btn {
   position: absolute;
-  top: 50%;
+  top: 0;
+  bottom: 0;
   right: 0;
-  transform: translateY(-50%);
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -180,20 +187,10 @@
   padding: 0.1rem 0.25rem;
 }
 
-/* Slim full-width collapse strip at the rail's top edge */
-.gs-rail-hide-btn {
-  flex-shrink: 0;
-  width: 100%;
-  height: 20px;
-  background: var(--bg-darker);
-  border: none;
-  border-bottom: 2px solid var(--px-border-dark);
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 0.7rem;
-  line-height: 1;
-}
-.gs-rail-hide-btn:hover { color: var(--primary); background: var(--panel-bg-hover); }
+/* Owner: ONE collapse control only — the edge arrow tab (fleet parity).
+   The slim in-rail strip is no longer rendered by GameShell; this rule keeps
+   the standard's contract for anything that re-introduces the markup. */
+.gs-rail-hide-btn { display: none; }
 
 /* Rail is desktop-only; below the breakpoint the existing MobileDrawer
    (opened from the header buttons) covers chat/players/video. */

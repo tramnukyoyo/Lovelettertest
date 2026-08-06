@@ -209,3 +209,14 @@
     grid-auto-rows: minmax(44px, auto);
   }
 }
+
+/* Chevron tabs are tappable controls (fleet standard: touch/no-wheel users
+   page the pane by clicking). Strip stays pointer-events:none; only the tab
+   itself is interactive. */
+.gs-scroll-hint .gs-scroll-hint-chevron {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* An invisible hint tab must never eat clicks (fleet parity with BlindSpot). */
+.gs-scroll-hint:not(.is-visible) .gs-scroll-hint-chevron { pointer-events: none; }

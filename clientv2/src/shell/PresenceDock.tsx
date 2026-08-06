@@ -9,6 +9,8 @@ import React from 'react';
 import { Avatar } from '../components/core/Avatar';
 import { usePlayerProfile } from '../services/playerProfiles';
 import { cosmeticClass } from '../utils/cosmetics';
+import { frameThemeClass } from '../utils/frameThemes';
+import { useFrameTryOn } from '../services/frameTryOn';
 
 export interface DockPlayer {
   id: string;
@@ -24,11 +26,15 @@ export interface DockPlayer {
 
 const DockChip: React.FC<{ p: DockPlayer }> = ({ p }) => {
   const profile = usePlayerProfile(p.id);
-  const frameClass = cosmeticClass(profile?.cosmetics.frameId);
+  // Roster picker try-on previews on the OWN chip too (owner: the frame accent
+  // paints rail row + crew card + dock chip at the same time, never one alone).
+  const tryOn = useFrameTryOn();
+  const frameId = p.isMe && tryOn !== undefined ? tryOn : profile?.cosmetics.frameId;
+  const frameClass = cosmeticClass(frameId);
   const flairClass = cosmeticClass(profile?.cosmetics.flairId);
   return (
     <span
-      className={`gs-chip ${p.isMe ? 'is-me' : ''} ${p.connected === false ? 'is-disconnected' : ''}`.trim()}
+      className={`gs-chip ${p.isMe ? 'is-me' : ''} ${p.connected === false ? 'is-disconnected' : ''} ${frameThemeClass(frameId)}`.trim()}
       title={p.name}
     >
       <span className={`gs-chip-av ${frameClass ? `avatar-frame-wrap ${frameClass}` : ''}`.trim()}>

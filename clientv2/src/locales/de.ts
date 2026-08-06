@@ -361,6 +361,7 @@ export const de: Translations = {
 
   designer: {
     title: 'Dein Style',
+    cardBackTitle: 'Deine Kartenrückseite',
     classic: 'Keiner',
     framesTitle: 'Avatar-Rahmen',
     framesHint: 'umrahmt deinen Avatar hier und auf GameBuddies',

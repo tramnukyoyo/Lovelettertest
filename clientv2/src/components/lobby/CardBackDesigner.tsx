@@ -129,10 +129,10 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
 
   return (
     <div className="psshop-backdrop" onClick={onClose}>
-      <div className="psshop-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t('designer.title')}>
+      <div className="psshop-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t('designer.cardBackTitle')}>
         <button className="psshop-close" onClick={onClose} aria-label="Close"><X size={18} /></button>
         <div className="psshop-head">
-          <h2 className="psshop-title">{t('designer.title')}</h2>
+          <h2 className="psshop-title">{t('designer.cardBackTitle')}</h2>
           {platform.status === 'ready' && !premium && (
             <span className="psshop-balance" title={t('designer.yourGp')}><Coins size={12} aria-hidden="true" /> {platform.balance.toLocaleString()} GP</span>
           )}

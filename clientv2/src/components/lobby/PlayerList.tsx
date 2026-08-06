@@ -11,8 +11,9 @@ import { PlayerCard, ProfileAvatar, FlairName } from '../core';
 import type { Player, Team } from '../../types';
 import { t } from '../../utils/translations';
 import { usePlatformCosmetics, requestPlatformCosmetics, equipPlatformCosmetic } from '../../services/platformCosmetics';
-import { usePlayerProfile } from '../../services/playerProfiles';
-import { FRAME_THEMES } from '../../utils/frameThemes';
+import { usePlayerProfile, getPlayerProfile } from '../../services/playerProfiles';
+import { FRAME_THEMES, frameThemeClass } from '../../utils/frameThemes';
+import { setFrameTryOn, clearFrameTryOn } from '../../services/frameTryOn';
 import { useAuthState } from '../../services/supabaseAuth';
 import GameAuthModal from '../core/GameAuthModal';
 
@@ -127,11 +128,21 @@ const PlayerList: React.FC<PlayerListProps> = ({
   // Tapping a LOCKED chip previews it locally (own avatar ring) without
   // equipping — buying stays in the designer. Cleared when the picker closes.
   const [tryOnStyle, setTryOnStyle] = useState<string | null>(null);
-  useEffect(() => { if (!cardStyleOpen) setTryOnStyle(null); }, [cardStyleOpen]);
   const frameOptions: Array<{ id: string; name: string }> = [
     { id: '', name: t('playerList.frameNone') },
     ...shop.catalog.frames.map(f => ({ id: f.id, name: f.name })),
   ];
+  // The frame my OWN surfaces should display right now (a locked try-on wins
+  // over the equipped one). Broadcast to the crew card + presence dock so the
+  // preview paints all three identity surfaces at once (owner rule 2026-07-31).
+  const myDisplayFrame = tryOnStyle ?? equippedFrame;
+  useEffect(() => {
+    if (cardStyleOpen) setFrameTryOn(myDisplayFrame || null);
+  }, [cardStyleOpen, myDisplayFrame]);
+  useEffect(() => {
+    if (!cardStyleOpen) { setTryOnStyle(null); clearFrameTryOn(); }
+  }, [cardStyleOpen]);
+  useEffect(() => () => clearFrameTryOn(), []);
   // Game is active if any player has any Bluffalo game fields set (score exists)
   const gameActive = players.some(p => 'score' in p && typeof (p as any).score === 'number' && (((p as any).hasSubmittedLie || (p as any).hasVoted || (p as any).score > 0)));
   // State for inline kick confirmation
@@ -285,12 +296,15 @@ const PlayerList: React.FC<PlayerListProps> = ({
           const playerTeam = getPlayerTeam(player.socketId);
           const withStylePicker = showCardStylePicker && isMe && !player.isSpectator;
           // A locked try-on previews the frame on my own avatar without equipping.
-          const displayFrame = isMe ? (tryOnStyle ?? equippedFrame) : '';
+          const displayFrame = isMe ? myDisplayFrame : '';
+          // Fleet rule 9: the frame accent IS the row's border color — for the
+          // equipped frame AND for a live try-on (own row only).
+          const rowFrameId = isMe ? (myDisplayFrame || null) : getPlayerProfile(player.id)?.cosmetics.frameId;
 
           return (
             <li
               key={player.id ?? player.socketId}
-              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''} ${withStylePicker ? 'has-cardstyle-picker' : ''}`}
+              className={`player-list-item ${isMe ? 'is-me' : ''} ${!isConnected ? 'disconnected' : ''} ${newPlayerIds.has(player.socketId) ? 'player-entering' : ''} ${isSpectator && !isMe ? 'spectator-player-clickable' : ''} ${viewingAsSocketId === player.socketId ? 'spectator-player-active' : ''} ${withStylePicker ? 'has-cardstyle-picker' : ''} ${frameThemeClass(rowFrameId)}`}
               onClick={() => isSpectator && !isMe && onPlayerClick?.(player.socketId)}
             >
               {/* Avatar (tap opens the platform profile card, cosmetics-aware) */}

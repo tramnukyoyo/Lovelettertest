@@ -370,6 +370,7 @@ export const ptPT: Translations = {
 
   designer: {
     title: 'O teu estilo',
+    cardBackTitle: 'O verso da tua carta',
     classic: 'Nenhum',
     framesTitle: 'Moldura de avatar',
     framesHint: 'contorna o teu avatar aqui e no GameBuddies',

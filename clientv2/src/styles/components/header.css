@@ -382,3 +382,10 @@
   color: var(--gold-400, #ffd23a);
   white-space: nowrap;
 }
+
+/* Owner (fleet standard): no player-count pill and no player-name chip in the
+   in-room header — the rail roster, crew grid and account chip carry that info.
+   Prime Suspect's GameHeader already renders neither; the rule is the standard's
+   contract and guards against a template refresh re-introducing them. */
+.game-header-player-count,
+.game-header-player-info { display: none; }

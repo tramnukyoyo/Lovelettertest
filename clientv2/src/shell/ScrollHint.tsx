@@ -16,13 +16,29 @@ const BOTTOM_THRESHOLD_PX = 12;
 
 const ScrollHint: React.FC<{ watch?: 'parent' | 'prev' }> = ({ watch = 'parent' }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLElement | null>(null);
   const [canDown, setCanDown] = useState(false);
   const [canUp, setCanUp] = useState(false);
+
+  // Fleet standard (owner): the chevrons are also CONTROLS — touch/no-wheel
+  // users can tap them to page through the pane. Redundant affordance inside an
+  // aria-hidden wrapper, so these stay plain spans: a <button> here would be
+  // focusable-inside-aria-hidden AND would inherit the global `button` baseline
+  // (prime-suspect-unified.css) that repaints the amber pixel tab as a padded
+  // accent pill.
+  const page = (dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const reduce = typeof window !== 'undefined'
+      && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    el.scrollBy({ top: dir * el.clientHeight * 0.7, behavior: reduce ? 'auto' : 'smooth' });
+  };
 
   useEffect(() => {
     const el = watch === 'prev'
       ? (ref.current?.previousElementSibling as HTMLElement | null)
       : ref.current?.parentElement;
+    scrollerRef.current = el ?? null;
     if (!el) return;
 
     const update = () => {
@@ -54,13 +70,13 @@ const ScrollHint: React.FC<{ watch?: 'parent' | 'prev' }> = ({ watch = 'parent' 
       {/* ref must stay on the FIRST element: `watch="prev"` resolves the
           scroller via previousElementSibling. */}
       <div ref={ref} className={`gs-scroll-hint ${canDown ? 'is-visible' : ''}`} aria-hidden="true">
-        <span className="gs-scroll-hint-chevron">▾</span>
+        <span className="gs-scroll-hint-chevron" onClick={() => page(1)}>▾</span>
       </div>
       {/* The ▴ tab needs the out-of-scroller (absolute) placement; in legacy
           sticky mode it would just sit in the content flow — skip it there. */}
       {watch === 'prev' && (
         <div className={`gs-scroll-hint gs-scroll-hint-up ${canUp ? 'is-visible' : ''}`} aria-hidden="true">
-          <span className="gs-scroll-hint-chevron">▴</span>
+          <span className="gs-scroll-hint-chevron" onClick={() => page(-1)}>▴</span>
         </div>
       )}
     </>

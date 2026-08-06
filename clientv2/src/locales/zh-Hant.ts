@@ -341,6 +341,7 @@ export const zhHant: Translations = {
 
   designer: {
     title: '你的風格',
+    cardBackTitle: '你的牌背',
     classic: '無',
     framesTitle: '頭像框',
     framesHint: '在這裡和 GameBuddies 上環繞你的頭像',

@@ -1,19 +1,33 @@
 /* ============================================================================
-   BLUFFALO HOMEPAGE — RETRO GAME SHOW THEME
+   PRIME SUSPECT HOMEPAGE — THE CANDLELIT CASE FILE
+   Fleet-standard two-column layout (docs/FLEET_LOBBY_STANDARD.md,
+   "Homepage-Standard"): header · `.home-stage` grid (hero left / create card
+   right) · centred tip banner · legal footer IN the viewport. Geometry lives
+   here; palette comes from base/variables.css tokens (parchment / royal-gold /
+   velvet) and the parchment card skin is painted by the noir theme layer
+   (styles/prime-suspect-unified.css). Interactive elements animate
+   brightness/opacity only — never a transform of a clickable target.
+   The page NEVER scrolls: overflow is absorbed by the clamp() ladder in the
+   RESPONSIVE section, never by a scrollbar (overflow-y:auto is the last-resort
+   safety net for absurdly short viewports).
    ============================================================================ */
 
 /* ====== HOME PAGE LAYOUT ====== */
 
 .home-page {
+  /* Bounded height (not min-height): body is height:100dvh + overflow:hidden
+     (base/reset.css), so this element must own any residual scroll. */
   height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
+  gap: clamp(0.75rem, 2dvh, 1.5rem);
   padding: clamp(1rem, 3dvh, 2.5rem);
   padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px) + clamp(0.75rem, 2dvh, 2rem));
   padding-bottom: max(clamp(1rem, 3dvh, 2.5rem), env(safe-area-inset-bottom));
   overflow-y: auto;
-  background: transparent; /* sky + scenery painted by body + PrairieBackdrop */
+  background: transparent; /* candlelit scenery painted by PaperDeductionBackdrop */
   isolation: isolate;
   position: relative;
 }
@@ -222,6 +236,154 @@
 .home-header-menu-label { font-family: var(--font-body); font-size: 1rem; color: var(--text-primary); }
 .home-header-menu-sublabel { font-family: var(--font-body); font-size: 0.8rem; color: var(--text-secondary); }
 
+/* ============================================================================
+   SET-PIECE: hero column + create card. The split is driven by the AVAILABLE
+   WIDTH (container query on the stage), not the raw viewport, and is gated to
+   landscape so a portrait 1440x2560 monitor keeps the stacked phone layout.
+   ============================================================================ */
+
+/* Outer wrapper establishes the container context (a container query cannot
+   restyle the element that declares `container-type`, so the grid lives one
+   level in). Auto block margins absorb the spare vertical space → the set-piece
+   sits centred between header and footer; they collapse to 0 when content would
+   overflow, so nothing is ever clipped. */
+.home-stage {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 1280px;
+  margin: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* The shared legal footer pins itself with `margin-top:auto` — on the homepage
+   that auto margin competes with `.home-stage`'s own auto block margins,
+   splitting the free space and stranding the set-piece at 1/3 height on tall
+   viewports. The stage's margins alone both centre the content AND push the
+   footer to the bottom of the viewport. */
+.home-page .legal-footer { margin-top: 0; }
+
+.home-stage-grid {
+  display: grid;
+  grid-template-areas: "hero" "card" "tip";
+  gap: clamp(1rem, 3dvh, 2rem);
+  justify-items: center;
+  align-items: start;
+  width: 100%;
+}
+
+.home-hero-col {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.6rem, 1.6dvh, 1.25rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.home-card-col {
+  grid-area: card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.6rem, 1.6dvh, 1rem);
+  width: 100%;
+  max-width: 440px;
+}
+
+/* ── Wide layout: hero left, case-file card right, both vertically centred,
+      with a full-width tip strip closing the composition. Landscape-gated per
+      the fleet standard. ── */
+@media (orientation: landscape) {
+@container (min-width: 820px) {
+  .home-stage-grid {
+    /* Left track hugs the wordmark (auto, content-sized because
+       `justify-content:center` stops auto tracks from stretching); the card
+       track is the fleet-standard minmax(330px, 400px). */
+    grid-template-columns: auto minmax(330px, 400px);
+    grid-template-areas:
+      "hero card"
+      "tip  tip";
+    align-items: center;
+    justify-content: center;
+    column-gap: clamp(1.75rem, 4cqi, 3.25rem);
+    row-gap: clamp(1rem, 2.5cqi, 1.75rem);
+    justify-items: stretch;
+  }
+
+  /* Bounding the hero column stacks the wordmark ("Prime" over "Suspect") into
+     a dossier stamp AND is what puts the create card at its fleet x-position —
+     the auto track is literally as wide as this box. */
+  .home-hero-col {
+    align-items: flex-start;
+    text-align: left;
+    width: clamp(320px, 31cqi, 400px);
+    gap: clamp(0.5rem, 1.3cqi, 1rem);
+  }
+
+  .home-hero { align-items: flex-start; text-align: left; }
+  /* Candle pool + beam + lamp follow the hero to the left column so the light
+     keeps a visible source in the split layout. */
+  .home-hero::before { left: clamp(46px, 23%, 96px); }
+  .home-hero::after {
+    left: clamp(46px, 23%, 96px);
+    width: clamp(190px, 22cqi, 300px);
+    height: clamp(300px, 44dvh, 500px);
+  }
+  .home-lamp,
+  .home-motes { left: clamp(46px, 23%, 96px); }
+
+  .home-title {
+    font-size: clamp(3rem, 6.6cqi, 5.25rem);
+    line-height: 0.96;
+  }
+
+  .home-mascot { width: clamp(112px, 16cqi, 172px); }
+  .home-tagline { margin-inline: 0; max-width: 30ch; }
+  .home-gb-branding { justify-content: flex-start; }
+  .home-card-col { align-items: stretch; max-width: none; }
+
+  /* Tip demoted to a hairline strip centred under BOTH columns. */
+  .home-tip-banner {
+    grid-area: tip;
+    justify-self: center;
+    margin-top: clamp(0.25rem, 1cqi, 0.75rem);
+  }
+
+  /* The hero column is a fixed box (above), not a shrink-to-content one, so the
+     badge shares the wordmark's left edge instead of BlindSpot's `center` —
+     centring it inside a box wider than its content would put the badge on a
+     different axis from everything above it. */
+  .home-mp-badge { align-self: flex-start; }
+}
+}
+
+/* Fallback where container queries are unsupported: mirror the split by viewport. */
+@supports not (container-type: inline-size) {
+  @media (min-width: 1024px) and (orientation: landscape) {
+    .home-stage-grid {
+      grid-template-columns: auto minmax(330px, 400px);
+      grid-template-areas:
+        "hero card"
+        "tip  tip";
+      align-items: center;
+      justify-content: center;
+      column-gap: 3.2rem;
+      row-gap: 1.75rem;
+    }
+    .home-hero-col { align-items: flex-start; text-align: left; width: min(400px, 32vw); }
+    .home-hero { align-items: flex-start; text-align: left; }
+    .home-title { font-size: clamp(3rem, 5vw, 5.25rem); line-height: 0.96; }
+    .home-tagline { margin-inline: 0; max-width: 30ch; }
+    .home-tagline::after { left: 0; transform: none; width: clamp(90px, 60%, 200px); }
+    .home-gb-branding { justify-content: flex-start; }
+    .home-card-col { align-items: stretch; max-width: none; }
+    .home-tip-banner { grid-area: tip; justify-self: center; margin-top: 0.5rem; }
+    .home-mp-badge { align-self: flex-start; }
+  }
+}
+
 /* ====== HERO SECTION ====== */
 
 .home-hero {
@@ -229,9 +391,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(0.25rem, 1dvh, 1rem);
-  margin-bottom: clamp(0.5rem, 2dvh, 1.5rem);
-  animation: fadeInUp 0.6s ease-out;
+  gap: clamp(0.25rem, 1dvh, 0.85rem);
   position: relative;
   z-index: 1;
 }
@@ -241,46 +401,42 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Buffalo emoji mascot */
-.home-mascot-emoji {
-  font-size: clamp(3rem, min(12vw, 10dvh), 6rem);
-  filter: drop-shadow(0 4px 20px rgba(var(--primary-rgb), 0.3));
-  animation: mascotBounce 3s ease-in-out infinite;
-}
-
 .home-mascot {
-  width: clamp(72px, min(22vw, 16dvh), 168px);
+  width: clamp(84px, min(22vw, 18dvh), 172px);
   height: auto;
   image-rendering: pixelated;
-  filter: drop-shadow(4px 6px 0 rgba(20, 10, 4, 0.35));
-  animation: mascotBounce 3s var(--ease-in-out-expo) infinite;
+  filter: drop-shadow(4px 6px 0 rgba(18, 13, 17, 0.55))
+          drop-shadow(0 0 26px rgba(210, 178, 90, 0.26));
+  animation: mascotBounce 3.4s var(--ease-in-out-expo) infinite;
   position: relative;
   z-index: 1;
 }
 
-/* Pixel sun-ray burst behind the mascot — pure CSS, no extra DOM */
+/* Warm candle pool behind the detective — a soft radial wash that breathes;
+   replaces the inherited prairie sun-ray spokes (wrong genre entirely). */
 .home-hero::before {
   content: '';
   position: absolute;
-  top: clamp(-20px, -4dvh, -8px);
+  top: clamp(-24px, -5dvh, -8px);
   left: 50%;
   transform: translateX(-50%);
-  width: clamp(160px, 32vw, 300px);
-  height: clamp(160px, 32vw, 300px);
-  background: repeating-conic-gradient(
-    rgba(255, 233, 168, 0.18) 0deg 9deg,
-    transparent 9deg 30deg
+  width: clamp(200px, 38vw, 340px);
+  height: clamp(200px, 38vw, 340px);
+  background: radial-gradient(
+    circle at 50% 42%,
+    rgba(231, 204, 122, 0.30) 0%,
+    rgba(210, 178, 90, 0.15) 34%,
+    rgba(167, 126, 34, 0.05) 56%,
+    transparent 72%
   );
-  -webkit-mask-image: radial-gradient(circle, black 30%, transparent 68%);
-  mask-image: radial-gradient(circle, black 30%, transparent 68%);
-  animation: heroRaysSpin 36s linear infinite;
+  animation: heroGlowPulse 6.5s var(--ease-in-out-expo) infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-@keyframes heroRaysSpin {
-  from { transform: translateX(-50%) rotate(0deg); }
-  to   { transform: translateX(-50%) rotate(360deg); }
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: 0.82; }
+  50% { opacity: 1; }
 }
 
 @keyframes mascotBounce {
@@ -288,6 +444,146 @@
   50% { transform: translateY(-8px) rotate(2deg); }
 }
 
+/* ── SIGNATURE MOMENT (1/3): the desk-lamp beam raking down over the mascot and
+      the embossed wordmark, as if the case file were opened under a lamp. A warm
+      cone (clip-path trapezoid, blurred, side-masked so the edges dissolve).
+      Purely decorative, BEHIND the content (z-index 0 under the z-index:1
+      mascot/title), never reflows and can never overlap an interactive target;
+      sized so it fades out well above the card that stacks below on phones. ── */
+.home-hero::after {
+  content: '';
+  position: absolute;
+  top: clamp(-90px, -14dvh, -50px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(180px, 40vw, 330px);
+  height: clamp(230px, 40dvh, 420px);
+  background: linear-gradient(
+    180deg,
+    rgba(246, 240, 230, 0.17) 0%,
+    rgba(231, 204, 122, 0.10) 30%,
+    rgba(210, 178, 90, 0.04) 55%,
+    transparent 78%
+  );
+  clip-path: polygon(40% 0%, 60% 0%, 94% 100%, 6% 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+  filter: blur(7px);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+  animation: heroSpotBreathe 7.5s var(--ease-in-out-expo) infinite;
+}
+
+@keyframes heroSpotBreathe {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+/* ── SIGNATURE MOMENT (2/3): the brass desk lamp itself — the visible SOURCE of
+      the beam above. A cord dropping in, a gold shade, a hot bulb at its mouth
+      and a warm pool spilling down onto the detective. Absolutely positioned so
+      it adds NO layout height (protects the one-viewport fit) and revealed only
+      where there is vertical room, so it never crowds phones. ── */
+.home-lamp {
+  display: none;
+  position: absolute;
+  top: clamp(-104px, -13dvh, -60px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(58px, 15vw, 96px);
+  height: clamp(112px, 17dvh, 168px);
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    58% 46% at 50% 42%,
+    rgba(231, 204, 122, 0.30) 0%,
+    rgba(210, 178, 90, 0.11) 34%,
+    transparent 66%
+  );
+  animation: homeLampGlow 6.5s var(--ease-in-out-expo) infinite;
+}
+
+/* the cord dropping in from the ceiling into the shade */
+.home-lamp::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: clamp(20px, 4.6dvh, 44px);
+  background: linear-gradient(180deg, rgba(28, 21, 27, 0) 0%, rgba(45, 33, 42, 0.92) 42%, rgba(18, 13, 17, 0.96) 100%);
+  border-radius: 1px;
+}
+
+/* the gold shade with a hot bulb glowing at its mouth */
+.home-lamp::after {
+  content: '';
+  position: absolute;
+  top: clamp(18px, 4.2dvh, 42px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(46px, 12vw, 78px);
+  height: clamp(30px, 5vw, 46px);
+  background:
+    radial-gradient(120% 150% at 50% 126%, rgba(246, 240, 230, 0.95) 0%, rgba(231, 204, 122, 0.5) 20%, rgba(210, 178, 90, 0) 46%),
+    linear-gradient(180deg, var(--royal-gold) 0%, var(--royal-gold-dark) 48%, #4a3212 100%);
+  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+  border-radius: 0 0 7px 7px;
+  box-shadow:
+    inset 0 2px 0 rgba(246, 240, 230, 0.45),
+    0 0 18px rgba(210, 178, 90, 0.4);
+}
+
+@keyframes homeLampGlow {
+  0%, 100% { filter: brightness(0.94); }
+  50% { filter: brightness(1.1); }
+}
+
+/* ── SIGNATURE MOMENT (3/3): dust motes drifting up through the lamp beam.
+      Two radial-dot layers on one decorative box, animated with TRANSFORM only
+      (composited, no repaint of the blurred beam) and masked so they fade out
+      long before they reach any text. ── */
+.home-motes {
+  display: none;
+  position: absolute;
+  top: clamp(-60px, -8dvh, -30px);
+  left: 50%;
+  /* base transform matters: with `prefers-reduced-motion` the keyframes are
+     switched off and this is the only thing centring the box. */
+  transform: translateX(-50%);
+  width: clamp(150px, 32vw, 280px);
+  height: clamp(200px, 32dvh, 360px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(1.5px 1.5px at 22% 18%, rgba(246, 240, 230, 0.9), transparent 60%),
+    radial-gradient(1.5px 1.5px at 64% 40%, rgba(231, 204, 122, 0.85), transparent 60%),
+    radial-gradient(1px 1px at 41% 72%, rgba(246, 240, 230, 0.8), transparent 60%),
+    radial-gradient(1px 1px at 82% 63%, rgba(231, 204, 122, 0.75), transparent 60%),
+    radial-gradient(1.5px 1.5px at 12% 88%, rgba(246, 240, 230, 0.7), transparent 60%);
+  -webkit-mask-image: radial-gradient(60% 70% at 50% 40%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(60% 70% at 50% 40%, #000 0%, transparent 78%);
+  animation: homeMotesDrift 15s linear infinite;
+}
+
+@keyframes homeMotesDrift {
+  0%   { transform: translate(-50%, 6%); }
+  100% { transform: translate(-50%, -10%); }
+}
+
+/* Reveal the lamp + motes only where there is room above the mascot — never on
+   portrait phones or short viewports, protecting the one-viewport fit. */
+@media (min-width: 481px) and (min-height: 620px) {
+  .home-lamp,
+  .home-motes { display: block; }
+}
+
+/* The wordmark as an embossed dossier stamp: engraved serif, a lit top edge and
+   a cut bottom edge, then the hard velvet drop that the rest of the client uses
+   for its pressed-tactile panels. */
 .home-title {
   font-family: var(--font-title);
   font-size: clamp(2.75rem, 11vw, 4.75rem);
@@ -297,28 +593,67 @@
   line-height: 1.05;
   position: relative;
   z-index: 1;
-  /* layered hard pixel shadow — depth without blur */
   text-shadow:
+    0 1px 0 rgba(246, 240, 230, 0.34),
+    0 -1px 0 rgba(74, 50, 18, 0.6),
     2px 2px 0 var(--primary-dark),
-    5px 5px 0 var(--px-border-dark);
+    5px 5px 0 var(--px-border-dark),
+    0 0 26px rgba(210, 178, 90, 0.22);
+  animation: titleCandleBreathe 5.5s var(--ease-in-out-expo) infinite;
 }
 
 .home-title-accent {
   color: var(--secondary-light);
   text-shadow:
+    0 1px 0 rgba(246, 240, 230, 0.38),
+    0 -1px 0 rgba(74, 50, 18, 0.6),
     2px 2px 0 var(--sky-teal),
-    5px 5px 0 var(--px-border-dark);
+    5px 5px 0 var(--px-border-dark),
+    0 0 26px rgba(231, 204, 122, 0.24);
+}
+
+@keyframes titleCandleBreathe {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.06); }
 }
 
 .home-tagline {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 3vw, 1.35rem);
-  /* on-sky copy: cream + hard pixel shadow for contrast on the bright sky */
+  font-size: clamp(1rem, 2.6vw, 1.3rem);
   color: var(--gb-cream);
   font-weight: 700;
-  text-shadow: 2px 2px 0 rgba(20, 10, 4, 0.45);
-  max-width: 400px;
+  text-shadow: 2px 2px 0 rgba(18, 13, 17, 0.55);
+  max-width: 34ch;
+  margin-inline: auto;
   line-height: 1.4;
+  position: relative;
+  padding-bottom: clamp(0.5rem, 1.4vw, 0.85rem);
+  /* Keeps the key phrase off a lonely last line at the tightest widths.
+     Locale-safe: no markup injected into the translated string. */
+  text-wrap: balance;
+}
+
+/* A thin gold rule under the tagline — the case-file hairline that ties the
+   hero to the client's gold trim. Decorative. */
+.home-tagline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(70px, 34%, 150px);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--royal-gold-dark) 22%, var(--royal-gold-light) 50%, var(--royal-gold-dark) 78%, transparent);
+  box-shadow: 0 0 8px rgba(210, 178, 90, 0.35);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* left-aligned in the wide split (the hero column flips to flex-start) */
+@media (orientation: landscape) {
+  @container (min-width: 820px) {
+    .home-tagline::after { left: 0; transform: none; width: clamp(90px, 60%, 200px); }
+  }
 }
 
 /* GameBuddies Branding */
@@ -331,7 +666,7 @@
   letter-spacing: 0.02em;
 }
 
-.home-gb-branding { text-shadow: 2px 2px 0 rgba(20, 10, 4, 0.45); }
+.home-gb-branding { text-shadow: 2px 2px 0 rgba(18, 13, 17, 0.55); }
 .home-gb-by { color: var(--gb-cream); font-size: 0.85em; }
 .home-gb-game { color: var(--gb-gold); }
 .home-gb-buddies { color: var(--gb-lavender); }
@@ -340,140 +675,78 @@
 /* ====== MULTIPLAYER BADGE ====== */
 
 .home-mp-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
   background: var(--panel-bg);
-  border: 1px solid transparent;
+  border: 1px solid var(--px-border);
   border-radius: 0;
   box-shadow: 2px 2px 0 var(--px-border-dark);
   font-family: var(--font-body);
   font-size: 0.9rem;
-  animation: fadeInUp 0.6s ease-out 0.15s backwards;
   position: relative;
   z-index: 1;
 }
 
 .home-mp-badge svg { color: var(--gb-gold); flex-shrink: 0; }
-.home-mp-badge-count { color: var(--gb-gold); font-weight: 600; }
+.home-mp-badge-count { color: var(--gb-gold); font-weight: 700; }
 .home-mp-badge-sep { color: var(--panel-border); }
-.home-mp-badge-category { color: var(--text-secondary); }
-
-/* ====== HOW IT WORKS STEPS ====== */
-
-.home-steps {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: clamp(0.5rem, 2dvh, 1.5rem);
-  animation: fadeInUp 0.6s ease-out 0.25s backwards;
-  position: relative;
-  z-index: 1;
-}
-
-.home-step { display: flex; align-items: center; gap: var(--spacing-xs); }
-
-.home-step-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--panel-bg);
-  border-radius: var(--radius-sm);
-  color: var(--gb-gold);
-  flex-shrink: 0;
-  box-shadow: 2px 2px 0 var(--px-border-dark);
-}
-
-.home-step-text {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
+.home-mp-badge-category {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
   font-weight: 700;
-  /* on-sky copy: cream + hard pixel shadow for contrast on the bright sky */
-  color: var(--gb-cream);
-  text-shadow: 2px 2px 0 rgba(20, 10, 4, 0.45);
-  white-space: nowrap;
 }
 
-.home-step-arrow { color: var(--gb-cream); text-shadow: 1px 1px 0 rgba(20, 10, 4, 0.45); font-size: 1rem; flex-shrink: 0; }
+/* NOTE: the "Create → Share → Play" step strip (.home-steps/.home-step/
+   .home-step-icon/.home-step-text/.home-step-arrow) was retired fleet-wide
+   (FLEET_LOBBY_STANDARD.md, Homepage-Standard) and its rules were deleted
+   rather than out-specified. Do not reintroduce it. */
 
-/* ====== CARDS ====== */
+/* ====== CREATE / JOIN CARD — the open case file (focal set-piece) ====== */
 
-.home-cards-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  position: relative;
-  z-index: 1;
-}
-
-.home-cards {
-  display: flex;
-  gap: var(--spacing-lg);
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 800px;
-  width: 100%;
-}
+/* `.home-cards-wrapper` now sits ON the grid's card column (see HomePage.tsx):
+   the Prime Suspect noir layer paints the parchment/ruled-paper skin through
+   `[data-theme="primesuspect"] .home-cards-wrapper .card`, so the class is a
+   load-bearing theme hook, not layout. Layout comes from `.home-card-col`. */
+.home-cards-wrapper { position: relative; z-index: 1; }
 
 .home-card {
-  flex: 1;
-  min-width: 280px;
-  max-width: 360px;
-  padding: clamp(1rem, 3dvh, 2rem);
-  background: var(--panel-bg);
-  border: 1px solid transparent;
-  border-radius: 0;
+  width: 100%;
   text-align: center;
-  /* 2-ring pixel panel (px-panel2 recipe) */
-  box-shadow:
-    0 calc(-1 * var(--px)) 0 0 var(--px-border),
-    0 var(--px)             0 0 var(--px-border),
-    calc(-1 * var(--px)) 0  0 0 var(--px-border),
-    var(--px) 0             0 0 var(--px-border),
-    0 calc(-2 * var(--px)) 0 0 var(--px-border-dark),
-    0 calc(2 * var(--px))  0 0 var(--px-border-dark),
-    calc(-2 * var(--px)) 0  0 0 var(--px-border-dark),
-    calc(2 * var(--px)) 0   0 0 var(--px-border-dark),
-    inset 0 var(--px) 0 0 var(--px-bevel-light),
-    inset 0 calc(-1 * var(--px)) 0 0 var(--px-bevel-dark);
-  transition: border-color 280ms var(--ease-out-expo);
-  animation: fadeInUp 280ms var(--ease-out-expo) backwards;
+  transition: box-shadow var(--transition), filter var(--transition);
 }
 
-.home-card:nth-child(1) { animation-delay: 0.1s; }
-.home-card:nth-child(2) { animation-delay: 0.2s; }
-
-.home-card:hover {
-  border-color: rgba(var(--primary-rgb), 0.35);
+/* Box metrics vs. the noir layer. `[data-theme="primesuspect"]
+   .home-cards-wrapper .card` ships `padding` with `!important` and
+   `[data-theme="primesuspect"] .card.home-card` caps `max-width` at 320px —
+   both would break the fleet-standard 400px card, so the geometry has to answer
+   from a longer selector. Everything cosmetic (paper, ring, ink) is deliberately
+   left to the theme layer. The inherited `transform: translateY(-4px)` hover is
+   neutralised here: rule 8 forbids moving a clickable surface. */
+.home-stage .home-card-col.home-cards-wrapper .card.home-card {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  /* 400px card − 2 × 1.95rem ⇒ a 337px name field, the fleet reference. */
+  padding:
+    clamp(0.95rem, 2.2dvh, 1.4rem)
+    clamp(1rem, 3.2dvh, 1.95rem)
+    clamp(1.1rem, 2.6dvh, 1.6rem) !important;
+  animation: none;
 }
 
-.home-card .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-bottom: clamp(0.25rem, 1dvh, 0.75rem);
+.home-stage .home-card-col.home-cards-wrapper .card.home-card:hover {
+  transform: none;
 }
-
-.home-card .card-header h2 {
-  font-family: var(--font-title);
-  font-size: clamp(1.2rem, 3dvh, 1.5rem);
-  color: var(--gb-gold);
-  margin: 0;
-}
-
-.home-card .card-header svg { color: var(--gb-gold); }
 
 .home-card .card-description {
   font-family: var(--font-body);
   font-size: 0.95rem;
   color: var(--text-secondary);
-  margin-bottom: clamp(0.5rem, 1.5dvh, 1.5rem);
+  margin: 0 0 clamp(0.5rem, 1.4dvh, 1rem);
   line-height: 1.4;
 }
 
@@ -483,6 +756,12 @@
   display: flex;
   flex-direction: column;
   gap: clamp(0.5rem, 1.5dvh, 1rem);
+}
+
+/* Name field sized to the fleet reference (337 x 61 inside the 400px card).
+   Colour/border stay with the inherited kit — only the box metrics live here. */
+.home-card .floating-label-input {
+  padding: 1.45rem 0.9rem 0.9rem;
 }
 
 /* ====== STREAMER MODE CHECKBOX ====== */
@@ -555,6 +834,16 @@
               background 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* icon + label row inside the CTA */
+.home-btn-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.home-btn-inner svg { flex-shrink: 0; }
+
 .home-btn.primary {
   background: var(--btn-face);
   color: var(--bg-darker);
@@ -617,26 +906,26 @@
 /* ====== TIP BANNER ====== */
 
 .home-tip-banner {
+  grid-area: tip;
+  justify-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  margin-top: clamp(0.5rem, 2dvh, 1.5rem);
   padding: var(--spacing-xs) var(--spacing-lg);
   background: var(--bg-darker);
   border: 1px solid var(--px-border);
   border-radius: 0;
   box-shadow: 2px 2px 0 var(--px-border-dark);
-  color: var(--primary-light);
+  color: var(--text-secondary);
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.9rem;
-  animation: fadeInUp 0.6s ease-out 0.4s backwards;
   position: relative;
   z-index: 1;
 }
 
-.home-tip-banner svg { flex-shrink: 0; opacity: 0.8; }
+.home-tip-banner svg { flex-shrink: 0; opacity: 0.85; color: var(--gb-gold); }
 
 /* ====== GAMEBUDDIES BANNER ====== */
 
@@ -645,8 +934,10 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  margin-top: calc(var(--header-height) + var(--spacing-md));
-  margin-bottom: calc(-1 * var(--spacing-lg));
+  /* The page's own padding-top already clears the fixed header; only the small
+     extra offset is needed (the negative bottom margin belonged to the old
+     margin-driven stack and fought the flex `gap`). */
+  margin-top: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-md);
   background: rgba(var(--primary-rgb), 0.15);
   border: 1px solid rgba(var(--primary-rgb), 0.3);
@@ -672,15 +963,15 @@
 
 .home-error {
   width: 100%;
-  max-width: 400px;
   padding: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
   background: color-mix(in srgb, var(--gb-lie) 12%, transparent);
   border: 2px solid var(--gb-lie);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--px-border-dark);
   color: var(--gb-lie);
   text-align: center;
   font-family: var(--font-body);
+  font-weight: 700;
   animation: shake 0.4s ease-in-out;
   position: relative;
   z-index: 1;
@@ -726,169 +1017,114 @@
   .home-header-title { font-size: 1rem; }
   .home-header-branding { font-size: 0.6rem; }
 
-  /* One-screen home: vertically center a compacted stack so the whole page
-     fits the viewport without scrolling. `safe` keeps the top reachable if a
-     very short device still overflows (falls back to top-aligned + scroll). */
   .home-page {
-    justify-content: safe center;
-    gap: 0;
     padding: var(--spacing-md);
-    padding-top: calc(var(--header-height-mobile) + var(--spacing-sm));
-    padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom));
+    padding-top: calc(var(--header-height-mobile) + var(--spacing-md));
   }
-
-  .home-hero {
-    gap: 2px;
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .home-mascot { width: clamp(64px, 20vw, 104px); }
-  .home-mascot-emoji { font-size: 3rem; }
-
-  /* The "by GameBuddies.io" line is already in the header — drop the duplicate
-     under the tagline to reclaim vertical space. */
-  .home-gb-branding { display: none; }
-
-  /* "How it works" is the tallest block once it stacks vertically; the adaptive
-     card already explains create/join, so hide it on phones to keep the page to
-     a single screen. */
-  .home-steps { display: none; }
-
-  .home-mp-badge {
-    font-size: 0.8rem;
-    padding: var(--spacing-xs) var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .home-cards { flex-direction: column; align-items: center; }
-  .home-card { max-width: 100%; padding: var(--spacing-md) var(--spacing-lg); }
 
   .home-tip-banner {
-    margin-top: var(--spacing-sm);
     font-size: 0.8rem;
     padding: var(--spacing-xs) var(--spacing-md);
   }
 
   .home-gb-banner {
-    margin-top: calc(var(--header-height-mobile) + var(--spacing-sm));
     font-size: 0.75rem;
     padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .home-mp-badge {
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-md);
   }
 
   .mobile-hidden { display: none !important; }
 }
 
-@media (max-width: 926px) and (orientation: landscape) {
-  .home-page {
-    padding: var(--spacing-sm);
-    padding-top: calc(var(--header-height-mobile) + var(--spacing-md));
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-  }
-
-  .home-hero {
-    flex-direction: row;
-    gap: var(--spacing-md);
-    margin-bottom: 0;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .home-mascot-emoji { font-size: 2.5rem; }
-  .home-title { font-size: 1.5rem; }
-  .home-tagline, .home-gb-branding { display: none; }
-
-  .home-cards {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: var(--spacing-md);
-  }
-
-  .home-card {
-    min-width: 240px;
-    max-width: 300px;
-    padding: var(--spacing-md);
-  }
-
-  .home-card .card-description { display: none; }
+/* Mid / portrait-tablet band — still a single stack (the split fires at
+   container >=820px). Widen the card so it anchors the composition and pull the
+   hero rhythm in so 768x1024 clears the fold without a scrollbar. */
+@media (min-width: 560px) and (max-width: 819px) {
+  .home-card-col { max-width: 560px; }
+  .home-stage-grid { gap: clamp(0.85rem, 2dvh, 1.35rem); }
+  .home-mascot { width: clamp(88px, 12dvh, 124px); }
+  .home-hero { gap: clamp(0.2rem, 0.6dvh, 0.45rem); }
+  .home-hero-col { gap: clamp(0.4rem, 1dvh, 0.7rem); }
 }
 
-/* Phone LANDSCAPE (short height): two-column layout — hero/badge/steps on the
-   LEFT, the create/join card on the RIGHT — so everything fits the ~375px
-   height (iPhone SE) without scrolling. Mirrors CanvasChaos's home landscape
-   grid. Height-gated + placed AFTER the (max-width:926px) landscape block, so
-   it wins for phone landscape while taller tablet-landscape keeps the row
-   layout above. CSS-grid places the flat page children into columns — no JSX
-   change needed. */
-@media (orientation: landscape) and (max-height: 500px) {
-  .home-page {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "hero  card"
-      "badge card"
-      "steps card";
-    align-content: center;
-    align-items: center;
-    justify-items: center;
-    column-gap: var(--spacing-lg);
-    row-gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-md);
-    padding-top: calc(var(--header-height-mobile) + var(--spacing-xs));
-    overflow: hidden;
-  }
+/* Portrait phones — one-viewport fit (390x844). Compact the vertical rhythm so
+   hero + card + tip + footer clear the fold; the `.home-page` overflow-y is only
+   a safety net for genuinely tiny devices. */
+@media (max-width: 480px) and (orientation: portrait) {
+  .home-page { gap: clamp(0.35rem, 0.9dvh, 0.7rem); }
 
-  .home-hero {
-    grid-area: hero;
-    flex-direction: row;
-    width: auto;
-    margin: 0;
+  .home-stage-grid { gap: clamp(0.45rem, 1.2dvh, 0.85rem); }
+  .home-hero-col { gap: clamp(0.25rem, 0.7dvh, 0.5rem); }
+  .home-hero { gap: clamp(0.1rem, 0.45dvh, 0.35rem); }
+
+  .home-mascot { width: clamp(52px, 8.5dvh, 72px); }
+  /* Keep the lamp beam short so it lights mascot + wordmark and fades to nothing
+     above the tagline — it can then never spill onto the card stacked below. */
+  .home-hero::after {
+    top: clamp(-70px, -9dvh, -44px);
+    height: clamp(170px, 24dvh, 230px);
+    filter: blur(6px);
+  }
+  .home-title { font-size: clamp(2.4rem, 11.5vw, 3rem); line-height: 1; }
+  .home-tagline { font-size: 0.9rem; line-height: 1.25; max-width: 30ch; padding-bottom: 0.4rem; }
+  .home-tagline::after { width: clamp(60px, 30%, 120px); }
+  /* The byline is already in the fixed header — drop the duplicate to buy the
+     card the vertical room it needs on a phone. */
+  .home-gb-branding { display: none; }
+  .home-mp-badge { font-size: 0.78rem; padding: 0.2rem 0.7rem; }
+
+  .home-card .card-description { font-size: 0.83rem; margin-bottom: 0.5rem; }
+  .home-card .floating-label-input { padding: 1.15rem 0.8rem 0.6rem; font-size: 1rem; }
+  .home-form { gap: clamp(0.3rem, 0.85dvh, 0.6rem); }
+  .home-checkbox-label { padding: 0.1rem 0; }
+  .home-checkbox-text { font-size: 0.84rem; }
+  .home-btn { min-height: 46px; font-size: 1rem; }
+  .home-tip-banner { font-size: 0.76rem; padding: var(--spacing-xs) var(--spacing-sm); }
+}
+
+/* Landscape phone (844x390): keep the two columns but shrink the hero and strip
+   the atmospheric decor so the card is fully reachable without scrolling. This
+   block sits AFTER the container query on purpose — it must win there. */
+@media (max-width: 926px) and (orientation: landscape) and (max-height: 500px) {
+  .home-page {
+    padding: var(--spacing-sm);
+    padding-top: calc(var(--header-height-mobile) + var(--spacing-sm));
     gap: var(--spacing-sm);
   }
-  .home-mascot { width: clamp(40px, 9vh, 60px); }
-  .home-title { font-size: 1.5rem; }
 
-  .home-mp-badge { grid-area: badge; margin: 0; }
-
-  /* Re-show the steps (hidden in portrait) — landscape has room in the left
-     column, and a compact horizontal row balances the two columns. */
-  .home-steps {
-    grid-area: steps;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--spacing-xs);
-    margin: 0;
-  }
-  .home-steps .home-step-arrow { transform: none; font-size: 0.8rem; }
-
-  .home-cards-wrapper {
-    grid-area: card;
-    align-self: stretch;
-    width: 100%;
-    display: flex;
+  .home-stage-grid {
+    grid-template-columns: 1fr minmax(280px, 360px);
+    grid-template-areas: "hero card";
     align-items: center;
     justify-content: center;
+    gap: var(--spacing-lg);
   }
-  .home-cards { flex-direction: column; width: 100%; }
-  .home-card {
-    width: 100%;
-    min-width: 0;
-    max-width: 420px;
-    padding: var(--spacing-md);
-  }
+
+  .home-hero-col { align-items: center; text-align: center; width: auto; gap: var(--spacing-xs); }
+  .home-hero { align-items: center; text-align: center; }
+  .home-mascot { width: clamp(60px, 14vh, 92px); }
+  .home-title { font-size: clamp(1.6rem, 6vh, 2.4rem); line-height: 1.02; }
+  .home-tagline, .home-gb-branding { display: none; }
+  /* The glow/beam are sized off 38-40vw and would overhang the 390px fold; the
+     lamp + motes are already hidden by the min-height:620px gate, so the whole
+     decor family degrades together. */
+  .home-hero::before, .home-hero::after { display: none; }
+  .home-card-col { align-items: stretch; max-width: none; }
   .home-card .card-description { display: none; }
-
-  /* Conditional banners: if they appear, span both columns so the two-column
-     grid doesn't break. */
-  .home-gb-banner,
-  .home-error { grid-column: 1 / -1; }
-
   .home-tip-banner { display: none; }
+
+  /* Compact the card's inner rhythm so it fits 390px without losing a single
+     interactive affordance (field + checkbox + both buttons all stay). */
+  .home-card .floating-label-input { padding: 1rem 0.7rem 0.45rem; font-size: 1rem; }
+  .home-checkbox-label { padding: 2px 0; }
+  .home-checkbox-text { font-size: 0.84rem; }
+  .home-form { gap: clamp(0.25rem, 0.8dvh, 0.5rem); }
+  .home-btn { min-height: 42px; font-size: 1rem; }
+  .home-scan-qr-btn { min-height: 36px; }
 }
 
 @media (max-width: 374px) {
@@ -897,31 +1133,22 @@
     padding-top: calc(var(--header-height-mobile) + var(--spacing-md));
   }
 
-  .home-mascot-emoji { font-size: 2.5rem; }
-  .home-title { font-size: 1.75rem; }
-  .home-card { padding: var(--spacing-md); }
+  .home-title { font-size: clamp(2.2rem, 13vw, 2.75rem); }
   .home-btn { font-size: 1rem; }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  .home-cards { flex-direction: row; max-width: 700px; }
-  .home-card { min-width: 300px; max-width: 340px; }
-}
-
-@media (min-width: 1536px) {
-  .home-cards { max-width: 900px; }
-  .home-card { min-width: 380px; }
-}
-
-/* Reduced motion */
+/* Reduced motion — every entrance/ambient animation added by this sheet. */
 @media (prefers-reduced-motion: reduce) {
-  .home-mascot-emoji,
   .home-mascot,
-  .home-hero,
+  .home-hero::before,
+  .home-hero::after,
+  .home-lamp,
+  .home-motes,
+  .home-title,
   .home-mp-badge,
-  .home-steps,
   .home-tip-banner,
   .home-gb-banner,
+  .home-error,
   .home-card {
     animation: none;
   }

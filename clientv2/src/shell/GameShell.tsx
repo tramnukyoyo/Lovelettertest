@@ -10,7 +10,7 @@
  *
  * Copy-paste contract for other game clients: see src/shell/README.md.
  */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useShellOverflowGuard } from './useShellOverflowGuard';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -44,6 +44,30 @@ const GameShell: React.FC<GameShellProps> = ({
   const [railCollapsed, setRailCollapsed] = useState(
     () => localStorage.getItem(RAIL_COLLAPSED_KEY) === '1'
   );
+
+  // F11 browser-fullscreen: auto-collapse the rail so the stage goes immersive
+  // together with the vanished browser chrome (owner). F11 fires NO
+  // fullscreenchange (browser- not element-fullscreen), so detect it via
+  // viewport === screen on resize. The previous rail state is restored on
+  // exit; the localStorage preference is never touched (only toggleRail
+  // persists). Manual re-open inside fullscreen stays possible via the tab.
+  const railBeforeFullscreenRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    const check = () => {
+      const fs = window.innerHeight === window.screen.height
+        && window.innerWidth === window.screen.width;
+      if (fs && railBeforeFullscreenRef.current === null) {
+        railBeforeFullscreenRef.current = railCollapsed;
+        setRailCollapsed(true);
+      } else if (!fs && railBeforeFullscreenRef.current !== null) {
+        setRailCollapsed(railBeforeFullscreenRef.current);
+        railBeforeFullscreenRef.current = null;
+      }
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, [railCollapsed]);
 
   const stageRef = useShellOverflowGuard();
 
@@ -86,20 +110,13 @@ const GameShell: React.FC<GameShellProps> = ({
         {children}
       </main>
 
-      {rail && (
-        <aside className="gs-rail">
-          <button
-            type="button"
-            className="gs-rail-hide-btn"
-            onClick={toggleRail}
-            aria-label={t('shell.collapseSidebar')}
-            title={t('shell.collapseSidebar')}
-          >
-            ▸
-          </button>
-          {rail}
-        </aside>
-      )}
+      {/* Fleet standard: the edge arrow tab (.gs-rail-collapse-btn) is the ONLY
+          collapse control — the in-rail strip is gone. It is dropped from the DOM
+          rather than hidden in shell.css because the prime-suspect theme layer
+          loads last and forces `.gs-rail-hide-btn { display: inline-flex !important }`
+          (styles/game/prime-suspect-ingame.css icon tier), which no rule in this
+          layer can beat without an out-specificity hack. */}
+      {rail && <aside className="gs-rail">{rail}</aside>}
 
       {rail && (
         <button

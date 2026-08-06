@@ -1,9 +1,11 @@
 /* SECTION 14: LOBBY PAGE SPECIFIC STYLES */
 
+/* NOTE (fleet-standard lobby): the pane cards must FILL their grid track —
+   every `max-width` on .lobby-waiting-card was deleted (base + tablet +
+   landscape + 1536 steps). A floating 520px card inside a 1120px column is
+   exactly the drift the standard's parity pass measured away. */
 .lobby-waiting-card {
   position: relative;
-  max-width: 520px;
-  margin: 0 auto;
   padding: var(--spacing-xl);
   background: var(--bg-secondary);
   border: 2px solid transparent;
@@ -262,9 +264,11 @@
     inset 0 calc(-1 * var(--px)) 0 0 rgba(20, 10, 4, 0.28);
 }
 
+/* Rule 8: interactive elements animate brightness/opacity only — a moving
+   START button drifts under the pointer (and breaks headless actionability). */
 .lobby-start-btn:hover:not(:disabled) {
   background: var(--accent-hover);
-  transform: translateY(-2px);
+  filter: brightness(1.08);
 }
 
 .lobby-start-btn:disabled {
@@ -291,7 +295,7 @@
 /* Active States */
 .lobby-copy-btn:active { transform: scale(0.95); }
 
-.lobby-start-btn:active:not(:disabled) { transform: scale(0.98); }
+.lobby-start-btn:active:not(:disabled) { filter: brightness(0.92); }
 
 /* Focus Visible States */
 .lobby-copy-btn:focus-visible {
@@ -320,22 +324,25 @@
 }
 
 /* Start Button Pulse (attention grabber when enabled).
-   Transform-based: a box-shadow keyframe would wipe the pixel ring stack. */
+   Brightness-only: the button must never move or resize under the pointer
+   (rule 8) — a scale keyframe made the CTA a moving target and a box-shadow
+   keyframe would wipe the theme's slab shadow stack. */
 .lobby-start-btn:not(:disabled) { animation: startPulse 2s var(--ease-in-out-expo) infinite; }
 
 @keyframes startPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
 }
 
 .lobby-start-btn:hover:not(:disabled) { animation: none; }
 
+@media (prefers-reduced-motion: reduce) {
+  .lobby-start-btn:not(:disabled) { animation: none; }
+}
+
 /* Mobile Portrait */
 @media (max-width: 767px) {
-  .lobby-waiting-card {
-    padding: var(--spacing-lg);
-    margin: 0 var(--spacing-sm);
-  }
+  .lobby-waiting-card { padding: var(--spacing-lg); }
 
   .lobby-room-code {
     font-size: 1.5rem;
@@ -360,10 +367,7 @@
 
 /* Mobile Landscape */
 @media (max-width: 926px) and (orientation: landscape) {
-  .lobby-waiting-card {
-    max-width: 380px;
-    padding: var(--spacing-md);
-  }
+  .lobby-waiting-card { padding: var(--spacing-md); }
 
   .lobby-waiting-header { margin-bottom: var(--spacing-sm); }
 
@@ -389,17 +393,9 @@
   .lobby-players-compact { display: none; }
 }
 
-/* Tablet (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .lobby-waiting-card { max-width: 420px; }
-}
-
 /* Desktop Large (1536px+) */
 @media (min-width: 1536px) {
-  .lobby-waiting-card {
-    max-width: 560px;
-    padding: var(--spacing-2xl);
-  }
+  .lobby-waiting-card { padding: var(--spacing-2xl); }
 
   .lobby-waiting-header h2 { font-size: 1.75rem; }
 
@@ -1036,4 +1032,581 @@
   background: rgba(46, 204, 113, 0.25);
   color: #2ecc71;
   cursor: default;
+}
+
+/* ============================================================================
+   FLEET-STANDARD LOBBY (owner directive 2026-07-30 / 07-31)
+   Bad Actor's anatomy under the neutral gs-crew / gs-lobby-cols names.
+   GEOMETRY is a 1:1 translation of the blindspot copy template (itself a 1:1
+   translation of SUSD/clientv2 LobbyPage.layout.css); only COLOR and FONT
+   tokens are mapped to the Prime Suspect candlelit case-file theme.
+   The board reads as pinned suspect files: gold hairlines on velvet, ghost
+   seats as empty evidence sleeves.
+   ============================================================================ */
+
+/* ---------- Scene header: one hero line ---------------------------------- */
+.lobby-page .lobby-waiting-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.lobby-page .lobby-waiting-title,
+.lobby-page .lobby-waiting-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* ---------- Crew pane surface: a candle pool over velvet ----------------- */
+.lobby-page .gs-lobby-col--crew {
+  background:
+    radial-gradient(ellipse 110% 130% at 50% 26%, rgba(231, 204, 122, 0.10), transparent 66%),
+    linear-gradient(180deg, var(--velvet-panel), var(--velvet-dark));
+}
+
+.lobby-page .gs-crew {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.4cqb, 18px);
+  text-align: left;
+}
+
+.lobby-page .gs-crew__head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--px-border);
+}
+
+.lobby-page .gs-crew__title {
+  margin: 0;
+  font-family: var(--font-typewriter);
+  font-size: clamp(0.6rem, 1.4cqb, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+}
+
+/* Owner: NO quorum counter anywhere in the lobby — the ghost seats already
+   tell the story. Killed by rule so no markup mode can leak one back in. */
+.lobby-page .gs-crew__count { display: none; }
+
+/* ---------- Crew roster --------------------------------------------------- */
+.lobby-page .gs-crew__grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 128px), 1fr));
+  gap: clamp(8px, 1.2cqi, 20px);
+  align-content: center;
+}
+
+.lobby-page .gs-crew__card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(4px, 0.9cqb, 10px);
+  padding: clamp(8px, 1.6cqb, 20px) 8px clamp(6px, 1.2cqb, 14px);
+  background: linear-gradient(180deg, rgba(61, 44, 54, 0.62), rgba(18, 13, 17, 0.62));
+  border: 1px solid var(--px-border);
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.12);
+  text-align: center;
+  animation: psCrewSeatIn 0.28s var(--ease-out-expo, ease-out) both;
+  animation-delay: calc(var(--i, 0) * 0.04s);
+}
+
+@keyframes psCrewSeatIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* No box-shadow ring here: the frame accent owns the border (cosmetics.css). */
+.lobby-page .gs-crew__card.is-me { border-color: rgba(210, 178, 90, 0.75); }
+.lobby-page .gs-crew__card.is-host { box-shadow: inset 0 2px 0 0 var(--royal-gold); }
+.lobby-page .gs-crew__card.is-off { opacity: 0.42; }
+
+/* Empty seat = an evidence sleeve nobody has filed a suspect into yet. */
+.lobby-page .gs-crew__card--empty {
+  background: transparent;
+  border-style: dashed;
+  border-color: rgba(210, 178, 90, 0.34);
+  box-shadow: none;
+}
+
+.lobby-page .gs-crew__slug {
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--px-border);
+  font-family: var(--font-typewriter);
+  font-size: clamp(0.5rem, 1.1cqb, 0.7rem);
+  letter-spacing: 0.16em;
+  color: var(--parchment-dark);
+}
+
+.lobby-page .gs-crew__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--royal-gold-light);
+  box-shadow: 0 0 6px rgba(231, 204, 122, 0.65);
+}
+
+.lobby-page .gs-crew__dot.is-off {
+  background: var(--royal-crimson-light);
+  box-shadow: none;
+}
+
+.lobby-page .gs-crew__av {
+  flex-shrink: 0;
+  width: clamp(36px, 7.5cqb, 82px);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--velvet-darker);
+  border: 1px solid rgba(210, 178, 90, 0.4);
+  border-radius: 50%;
+}
+
+.lobby-page .gs-crew__av img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.lobby-page .gs-crew__av--empty {
+  background: transparent;
+  border-style: dashed;
+  border-color: rgba(210, 178, 90, 0.34);
+  color: var(--parchment-dark);
+  font-family: var(--font-title);
+  font-size: clamp(14px, 2.6cqb, 28px);
+}
+
+.lobby-page .gs-crew__av-glyph { opacity: 0.75; }
+
+.lobby-page .gs-crew__name-wrap {
+  flex-shrink: 0;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lobby-page .gs-crew__name {
+  display: block;
+  max-width: 100%;
+  font-family: var(--font-title);
+  font-size: clamp(0.7rem, 1.7cqb, 1.05rem);
+  letter-spacing: 0.04em;
+  color: var(--parchment);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-page .gs-crew__tag {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-typewriter);
+  font-size: clamp(0.5rem, 1.1cqb, 0.68rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+  white-space: nowrap;
+}
+
+.lobby-page .gs-crew__tag.is-host { color: var(--royal-gold-light); }
+.lobby-page .gs-crew__tag.is-me { color: var(--parchment); }
+
+.lobby-page .gs-crew__crown {
+  width: 0.85em;
+  height: 0.85em;
+  flex-shrink: 0;
+}
+
+.lobby-page .gs-crew-scroll .lobby-waiting-host {
+  flex-shrink: 0;
+  margin: 0;
+  padding-top: clamp(6px, 1cqb, 12px);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Invite band --------------------------------------------------- */
+.lobby-page .gs-crew-invite {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: clamp(8px, 1.4cqb, 18px);
+  padding-top: clamp(8px, 1.4cqb, 18px);
+  border-top: 1px solid var(--px-border);
+}
+
+.lobby-page .gs-crew-invite .lobby-mascot { margin: 0 auto; }
+.lobby-page .gs-crew-invite .solo-invite-panel { margin: 0; }
+
+/* Designer entry sits in the band's third column: no full-width bar, no
+   stacked margin (style-shop.css ships it as a block button). */
+.lobby-page .gs-crew-invite .ps-designer-btn {
+  width: auto;
+  margin: 0;
+  white-space: nowrap;
+  transition: filter 0.15s ease, background 0.12s ease;
+}
+
+.lobby-page .gs-crew-invite .ps-designer-btn:hover { filter: brightness(1.12); }
+
+.lobby-page .ps-designer-btn__icon {
+  flex-shrink: 0;
+  color: var(--royal-gold-light);
+}
+
+/* ---------- Briefing pane: one section-title idiom for BOTH modes -------- */
+.lobby-page .lobby-settings-pane .ps-host-settings,
+.lobby-page .lobby-settings-pane .ps-brief {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1cqb, 12px);
+  text-align: left;
+}
+
+.lobby-page .lobby-settings-pane .ps-settings-title {
+  margin: 0 0 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--px-border);
+  font-family: var(--font-typewriter);
+  font-size: clamp(0.6rem, 1.4cqb, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+}
+
+/* Read-only Label | Value rows — quiet, no card chrome (standard rule 6). */
+.lobby-page .ps-brief-rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-page .ps-brief-row {
+  display: grid;
+  grid-template-columns: minmax(0, 58%) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(210, 178, 90, 0.16);
+}
+
+.lobby-page .ps-brief-row:last-child { border-bottom: none; }
+
+.lobby-page .ps-brief-label {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+}
+
+.lobby-page .ps-brief-value {
+  margin: 0;
+  justify-self: end;
+  min-width: 0;
+  text-align: right;
+  font-family: var(--font-title);
+  font-size: clamp(0.95rem, 2.2cqb, 1.35rem);
+  color: var(--royal-gold-light);
+  overflow-wrap: anywhere;
+}
+
+.lobby-page .ps-brief-teaser {
+  margin: 2px 0 0;
+  font-family: var(--font-typewriter);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--parchment);
+  opacity: 0.9;
+}
+
+.lobby-page .ps-brief-steps {
+  margin: 0;
+  padding-left: 1.15em;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--parchment-dark);
+}
+
+.lobby-page .ps-brief-steps li::marker { color: var(--royal-gold); }
+
+.lobby-page .ps-brief-more {
+  margin: 2px 0 0;
+  font-family: var(--font-typewriter);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--royal-gold);
+  opacity: 0.8;
+}
+
+/* ---------- Pane plumbing (parity fixes measured on the reference) -------- */
+/* Panes FILL their grid track — a floating card inside a wide column is the
+   drift the standard's parity pass measured away. */
+.lobby-page .gs-lobby-col--crew,
+.lobby-page .gs-lobby-col--brief {
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  margin: 0;
+}
+
+.lobby-page .gs-pane.lobby-waiting-card {
+  padding: clamp(12px, 1.8cqb, 18px) clamp(16px, 2.6cqi, 26px);
+}
+
+/* ONE-VIEWPORT SAFETY NET: content is budgeted to fit, but genuinely tiny
+   windows degrade to a working hidden-scrollbar pane (this also restores the
+   ScrollHint's target — a scroll affordance needs a real scroller). The FLEX
+   column is load-bearing: as display:block, .gs-crew{flex:1} is inert and the
+   seat grid collapses to content height instead of filling the pane. */
+.lobby-page .gs-pane.lobby-waiting-card .gs-pane-scroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  gap: clamp(0.4rem, 1.6cqb, 0.9rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  min-height: 0;
+}
+
+.lobby-page .gs-pane.lobby-waiting-card .gs-pane-scroll::-webkit-scrollbar { display: none; }
+
+.lobby-page .gs-lobby-col--crew .gs-pane-scroll { align-items: center; }
+.lobby-page .gs-lobby-col--brief .gs-pane-scroll { align-items: stretch; }
+
+/* "Minimum N players required" centers under START. */
+.lobby-page .lobby-start-section { text-align: center; }
+.lobby-page .lobby-start-hint { text-align: center; margin-inline: auto; }
+
+/* ---------- Desktop two-column case board -------------------------------- */
+/* Briefing narrow LEFT, crew wide RIGHT; START lands under the crew column.
+   DOM stays crew-first (mobile invite-first flow). */
+@media (min-width: 1025px) {
+  .lobby-page .gs-lobby-scene {
+    --gs-col: clamp(280px, 23cqi, 380px);
+    --gs-gap: clamp(12px, 1.6cqi, 26px);
+  }
+
+  .lobby-page .gs-lobby-cols {
+    grid-template-columns: var(--gs-col) minmax(0, 1fr);
+    gap: var(--gs-gap);
+    align-content: stretch;
+  }
+
+  .lobby-page .gs-lobby-col--brief { grid-column: 1; grid-row: 1; }
+  .lobby-page .gs-lobby-col--crew  { grid-column: 2; grid-row: 1; }
+
+  .lobby-page .gs-lobby-col--brief,
+  .lobby-page .gs-lobby-col--crew { min-height: 0; }
+
+  .lobby-page .gs-lobby-col--brief .gs-pane-scroll,
+  .lobby-page .gs-lobby-col--crew .gs-pane-scroll { height: 100%; }
+
+  .lobby-page .gs-lobby-col--brief.is-guest .gs-pane-scroll { justify-content: center; }
+
+  /* Desktop grid stretches; avatars scale down as rows grow. */
+  .lobby-page .gs-crew__grid {
+    grid-template-columns: repeat(var(--gs-cols, 3), minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    align-content: stretch;
+  }
+
+  .lobby-page .gs-crew__card { justify-content: center; }
+
+  .lobby-page .gs-crew__av {
+    width: clamp(40px, min(calc(15cqb / var(--gs-rows, 1)), 58%), 168px);
+    margin-top: auto;
+  }
+
+  .lobby-page .gs-crew__tag {
+    margin-bottom: auto;
+    font-size: clamp(0.55rem, 1.25cqb, 0.8rem);
+  }
+
+  .lobby-page .gs-crew__av--empty { font-size: clamp(20px, 4cqb, 44px); }
+  .lobby-page .gs-crew__name { font-size: clamp(0.85rem, 2.2cqb, 1.45rem); }
+
+  /* Owner: the title + help button sit centered over the CREW column
+     (i.e. over START), not over the full stage. */
+  .lobby-page .gs-lobby-scene .gs-scene-header {
+    display: grid;
+    grid-template-columns: var(--gs-col) minmax(0, 1fr);
+    gap: var(--gs-gap);
+  }
+
+  .lobby-page .gs-lobby-scene .gs-scene-header .lobby-waiting-header { grid-column: 2; }
+
+  /* START under the crew column (same template as the panes). */
+  .lobby-page .gs-lobby-scene .gs-scene-actions {
+    display: grid;
+    grid-template-columns: var(--gs-col) minmax(0, 1fr);
+    gap: var(--gs-gap);
+  }
+
+  .lobby-page .gs-lobby-scene .gs-scene-actions .lobby-start-section {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .lobby-page .gs-lobby-scene .lobby-start-btn {
+    width: min(100%, 620px);
+    min-height: clamp(50px, 6.5cqb, 78px);
+    padding: 6px clamp(20px, 3cqi, 48px);
+    font-size: clamp(0.95rem, 2.2cqb, 1.6rem);
+  }
+
+  /* ---------- Invite band, desktop -------------------------------------- */
+  /* 1:1 translation of Bad Actor's ba-crew-invite block (SUSD
+     LobbyPage.layout.css:341-428); only color tokens differ. */
+  .lobby-page .gs-crew-invite {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(10px, 1.6cqi, 28px);
+    text-align: left;
+  }
+
+  .lobby-page .gs-crew-invite .lobby-mascot {
+    width: clamp(48px, 5.5cqb, 82px);
+    height: auto;
+    /* Anchor to the CODE row, not the band's vertical center — when the QR
+       unfolds below, the band grows and a centered mascot drifts down next to
+       the QR instead of staying left of the room number (owner rule 8b). A
+       later `margin: 0` rule would silently undo this. */
+    align-self: start;
+    margin: clamp(32px, 5cqb, 48px) 0 0;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-panel {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    text-align: left;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    column-gap: clamp(12px, 1.8cqi, 32px);
+    row-gap: 6px;
+    animation: none;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-title { margin: 0; }
+
+  .lobby-page .gs-crew-invite .solo-invite-code-tiles,
+  .lobby-page .gs-crew-invite .solo-invite-streamer-badge {
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    justify-content: flex-start;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-btn {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 128px;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-qr,
+  .lobby-page .gs-crew-invite .invite-friends,
+  .lobby-page .gs-crew-invite .solo-invite-hint,
+  .lobby-page .gs-crew-invite .solo-invite-subtext { margin: 0; }
+
+  /* Split into code | actions only on genuinely wide boards (1366 laptops
+     broke "Copy Invite Link" across three lines otherwise). */
+  @container stage (min-width: 1400px) {
+    .lobby-page .gs-crew-invite .solo-invite-panel {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .lobby-page .gs-crew-invite .solo-invite-title {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .lobby-page .gs-crew-invite .solo-invite-code-tiles,
+    .lobby-page .gs-crew-invite .solo-invite-streamer-badge {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .lobby-page .gs-crew-invite .solo-invite-actions {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    .lobby-page .gs-crew-invite .solo-invite-qr,
+    .lobby-page .gs-crew-invite .invite-friends,
+    .lobby-page .gs-crew-invite .solo-invite-hint,
+    .lobby-page .gs-crew-invite .solo-invite-subtext {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lobby-page .gs-crew__card { animation: none; }
 }

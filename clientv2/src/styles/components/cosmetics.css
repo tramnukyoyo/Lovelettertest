@@ -5,7 +5,6 @@
 
 /* ============ FLAIR — applied to display-name <span> ============ */
 
-
 /* Tier 1: solid colors. Use !important sparingly to override deeply-nested
  * .player-name etc. styles — flair is a user-paid override, so it should win. */
 .flair-red    { color: #ff4d6d !important; }
@@ -210,22 +209,22 @@
 .avatar-frame-wrap {
   position: relative;
   display: inline-flex;
-  /* Zoomies avatars are SQUARE (unlike the platform's round ones) - the ring
-   * follows the element's border-radius, so keep it square here. */
-  border-radius: 0;
+  border-radius: 50%;
   /* No frame = no visual change. */
 }
 
-/* NOTE: the platform sizes .avatar-frame-wrap explicitly and stretches the
- * child to 100%. In Zoomies the wrapper shrink-wraps the avatar instead, so
- * the child keeps its own sizing (e.g. .player-avatar 40px). */
+.avatar-frame-wrap > * {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
 /* Common rule for any equipped frame: a ring sits on top via box-shadow
  * (cheaper to render than ::before pseudo-elements at scale). */
 [class*=" frame-"],
 [class^="frame-"] {
-  /* --frame-ring is set inline based on avatar size. Square in Zoomies. */
-  border-radius: 0;
+  /* --frame-ring is set inline by AvatarFrame based on avatar size. */
+  border-radius: 50%;
 }
 
 /* Tier 1: metals — solid borders. */
@@ -578,10 +577,20 @@
   .frame-aurora { animation: none; }
 }
 
+
+/* ############################################################################
+   ##  PRIME SUSPECT LOCAL OVERRIDES — everything ABOVE this line is a 1:1
+   ##  copy of Gamebuddies.Io/client/src/components/cosmetics.css. Keep it
+   ##  that way: when a flair/frame "looks different than on gamebuddies.io",
+   ##  DIFF the two files first. Local additions belong here, at the very end.
+   ##  (The old "Zoomies avatars are SQUARE" fork block is gone — platform
+   ##  avatars are round; the PS identity surfaces are re-rounded below.)
+   ############################################################################ */
+
 /* ============ FRAME THEME TOKENS — game-surface tinting ============ */
-/* Game-native surfaces (boards, cards, bars, …) consume these two custom
- * props via ONE generic rule per surface instead of per-style rules. Values
- * mirror utils/frameThemes.ts (accent + ~53%-alpha glow). */
+/* Game-native surfaces (crew seats, table card backs, …) consume these two
+ * custom props via ONE generic rule per surface instead of per-style rules.
+ * Values mirror utils/frameThemes.ts (accent + ~53%-alpha glow). */
 .fr-theme-frame_bronze    { --fr-accent: #cd7f32; --fr-glow: #cd7f3288; }
 .fr-theme-frame_silver    { --fr-accent: #c0c0c0; --fr-glow: #c0c0c088; }
 .fr-theme-frame_gold      { --fr-accent: #ffd700; --fr-glow: #ffd70088; }
@@ -599,6 +608,52 @@
 .fr-theme-frame_phoenix   { --fr-accent: #ffc04d; --fr-glow: #ff8a1e88; }
 .fr-theme-frame_aurora    { --fr-accent: #7cffc4; --fr-glow: #56e0a088; }
 
+/* ============ ROUND IDENTITY AVATARS (platform parity) ============ */
+/* The platform's frame ring is a border-radius:50% box-shadow. The fork's
+ * rail row + dock chip were SQUARE tiles, so a restored platform ring drew a
+ * circle around a square photo. The identity surfaces are re-rounded here
+ * instead of re-squaring the platform file (owner: platform avatars are
+ * circular). Two-class selectors so shell.css / chat.css load order can't
+ * win; the in-game card art is untouched. */
+.player-list .player-avatar,
+.player-list .player-avatar img,
+.gs-chip .gs-chip-av,
+.gs-chip .gs-chip-av img { border-radius: 50%; }
+
+/* ============ FRAME ACCENT OWNS EVERY PLAYER-IDENTITY BORDER ============ */
+/* Owner rule (FLEET_LOBBY_STANDARD.md rule 9, 2026-07-31): an equipped OR
+ * picker-previewed frame's accent IS the border color of every player
+ * identity surface — the rail row (.player-list-item), the presence-dock chip
+ * (.gs-chip) and the big lobby crew card (.gs-crew__card). The game-theme
+ * accents (gold / crimson / --primary) apply ONLY when no frame is set: with
+ * no .fr-theme-* class on the element these rules are inert.
+ *
+ * !important is load-bearing: cosmetics.css is imported BEFORE shell.css,
+ * chat.css, pages/lobby.css and the Prime Suspect theme layer, all of which
+ * set those borders/rings themselves. */
+
+/* Big crew seat: the accent replaces the gold hairline and the top bevel. */
+.gs-crew__card[class*="fr-theme-"] {
+  border-color: var(--fr-accent) !important;
+  box-shadow: inset 0 0 0 1px var(--fr-accent), inset 0 0 10px var(--fr-glow) !important;
+}
+
+/* Rail row: chat.css re-declares the .is-me ring AFTER this file, so the
+ * accent version has to carry the row's own hard drop shadow with it. */
+.player-list-items .player-list-item[class*="fr-theme-"] {
+  border-color: var(--fr-accent) !important;
+  border-left-color: var(--fr-accent) !important;
+  box-shadow: 2px 2px 0 var(--px-border-dark), inset 0 0 0 1px var(--fr-accent), inset 0 0 10px var(--fr-glow) !important;
+}
+
+/* Presence-dock chip: the is-me ring rebuilt with the accent; framed non-me
+ * chips get one too (hearts-gambit-old.css re-declares .gs-chip.is-me later,
+ * hence !important on both). */
+.gs-chip[class*="fr-theme-"],
+.gs-chip.is-me[class*="fr-theme-"] {
+  box-shadow: 2px 2px 0 var(--px-border-dark), 0 0 0 2px var(--fr-accent) !important;
+}
+
 /* ============ GRADIENT FLAIRS OWN THE GLYPH — NO SURFACE SHADOW ============ */
 /* Ten flairs paint the name with a gradient clipped to the text, which means
  * the glyph's own fill is TRANSPARENT (`-webkit-text-fill-color`). A
@@ -612,10 +667,7 @@
  * glow flairs (neon / electric / pulse / toxic) are NOT listed: their glow IS
  * a text-shadow they declare themselves, and it works because their fill is
  * opaque. `filter: drop-shadow()` (fire, frost, …) also stays — it is built
- * from the painted pixels, so it follows the gradient instead of the outline.
- *
- * !important + last-in-file: this file is imported BEFORE the game surfaces
- * that set those shadows. */
+ * from the painted pixels, so it follows the gradient instead of the outline. */
 .flair-shimmer,
 .flair-rainbow,
 .flair-fire,

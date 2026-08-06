@@ -364,6 +364,7 @@ export const en = {
 
   designer: {
     title: 'Your style',
+    cardBackTitle: 'Your card back',
     classic: 'None',
     framesTitle: 'Avatar frame',
     framesHint: 'rings your avatar here and on GameBuddies',
