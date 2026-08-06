@@ -226,11 +226,10 @@ const HomePage: React.FC<HomePageProps> = ({
           </motion.div>
         </div>
 
-        {/* `home-cards-wrapper` rides along on the card column on purpose: the
-            Prime Suspect noir layer paints the parchment case-file skin through
-            `[data-theme="primesuspect"] .home-cards-wrapper .card`. Dropping the
-            class would strip the card back to the inherited Bluffalo panel. */}
-        <div className="home-card-col home-cards-wrapper">
+        {/* Card column. The Prime Suspect noir layer paints the parchment
+            case-file skin directly on `.card.home-card`; the card's geometry
+            (400x346 fleet box) is owned entirely by pages/home.css. */}
+        <div className="home-card-col">
           {/* Error Message */}
           {error && (
             <div className="home-error" role="alert">

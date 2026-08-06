@@ -16,15 +16,24 @@
 
 .home-page {
   /* Bounded height (not min-height): body is height:100dvh + overflow:hidden
-     (base/reset.css), so this element must own any residual scroll. */
-  height: 100dvh;
+     (base/reset.css), so this element must own any residual scroll. The app
+     shell (`.app-root`) already pads the fixed header's height off the top, so
+     this page occupies the viewport MINUS that header band — reserving the
+     header again here (padding-top) would double-count it and push the footer
+     one header-height below the fold (the fleet no-scroll violation). */
+  height: calc(100dvh - var(--header-height));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: clamp(0.75rem, 2dvh, 1.5rem);
   padding: clamp(1rem, 3dvh, 2.5rem);
-  padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px) + clamp(0.75rem, 2dvh, 2rem));
+  /* Header clearance comes from `.app-root`; this is only the breathing gap
+     between the header band and the hero (no --header-height term). The gap
+     runs a touch deeper than the fleet default so the co-centred set-piece
+     (PS's two-line wordmark makes the hero column taller than the reference)
+     settles the create card onto the fleet y-line instead of riding high. */
+  padding-top: calc(env(safe-area-inset-top, 0px) + clamp(0.75rem, 4.2dvh, 2.65rem));
   padding-bottom: max(clamp(1rem, 3dvh, 2.5rem), env(safe-area-inset-bottom));
   overflow-y: auto;
   background: transparent; /* candlelit scenery painted by PaperDeductionBackdrop */
@@ -403,7 +412,13 @@
 
 .home-mascot {
   width: clamp(84px, min(22vw, 18dvh), 172px);
+  /* Square footprint (the fleet mascot slot is 1:1). The detective webp is a
+     wider-than-tall 601x515, so `object-fit: contain` fits it inside the square
+     box without distortion (a hair of transparent band above/below) rather than
+     letterboxing the element to 172x147 and missing the fleet 172x172 target. */
+  aspect-ratio: 1 / 1;
   height: auto;
+  object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(4px 6px 0 rgba(18, 13, 17, 0.55))
           drop-shadow(0 0 26px rgba(210, 178, 90, 0.26));
@@ -439,9 +454,14 @@
   50% { opacity: 1; }
 }
 
+/* Gentle float + a hair of wobble. The rotation is kept to ±1deg on purpose:
+   a rotated square's axis-aligned box grows with the angle (a 172px square at
+   2deg measures ~178px), which would push the mascot's box past the fleet
+   172x172 tolerance; ±1deg holds the box at ~175px while still reading as a
+   playful bob. */
 @keyframes mascotBounce {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-8px) rotate(2deg); }
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
 }
 
 /* ── SIGNATURE MOMENT (1/3): the desk-lamp beam raking down over the mascot and
@@ -707,11 +727,10 @@
 
 /* ====== CREATE / JOIN CARD — the open case file (focal set-piece) ====== */
 
-/* `.home-cards-wrapper` now sits ON the grid's card column (see HomePage.tsx):
-   the Prime Suspect noir layer paints the parchment/ruled-paper skin through
-   `[data-theme="primesuspect"] .home-cards-wrapper .card`, so the class is a
-   load-bearing theme hook, not layout. Layout comes from `.home-card-col`. */
-.home-cards-wrapper { position: relative; z-index: 1; }
+/* The card column carries the stacking context above the fixed backdrop (this
+   was the retired `.home-cards-wrapper` hook's only real job — the parchment
+   skin now paints straight onto `.card.home-card` in the noir layer). */
+.home-card-col { position: relative; z-index: 1; }
 
 .home-card {
   width: 100%;
@@ -719,26 +738,24 @@
   transition: box-shadow var(--transition), filter var(--transition);
 }
 
-/* Box metrics vs. the noir layer. `[data-theme="primesuspect"]
-   .home-cards-wrapper .card` ships `padding` with `!important` and
-   `[data-theme="primesuspect"] .card.home-card` caps `max-width` at 320px —
-   both would break the fleet-standard 400px card, so the geometry has to answer
-   from a longer selector. Everything cosmetic (paper, ring, ink) is deliberately
-   left to the theme layer. The inherited `transform: translateY(-4px)` hover is
-   neutralised here: rule 8 forbids moving a clickable surface. */
-.home-stage .home-card-col.home-cards-wrapper .card.home-card {
+/* Box metrics — owned entirely here now (the noir layer is cosmetics-only, so
+   there is no `!important` war left to out-specify). The selector still runs
+   longer than the inherited Bluffalo `.card.home-card` panel (padding:1.5rem /
+   max-width:360px) so the fleet 400x346 box wins. Generous top/bottom padding
+   fills the fleet card height: PS's create copy is a line shorter than the
+   reference, so the breathing room carries the box to ~346px. Side padding
+   holds the 337px name field (400 − 2 × 1.95rem). The inherited
+   `transform: translateY(-4px)` hover is neutralised (rule 8: never move a
+   clickable surface). */
+.home-stage .home-card-col .card.home-card {
   width: 100%;
   min-width: 0;
   max-width: none;
-  /* 400px card − 2 × 1.95rem ⇒ a 337px name field, the fleet reference. */
-  padding:
-    clamp(0.95rem, 2.2dvh, 1.4rem)
-    clamp(1rem, 3.2dvh, 1.95rem)
-    clamp(1.1rem, 2.6dvh, 1.6rem) !important;
+  padding: clamp(2.2rem, 5.3dvh, 3.4rem) clamp(1rem, 3.2dvh, 1.95rem);
   animation: none;
 }
 
-.home-stage .home-card-col.home-cards-wrapper .card.home-card:hover {
+.home-stage .home-card-col .card.home-card:hover {
   transform: none;
 }
 
@@ -1019,7 +1036,8 @@
 
   .home-page {
     padding: var(--spacing-md);
-    padding-top: calc(var(--header-height-mobile) + var(--spacing-md));
+    /* Header clearance is the shell's job (.app-root pad); no header term here. */
+    padding-top: var(--spacing-md);
   }
 
   .home-tip-banner {
@@ -1092,7 +1110,8 @@
 @media (max-width: 926px) and (orientation: landscape) and (max-height: 500px) {
   .home-page {
     padding: var(--spacing-sm);
-    padding-top: calc(var(--header-height-mobile) + var(--spacing-sm));
+    /* Header clearance is the shell's job (.app-root pad); no header term here. */
+    padding-top: var(--spacing-sm);
     gap: var(--spacing-sm);
   }
 
@@ -1130,7 +1149,8 @@
 @media (max-width: 374px) {
   .home-page {
     padding: var(--spacing-sm);
-    padding-top: calc(var(--header-height-mobile) + var(--spacing-md));
+    /* Header clearance is the shell's job (.app-root pad); no header term here. */
+    padding-top: var(--spacing-md);
   }
 
   .home-title { font-size: clamp(2.2rem, 13vw, 2.75rem); }

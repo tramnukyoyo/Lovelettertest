@@ -949,8 +949,7 @@
 }
 
 /* Phase 5: Login/Menu Cards → Restaurant Menu / Case File */
-[data-theme="primesuspect"] .split-card,
-[data-theme="primesuspect"] .home-cards-wrapper .card {
+[data-theme="primesuspect"] .split-card {
   background: #c9b8a0 !important;
   background-image:
     url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Cfilter id="noise"%3E%3CfeTurbulence baseFrequency="0.9" numOctaves="4"/%3E%3CfeColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)"/%3E%3C/svg%3E'),
@@ -975,19 +974,40 @@
   padding: 0.6rem 0.6rem 1.1rem 0.6rem !important;
 }
 
+/* Home create card → parchment case file. COSMETICS ONLY — the fleet-standard
+   400x346 geometry (width, padding, gaps, max-width) is owned by pages/home.css,
+   so no box-metric declarations here (this replaces the old `.home-cards-wrapper
+   .card` skin + the 320px max-width cap that fought the fleet card). The longer
+   `.card.home-card` selector clears the inherited Bluffalo `.card.home-card`
+   panel further down this sheet. */
+[data-theme="primesuspect"] .card.home-card {
+  background: #c9b8a0 !important;
+  background-image:
+    url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Cfilter id="noise"%3E%3CfeTurbulence baseFrequency="0.9" numOctaves="4"/%3E%3CfeColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)"/%3E%3C/svg%3E'),
+    repeating-linear-gradient(
+      transparent,
+      transparent 1.5rem,
+      rgba(0, 0, 0, 0.1) 1.5rem,
+      rgba(0, 0, 0, 0.1) calc(1.5rem + 1px)
+    ) !important;
+  background-size: auto, auto !important;
+  background-attachment: scroll !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow:
+    12px 12px 0 rgba(0, 0, 0, 0.4),
+    0 0 0 3px var(--tobacco-brown) !important;
+  color: #2a2420 !important;
+}
+
 /* Cards match each other's height but are compact */
 [data-theme="primesuspect"] .split-actions {
   align-items: stretch !important;
 }
 
-/* Adaptive home card - narrower to compensate for offset box-shadow */
-[data-theme="primesuspect"] .card.home-card {
-  max-width: 320px;
-}
-
-/* Compact form layout - pack items at top, prevent spreading */
-[data-theme="primesuspect"] .split-card .home-form,
-[data-theme="primesuspect"] .card.home-card .home-form {
+/* Compact form layout - pack items at top, prevent spreading (split-card only;
+   the home card's form rhythm is the fleet clamp() in pages/home.css). */
+[data-theme="primesuspect"] .split-card .home-form {
   height: auto !important;
   gap: 0.8rem !important;
   justify-content: flex-start !important;
