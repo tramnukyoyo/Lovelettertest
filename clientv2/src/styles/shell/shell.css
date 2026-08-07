@@ -419,8 +419,12 @@
    MOBILE LOBBY FLOW (appended) — single-column, flat, ONE natural scroll.
    Targets shared lobby classes so it applies across all games despite each
    game's LobbyPage being unique. Mobile only; desktop unchanged.
+
+   Breakpoint: 1023.98px, NOT 1024px. The rail media query above and
+   hooks/useIsMobile both flip below 1024 — a `max-width: 1024px` here made
+   exactly 1024 both "desktop rail" and "mobile lobby" at the same time.
    ============================================================================ */
-@media (max-width: 1024px) {
+@media (max-width: 1023.98px) {
   /* The lobby scrolls as ONE page (not per-pane). This removes the per-pane
      internal scroll + the ScrollHint chevron, and makes portrait flow from the
      top exactly like the short/landscape layout does. */
@@ -442,12 +446,16 @@
     gap: clamp(0.75rem, 3cqb, 1.25rem) !important;
   }
 
-  /* Flatten the lobby "cards" into plain stacked sections — no box, no clip. */
+  /* Flatten the lobby "cards" into plain stacked sections — no box, no clip.
+     padding-top is NOT zero: the card's folder tab (::after, top:-14px) has to
+     straddle empty space above the card. With `padding: 0` the gold CASE FILE
+     tab landed straight on top of the in-card PLAYERS heading at 375. */
   .lobby-waiting-card {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 0 !important;
+    margin-top: 16px !important;
+    padding: 1.25rem 0 0 !important;
     overflow: visible !important;
     align-items: stretch !important;
     justify-content: flex-start !important;
@@ -467,4 +475,142 @@
   }
   .lobby-start-section { width: 100%; }
   .lobby-start-btn { width: 100%; }
+}
+
+
+/* ============================================================================
+   RAIL — THE CASE FOLDER (round 2, chrome owner)
+
+   Three defects fixed together:
+   a) the roster only ever filled the TOP half of the rail (`.player-list`
+      inherits `max-height: 50%` from the legacy sidebar library, plus
+      `max-height: 30vh` under its own ≤1024 media query) — the rest of the
+      rail was flat, undesigned shell colour with a hard cut mid-row;
+   b) with the roster itself as the scroller there was nowhere to mount the
+      fleet ScrollHint, so the cut-off crew had no affordance at all;
+   c) the rail read as generic dark-purple SaaS instead of a candlelit case
+      folder.
+
+   Every selector is scoped under `.gs-rail` (and one level deeper than the
+   library rules) so it out-specifies the un-prefixed legacy declarations that
+   load after this file — no !important needed.
+   ============================================================================ */
+
+/* The rail body scrolls as ONE column: tabs stay pinned, the crew list flows,
+   ScrollHint (last child, SidebarTabs.tsx) watches this element. */
+.gs-rail .sidebar-tabs-container .sidebar-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  position: relative;
+  /* dossier surface: faint typewriter ruling + a warm candle wash from the top,
+     so the tail below the last suspect reads as empty case paper, not a hole */
+  background:
+    radial-gradient(120% 60% at 50% 0%,
+      rgba(231, 204, 122, 0.07) 0%, rgba(231, 204, 122, 0) 62%),
+    repeating-linear-gradient(180deg,
+      rgba(210, 178, 90, 0.05) 0 1px,
+      rgba(210, 178, 90, 0) 1px 28px),
+    linear-gradient(180deg,
+      rgba(0, 0, 0, 0.12) 0%,
+      rgba(0, 0, 0, 0.28) 100%);
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.08);
+}
+
+.gs-rail .sidebar-tabs-container .sidebar-content::-webkit-scrollbar { width: 0; }
+
+/* The crew list fills the folder instead of stopping at 50% / 30vh. */
+.gs-rail .sidebar-content .player-list {
+  flex: 1 1 auto;
+  max-height: none;
+  overflow: visible;
+  border-bottom: none;
+}
+
+/* Its sticky header keeps working — it now sticks against .sidebar-content. */
+.gs-rail .sidebar-content .player-list-items {
+  overflow: visible;
+  flex: 0 0 auto;
+}
+
+/* Hint fade must match the rail surface, not the lobby card colour. */
+.gs-rail .gs-scroll-hint {
+  background: linear-gradient(transparent, var(--velvet-panel, var(--bg-darker, #15131f)) 72%);
+}
+
+/* Chat fills the folder the same way (no half-height chat pane in the rail). */
+.gs-rail .sidebar-content .chat-window { min-height: 100%; }
+
+/* Tab glyphs are inline SVG now (SidebarTabs.tsx dropped the 👥/💬 emoji) —
+   they need flex centring against the uppercase label baseline. */
+.sidebar-tab .tab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+/* ============================================================================
+   MOBILE CHROME TOGGLE — a gold case-file tab, not a stray amber chip.
+   Echoes the lobby card's CASE FILE tab (rounded BOTTOM corners, velvet glyph
+   on gold) and sits off dead-centre so it never lands on the backdrop moon.
+   ============================================================================ */
+.gs-chrome-toggle {
+  left: 32%;
+  min-width: 58px;
+  min-height: 30px;
+  height: auto;
+  padding: 0.25rem 0.9rem 0.3rem;
+  border: 1px solid rgba(61, 12, 19, 0.55);
+  border-top: none;
+  border-radius: 0 0 9px 9px;
+  background:
+    linear-gradient(180deg,
+      var(--royal-gold-light, #e7cc7a) 0%,
+      var(--royal-gold, #d2b25a) 100%);
+  color: var(--velvet-darker, #1a0f16);
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.42),
+    0 8px 18px rgba(0, 0, 0, 0.45),
+    inset 0 -1px 0 rgba(61, 12, 19, 0.28);
+  transition: filter 0.18s ease;
+}
+
+/* Two hairline "file ridges" — the folder-tab tell, cheap and aria-hidden. */
+.gs-chrome-toggle::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 4px;
+  height: 3px;
+  border-top: 1px solid rgba(61, 12, 19, 0.22);
+  border-bottom: 1px solid rgba(61, 12, 19, 0.16);
+  pointer-events: none;
+}
+
+.gs-chrome-toggle:hover,
+.gs-chrome-toggle:focus-visible {
+  background:
+    linear-gradient(180deg,
+      var(--royal-gold-light, #e7cc7a) 0%,
+      var(--royal-gold, #d2b25a) 100%);
+  filter: brightness(1.08);
+}
+
+.gs-chrome-toggle:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
+}
+
+.gs-chrome-toggle .gs-chrome-toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(231, 204, 122, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-chrome-toggle { transition: none; }
 }

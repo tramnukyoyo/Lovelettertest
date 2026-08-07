@@ -215,3 +215,184 @@
 @media (max-width: 640px) {
   .game-explainer-stage { padding-right: 36px; padding-top: 8px; }
 }
+
+/* ============================================================================
+   ROUND 2 — the briefing becomes a CASE FOLDER (critic 12 + 13)
+   Round 1 stacked three unrelated surfaces: a khaki modal border, a maroon
+   illustration inset and a near-black FULL-BLEED copy band. One parchment /
+   gold / velvet family now, with the copy band inset to the illustration's own
+   width so the widths stop disagreeing.
+   ============================================================================ */
+
+.game-explainer-overlay {
+  background: rgba(12, 6, 10, 0.9);
+}
+
+.game-explainer-modal {
+  overflow: visible;
+  gap: 16px;
+  /* Top padding clears the close plate entirely, so the X no longer sits on
+     the illustration's corner and the stage can drop its safe-zone hack. */
+  padding: 48px 22px 20px;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(231, 204, 122, 0.10), transparent 62%),
+    linear-gradient(180deg, #2a1a20 0%, #170f16 62%, #120b11 100%);
+  border: 2px solid var(--royal-gold, #d2b25a);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(231, 204, 122, 0.22);
+  color: var(--parchment, #f0e6d2);
+}
+
+/* Engraved folder tab — the same idiom as the lobby's CASE FILE panes. */
+.game-explainer-modal::before {
+  content: 'CASE BRIEFING';
+  position: absolute;
+  top: -15px;
+  left: 26px;
+  z-index: 2;
+  padding: 4px 16px 5px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--royal-gold-light, #f0dc9a), var(--royal-gold, #d2b25a));
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--velvet-darker, #150c11);
+}
+
+/* The illustration is an evidence plate, not a stray maroon rectangle.
+   The old asymmetric X safe-zone padding is gone — the X lives above the
+   plate now, so the artwork fills its own frame. */
+.game-explainer-stage {
+  padding: 0;
+  border: 1px solid rgba(210, 178, 90, 0.34);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.45), 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* Copy band: translucent velvet inset with the SAME inline margins as the
+   illustration (it was full-bleed — that mismatch is what read cheap). */
+.game-explainer-caption-strip {
+  width: 100%;
+  max-width: 640px;
+  min-height: 0;
+  padding: clamp(12px, 2.4vw, 18px) clamp(14px, 3vw, 22px);
+  border: 1px solid rgba(210, 178, 90, 0.22);
+  border-left: 3px solid var(--royal-gold, #d2b25a);
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(231, 204, 122, 0.09), rgba(231, 204, 122, 0.02) 70%, rgba(0, 0, 0, 0));
+}
+
+.game-explainer-caption {
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: clamp(17px, 2.6vw, 24px);
+  color: var(--parchment, #f0e6d2);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.game-explainer-captions-list {
+  color: var(--parchment, #f0e6d2);
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+}
+
+/* Candlelit step pips. */
+.game-explainer-pips {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.game-explainer-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(231, 204, 122, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(231, 204, 122, 0.35);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.game-explainer-pip.is-active {
+  background: var(--royal-gold-light, #f0dc9a);
+  box-shadow: 0 0 9px rgba(231, 204, 122, 0.7);
+}
+
+/* SKIP: a real footer row instead of an absolute slab crowding the copy. */
+.game-explainer-footer {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.game-explainer-skip {
+  position: static;
+  bottom: auto;
+  right: auto;
+  min-height: 40px;
+  padding: 8px 18px;
+  border: 1px solid rgba(210, 178, 90, 0.45);
+  border-radius: 999px;
+  background: rgba(231, 204, 122, 0.06);
+  color: var(--parchment-dark, #cdbfa4);
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  transition: filter 0.15s ease, color 0.15s ease;
+}
+
+.game-explainer-skip:hover {
+  filter: brightness(1.25);
+  color: var(--royal-gold-light, #f0dc9a);
+  background: rgba(231, 204, 122, 0.12);
+}
+
+/* The default cyan focus ring was the brightest, biggest thing in the modal
+   and read as the primary action. Gold, tight, on-theme. */
+.game-explainer-close:focus-visible,
+.game-explainer-skip:focus-visible {
+  outline: 2px solid var(--royal-gold, #d2b25a);
+  outline-offset: 2px;
+}
+
+.game-explainer-close {
+  top: 10px;
+  right: 10px;
+  color: var(--parchment-dark, #cdbfa4);
+  background: rgba(21, 12, 17, 0.7);
+  border: 1px solid rgba(210, 178, 90, 0.35);
+  border-radius: 8px;
+  transition: filter 0.15s ease, color 0.15s ease;
+}
+
+.game-explainer-close:hover {
+  color: var(--royal-gold-light, #f0dc9a);
+  background: rgba(21, 12, 17, 0.9);
+  filter: brightness(1.15);
+}
+
+@media (max-width: 640px) {
+  .game-explainer-modal {
+    gap: 12px;
+    padding: 44px 14px 16px;
+  }
+  .game-explainer-modal::before { left: 16px; font-size: 0.5rem; padding: 3px 12px 4px; }
+  .game-explainer-stage { padding: 0; }
+  .game-explainer-footer { justify-content: stretch; }
+  .game-explainer-skip { width: 100%; text-align: center; }
+}
+
+/* At phone width the mini-table's per-seat labels rendered at ~6px — noise,
+   not information. The avatars and the beat copy carry the demo there. */
+@media (max-width: 520px) {
+  .primesuspect-demo .gex-demo-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-explainer-pip,
+  .game-explainer-skip,
+  .game-explainer-close { transition: none; }
+}

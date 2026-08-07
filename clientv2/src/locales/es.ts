@@ -116,6 +116,9 @@ export const es: Translations = {
     login: 'Iniciar sesión',
     loginTitle: 'Inicia sesión o regístrate para guardar tu progreso, GP y premium',
     logout: 'Cerrar sesión',
+    phaseLobby: 'CASO PENDIENTE',
+    phasePlaying: 'CASO ABIERTO',
+    phaseEnded: 'CASO CERRADO',
   },
 
   // Video
@@ -228,11 +231,17 @@ export const es: Translations = {
     close: 'Cerrar notificacion',
   },
 
+  // Achievement toast
+  achievementToast: {
+    unlocked: 'Logro desbloqueado',
+  },
+
   // Error boundary
   // AI-TRANSLATED on 2026-05-19, please review
   errorBoundary: {
-    title: 'Algo salio mal',
-    message: 'Lo sentimos, pero ocurrio algo inesperado.',
+    title: 'El expediente se rasgó',
+    message: 'Algo en la sala de pruebas se rompió.',
+    overline: 'Sala de pruebas',
     refresh: 'Recargar pagina',
     goHome: 'Ir al inicio',
   },
@@ -286,6 +295,9 @@ export const es: Translations = {
     buying: 'Comprando…',
     buyFor: 'Comprar · {gp} GP',
     foreverEverywhere: '{name} es tuyo para siempre — en GameBuddies y en todos los juegos.',
+    equipped: 'EQUIPADO',
+    premiumTitle: 'Exclusivos Premium',
+    cardBackPreviewCaption: 'cómo se ve tu mano en la mesa',
   },
 
   // Streamer broadcast stage
@@ -580,12 +592,17 @@ export const es: Translations = {
     invalidRoomCode: 'Por favor ingresa un codigo de sala valido',
     contentFilterTitle: 'Filtro de contenido',
     contentFilterBody: 'Bloqueado por el filtro de contenido, prueba con otras palabras.',
+    serverRejectedTitle: 'El expediente fue rechazado',
   },
 
   // Reconnect
   reconnect: {
-    frozenTitle: 'Conexión perdida',
-    frozenBody: 'Juego en pausa. Reconectando: continuarás justo donde lo dejaste.',
+    frozenTitle: 'INVESTIGACIÓN INTERRUMPIDA',
+    frozenBody: 'El expediente queda sellado hasta que vuelva la línea. No se pierde nada de lo que anotaste.',
+    frozenOverline: 'Caso en pausa',
+    attempt: 'Intento {n}',
+    retrying: 'Restableciendo la línea',
+    restoredOverline: 'Caso reabierto',
     title: 'Juego restaurado',
     playersReconnected: '{connected}/{total} reconectados',
     resumeGame: 'Reanudar juego',
@@ -657,8 +674,8 @@ export const es: Translations = {
   xp: {
     levelUp: '¡SUBISTE DE NIVEL!',
     xpGained: 'XP GANADA',
-    victory: '🏆 Victoria',
-    played: '💪 Jugado',
+    victory: 'Victoria',
+    played: 'Jugado',
     dismiss: 'Cerrar notificación',
     base: 'Base',
     win: 'Victoria',
@@ -699,5 +716,7 @@ export const es: Translations = {
     collapseSidebar: 'Contraer barra lateral',
     showSidebar: 'Mostrar barra lateral',
     hideSidebar: 'Ocultar barra lateral',
+    showMenu: 'Mostrar menú',
+    hideMenu: 'Ocultar menú',
   },
 };

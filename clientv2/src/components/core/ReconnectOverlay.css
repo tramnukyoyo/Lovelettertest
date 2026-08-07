@@ -1,16 +1,33 @@
-/* ReconnectOverlay - Shown when game is restored after server restart */
+/* ============================================================================
+   ReconnectOverlay — the case reopens after a server restart.
+
+   Shares FreezeOverlay's language on purpose: same scrim, same wax-seal mark,
+   same typewriter eyebrow / Cinzel title / gold hairline. Like FreezeOverlay it
+   no longer consumes `--bg-darker` (declared twice at :root with different
+   values, so the curtain's opacity depended on CSS import order) — `--ps-scrim`
+   is explicit.
+   ============================================================================ */
 
 .reconnect-overlay {
+  --ps-scrim-core: rgba(18, 13, 17, 0.66);
+  --ps-scrim-edge: rgba(18, 13, 17, 0.93);
+  --ps-gold: var(--royal-gold, #d2b25a);
+  --ps-gold-light: var(--royal-gold-light, #e7cc7a);
+  --ps-wax: var(--wax-seal, #6a1623);
+
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 9998;
+  z-index: var(--z-outage, 10000);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-darker);
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 42%, var(--ps-scrim-core) 0%, var(--ps-scrim-edge) 70%);
+  -webkit-backdrop-filter: blur(2px) saturate(0.6);
+  backdrop-filter: blur(2px) saturate(0.6);
   animation: reconnect-fade-in 0.3s ease-out;
 }
 
@@ -29,40 +46,94 @@
 }
 
 .reconnect-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
   text-align: center;
-  padding: 2.5rem 2rem;
-  max-width: 380px;
-  width: 90%;
-  border-radius: 0;
-  background: var(--panel-bg);
-  border: 2px solid var(--px-border);
-  box-shadow: 6px 6px 0 var(--px-border-dark), inset 0 var(--px) 0 0 var(--primary);
+  padding: 2rem 1.75rem 1.75rem;
+  max-width: 420px;
+  width: 100%;
+  border-radius: var(--radius-md, 8px);
+  background: linear-gradient(180deg, rgba(52, 38, 47, 0.98), rgba(44, 32, 41, 0.99));
+  /* Was `6px 6px 0 var(--px-border-dark)` — the same colour as the curtain, so
+     the card had zero separation from its own backdrop. */
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(246, 240, 230, 0.06);
+  color: var(--parchment, #f6f0e6);
 }
 
-.reconnect-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  animation: reconnect-pulse 2s ease-in-out infinite;
+.reconnect-seal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%,
+    color-mix(in srgb, var(--ps-wax) 78%, #000 0%) 0%,
+    color-mix(in srgb, var(--ps-wax) 30%, transparent) 100%);
+  border: 1px solid rgba(210, 178, 90, 0.6);
+  box-shadow:
+    0 0 0 6px rgba(210, 178, 90, 0.07),
+    inset 0 2px 6px rgba(0, 0, 0, 0.45);
+  color: var(--ps-gold);
+  animation: reconnect-pulse 2.6s ease-in-out infinite;
 }
 
+/* Opacity, never transform: the seal sits next to interactive controls. */
 @keyframes reconnect-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.62; }
+}
+
+.reconnect-card__text {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.reconnect-card__text::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(210, 178, 90, 0.4), transparent);
+}
+
+.reconnect-eyebrow {
+  margin: 0;
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ps-gold);
+  opacity: 0.85;
 }
 
 .reconnect-title {
-  font-size: 1.5rem;
+  margin: 0;
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-size: clamp(1.25rem, 4.5vw, 1.6rem);
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  font-family: var(--font-title, 'Orbitron', sans-serif);
+  line-height: 1.15;
+  color: var(--parchment, #f6f0e6);
+  overflow-wrap: anywhere;
 }
 
 .reconnect-phase {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-  text-transform: capitalize;
+  margin: 0 0 0.35rem;
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--parchment-dark, #d9cfbe);
 }
 
 .reconnect-players {
@@ -70,12 +141,11 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0;
-  background: var(--bg-darker);
-  border: 2px solid var(--px-border);
-  box-shadow: 2px 2px 0 var(--px-border-dark);
+  margin-bottom: 0.35rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-sm, 6px);
+  background: rgba(18, 13, 17, 0.45);
+  border: 1px solid rgba(210, 178, 90, 0.22);
 }
 
 .reconnect-player-dots {
@@ -83,81 +153,91 @@
   gap: 0.35rem;
 }
 
+/* Hollow gold ring = still out; filled = back at the table. Opacity, not hue,
+   carries the difference (the old `--gb-truth` was neon green #7bff8d). */
 .reconnect-dot {
   width: 10px;
   height: 10px;
-  border-radius: 0;
-  background: var(--panel-bg-hover);
-  transition: background 0.3s ease;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(210, 178, 90, 0.45);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .reconnect-dot.connected {
-  background: var(--gb-truth);
+  background: var(--ps-gold);
+  border-color: var(--ps-gold-light);
 }
 
 .reconnect-count {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--parchment-dark, #d9cfbe);
   font-variant-numeric: tabular-nums;
 }
 
 .reconnect-action {
-  margin-top: 0.5rem;
-}
-
-.reconnect-resume-btn {
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 0;
-  font-size: 1rem;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  color: var(--bg-darker);
-  background: var(--btn-face);
-  box-shadow: 2px 2px 0 var(--px-border-dark);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-  font-family: var(--font-title, 'Pixelify Sans', sans-serif);
-}
-
-.reconnect-resume-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-}
-
-.reconnect-resume-btn:active {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--px-border-dark);
-}
-
-.reconnect-waiting {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.reconnect-resume-btn,
+.reconnect-reload-btn {
+  width: 100%;
+}
+
+/* Was `display:flex; align-items:center` with the reload button as a SIBLING in
+   the same row — `margin-top` could not push it below the spinner, so a bare
+   glyph wedged itself into a 337px-wide row at 375px. The escape hatch is now a
+   separate block in `.reconnect-action`'s column. */
+.reconnect-waiting {
+  display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--parchment-dark, #d9cfbe);
+  text-align: center;
 }
 
 .reconnect-waiting-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(247, 231, 197, 0.2);
-  border-top-color: var(--primary);
+  flex-shrink: 0;
+  border: 2px solid rgba(246, 240, 230, 0.16);
+  border-top-color: var(--ps-gold);
   border-radius: 50%;
-  animation: reconnect-spin 0.8s steps(8) infinite;
+  animation: reconnect-spin 0.9s linear infinite;
 }
 
 @keyframes reconnect-spin {
   to { transform: rotate(360deg); }
 }
 
+@media (max-width: 400px) {
+  .reconnect-overlay { padding: 16px; }
+  .reconnect-card { padding: 1.5rem 1.15rem 1.35rem; gap: 0.9rem; }
+  .reconnect-seal { width: 64px; height: 64px; }
+  .reconnect-players { flex-direction: column; gap: 0.45rem; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .reconnect-card { flex-direction: row; align-items: center; text-align: left; padding: 1.1rem 1.25rem; gap: 1rem; max-width: 620px; }
+  .reconnect-card__text::before { display: none; }
+  .reconnect-seal { width: 52px; height: 52px; }
+  .reconnect-title { font-size: 1.1rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reconnect-icon,
-  .reconnect-waiting-spinner {
-    animation: none;
-  }
+  .reconnect-seal,
+  .reconnect-waiting-spinner { animation: none; }
   .reconnect-overlay,
-  .reconnect-overlay.dismissing {
-    animation: none;
-  }
+  .reconnect-overlay.dismissing { animation: none; }
 }

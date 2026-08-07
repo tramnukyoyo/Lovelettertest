@@ -131,6 +131,15 @@ const CrewCard: React.FC<{ p: Player; index: number; isMe: boolean }> = ({ p, in
           <><Crown className="gs-crew__crown" aria-hidden="true" />{tShell('lobby.host')}</>
         ) : isMe ? tShell('lobby.you') : ' '}
       </span>
+      {/* Dossier footer — the lower third of a suspect file: two ruled
+          evidence lines and a typewriter status stamp. Pure decoration
+          (aria-hidden, text set in CSS like the CASE FILE folder tab), so it
+          adds no translatable string and no layout for screen readers. */}
+      <span className="gs-crew__file" aria-hidden="true">
+        <span className="gs-crew__file-rule" />
+        <span className="gs-crew__file-rule" />
+        <span className="gs-crew__stamp" />
+      </span>
     </li>
   );
 };
@@ -386,6 +395,11 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                                 <span className="gs-crew__name">{' '}</span>
                               </span>
                               <span className="gs-crew__tag">{' '}</span>
+                              <span className="gs-crew__file gs-crew__file--empty">
+                                <span className="gs-crew__file-rule" />
+                                <span className="gs-crew__file-rule" />
+                                <span className="gs-crew__stamp" />
+                              </span>
                             </li>
                           ))}
                         </ul>
@@ -408,15 +422,20 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                           minPlayers={minPlayers}
                           currentPlayers={connectedPlayers.length}
                           hideRoomCode={gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode}
+                          /* Identity designer entry. Was a hardcoded English
+                             string behind a system emoji; now a noir line icon
+                             plus the designer's own title, so the button and the
+                             modal it opens say the same word in every language.
+                             It rides INSIDE the invite action row so the three
+                             actions wrap 3→2→1 as one rhythm instead of the
+                             card-back button being ejected below the pane. */
+                          actionSlot={
+                            <button type="button" className="ps-designer-btn" onClick={() => setShowDesigner(true)}>
+                              <CardBackIcon />
+                              {tShell('designer.cardBackTitle')}
+                            </button>
+                          }
                         />
-                        {/* Identity designer entry. Was a hardcoded English
-                            string behind a system emoji; now a noir line icon
-                            plus the designer's own title, so the button and the
-                            modal it opens say the same word in every language. */}
-                        <button type="button" className="ps-designer-btn" onClick={() => setShowDesigner(true)}>
-                          <CardBackIcon />
-                          {tShell('designer.cardBackTitle')}
-                        </button>
                       </div>
                     </div>
                     <ScrollHint watch="prev" />
@@ -432,7 +451,14 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                             <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
                           </CollapsibleSection>
                         ) : (
-                          <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
+                          <>
+                            <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
+                            {/* The host folder held one ADD BOT button and ~600px
+                                of empty velvet. The same read-only case facts the
+                                guest sees fill it — real data, no invented dead
+                                controls (the plugin exposes no settings:update). */}
+                            <GuestBriefingPanel lobby={lobby} />
+                          </>
                         )
                       ) : (
                         <GuestBriefingPanel lobby={lobby} />
@@ -470,7 +496,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                     </button>
                     {!canStart && (
                       <p className="lobby-start-hint">
-                        {t('game.needMorePlayers').replace('{count}', String(connectedPlayers.length))}
+                        {t('game.needMorePlayers')}
                       </p>
                     )}
                   </div>

@@ -1,0 +1,252 @@
+/* ============================================================================
+   PRIME SUSPECT — TOAST RAIL + THE .ps-toast FAMILY
+
+   Two jobs, deliberately kept in one file:
+
+   1. GEOMETRY (#ps-toast-rail): one fixed column below the header holding two
+      lanes in normal flow. Two lanes in one flex column cannot overlap; two
+      `position: fixed` blocks at the same coordinates always do.
+
+   2. SKIN (.ps-toast*): the single visual language for every system toast —
+      velvet ground, one gold hairline, a 4px accent rail on the leading edge,
+      a typewriter eyebrow and a Cinzel title. Components stay separate; they
+      share this skin instead of each inventing one.
+
+   Accent is carried by ONE local custom property so a component never writes a
+   colour: --ps-toast-accent, redefined by the --danger / --reward / --info
+   modifiers (recurring-defect catalog: "hardcoded hex in TSX").
+   ============================================================================ */
+
+#ps-toast-rail {
+  /* Local so the rail cannot be broken by a missing global token. Kept at the
+     platform's toast layer: above every modal, below the crash screen. */
+  --z-toast: 10001;
+  --ps-toast-rail-top: calc(var(--header-height, 66px) + env(safe-area-inset-top, 0px) + 12px);
+
+  position: fixed;
+  top: var(--ps-toast-rail-top);
+  left: 0;
+  right: 0;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  /* The rail itself is inert; only the cards take input. */
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  #ps-toast-rail {
+    --ps-toast-rail-top: calc(var(--header-height-mobile, 48px) + env(safe-area-inset-top, 0px) + 12px);
+  }
+}
+
+/* The in-game action toast (components/hearts-gambit/Toast.tsx) belongs to the
+   game surface and still pins itself to `top: 1rem`. Reserve its band while it
+   is on screen so a system toast can never land on top of it. */
+body:has(.hg-panel.hg-candlelight.fixed.top-4) #ps-toast-rail {
+  padding-top: 28px;
+}
+
+.ps-toast-rail__lane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(420px, 100%);
+  pointer-events: none;
+}
+
+/* An empty lane must not contribute a gap to the rail. */
+.ps-toast-rail__lane:empty { display: none; }
+
+.ps-toast-rail--top-center { align-self: center; }
+
+.ps-toast-rail--top-right {
+  align-self: flex-end;
+  width: min(380px, 100%);
+}
+
+/* ── The family ───────────────────────────────────────────────────────────── */
+
+.ps-toast {
+  --ps-toast-accent: var(--parchment-dark, #d9cfbe);
+
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px 12px 18px;
+  background: linear-gradient(180deg, rgba(52, 38, 47, 0.98), rgba(44, 32, 41, 0.98));
+  border: 1px solid var(--royal-gold, #d2b25a);
+  border-radius: var(--radius-md, 8px);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(246, 240, 230, 0.06);
+  color: var(--parchment, #f6f0e6);
+  font-family: var(--font-body, system-ui, sans-serif);
+  pointer-events: auto;
+  overflow: hidden;
+  animation: ps-toast-in 0.25s var(--ease-out-expo, cubic-bezier(0.23, 1, 0.32, 1)) both;
+}
+
+/* Leading accent rail — the one element that carries the toast's meaning. */
+.ps-toast::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--ps-toast-accent);
+}
+
+.ps-toast.is-exiting { animation: ps-toast-out 0.3s ease-in both; }
+
+@keyframes ps-toast-in {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ps-toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-12px); }
+}
+
+.ps-toast--danger { --ps-toast-accent: var(--royal-crimson-light, #8a2233); }
+.ps-toast--reward { --ps-toast-accent: var(--royal-gold, #d2b25a); }
+.ps-toast--info   { --ps-toast-accent: var(--parchment-dark, #d9cfbe); }
+
+/* For toasts that bring their own internal layout (XP reward card): family
+   ground + accent rail, but no imposed row padding. */
+.ps-toast--stacked {
+  display: block;
+  padding: 0;
+}
+
+.ps-toast__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm, 6px);
+  background: color-mix(in srgb, var(--ps-toast-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ps-toast-accent) 45%, transparent);
+  color: var(--ps-toast-accent);
+  overflow: hidden;
+}
+
+.ps-toast__icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.ps-toast__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ps-toast__eyebrow {
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ps-toast-accent);
+  overflow-wrap: anywhere;
+}
+
+.ps-toast__title {
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  color: var(--parchment, #f6f0e6);
+  overflow-wrap: anywhere;
+}
+
+.ps-toast__text {
+  font-size: 0.83rem;
+  line-height: 1.4;
+  color: var(--parchment-dark, #d9cfbe);
+  overflow-wrap: anywhere;
+  /* A notice, never the full message view. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ps-toast__cta {
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ps-toast-accent);
+}
+
+/* Whole-body affordance (admin message). Never calls focus(): a toast must not
+   steal input from a player mid-round. */
+.ps-toast__action {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-sm, 6px);
+  transition: filter 0.15s ease;
+}
+.ps-toast__action:hover { filter: brightness(1.14); }
+.ps-toast__action:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 3px;
+}
+
+.ps-toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--parchment-dark, #d9cfbe);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.ps-toast__close:hover {
+  color: var(--parchment, #f6f0e6);
+  background: rgba(210, 178, 90, 0.12);
+  border-color: rgba(210, 178, 90, 0.35);
+}
+.ps-toast__close:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
+}
+
+@media (max-width: 400px) {
+  .ps-toast { gap: 10px; padding: 10px 12px 10px 16px; }
+  .ps-toast--stacked { padding: 0; }
+  .ps-toast__icon { width: 34px; height: 34px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-toast,
+  .ps-toast.is-exiting { animation: none; }
+  .ps-toast__action { transition: none; }
+}

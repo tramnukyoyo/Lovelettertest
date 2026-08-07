@@ -287,6 +287,13 @@ const HomePage: React.FC<HomePageProps> = ({
                   </span>
                 </span>
               </button>
+              {/* The CTA's resting (disabled) state is a designed "sealed
+                  dossier", not a greyed-out button — this hairline note is what
+                  makes that state EXPLAIN itself instead of reading as broken.
+                  Shown only while the CTA is genuinely un-armed. */}
+              {!isConnecting && !playerName.trim() && (
+                <p className="home-form-note">{t('home.formNote')}</p>
+              )}
               {canOfferQrScan && (
                 <button
                   type="button"

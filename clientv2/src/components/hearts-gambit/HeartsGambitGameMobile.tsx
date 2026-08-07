@@ -7,7 +7,6 @@ import Toast from './Toast';
 import DynamicCard from './DynamicCard';
 import {
   CARD_IMAGES,
-  CARD_BACK_IMAGE,
   getTranslatedCardName
 } from './cardDatabase';
 import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/soundEffects';
@@ -570,7 +569,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       {/* Board Layer - Main content */}
       <div className="absolute inset-0">
         {/* Opponents strip */}
-        <div className="hg-mobile-opponent-area overflow-hidden">
+        <div className="hg-mobile-opponent-area">
           <MobileOpponentStrip
             players={displayOtherPlayers}
             currentTurnId={lobby.gameData?.currentTurn ?? undefined}
@@ -585,13 +584,13 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         {/* Center area - Deck & Discard */}
         <div className="hg-mobile-deck-area flex items-center justify-center gap-[clamp(16px,4vw,32px)] pointer-events-auto">
           {/* Discard Pile */}
-          <div className="flex flex-col items-center translate-y-[3dvh]">
-            <span className="font-bold text-[var(--royal-gold-light)] uppercase tracking-wider mb-0.5 block translate-x-[3vw]" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
+          <div className="hg-mobile-deck-col flex flex-col items-center">
+            <span className="hg-mobile-deck-label font-bold text-[var(--royal-gold-light)] uppercase tracking-wider mb-0.5 block">
               {t('evidence.title')}
             </span>
             <button
               onClick={openDiscardInspector}
-              className="relative hg-mobile-discard-card flex items-center justify-center overflow-visible translate-x-[3vw]"
+              className="relative hg-mobile-discard-card flex items-center justify-center overflow-visible"
               aria-label={t('evidence.openEvidenceLocker')}
             >
               {/* Top card - no stack effect on mobile */}
@@ -619,8 +618,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
           </div>
 
           {/* Case File (Deck) */}
-          <div className="flex flex-col items-center translate-y-[3dvh]">
-            <span className="font-bold text-[var(--royal-gold-light)] uppercase tracking-wider mb-0.5 block translate-x-[1.5vw] whitespace-nowrap" style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}>
+          <div className="hg-mobile-deck-col flex flex-col items-center">
+            <span className="hg-mobile-deck-label font-bold text-[var(--royal-gold-light)] uppercase tracking-wider mb-0.5 block whitespace-nowrap">
               {t('game.caseFile')} <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
             </span>
             <button
@@ -650,10 +649,12 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                     zIndex: i
                   }}
                 >
-                  <img
-                    src={CARD_BACK_IMAGE}
-                    alt=""
-                    className="w-full h-full object-cover rounded-lg shadow-lg"
+                  {/* Same card language as the evidence pile beside it —
+                      DynamicCard's gold-rule/velvet back, not a raw <img>. */}
+                  <DynamicCard
+                    cardType={0 as CardType}
+                    showFace={false}
+                    className="hg-mobile-deck-stack-card"
                   />
                 </div>
               ))}
@@ -661,8 +662,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               {/* Draw indicator */}
               {waitingToDraw && (
                 <div className="absolute -bottom-[8%] left-1/2 -translate-x-1/2 z-20">
-                  <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-[1vw] py-[0.5vh] rounded-full text-xs font-bold whitespace-nowrap">
-                    TAP TO DRAW
+                  <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap">
+                    {t('mobile.tapToDraw')}
                   </span>
                 </div>
               )}
@@ -672,18 +673,20 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
         {/* Case Notes - Right Side Panel */}
         {lobby.state !== 'LOBBY' && (
-          <div className="hg-mobile-notes-area bg-[rgba(0,0,0,0.7)] backdrop-blur-sm rounded-xl p-2 overflow-hidden flex flex-col">
-            <div className="text-[8px] font-bold text-[var(--royal-gold-light)] mb-1 flex items-center gap-1 uppercase tracking-wider">
-              <FileText size={10} /> Notes ({lobby.messages?.length || 0})
+          <div className="hg-mobile-notes-area backdrop-blur-sm rounded-xl p-2 overflow-hidden flex flex-col">
+            <div className="hg-mobile-notes-head text-[10px] font-bold text-[var(--royal-gold-light)] mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+              <FileText size={12} aria-hidden="true" />
+              {t('caseNotes.title')}
+              <span className="text-[var(--parchment-dark)] font-normal">({lobby.messages?.length || 0})</span>
             </div>
-            <div className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+            <div className="hg-mobile-notes-log flex-1 space-y-1 overflow-y-auto custom-scrollbar">
               {lobby.messages?.filter(m => m.playerId === 'system' || (m as any).isSystem).slice(-8).map(msg => (
-                <div key={msg.id} className="text-[9px] text-[rgba(246,240,230,0.9)] leading-tight">
+                <div key={msg.id} className="text-[11px] text-[rgba(246,240,230,0.92)] leading-snug">
                   {translateGameMessage(msg.message)}
                 </div>
               ))}
               {(!lobby.messages || lobby.messages.length === 0) && (
-                <div className="text-[9px] text-[rgba(246,240,230,0.72)] italic">No events yet...</div>
+                <div className="text-[11px] text-[rgba(246,240,230,0.72)] italic">{t('mobile.noEventsYet')}</div>
               )}
             </div>
           </div>
@@ -774,7 +777,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
       {/* Must Play Accomplice floating indicator */}
       {mustPlayAccomplice && isMyTurn && !waitingToDraw && lobby.state !== 'LOBBY' && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+        <div className="hg-mobile-alert-rail fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
           <span className="bg-[var(--royal-crimson)] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
             {t('game.mustPlayAccomplice')} (7)
           </span>
@@ -796,8 +799,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               onMouseEnter={() => setPreviewCard(card)}
               onMouseLeave={() => setPreviewCard(null)}
               className={`
-                pointer-events-auto transition-all bg-transparent p-0 border-none
-                ${selectedCardIndex === idx ? '-translate-y-2 scale-110' : ''}
+                hg-mobile-hand-slot pointer-events-auto bg-transparent p-0 border-none
+                ${selectedCardIndex === idx ? 'is-selected' : ''}
                 ${!isMyTurn || amEliminated || waitingToDraw ? 'opacity-50' : ''}
               `}
             >

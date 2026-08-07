@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Mail, X } from 'lucide-react';
 import { t } from '../../utils/translations';
 import { useAdminInbox, openInbox, dismissToast } from '../../services/adminInbox';
+import { getToastLane } from './toastRail';
 import './AdminMessageToast.css';
 
 /**
@@ -18,7 +19,9 @@ import './AdminMessageToast.css';
  * Delivery: the game server emits `admin:message` to this player's socket; the
  * adminInbox store owns the state and this renders whatever it puts in `toast`.
  *
- * Styling is class-based and themed from the host game's unified.css tokens.
+ * Skin + placement come from the shared .ps-toast family (toastRail.css). It used
+ * to pin itself to `top:20px; right:20px`, which sat straight on top of the XP
+ * toast; both now queue in the rail's right lane.
  */
 
 /** Long enough to notice mid-round, short enough not to camp on the HUD. */
@@ -36,26 +39,26 @@ const AdminMessageToast: React.FC = () => {
   if (!toast) return null;
 
   return createPortal(
-    <div className="gb-admsg" role="status" aria-live="polite">
-      <div className="gb-admsg-header">
-        <Mail className="gb-admsg-icon" size={18} />
-        <strong className="gb-admsg-from">{toast.fromName || 'GameBuddies'}</strong>
-        <button
-          className="gb-admsg-close"
-          onClick={dismissToast}
-          type="button"
-          aria-label={t('adminMessage.close')}
-        >
-          <X size={16} />
-        </button>
-      </div>
+    <div className="ps-toast ps-toast--info gb-admsg" role="status" aria-live="polite">
+      <span className="ps-toast__icon">
+        <Mail size={18} strokeWidth={1.75} aria-hidden="true" />
+      </span>
       {/* Spans, not <p>: a button's content model is phrasing content only. */}
-      <button className="gb-admsg-body" type="button" onClick={openInbox}>
-        <span className="gb-admsg-text">{toast.body}</span>
-        <span className="gb-admsg-cta">{t('adminMessage.newMessageHint')}</span>
+      <button className="ps-toast__action" type="button" onClick={openInbox}>
+        <span className="ps-toast__eyebrow">{toast.fromName || 'GameBuddies'}</span>
+        <span className="ps-toast__text">{toast.body}</span>
+        <span className="ps-toast__cta">{t('adminMessage.newMessageHint')}</span>
+      </button>
+      <button
+        className="ps-toast__close"
+        onClick={dismissToast}
+        type="button"
+        aria-label={t('adminMessage.close')}
+      >
+        <X size={16} aria-hidden="true" />
       </button>
     </div>,
-    document.body
+    getToastLane('top-right')
   );
 };
 

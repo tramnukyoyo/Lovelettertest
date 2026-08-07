@@ -1,87 +1,16 @@
-/* AdminMessageToast — themed entirely from the host game's unified.css variables
-   so the window matches whichever game it's dropped into. Every var() has a
-   sensible fallback so it still renders if a game is missing a token. */
+/* AdminMessageToast — placement and skin now come from the shared .ps-toast
+   family in toastRail.css. This file keeps only what is specific to the admin
+   notice.
 
-.gb-admsg {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: min(360px, 92vw);
-  background: var(--bg-secondary, #1e293b);
-  border: 2px solid var(--px-border, rgba(255, 255, 255, 0.12));
-  border-radius: 0;
-  box-shadow: 4px 4px 0 var(--px-border-dark, rgba(0, 0, 0, 0.5));
-  z-index: var(--z-mobile-toast, 10001);
-  color: var(--text-primary, #f8fafc);
-  font-family: var(--font-hand, inherit);
-  overflow: hidden;
-  animation: gb-admsg-in 0.25s ease;
-}
+   Removed on purpose:
+   - `position: fixed; top: 20px; right: 20px` — it landed straight on the XP
+     toast (same corner, same z-index, order decided by DOM). Both now queue in
+     the rail's right lane.
+   - the `--gb-cyan` header tint and CTA colour — neon cyan in a candlelit
+     case-file game. The accent is the family's parchment `--ps-toast-accent`. */
 
-@keyframes gb-admsg-in {
-  from { transform: translateY(-12px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .gb-admsg { animation: none; }
-}
-
-.gb-admsg-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--panel-border, rgba(255, 255, 255, 0.08));
-  background: color-mix(in srgb, var(--gb-cyan, #00d9ff) 10%, transparent);
-}
-.gb-admsg-icon { color: var(--gb-cyan, #00d9ff); flex-shrink: 0; }
-.gb-admsg-from {
-  font-size: 0.95rem;
-  flex: 1;
-  min-width: 0;
-  font-family: var(--font-title, inherit);
-}
-.gb-admsg-close {
-  background: none;
-  border: none;
-  color: var(--text-secondary, #94a3b8);
-  cursor: pointer;
-  display: flex;
-  padding: 2px;
-}
-.gb-admsg-close:hover { color: var(--text-primary, #fff); }
-
-/* The whole body is the "open the conversation" affordance. A button rather than a
-   div so it's keyboard-reachable — but note nothing here ever CALLS focus(): the
-   toast must not steal input from a player mid-round. */
-.gb-admsg-body {
-  display: block;
-  width: 100%;
-  padding: 12px 14px;
-  background: none;
-  border: none;
-  font: inherit;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.gb-admsg-body:hover { background: var(--panel-bg-hover, rgba(255, 255, 255, 0.04)); }
-
-.gb-admsg-text {
-  margin: 0 0 8px;
-  font-size: 0.9rem;
-  white-space: pre-wrap;
-  line-height: 1.45;
-  /* Two lines max: this is a notice, not the message view. */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-  color: var(--text-primary, #f8fafc);
-}
-.gb-admsg-cta {
-  font-size: 0.75rem;
-  color: var(--gb-cyan, #00d9ff);
-  font-family: var(--font-title, inherit);
+/* An admin message can be long; give it one more line than the family default
+   before clamping, since reading it is the whole point of the notice. */
+.gb-admsg .ps-toast__text {
+  -webkit-line-clamp: 4;
 }

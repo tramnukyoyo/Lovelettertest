@@ -19,8 +19,8 @@
 }
 
 .game-header-messages-btn.has-unread {
-  border-color: var(--gb-pink, #e94560);
-  color: var(--gb-pink, #e94560);
+  border-color: var(--royal-gold, #d2b25a);
+  color: var(--royal-gold-light, #e7cc7a);
 }
 
 .game-header-messages-badge {
@@ -30,11 +30,12 @@
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
-  background: var(--gb-pink, #e94560);
-  border-radius: var(--radius-md, 6px);
+  background: var(--royal-crimson-light, #8a2233);
+  border: 1px solid var(--royal-gold, #d2b25a);
+  border-radius: 999px;
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
   font-size: 0.625rem;
-  font-weight: 700;
-  color: #fff;
+  color: var(--parchment, #f6f0e6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,10 +54,10 @@
   height: min(520px, 70vh);
   display: flex;
   flex-direction: column;
-  background: var(--bg-secondary, #1e293b);
-  border: 2px solid var(--px-border, rgba(255, 255, 255, 0.12));
-  border-radius: 0;
-  box-shadow: 4px 4px 0 var(--px-border-dark, rgba(0, 0, 0, 0.5));
+  background: linear-gradient(180deg, rgba(52, 38, 47, 0.98), rgba(44, 32, 41, 0.99));
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(246, 240, 230, 0.06);
   z-index: var(--z-settings-modal, 9999);
   color: var(--text-primary, #f8fafc);
   font-family: var(--font-hand, inherit);
@@ -78,14 +79,14 @@
   gap: 8px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--panel-border, rgba(255, 255, 255, 0.08));
-  background: color-mix(in srgb, var(--gb-cyan, #00d9ff) 10%, transparent);
+  background: color-mix(in srgb, var(--royal-gold, #d2b25a) 9%, transparent);
   cursor: move;
   /* Required for pointer-capture dragging: without it the browser claims the
      gesture for scroll/pan and pointermove stops firing mid-drag. */
   touch-action: none;
   flex-shrink: 0;
 }
-.gb-msg-icon { color: var(--gb-cyan, #00d9ff); flex-shrink: 0; }
+.gb-msg-icon { color: var(--royal-gold, #d2b25a); flex-shrink: 0; }
 .gb-msg-title {
   font-size: 0.95rem;
   flex: 1;
@@ -122,10 +123,10 @@
 .gb-msg-retry {
   display: block;
   margin: 12px auto 0;
-  background: var(--primary, #00d9ff);
-  border: none;
-  color: var(--bg-darker, #06121a);
-  box-shadow: 2px 2px 0 var(--px-border-dark, rgba(0, 0, 0, 0.5));
+  background: linear-gradient(180deg, #8a2233, #6a1623);
+  border: 1px solid var(--royal-gold, #d2b25a);
+  border-radius: var(--radius-sm, 6px);
+  color: var(--parchment, #f6f0e6);
   padding: 6px 14px;
   font-family: inherit;
   font-size: 0.8rem;
@@ -136,19 +137,20 @@
   max-width: 82%;
   padding: 9px 11px;
   font-size: 0.85rem;
-  border: 2px solid var(--px-border, rgba(255, 255, 255, 0.12));
-  box-shadow: 2px 2px 0 var(--px-border-dark, rgba(0, 0, 0, 0.4));
+  border: 1px solid rgba(210, 178, 90, 0.28);
+  border-radius: var(--radius-sm, 6px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 .gb-msg-bubble.is-admin {
   align-self: flex-start;
-  background: color-mix(in srgb, var(--gb-cyan, #00d9ff) 22%, transparent);
+  background: color-mix(in srgb, var(--royal-gold, #d2b25a) 12%, transparent);
 }
 .gb-msg-bubble.is-user {
   align-self: flex-end;
-  background: color-mix(in srgb, var(--gb-pink, #e94560) 22%, transparent);
+  background: color-mix(in srgb, var(--royal-crimson-light, #8a2233) 26%, transparent);
 }
 .gb-msg-bubble.is-failed {
-  border-color: var(--gb-pink, #e94560);
+  border-color: var(--royal-crimson-light, #8a2233);
   cursor: pointer;
   opacity: 0.75;
 }
@@ -162,6 +164,7 @@
   margin-bottom: 4px;
 }
 .gb-msg-body {
+  font-family: var(--font-body, system-ui, sans-serif);
   color: var(--text-primary, #e2e8f0);
   white-space: pre-wrap;
   word-break: break-word;
@@ -183,9 +186,9 @@
 .gb-msg-composer textarea {
   flex: 1;
   resize: none;
-  background: var(--bg-primary, #0d0f1a);
-  border: 2px solid var(--px-border, rgba(255, 255, 255, 0.12));
-  border-radius: 0;
+  background: rgba(18, 13, 17, 0.55);
+  border: 1px solid rgba(210, 178, 90, 0.3);
+  border-radius: var(--radius-sm, 6px);
   color: var(--text-primary, #e2e8f0);
   padding: 8px 10px;
   font-size: 0.85rem;
@@ -193,14 +196,14 @@
 }
 .gb-msg-composer textarea:focus {
   outline: none;
-  border-color: var(--gb-cyan, rgba(0, 217, 255, 0.5));
+  border-color: var(--royal-gold, #d2b25a);
+  box-shadow: 0 0 0 2px rgba(210, 178, 90, 0.18);
 }
 .gb-msg-send {
-  background: var(--primary, #00d9ff);
-  border: none;
-  color: var(--bg-darker, #06121a);
-  border-radius: 0;
-  box-shadow: 2px 2px 0 var(--px-border-dark, rgba(0, 0, 0, 0.5));
+  background: linear-gradient(180deg, #8a2233, #6a1623);
+  border: 1px solid var(--royal-gold, #d2b25a);
+  color: var(--parchment, #f6f0e6);
+  border-radius: var(--radius-sm, 6px);
   padding: 0 12px;
   cursor: pointer;
   display: flex;

@@ -142,8 +142,8 @@ const GameShell: React.FC<GameShellProps> = ({
           type="button"
           className={`gs-chrome-toggle ${chromeHidden ? 'is-hidden' : 'is-shown'}`}
           onClick={() => setChromeHidden(prev => !prev)}
-          aria-label={chromeHidden ? 'Show menu' : 'Hide menu'}
-          title={chromeHidden ? 'Show menu' : 'Hide menu'}
+          aria-label={chromeHidden ? t('shell.showMenu') : t('shell.hideMenu')}
+          title={chromeHidden ? t('shell.showMenu') : t('shell.hideMenu')}
           aria-pressed={!chromeHidden}
         >
           <span className="gs-chrome-toggle-icon" aria-hidden="true">

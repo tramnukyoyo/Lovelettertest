@@ -268,6 +268,11 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
       viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
       xmlns="http://www.w3.org/2000/svg"
       className="primesuspect-demo"
+      /* The scene's bottom ~11% is empty table floor. The stage is a 16/8
+         window and the artwork anchors to its TOP, so the dead floor is
+         cropped instead of padding the modal — and `slice` keeps the velvet
+         plate covered edge-to-edge at every width. */
+      preserveAspectRatio="xMidYMin slice"
     >
       <defs>
         <linearGradient id="ps-bg" x1="0" y1="0" x2="0" y2="1">
@@ -326,6 +331,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
           />
         </g>
         <text
+          className="gex-demo-label"
           x={0}
           y={CARD_H / 2 + 16}
           fontSize={9}
@@ -376,7 +382,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
             <text x={cx} y={cy + 6} fontSize={20} fontFamily="'Special Elite', monospace" fontWeight={800} fill={accent} textAnchor="middle">
               {name[0]}
             </text>
-            <text x={cx} y={cy - 36} fontSize={11} fontFamily="'Special Elite', monospace" fontWeight={700} fill={accent} textAnchor="middle" letterSpacing={1.5}>
+            <text className="gex-demo-label" x={cx} y={cy - 36} fontSize={11} fontFamily="'Special Elite', monospace" fontWeight={700} fill={accent} textAnchor="middle" letterSpacing={1.5}>
               {isLocal ? `${name} (YOU)` : name}
             </text>
             {cardEl}
@@ -499,7 +505,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
 export const primeSuspectDemoSpec: DemoSpec = {
   Component: PrimeSuspectDemo,
   durationMs: DURATION_MS,
-  aspectRatio: 16 / 9,
+  aspectRatio: 16 / 8,
   beats: [
     { atMs: 0, captionKey: 'explainer.prime-suspect.beat1' },
     { atMs: BEAT2_AT, captionKey: 'explainer.prime-suspect.beat2' },

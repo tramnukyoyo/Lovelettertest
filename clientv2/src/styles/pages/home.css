@@ -34,21 +34,72 @@
      (PS's two-line wordmark makes the hero column taller than the reference)
      settles the create card onto the fleet y-line instead of riding high. */
   padding-top: calc(env(safe-area-inset-top, 0px) + clamp(0.75rem, 4.2dvh, 2.65rem));
-  padding-bottom: max(clamp(1rem, 3dvh, 2.5rem), env(safe-area-inset-bottom));
+  /* The legal band now carries its own plate + padding (see LEGAL FOOTER
+     below), so the page no longer reserves a second bottom gutter — that both
+     lets the plate sit flush on the bottom edge and buys the phone stack the
+     vertical room the restored tagline/description need. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   overflow-y: auto;
   background: transparent; /* candlelit scenery painted by PaperDeductionBackdrop */
   isolation: isolate;
   position: relative;
 }
 
-/* Spotlight glow overlay */
+/* Spotlight glow overlay + frame vignette. The vignette is what stops a 1920
+   frame from reading as "an island of content in flat gradient noise": the outer
+   thirds fall away into velvet on purpose, which is how the eye is walked to the
+   lit centre instead of wandering an evenly-lit rectangle. */
 .home-page::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: var(--gradient-spotlight);
+  background:
+    radial-gradient(125% 95% at 50% 40%, transparent 34%, rgba(8, 5, 8, 0.5) 100%),
+    var(--gradient-spotlight);
   pointer-events: none;
   z-index: 0;
+}
+
+/* ── DEPTH BAND: a third, DARKER scenery layer running the FULL width of the
+      frame, below the backdrop's distant blocks and above its pavement. Without
+      it the outer thirds of a 1920 frame are flat gradient carrying two lonely
+      props; with it the composition reads as three stacked depths edge to edge
+      (far fog → this terrace of rain-lit windows → foreground props).
+      Inline pixel SVG (no external asset, CSP-safe), repeat-x so it tiles at
+      any width, aria-invisible (a pseudo-element), pointer-events:none, and
+      painted at z-index 0 so it can never cover or clip a control.
+      Wide landscape only — a phone has no empty thirds to fill. ── */
+@media (orientation: landscape) and (min-width: 900px) {
+  .home-page::before {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    /* Sits ON the horizon line — behind the foreground props, above the
+       pavement — so it fills the dead band the composition used to leave. */
+    bottom: clamp(58px, 16dvh, 190px);
+    height: clamp(58px, 11dvh, 128px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.8;
+    background-image:
+      url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="240" height="60" preserveAspectRatio="none" shape-rendering="crispEdges"%3E%3Cg fill="%23090707"%3E%3Crect x="0" y="26" width="30" height="34"/%3E%3Crect x="30" y="18" width="22" height="42"/%3E%3Crect x="52" y="30" width="34" height="30"/%3E%3Crect x="86" y="12" width="18" height="48"/%3E%3Crect x="104" y="24" width="28" height="36"/%3E%3Crect x="132" y="34" width="24" height="26"/%3E%3Crect x="156" y="20" width="20" height="40"/%3E%3Crect x="176" y="28" width="32" height="32"/%3E%3Crect x="208" y="16" width="14" height="44"/%3E%3Crect x="222" y="30" width="18" height="30"/%3E%3C/g%3E%3Cg fill="%23e7cc7a" opacity="0.55"%3E%3Crect x="6" y="32" width="4" height="4"/%3E%3Crect x="18" y="42" width="4" height="4"/%3E%3Crect x="36" y="24" width="4" height="4"/%3E%3Crect x="42" y="38" width="4" height="4"/%3E%3Crect x="60" y="36" width="4" height="4"/%3E%3Crect x="74" y="46" width="4" height="4"/%3E%3Crect x="92" y="18" width="4" height="4"/%3E%3Crect x="92" y="34" width="4" height="4"/%3E%3Crect x="112" y="30" width="4" height="4"/%3E%3Crect x="122" y="44" width="4" height="4"/%3E%3Crect x="140" y="40" width="4" height="4"/%3E%3Crect x="162" y="28" width="4" height="4"/%3E%3Crect x="186" y="34" width="4" height="4"/%3E%3Crect x="196" y="48" width="4" height="4"/%3E%3Crect x="212" y="22" width="4" height="4"/%3E%3Crect x="228" y="38" width="4" height="4"/%3E%3C/g%3E%3C/svg%3E'),
+      linear-gradient(180deg, rgba(9, 7, 6, 0) 0%, rgba(9, 7, 6, 0.55) 72%, rgba(9, 7, 6, 0.75) 100%);
+    --home-skyline-tile: clamp(300px, 26vw, 520px);
+    background-repeat: repeat-x, no-repeat;
+    background-size: var(--home-skyline-tile) 100%, 100% 100%;
+    background-position: bottom left, bottom center;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%);
+    animation: homeSkylineDrift 180s linear infinite;
+  }
+}
+
+/* Whisper-slow parallax — one tile every three minutes, so the band reads as a
+   living city rather than wallpaper without ever pulling the eye. */
+@keyframes homeSkylineDrift {
+  from { background-position-x: 0, center; }
+  to   { background-position-x: calc(-1 * var(--home-skyline-tile, 400px)), center; }
 }
 
 /* ====== HOME HEADER ====== */
@@ -265,12 +316,69 @@
   z-index: 1;
 }
 
-/* The shared legal footer pins itself with `margin-top:auto` — on the homepage
+/* ====== LEGAL FOOTER (homepage band) ====================================
+   The shared legal footer pins itself with `margin-top:auto` — on the homepage
    that auto margin competes with `.home-stage`'s own auto block margins,
    splitting the free space and stranding the set-piece at 1/3 height on tall
    viewports. The stage's margins alone both centre the content AND push the
-   footer to the bottom of the viewport. */
-.home-page .legal-footer { margin-top: 0; }
+   footer to the bottom of the viewport.
+
+   It also lands ON the noir scenery (the lamppost head, the red telephone box),
+   which on a phone put PRIVACY straight over a prop and pushed its last glyph
+   past the right edge. The band therefore gets its OWN plate — a dark wash it
+   always sits on — plus a tighter gap ladder, so all four items stay legible
+   inside the viewport whatever the scenery does behind them. Scoped to
+   `.home-page` on purpose: components/legal.css is shared chrome, not this
+   surface's to rewrite. ===================================================== */
+.home-page .legal-footer {
+  margin-top: 0;
+  position: relative;
+  z-index: 2;                       /* above the noir prop layer, always */
+  width: 100%;
+  justify-content: center;
+  column-gap: 0.9rem;
+  row-gap: 0.2rem;
+  padding: 0.55rem var(--spacing-md) calc(0.45rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    180deg,
+    rgba(12, 9, 7, 0) 0%,
+    rgba(12, 9, 7, 0.82) 40%,
+    rgba(12, 9, 7, 0.93) 100%
+  );
+}
+
+/* One voice, two accents: the footer links were the only MAGENTA on the page
+   (legal.css reads --primary-light, which this theme maps to crimson-light and
+   which renders hot against the velvet). Retarget them to the wordmark's gold
+   so the landing runs gold + wax-red and nothing else. */
+.home-page .legal-footer .legal-footer__brand {
+  color: rgba(246, 240, 230, 0.7);
+  opacity: 1;
+}
+
+.home-page .legal-footer .legal-link {
+  color: var(--royal-gold-light);
+}
+
+.home-page .legal-footer .legal-link:hover,
+.home-page .legal-footer .legal-link:focus-visible {
+  color: #fff4d8;
+  text-shadow: 0 0 10px rgba(231, 204, 122, 0.4);
+}
+
+/* Phones: stack brand over links so nothing can wrap onto a prop or clip at the
+   right edge, whatever the locale's word lengths are. */
+@media (max-width: 480px) {
+  .home-page .legal-footer {
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-top: 0.4rem;
+    font-size: 0.68rem;
+  }
+
+  .home-page .legal-footer .legal-links { column-gap: 0.7rem; row-gap: 0.15rem; }
+  .home-page .legal-footer .legal-link { font-size: 0.68rem; }
+}
 
 .home-stage-grid {
   display: grid;
@@ -324,10 +432,16 @@
   /* Bounding the hero column stacks the wordmark ("Prime" over "Suspect") into
      a dossier stamp AND is what puts the create card at its fleet x-position —
      the auto track is literally as wide as this box. */
+  /* Floor raised 320 → 330px: at a 1024 frame the container is ~978px, so
+     31cqi resolved to the 320px floor — narrower than the players/genre chip's
+     min-content, which broke the chip's label onto two lines INSIDE the pill (a
+     wrapped pill reads as a rendering fault). 330px is the fleet card floor and
+     still resolves to 31cqi ≈ 397px at 1912, so the measured fleet card
+     position (400x346 @ x980, col-gap 51.2) is untouched. */
   .home-hero-col {
     align-items: flex-start;
     text-align: left;
-    width: clamp(320px, 31cqi, 400px);
+    width: clamp(330px, 31cqi, 400px);
     gap: clamp(0.5rem, 1.3cqi, 1rem);
   }
 
@@ -364,7 +478,13 @@
      badge shares the wordmark's left edge instead of BlindSpot's `center` —
      centring it inside a box wider than its content would put the badge on a
      different axis from everything above it. */
-  .home-mp-badge { align-self: flex-start; }
+  .home-mp-badge {
+    align-self: flex-start;
+    /* Trimmed to fit the 330px hero box at a 1024 frame without wrapping. */
+    padding: var(--spacing-xs) var(--spacing-md);
+    gap: 0.45rem;
+  }
+  .home-mp-badge-category { letter-spacing: 0.1em; }
 }
 }
 
@@ -637,11 +757,16 @@
   50% { filter: brightness(1.06); }
 }
 
+/* ONE VOICE: the tagline used to be the only geometric-sans on a page that is
+   otherwise engraved serif (wordmark) + typewriter (chip, case file). It now
+   speaks the case file's typewriter, which is also what makes it read as a line
+   typed onto the dossier rather than a marketing strapline. */
 .home-tagline {
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 2.6vw, 1.3rem);
+  font-family: var(--font-typewriter);
+  font-size: clamp(1rem, 2.6vw, 1.24rem);
   color: var(--gb-cream);
-  font-weight: 700;
+  font-weight: 400;
+  letter-spacing: 0.015em;
   text-shadow: 2px 2px 0 rgba(18, 13, 17, 0.55);
   max-width: 34ch;
   margin-inline: auto;
@@ -697,6 +822,14 @@
 .home-mp-badge {
   display: inline-flex;
   align-items: center;
+  /* A chip is a chip at every width: it shrink-wraps its label and never breaks
+     it across two lines inside the pixel frame. (No `align-self` here — the
+     hero column's own alignment owns that, and it flips to flex-start in the
+     wide split.) */
+  width: max-content;
+  max-width: 100%;
+  flex-wrap: nowrap;
+  white-space: nowrap;
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-lg);
   background: var(--panel-bg);
@@ -753,6 +886,17 @@
   max-width: none;
   padding: clamp(2.2rem, 5.3dvh, 3.4rem) clamp(1rem, 3.2dvh, 1.95rem);
   animation: none;
+  /* Candlelight, not a black slab: the noir layer's skin drops a hard black
+     offset to the right/bottom with no lit edge, so the light IN the scene (a
+     lamp above-left) and the light ON the card disagreed. Lit top-left rim →
+     the 3px tobacco case-file ring → a softer velvet drop. `!important` only
+     because the skin block sets box-shadow with `!important` itself. */
+  box-shadow:
+    -1px -1px 0 rgba(231, 204, 122, 0.24),
+    0 -1px 0 rgba(246, 240, 230, 0.1),
+    0 0 0 3px var(--tobacco-brown, #4a3f35),
+    10px 12px 0 rgba(10, 7, 5, 0.55),
+    0 24px 56px rgba(0, 0, 0, 0.45) !important;
 }
 
 .home-stage .home-card-col .card.home-card:hover {
@@ -776,9 +920,46 @@
 }
 
 /* Name field sized to the fleet reference (337 x 61 inside the 400px card).
-   Colour/border stay with the inherited kit — only the box metrics live here. */
+   It also has to LOOK like a field: the inherited kit paints a dark velvet box
+   that flattens into the ruled parchment, so "Your Name *" read as a printed
+   line OF the dossier rather than the page's single most important control.
+   A recessed cream slip on the paper, ruled border, inset shadow — an unfilled
+   line on a typed form. */
 .home-card .floating-label-input {
   padding: 1.45rem 0.9rem 0.9rem;
+  background: rgba(255, 252, 244, 0.58);
+  border: 2px solid rgba(61, 43, 31, 0.45);
+  border-radius: 2px;
+  box-shadow: inset 0 2px 4px rgba(61, 43, 31, 0.18);
+  font-family: var(--font-typewriter);
+  caret-color: var(--royal-crimson);
+}
+
+.home-card .floating-label-input:hover {
+  background: rgba(255, 253, 246, 0.72);
+  border-color: rgba(61, 43, 31, 0.6);
+}
+
+.home-card .floating-label-input:focus,
+.home-card .floating-label-input:focus-visible {
+  outline: none;
+  background: #fffdf6;
+  border-color: var(--tobacco-brown, #4a3f35);
+  box-shadow:
+    inset 0 2px 4px rgba(61, 43, 31, 0.18),
+    0 0 0 3px rgba(210, 178, 90, 0.45);
+}
+
+/* Resting label reads as a hint on the slip, not as body copy — the noir skin's
+   blanket ink rule (`.card.home-card *`) paints every descendant full-strength
+   #2a2420, so this needs the longer selector + !important to demote it. */
+.home-page .home-card .floating-label-wrapper .floating-label {
+  color: rgba(42, 36, 32, 0.62) !important;
+  font-family: var(--font-typewriter);
+}
+
+.home-page .home-card .floating-label-wrapper.focused .floating-label {
+  color: rgba(42, 36, 32, 0.9) !important;
 }
 
 /* ====== STREAMER MODE CHECKBOX ====== */
@@ -792,46 +973,80 @@
   user-select: none;
 }
 
-.home-checkbox {
+/* A tick box on the case file: cream slip, ruled border, tobacco tick.
+   The long selector + hard box clamp are load-bearing, NOT decoration:
+   (a) a duplicate `.home-checkbox` block further down the cascade
+       (prime-suspect-unified.css) otherwise wins with a 6px radius and a cyan
+       checked state that belongs to no part of this identity, and
+   (b) that same sheet's tablet band applies `input { min-height: 44px
+       !important }`, which stretched this 20px box into a 20x44 rectangle at
+       1024 — a control that renders as the wrong SHAPE reads as a broken
+       control. Both are out-specified here rather than edited there. */
+.home-page .home-card .home-checkbox-label .home-checkbox {
   appearance: none;
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  background: var(--bg-darker);
-  border: 2px solid var(--px-border);
-  border-radius: 0;
-  box-shadow: 2px 2px 0 var(--px-border-dark);
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  aspect-ratio: 1;
+  align-self: center;
+  background: rgba(255, 252, 244, 0.6);
+  border: 2px solid rgba(61, 43, 31, 0.5);
+  border-radius: 0 !important;
+  box-shadow: inset 0 1px 3px rgba(61, 43, 31, 0.2);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   flex-shrink: 0;
+  padding: 0;
 }
 
-.home-checkbox:checked {
-  background: var(--gb-gold);
-  border-color: var(--px-border-dark);
+.home-page .home-card .home-checkbox-label .home-checkbox:hover {
+  background: rgba(255, 253, 246, 0.85);
+  border-color: rgba(61, 43, 31, 0.7);
 }
 
-.home-checkbox:checked::after {
+.home-page .home-card .home-checkbox-label .home-checkbox:checked {
+  background: var(--tobacco-brown, #4a3f35);
+  border-color: rgba(30, 20, 12, 0.75);
+}
+
+.home-page .home-card .home-checkbox-label .home-checkbox:checked::after {
   content: '✓';
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--bg-primary);
-  font-size: 14px;
+  color: var(--royal-gold-light) !important;
+  font-size: 13px;
   font-weight: bold;
+  line-height: 1;
 }
 
-.home-checkbox:focus {
-  outline: none;
-  box-shadow: var(--shadow-glow-gold);
+.home-page .home-card .home-checkbox-label .home-checkbox:focus-visible {
+  outline: 2px solid var(--tobacco-brown, #4a3f35);
+  outline-offset: 2px;
 }
 
 .home-checkbox-text {
   font-family: var(--font-body);
   font-size: 0.9rem;
   color: var(--text-secondary);
+}
+
+/* ── Hairline note under the CTA — the sealed-dossier resting state explaining
+      itself ("what do I do to arm this?") instead of a silently dead button.
+      Colour comes from the noir skin's `.home-form-note` rule (#3d3a35 on
+      parchment ≈ 5.5:1). ── */
+.home-form-note {
+  margin: 0;
+  font-family: var(--font-typewriter);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-align: center;
 }
 
 /* ====== BUTTONS ====== */
@@ -847,8 +1062,11 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
-              background 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  /* Interactive elements animate brightness/opacity only — never a transform
+     that moves the clickable target under the pointer. */
+  transition: filter 160ms cubic-bezier(0.23, 1, 0.32, 1),
+              background 160ms cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* icon + label row inside the CTA */
@@ -863,7 +1081,7 @@
 
 .home-btn.primary {
   background: var(--btn-face);
-  color: var(--bg-darker);
+  color: var(--royal-gold-light);
   font-weight: 700;
   /* px-btn recipe: dark ring + hard drop + bevels */
   box-shadow:
@@ -877,12 +1095,11 @@
 }
 
 .home-btn.primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
+  filter: brightness(1.08);
 }
 
 .home-btn.primary:active:not(:disabled) {
-  transform: translateY(3px);
+  filter: brightness(0.94);
 }
 
 .home-btn.secondary {
@@ -899,25 +1116,66 @@
 }
 
 .home-btn.secondary:hover:not(:disabled) {
-  background: var(--secondary-light);
-  transform: translateY(-2px);
+  filter: brightness(1.08);
 }
 
 .home-btn.secondary:active:not(:disabled) {
-  transform: translateY(3px);
+  filter: brightness(0.94);
 }
 
 .home-btn:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
-.home-btn:active:not(:disabled) { transform: translateY(1px); }
+.home-btn:active:not(:disabled) { filter: brightness(0.94); }
 
 .home-btn:focus-visible {
   outline: 2px solid var(--gb-gold);
   outline-offset: 2px;
+}
+
+/* ============================================================================
+   CTA LEGIBILITY — the page's one conversion control, in BOTH of its states.
+
+   1) ARMED. The noir skin paints every descendant of the case-file card with a
+      blanket `color: #2a2420 !important` (`.card.home-card *`). The CTA element
+      itself is caught by a longer selector and comes out gold, but its LABEL
+      lives in `<span class="home-btn-inner"><span>…` — those spans matched only
+      the blanket rule, so dark ink landed on a crimson face: 1.23:1, i.e. the
+      label was effectively invisible. The label now inherits the button's own
+      colour (gold on crimson ≈ 6.8:1).
+
+   2) RESTING (disabled). The button ships disabled until a name is typed, and
+      the shared disabled rule halved the opacity and desaturated it, turning a
+      dark-ink-on-crimson face into mud. A greyed-out primary is not a designed
+      state: this is a SEALED DOSSIER instead — sealing wax turned to tobacco
+      leather, gold rule, parchment lettering (≈6.5:1) — with the hairline note
+      under it saying what unseals it. Full opacity, no grayscale.
+
+   Both need `!important` + a longer selector purely to out-rank the themed
+   button family in styles/game/prime-suspect-ingame.css, which is shared chrome
+   for every button in the client and not this surface's file to edit.
+   ========================================================================= */
+.home-page .card.home-card .home-btn .home-btn-inner,
+.home-page .card.home-card .home-btn .home-btn-inner span,
+.home-page .card.home-card .home-btn .home-btn-inner svg {
+  color: inherit !important;
+}
+
+.home-page .card.home-card .home-btn.primary:disabled,
+.home-page .card.home-card .home-btn.secondary:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  background: linear-gradient(180deg, #5f4830 0%, #3f2b13 100%) !important;
+  color: rgba(246, 240, 230, 0.9) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  box-shadow:
+    0 2px 0 rgba(18, 12, 6, 0.6),
+    inset 0 1px 0 rgba(231, 204, 122, 0.16) !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  transform: none !important;
+  cursor: not-allowed;
 }
 
 /* ====== TIP BANNER ====== */
@@ -1038,6 +1296,8 @@
     padding: var(--spacing-md);
     /* Header clearance is the shell's job (.app-root pad); no header term here. */
     padding-top: var(--spacing-md);
+    /* Bottom gutter belongs to the legal plate, not the page. */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .home-tip-banner {
@@ -1056,6 +1316,35 @@
   }
 
   .mobile-hidden { display: none !important; }
+
+  /* ── RECLAIMING THE PHONE BAND ────────────────────────────────────────────
+     A pre-wave-1 `@media (max-width: 767px)` block in
+     styles/prime-suspect-unified.css (~:16271) still governs this whole band.
+     It was written for the RETIRED homepage (it targets `.home-steps`,
+     `.home-cards-wrapper`, `.home-shell`, `.home-header h1`) and it hard-kills
+     the current one with `!important`: no tagline, no byline, no card
+     description, and the mascot pinned to a 60px thumbnail — which is why the
+     0.9rem tagline carefully styled below NEVER painted on a phone, and why it
+     reappeared at 768 (outside max-width:767).
+
+     That file is not this surface's to edit, so the dead rules are out-specified
+     here and the clamp ladder below owns the band again. If the sheet's owner
+     deletes the stale block, these four lines become inert — they change
+     nothing on their own. ─────────────────────────────────────────────────── */
+  .home-page .home-hero .home-tagline { display: block !important; }
+  .home-page .home-hero .home-gb-branding { display: flex !important; }
+  .home-page .home-card .card-description { display: block !important; }
+  .home-page .home-hero .home-mascot { width: clamp(88px, 12dvh, 124px); }
+}
+
+/* The header prints the game's name directly above the hero wordmark — on the
+   tightest viewport that is the same name twice inside 250px, and it is exactly
+   the room the restored tagline needs. Below 480px the header keeps the crest
+   and the platform byline and drops the duplicate title. */
+@media (max-width: 480px) {
+  .home-header-title { display: none; }
+  .home-header-text { justify-content: center; }
+  .home-header-branding { font-size: 0.68rem; }
 }
 
 /* Mid / portrait-tablet band — still a single stack (the split fires at
@@ -1073,13 +1362,16 @@
    hero + card + tip + footer clear the fold; the `.home-page` overflow-y is only
    a safety net for genuinely tiny devices. */
 @media (max-width: 480px) and (orientation: portrait) {
-  .home-page { gap: clamp(0.35rem, 0.9dvh, 0.7rem); }
+  .home-page { gap: clamp(0.25rem, 0.7dvh, 0.55rem); }
 
-  .home-stage-grid { gap: clamp(0.45rem, 1.2dvh, 0.85rem); }
-  .home-hero-col { gap: clamp(0.25rem, 0.7dvh, 0.5rem); }
-  .home-hero { gap: clamp(0.1rem, 0.45dvh, 0.35rem); }
+  .home-stage-grid { gap: clamp(0.35rem, 1dvh, 0.7rem); }
+  .home-hero-col { gap: clamp(0.2rem, 0.6dvh, 0.45rem); }
+  .home-hero { gap: clamp(0.1rem, 0.4dvh, 0.3rem); }
 
-  .home-mascot { width: clamp(52px, 8.5dvh, 72px); }
+  /* The detective must out-rank the set dressing: at 60px (the stale override's
+     pin) he was smaller than the moon behind him. The longer selector is what
+     beats that pin; the clamp is the real value. */
+  .home-page .home-hero .home-mascot { width: clamp(68px, 11dvh, 92px); }
   /* Keep the lamp beam short so it lights mascot + wordmark and fades to nothing
      above the tagline — it can then never spill onto the card stacked below. */
   .home-hero::after {
@@ -1087,21 +1379,76 @@
     height: clamp(170px, 24dvh, 230px);
     filter: blur(6px);
   }
-  .home-title { font-size: clamp(2.4rem, 11.5vw, 3rem); line-height: 1; }
-  .home-tagline { font-size: 0.9rem; line-height: 1.25; max-width: 30ch; padding-bottom: 0.4rem; }
+  .home-title { font-size: clamp(2rem, 10.2vw, 2.7rem); line-height: 1; }
+  .home-tagline { font-size: 0.86rem; line-height: 1.22; max-width: 30ch; padding-bottom: 0.35rem; }
   .home-tagline::after { width: clamp(60px, 30%, 120px); }
-  /* The byline is already in the fixed header — drop the duplicate to buy the
-     card the vertical room it needs on a phone. */
-  .home-gb-branding { display: none; }
-  .home-mp-badge { font-size: 0.78rem; padding: 0.2rem 0.7rem; }
+  /* The byline stays in the fixed header on a phone (the header keeps its crest
+     + "by GameBuddies.io" while dropping the duplicated title) — printing it a
+     second time here would cost the tagline its row. */
+  .home-page .home-hero .home-gb-branding { display: none !important; }
+  .home-mp-badge {
+    font-size: 0.72rem;
+    padding: 0.18rem 0.6rem;
+    gap: 0.4rem;
+  }
+  .home-mp-badge-category { font-size: 0.66rem; letter-spacing: 0.1em; }
 
-  .home-card .card-description { font-size: 0.83rem; margin-bottom: 0.5rem; }
+  /* The card carries the reclaimed rows (description + tagline above it + the
+     form note below the CTA); its generous desktop gutters pay for them. */
+  .home-stage .home-card-col .card.home-card {
+    padding: clamp(0.95rem, 2.4dvh, 1.5rem) clamp(0.9rem, 3dvh, 1.4rem);
+  }
+  .home-card .card-description { font-size: 0.8rem; line-height: 1.3; margin-bottom: 0.4rem; }
   .home-card .floating-label-input { padding: 1.15rem 0.8rem 0.6rem; font-size: 1rem; }
-  .home-form { gap: clamp(0.3rem, 0.85dvh, 0.6rem); }
+  .home-form { gap: clamp(0.28rem, 0.8dvh, 0.55rem); }
+  .home-form-note { font-size: 0.72rem; line-height: 1.2; }
   .home-checkbox-label { padding: 0.1rem 0; }
   .home-checkbox-text { font-size: 0.84rem; }
   .home-btn { min-height: 46px; font-size: 1rem; }
-  .home-tip-banner { font-size: 0.76rem; padding: var(--spacing-xs) var(--spacing-sm); }
+  .home-tip-banner {
+    font-size: 0.72rem;
+    line-height: 1.25;
+    padding: 0.18rem 0.5rem;
+  }
+}
+
+/* ── SHORT LANDSCAPE DESKTOP (1024x768, 1366x768, any wide 16:9 under ~860px)
+      — THE PENDANT LAMP MUST NOT BE DECAPITATED.
+      The lamp is the whole candlelit premise: a visible warm SOURCE for the beam
+      that lights the detective. Its offset is `-13dvh`, which at a 768px frame
+      is -100px — but at those frames the vertically-centred set-piece already
+      starts only ~30px under the fixed 64px header, so the shade landed BEHIND
+      the header bar and what painted was half a lampshade cut by a straight
+      line: the signature light source reading as a clipping bug.
+      Two moves, in the critic's order: shorten the CORD rather than raise the
+      shade, and give the composition the headroom to hold a whole lamp by
+      trimming the mascot and the hero's internal rhythm at these frames only.
+      1920x1080 and 768x1024 are above this ceiling and keep the full pendant.
+      This block sits AFTER the container query on purpose — it must win there.
+      ─────────────────────────────────────────────────────────────────────── */
+@media (orientation: landscape) and (min-width: 821px) and (max-height: 860px) {
+  .home-mascot { width: clamp(96px, 11.5vw, 128px); }
+  .home-hero-col { gap: clamp(0.3rem, 0.85vh, 0.6rem); }
+  .home-hero { gap: clamp(0.15rem, 0.5vh, 0.4rem); }
+
+  /* short cord, shade tucked directly above the detective — a whole fixture.
+     Fixed px (not dvh) on purpose: the offset must stay SMALLER than the
+     headroom the trims above create, whatever the frame height does. */
+  .home-lamp {
+    top: -40px;
+    height: 40px;
+  }
+  .home-lamp::before { height: 6px; }
+  .home-lamp::after {
+    top: 6px;
+    height: 30px;
+    width: clamp(42px, 6.5vw, 64px);
+  }
+  /* beam re-anchored to the shorter fixture so the cone still starts at the bulb */
+  .home-hero::after {
+    top: -14px;
+    height: clamp(240px, 42dvh, 340px);
+  }
 }
 
 /* Landscape phone (844x390): keep the two columns but shrink the hero and strip
@@ -1112,6 +1459,7 @@
     padding: var(--spacing-sm);
     /* Header clearance is the shell's job (.app-root pad); no header term here. */
     padding-top: var(--spacing-sm);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     gap: var(--spacing-sm);
   }
 
@@ -1125,7 +1473,9 @@
 
   .home-hero-col { align-items: center; text-align: center; width: auto; gap: var(--spacing-xs); }
   .home-hero { align-items: center; text-align: center; }
-  .home-mascot { width: clamp(60px, 14vh, 92px); }
+  /* Long selector so a narrow landscape phone (e.g. 720x390, which also matches
+     the max-width:767px band above) keeps the small mascot. */
+  .home-page .home-hero .home-mascot { width: clamp(60px, 14vh, 92px); }
   .home-title { font-size: clamp(1.6rem, 6vh, 2.4rem); line-height: 1.02; }
   .home-tagline, .home-gb-branding { display: none; }
   /* The glow/beam are sized off 38-40vw and would overhang the 390px fold; the
@@ -1133,8 +1483,14 @@
      decor family degrades together. */
   .home-hero::before, .home-hero::after { display: none; }
   .home-card-col { align-items: stretch; max-width: none; }
-  .home-card .card-description { display: none; }
   .home-tip-banner { display: none; }
+  /* A ~390px-tall frame cannot hold the prose rows, and the `!important`
+     restores in the max-width:767px band above (which a 720x390 phone also
+     matches) would otherwise force them back in. Same force, opposite way. */
+  .home-page .home-card .card-description { display: none !important; }
+  .home-page .home-hero .home-tagline { display: none !important; }
+  .home-page .home-hero .home-gb-branding { display: none !important; }
+  .home-form-note { display: none; }
 
   /* Compact the card's inner rhythm so it fits 390px without losing a single
      interactive affordance (field + checkbox + both buttons all stay). */
@@ -1151,15 +1507,18 @@
     padding: var(--spacing-sm);
     /* Header clearance is the shell's job (.app-root pad); no header term here. */
     padding-top: var(--spacing-md);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  .home-title { font-size: clamp(2.2rem, 13vw, 2.75rem); }
+  .home-title { font-size: clamp(1.95rem, 12.4vw, 2.5rem); }
   .home-btn { font-size: 1rem; }
+  .home-page .legal-footer { padding-inline: var(--spacing-sm); }
 }
 
 /* Reduced motion — every entrance/ambient animation added by this sheet. */
 @media (prefers-reduced-motion: reduce) {
   .home-mascot,
+  .home-page::before,
   .home-hero::before,
   .home-hero::after,
   .home-lamp,

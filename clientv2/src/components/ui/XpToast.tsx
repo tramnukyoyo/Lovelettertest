@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { Trophy, Sparkles, Flame, Sunrise, Zap, X } from 'lucide-react';
 import { t } from '../../utils/translations';
+import { getToastLane } from './toastRail';
 import '../../styles/XpToast.css';
 
 interface XpReward {
@@ -72,10 +74,18 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
 
   return createPortal(
     <div className="xp-toast-container">
-      <div className={`xp-toast ${leveledUp ? 'level-up' : ''} ${isExiting ? 'exiting' : ''}`}>
+      <div
+        className={`ps-toast ps-toast--reward ps-toast--stacked xp-toast ${leveledUp ? 'level-up' : ''} ${isExiting ? 'exiting' : ''}`}
+        data-ps-toast="xp"
+        role="status"
+      >
         {/* Header */}
         <div className="xp-toast-header">
-          <span className="xp-toast-header-icon">{leveledUp ? '🏆' : '⭐'}</span>
+          <span className="xp-toast-header-icon" aria-hidden="true">
+            {leveledUp
+              ? <Trophy size={16} strokeWidth={1.75} />
+              : <Sparkles size={16} strokeWidth={1.75} />}
+          </span>
           <span className="xp-toast-header-title">
             {leveledUp ? t('xp.levelUp') : t('xp.xpGained')}
           </span>
@@ -85,15 +95,20 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
           <button
             className="xp-toast-close"
             onClick={handleDismiss}
+            type="button"
             aria-label={t('xp.dismiss')}
           >
-            ×
+            <X size={15} aria-hidden="true" />
           </button>
         </div>
 
         {/* Body */}
         <div className="xp-toast-body">
-          <div className="xp-toast-icon">{leveledUp ? '🏆' : '✨'}</div>
+          <div className="xp-toast-icon" aria-hidden="true">
+            {leveledUp
+              ? <Trophy size={26} strokeWidth={1.5} />
+              : <Sparkles size={26} strokeWidth={1.5} />}
+          </div>
 
           <div className="xp-toast-content">
             <div className="xp-toast-amount-row">
@@ -119,14 +134,21 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
                 )}
                 {(breakdown.streakBonus ?? 0) > 0 && (
                   <span className="xp-toast-chip is-bonus">
-                    🔥 {winStreak > 0 ? t('xp.streak', { count: winStreak }) : `+${breakdown.streakBonus}`}
+                    <Flame size={11} strokeWidth={2} aria-hidden="true" />
+                    {winStreak > 0 ? t('xp.streak', { count: winStreak }) : `+${breakdown.streakBonus}`}
                   </span>
                 )}
                 {(breakdown.firstWinBonus ?? 0) > 0 && isFirstWinOfDay && (
-                  <span className="xp-toast-chip is-bonus">🌅 {t('xp.firstWin')} +{breakdown.firstWinBonus}</span>
+                  <span className="xp-toast-chip is-bonus">
+                    <Sunrise size={11} strokeWidth={2} aria-hidden="true" />
+                    {t('xp.firstWin')} +{breakdown.firstWinBonus}
+                  </span>
                 )}
                 {xpBoostUsed && (
-                  <span className="xp-toast-chip is-boost">🚀 {t('xp.xpBoost')}</span>
+                  <span className="xp-toast-chip is-boost">
+                    <Zap size={11} strokeWidth={2} aria-hidden="true" />
+                    {t('xp.xpBoost')}
+                  </span>
                 )}
               </div>
             )}
@@ -175,6 +197,6 @@ export const XpToast: React.FC<XpToastProps> = ({ reward, onClose }) => {
         )}
       </div>
     </div>,
-    document.body
+    getToastLane('top-right')
   );
 };

@@ -16,6 +16,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, LogIn, MailCheck, CheckCircle2 } from 'lucide-react';
 import { t } from '../../utils/translations';
+import { getTranslation } from '../../utils/gameTranslations';
 import {
   signInWithPassword,
   signUpWithPassword,
@@ -157,9 +158,10 @@ const GameAuthModal: React.FC<GameAuthModalProps> = ({ onClose, roomCode, player
           onClick={(e) => e.stopPropagation()}
         >
           <div className="settings-modal-header">
-            <h2 className="settings-modal-title">
-              {mode === 'signup' ? t('authModal.titleSignup') : t('authModal.titleSignin')}
-            </h2>
+            <div className="settings-modal-title">
+              <span className="settings-modal-eyebrow">{getTranslation('game.caseFile')}</span>
+              <h2>{mode === 'signup' ? t('authModal.titleSignup') : t('authModal.titleSignin')}</h2>
+            </div>
             <button onClick={onClose} className="settings-modal-close" aria-label={t('common.close')}>
               <X className="w-5 h-5" />
             </button>

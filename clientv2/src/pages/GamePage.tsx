@@ -14,7 +14,7 @@ import HeartsGambitGameMobile from '../components/hearts-gambit/HeartsGambitGame
 import LobbyPage from './LobbyPage';
 import { usePassPlay } from '../hooks/usePassPlay';
 import { getTranslation, getCurrentLanguage } from '../utils/gameTranslations';
-import { Eye, ChevronRight } from 'lucide-react';
+import { Eye, ChevronRight, Lock, Check } from 'lucide-react';
 import type { Lobby, ChatMessage } from '../types';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import type { WebcamPlayer } from '../config/WebcamConfig';
@@ -221,14 +221,14 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
         <div className="pp-transition-screen">
           <p className="pp-pass-label">{t('passPlay.passDeviceTo')}</p>
           <h2 className="pp-player-name-display">{pp.currentPlayer.name}</h2>
-          <div className="pp-privacy-card">
-            <span className="pp-privacy-icon">🔒</span>
+          <div className="pp-privacy-card hg-panel hg-candlelight">
+            <span className="pp-privacy-icon" aria-hidden="true"><Lock size={18} /></span>
             <span className="pp-privacy-text">
               {t('passPlay.onlyPlayerLooking').replace('{name}', pp.currentPlayer.name)}
             </span>
           </div>
-          <button className="pp-reveal-btn" onClick={pp.reveal}>
-            <Eye size={20} /> {t('passPlay.reveal')}
+          <button className="pp-reveal-btn ps-btn ps-btn--primary" onClick={pp.reveal}>
+            <Eye size={20} aria-hidden="true" /> {t('passPlay.reveal')}
           </button>
           <PPProgressDots currentIndex={pp.currentPlayerIndex} total={lobby.passPlay?.turnOrder.length ?? 0} />
         </div>
@@ -245,11 +245,11 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
         />
         {showPassModal && (
           <div className="pp-advance-modal">
-            <div className="pp-advance-modal-card">
-              <span className="pp-advance-check">&#10003;</span>
+            <div className="pp-advance-modal-card hg-panel hg-candlelight">
+              <span className="pp-advance-check" aria-hidden="true"><Check size={24} strokeWidth={3} /></span>
               <p className="pp-advance-label">{t('passPlay.actionSubmitted')}</p>
-              <button className="pp-advance-btn" onClick={pp.advance}>
-                <ChevronRight size={20} />
+              <button className="pp-advance-btn ps-btn ps-btn--primary" onClick={pp.advance}>
+                <ChevronRight size={20} aria-hidden="true" />
                 {t('passPlay.donePassDevice')}
               </button>
             </div>

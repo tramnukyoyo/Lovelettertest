@@ -8,49 +8,125 @@
   position: fixed;
   inset: 0;
   z-index: 9998;
-  background: rgba(10, 6, 8, 0.72);
+  /* Same candlelit ground as the settings-modal backdrop so every dossier
+     panel pops over one identical stage. */
+  background:
+    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
+    radial-gradient(900px at 25% 14%, rgba(var(--accent-color-rgb, 210, 178, 90), 0.10), transparent 60%),
+    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.75), transparent 58%),
+    rgba(10, 6, 8, 0.74);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 16px;
-  overflow-y: auto;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  padding-top: calc(var(--app-header-height, 66px) + env(safe-area-inset-top, 0px) + 2.25rem);
 }
 .psshop-panel {
   position: relative;
-  width: min(440px, 94vw);
-  max-height: 92vh;
-  overflow-y: auto;
-  padding: 18px 18px 20px;
-  border-radius: 14px;
-  background: var(--velvet-900, #1c0f14);
-  border: 2px solid var(--gold-500, #c9a227);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+  width: min(460px, 94vw);
+  max-height: calc(100vh - var(--app-header-height, 66px) - 3.75rem);
+  max-height: calc(100dvh - var(--app-header-height, 66px) - 3.75rem);
+  /* The PANEL never scrolls — the close button + GP balance are absolutely
+     anchored to it, and an absolutely-positioned child of a scroller scrolls
+     away with the content. Only `.psshop-body` scrolls. */
+  overflow: hidden;
+  padding: 0;
+  border-radius: 0;
+  background: var(--velvet-panel, #2c2029);
+  border: 4px solid var(--tobacco-brown, #4a3f35);
+  box-shadow:
+    8px 8px 0 rgba(0, 0, 0, 0.45),
+    0 24px 60px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  color: var(--parchment, #eadfc8);
+  color: var(--parchment, #f6f0e6);
 }
 .psshop-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: transparent;
-  border: none;
-  color: var(--parchment, #eadfc8);
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 0;
+  background: var(--rust, #b8572a);
+  border: 2px solid #2a2420;
+  color: var(--aged-newspaper, #f4e8c1);
   cursor: pointer;
-  padding: 4px;
-  min-height: 0;
-  opacity: 0.7;
+  transition: filter 0.15s ease;
 }
-.psshop-close:hover { opacity: 1; }
+.psshop-close:hover { filter: brightness(1.18); }
 
-.psshop-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-right: 28px; }
-.psshop-title { margin: 0; font-size: 1.1rem; font-weight: 900; color: var(--gold-400, #e6c777); }
+/* Masthead band — the dossier header the settings modal uses, so the two
+   panels read as one family. */
+.psshop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0.6rem 3.75rem 0.6rem 1rem;
+  background: var(--tobacco-brown, #4a3f35);
+  border-bottom: 2px solid #2a2420;
+}
+.psshop-headline { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.psshop-eyebrow {
+  display: block;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--aged-newspaper, #f4e8c1);
+  opacity: 0.72;
+}
+.psshop-title {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-heading, 'Cinzel', Georgia, serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aged-newspaper, #f4e8c1);
+}
 .psshop-balance {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 0.76rem; font-weight: 800; color: var(--gold-400, #e6c777);
-  background: rgba(201, 162, 39, 0.12); border: 1px solid rgba(201, 162, 39, 0.45);
-  border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.76rem; letter-spacing: 0.08em; color: var(--royal-gold-light, #e7cc7a);
+  background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(210, 178, 90, 0.55);
+  padding: 4px 10px; white-space: nowrap;
+}
+
+/* Fixed masthead/preview block · scrolling catalogue block. */
+.psshop-stage {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(210, 178, 90, 0.22);
+}
+.psshop-stage > .psshop-preview,
+.psshop-stage > .psshop-pcard,
+.psshop-stage > .psshop-note { margin-inline: 1rem; }
+.psshop-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px 1rem 1rem;
+}
+/* Retint the fleet scroll affordance for the velvet body. */
+.psshop-body .gs-scroll-hint {
+  background: linear-gradient(transparent, var(--velvet-panel, #2c2029) 70%);
 }
 
 /* Preview: a fan of REAL DynamicCard backs (hg-back-<style> overlays). */
@@ -71,11 +147,43 @@
 .psshop-fan .psshop-fan-card-0 { left: 8px; transform: rotate(-10deg); }
 .psshop-fan .psshop-fan-card-1 { left: 58px; top: 0; z-index: 1; }
 .psshop-fan .psshop-fan-card-2 { left: 108px; transform: rotate(10deg); }
-.psshop-prev-caption { font-size: 0.72rem; font-weight: 700; color: var(--parchment, #eadfc8); opacity: 0.75; }
+.psshop-prev-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.72rem;
+  text-align: center;
+  color: var(--parchment, #f6f0e6);
+}
+.psshop-prev-caption strong {
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--royal-gold-light, #e7cc7a);
+}
+.psshop-prev-caption > span { font-size: 0.66rem; opacity: 0.62; }
 
 /* "Your player card" mini — real roster row + dock chip, compactly framed. */
 .psshop-pcard { display: flex; flex-direction: column; gap: 6px; }
-.psshop-pcard-caption { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--parchment, #eadfc8); opacity: 0.8; }
+.psshop-pcard-caption {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--parchment, #f6f0e6);
+  opacity: 0.72;
+}
+/* These two minis are SAMPLES, not selectable state — strip the crimson
+   "this is you" selection ring the roster/dock rules paint on `.is-me`. */
+.psshop-pcard-row .player-list-item.is-me,
+.psshop-pcard-row .gs-chip.is-me {
+  box-shadow: none;
+  border: 1px solid rgba(210, 178, 90, 0.25);
+  background: rgba(0, 0, 0, 0.24);
+}
 .psshop-pcard-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .psshop-pcard-row .player-list-items { margin: 0; padding: 0; list-style: none; }
 .psshop-pcard-row .player-list-item {
@@ -95,31 +203,124 @@
 .psshop-note { margin: 0; font-size: 0.74rem; color: var(--parchment, #eadfc8); opacity: 0.85; }
 .psshop-note-premium { display: inline-flex; align-items: center; gap: 5px; color: var(--gold-400, #e6c777); font-weight: 700; opacity: 1; }
 
-.psshop-section { display: flex; flex-direction: column; gap: 6px; }
-.psshop-section-title { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--parchment, #eadfc8); opacity: 0.9; }
-.psshop-hint { font-weight: 600; letter-spacing: 0; text-transform: none; opacity: 0.65; }
-.psshop-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.psshop-section { display: flex; flex-direction: column; gap: 8px; }
+/* Section headers are dossier tabs, not web-app labels: typewriter meta voice
+   with the hint demoted to its own line. */
+.psshop-section-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--royal-gold-light, #e7cc7a);
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(210, 178, 90, 0.28);
+}
+.psshop-hint {
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--parchment, #f6f0e6);
+  opacity: 0.6;
+}
+
+/* Premium-exclusives get their own crown-ruled block instead of being
+   scattered through the GP-priced list. */
+.psshop-crownrule {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 2px;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--royal-gold, #d2b25a);
+}
+.psshop-crownrule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(210, 178, 90, 0.5), rgba(210, 178, 90, 0.05));
+}
+
+.psshop-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .psshop-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.78rem;
-  font-weight: 800;
-  padding: 6px 12px;
-  border-radius: 999px;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 13px;
+  border-radius: var(--psb-radius, 7px);
   cursor: pointer;
-  color: var(--parchment, #eadfc8);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(201, 162, 39, 0.35);
-  transition: border-color 0.12s ease, transform 0.12s ease;
-  min-height: 0;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--parchment, #f6f0e6);
+  /* Guard: a gradient flair class must never be able to clip the BUTTON's own
+     text to its background — the label span owns the gradient, not this. */
+  -webkit-text-fill-color: currentColor;
+  background: linear-gradient(180deg, var(--velvet-raise, #34262f), var(--velvet-panel, #2c2029));
+  background-clip: border-box;
+  border: 1px solid rgba(210, 178, 90, 0.32);
+  box-shadow: inset 0 0 8px var(--psshop-glow, transparent);
+  transition: border-color 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
 }
-.psshop-chip:hover { border-color: var(--gold-400, #e6c777); transform: translateY(-1px); }
-.psshop-chip.selected { border-color: var(--gold-400, #e6c777); box-shadow: 0 0 0 1px var(--gold-400, #e6c777); }
-.psshop-chip.locked { opacity: 0.85; }
+.psshop-chip-label { display: inline-block; }
+.psshop-chip-glyph { flex: 0 0 auto; }
+.psshop-chip:hover { border-color: var(--royal-gold, #d2b25a); filter: brightness(1.14); }
+
+/* ---- three separable tiers ---- */
+.psshop-chip.is-locked {
+  opacity: 0.72;
+  border-style: dashed;
+}
+.psshop-chip.is-locked:hover { opacity: 1; }
+.psshop-chip.is-owned {
+  border: 2px solid var(--psshop-accent, var(--royal-gold, #d2b25a));
+  padding: 5px 12px;
+}
+.psshop-chip.is-equipped {
+  border: 2px solid var(--royal-gold-dark, #a77e22);
+  padding: 5px 12px;
+  background: linear-gradient(180deg, var(--royal-gold-light, #e7cc7a), var(--royal-gold, #d2b25a));
+  color: var(--royal-crimson-dark, #3d0c13);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 14px rgba(231, 204, 122, 0.28);
+}
+/* On the engraved gold face the label is ink — never a gradient flair. */
+.psshop-chip.is-equipped .psshop-chip-label {
+  color: var(--royal-crimson-dark, #3d0c13) !important;
+  -webkit-text-fill-color: var(--royal-crimson-dark, #3d0c13) !important;
+  background: none !important;
+  animation: none !important;
+  text-shadow: none !important;
+}
+.psshop-chip-state {
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  background: rgba(61, 12, 19, 0.18);
+  border: 1px solid rgba(61, 12, 19, 0.3);
+}
+.psshop-chip.selected {
+  box-shadow: inset 0 0 8px var(--psshop-glow, transparent), 0 0 0 2px var(--royal-gold-light, #e7cc7a);
+}
+.psshop-chip.is-equipped.selected {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 0 2px var(--royal-gold-light, #e7cc7a),
+    0 0 14px rgba(231, 204, 122, 0.28);
+}
 .psshop-price {
-  font-size: 9px; font-weight: 800; line-height: 1; padding: 2px 5px;
-  border-radius: 999px; color: #1c0f14; background: var(--gold-400, #e6c777);
+  font-size: 0.62rem; line-height: 1; padding: 3px 6px;
+  color: var(--royal-crimson-dark, #3d0c13); background: var(--royal-gold, #d2b25a);
 }
 
 /* Purchase confirmation — bottom sheet, transparent top: the fan + minis stay
@@ -145,13 +346,15 @@
 .psshop-error { margin: 0; font-size: 0.72rem; font-weight: 700; color: #ff6b81; }
 .psshop-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 .psshop-cancel, .psshop-buy {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 0.78rem; font-weight: 800; padding: 6px 12px; border-radius: 999px; cursor: pointer; min-height: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 8px 16px; min-height: 44px; border-radius: var(--psb-radius, 7px); cursor: pointer;
 }
-.psshop-cancel { color: var(--parchment, #eadfc8); background: transparent; border: 1px solid rgba(234, 223, 200, 0.5); }
-.psshop-buy { color: #1c0f14; background: var(--gold-400, #e6c777); border: 1px solid rgba(0, 0, 0, 0.35); }
+.psshop-cancel { color: var(--parchment, #f6f0e6); background: linear-gradient(180deg, var(--velvet-card, #3d2c36), var(--velvet-panel, #2c2029)); border: 1px solid rgba(210, 178, 90, 0.45); }
+.psshop-buy { color: var(--royal-crimson-dark, #3d0c13); background: linear-gradient(180deg, var(--royal-gold-light, #e7cc7a), var(--royal-gold, #d2b25a)); border: 1px solid rgba(0, 0, 0, 0.35); }
 .psshop-cancel:disabled, .psshop-buy:disabled { opacity: 0.55; cursor: not-allowed; }
-.psshop-buy:not(:disabled):hover { filter: brightness(1.1); }
+.psshop-cancel:not(:disabled):hover, .psshop-buy:not(:disabled):hover { filter: brightness(1.12); }
 
 /* "Your card back" launch button in the invite pane. */
 .ps-designer-btn {
@@ -188,7 +391,126 @@
 }
 .lr-cardstyle-designer-link:hover { opacity: 1; }
 
+/* Short viewports: the fixed masthead block must not starve the catalogue. */
+@media (max-height: 700px) {
+  .psshop-fan { height: 96px; width: 168px; }
+  .psshop-fan .psshop-fan-card,
+  [data-theme="primesuspect"] .psshop-fan .hg-dynamic-card.psshop-fan-card {
+    --hg-card-width: 66px;
+    --hg-card-height: 92px;
+    width: 66px;
+    height: 92px;
+  }
+  .psshop-fan .psshop-fan-card-1 { left: 50px; }
+  .psshop-fan .psshop-fan-card-2 { left: 92px; }
+  .psshop-pcard-caption { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .psshop-chip { transition: none; }
-  .psshop-chip:hover { transform: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   CASCADE GUARD — prime-suspect-unified.css is loaded AFTER this file and
+   carries a bare `button { … }` baseline plus
+   `button:not(.secondary):not(.danger) { background: var(--accent-color) }`
+   (0,2,1). That is what turned every shop chip into a nameless gold slab.
+   Re-assert the shop's own recipe above it; keep the plain rules above intact
+   so this file still works when copy-pasted into an unthemed client.
+   ------------------------------------------------------------------------- */
+[data-theme="primesuspect"] .psshop-panel button::before,
+[data-theme="primesuspect"] .psshop-panel button:hover::before { display: none; }
+
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  min-height: 44px;
+  padding: 6px 13px;
+  border-radius: var(--psb-radius, 7px);
+  border: 1px solid rgba(210, 178, 90, 0.32);
+  color: var(--parchment, #f6f0e6);
+  -webkit-text-fill-color: currentColor;
+  background: linear-gradient(180deg, var(--velvet-raise, #34262f), var(--velvet-panel, #2c2029));
+  box-shadow: inset 0 0 8px var(--psshop-glow, transparent);
+  transform: none;
+  transition: border-color 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip:hover {
+  transform: none;
+  filter: brightness(1.14);
+  border-color: var(--royal-gold, #d2b25a);
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip.is-locked {
+  opacity: 0.72;
+  border-style: dashed;
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip.is-locked:hover { opacity: 1; }
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip.is-owned {
+  border: 2px solid var(--psshop-accent, var(--royal-gold, #d2b25a));
+  padding: 5px 12px;
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip.is-equipped {
+  border: 2px solid var(--royal-gold-dark, #a77e22);
+  padding: 5px 12px;
+  background: linear-gradient(180deg, var(--royal-gold-light, #e7cc7a), var(--royal-gold, #d2b25a));
+  color: var(--royal-crimson-dark, #3d0c13);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 14px rgba(231, 204, 122, 0.28);
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip.selected {
+  box-shadow: inset 0 0 8px var(--psshop-glow, transparent), 0 0 0 2px var(--royal-gold-light, #e7cc7a);
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-chip.is-equipped.selected {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 0 2px var(--royal-gold-light, #e7cc7a),
+    0 0 14px rgba(231, 204, 122, 0.28);
+}
+
+[data-theme="primesuspect"] .psshop-panel button.psshop-close {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 0;
+  background: var(--rust, #b8572a);
+  border: 2px solid #2a2420;
+  color: var(--aged-newspaper, #f4e8c1);
+  box-shadow: none;
+  transform: none;
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-close:hover { transform: none; filter: brightness(1.18); }
+
+[data-theme="primesuspect"] .psshop-panel button.psshop-cancel,
+[data-theme="primesuspect"] .psshop-panel button.psshop-buy {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: var(--psb-radius, 7px);
+  box-shadow: none;
+  transform: none;
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-cancel {
+  color: var(--parchment, #f6f0e6);
+  background: linear-gradient(180deg, var(--velvet-card, #3d2c36), var(--velvet-panel, #2c2029));
+  border: 1px solid rgba(210, 178, 90, 0.45);
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-buy {
+  color: var(--royal-crimson-dark, #3d0c13);
+  background: linear-gradient(180deg, var(--royal-gold-light, #e7cc7a), var(--royal-gold, #d2b25a));
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+[data-theme="primesuspect"] .psshop-panel button.psshop-cancel:hover:not(:disabled),
+[data-theme="primesuspect"] .psshop-panel button.psshop-buy:hover:not(:disabled) {
+  transform: none;
+  filter: brightness(1.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .psshop-panel button.psshop-chip { transition: none; }
 }

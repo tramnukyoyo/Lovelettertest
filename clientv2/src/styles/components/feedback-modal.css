@@ -1,89 +1,13 @@
 /* SECTION: FEEDBACK / REPORT-A-PROBLEM MODAL */
 
-.feedback-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: var(--z-settings-modal-backdrop);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-md);
-  padding-top: max(var(--spacing-md), env(safe-area-inset-top, 0px));
-  padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom, 0px));
-  padding-left: max(var(--spacing-md), env(safe-area-inset-left, 0px));
-  padding-right: max(var(--spacing-md), env(safe-area-inset-right, 0px));
-}
-
-.feedback-modal {
-  width: 100%;
-  max-width: 480px;
-  max-height: 85vh;
-  background: var(--bg-secondary);
-  border: 2px solid transparent;
-  border-radius: 0;
-  /* 2-ring pixel panel (px-panel2 recipe) — matches SettingsModal */
-  box-shadow:
-    0 calc(-1 * var(--px)) 0 0 var(--px-border),
-    0 var(--px)             0 0 var(--px-border),
-    calc(-1 * var(--px)) 0  0 0 var(--px-border),
-    var(--px) 0             0 0 var(--px-border),
-    0 calc(-2 * var(--px)) 0 0 var(--px-border-dark),
-    0 calc(2 * var(--px))  0 0 var(--px-border-dark),
-    calc(-2 * var(--px)) 0  0 0 var(--px-border-dark),
-    calc(2 * var(--px)) 0   0 0 var(--px-border-dark);
-  z-index: var(--z-settings-modal);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.feedback-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-md);
-  border-bottom: 2px solid var(--px-border-dark);
-  background: var(--bg-card);
-}
-
-.feedback-modal-title {
-  font-family: var(--font-title);
-  font-size: 1.25rem;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.feedback-modal-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.feedback-modal-close:hover {
-  background: rgba(var(--primary-rgb), 0.2);
-  color: var(--gb-pink);
-}
-.feedback-modal-close:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-.feedback-modal-close:active { transform: scale(0.95); }
+/* Shell note: FeedbackModal renders
+   `.settings-modal-backdrop.feedback-modal-backdrop >
+    .settings-modal.feedback-modal` (exactly as GameAuthModal does), so the
+   backdrop ground, panel skin, masthead, title and close button all come from
+   the ONE settings-modal panel family. Nothing below re-declares them — only
+   the feedback-specific interior lives here. */
 
 .feedback-modal-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--spacing-md);
-  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -269,28 +193,9 @@
 .feedback-spin { animation: feedbackSpin 0.8s linear infinite; }
 @keyframes feedbackSpin { to { transform: rotate(360deg); } }
 
-/* ── Mobile: full-screen sheet (portrait + landscape) ── */
-@media (max-width: 767px) {
-  .feedback-modal-backdrop { padding: 0; }
-  .feedback-modal {
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    max-height: 100%;
-    border-radius: 0;
-  }
-}
-
-/* Landscape phones — also full-screen on short viewports */
+/* Landscape phones — the shared panel already caps its height; just give the
+   textarea and the success plate room to breathe. */
 @media (max-height: 500px) and (orientation: landscape) {
-  .feedback-modal-backdrop { padding: 0; }
-  .feedback-modal {
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    max-height: 100%;
-    border-radius: 0;
-  }
   .feedback-modal-textarea { min-height: 80px; }
   .feedback-modal-success { padding: var(--spacing-md); }
 }
@@ -298,4 +203,130 @@
 @media (prefers-reduced-motion: reduce) {
   .feedback-spin { animation: none; }
   .feedback-modal-submit { transition: none; }
+}
+
+/* ===========================================================================
+   PRIME SUSPECT — feedback interior on parchment.
+   Over-qualified for the same cascade reason as auth-modal.css: the theme
+   sheets (and the bare `button { … }` baseline at 0,2,1) load after this file.
+   =========================================================================== */
+[data-theme="primesuspect"] .settings-modal.feedback-modal {
+  --text-primary: #241b22;
+  --text-secondary: #4a3f35;
+  --text-muted: #5a4f45;
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-content {
+  padding: 0.85rem 1rem 1rem !important;
+  gap: 0.6rem;
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-intro {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.82rem;
+  color: #4a3f35;
+}
+
+/* Report-type chips — the same three-tier chip language as the shop. */
+[data-theme="primesuspect"] .feedback-modal button.feedback-type-chip {
+  min-height: 44px;
+  border-radius: var(--psb-radius, 7px);
+  border: 1px solid rgba(74, 63, 53, 0.5);
+  background: linear-gradient(180deg, var(--velvet-raise, #34262f), var(--velvet-panel, #2c2029));
+  color: var(--parchment, #f6f0e6);
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: none;
+  transform: none;
+}
+[data-theme="primesuspect"] .feedback-modal button.feedback-type-chip:hover:not(.active) {
+  transform: none;
+  filter: brightness(1.14);
+  border-color: var(--royal-gold, #d2b25a);
+}
+[data-theme="primesuspect"] .feedback-modal button.feedback-type-chip.active,
+[data-theme="primesuspect"] .feedback-modal button.feedback-type-chip.active.bug,
+[data-theme="primesuspect"] .feedback-modal button.feedback-type-chip.active.idea,
+[data-theme="primesuspect"] .feedback-modal button.feedback-type-chip.active.other {
+  background: linear-gradient(180deg, var(--royal-gold-light, #e7cc7a), var(--royal-gold, #d2b25a));
+  border: 2px solid var(--royal-gold-dark, #a77e22);
+  color: var(--royal-crimson-dark, #3d0c13);
+  box-shadow:
+    0 4px 0 rgba(42, 36, 32, 0.55),
+    0 9px 18px rgba(42, 36, 32, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-textarea {
+  background: var(--cream, #f9f6f0);
+  border: 2px solid rgba(74, 63, 53, 0.5);
+  border-radius: var(--psb-radius, 7px);
+  color: var(--ink-dark, #241b22);
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-textarea::placeholder { color: rgba(36, 27, 34, 0.5); }
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-textarea:focus {
+  border-color: var(--royal-gold-dark, #a77e22);
+  box-shadow: 0 0 0 3px rgba(210, 178, 90, 0.28);
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-charcount {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  color: #5a4f45;
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-context {
+  background: rgba(255, 255, 255, 0.24);
+  border: 1px dashed rgba(74, 63, 53, 0.45);
+  border-radius: 0;
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-room {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  letter-spacing: 0.1em;
+  color: #241b22;
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-note { color: #5a4f45; }
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-error {
+  border: 2px solid var(--royal-crimson, #6a1623);
+  background: rgba(106, 22, 35, 0.14);
+  color: var(--royal-crimson-dark, #3d0c13);
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  border-radius: 0;
+}
+
+/* Primary CTA — same crimson tier as START GAME / the auth submit. */
+[data-theme="primesuspect"] .feedback-modal button.feedback-modal-submit {
+  min-height: 48px;
+  border-radius: var(--psb-radius, 7px);
+  background: var(--psb-pri-face, linear-gradient(180deg, #8a2233, #6a1623));
+  border: 1px solid var(--royal-gold, #d2b25a);
+  color: var(--parchment, #f6f0e6);
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: var(--psb-pri-rest, 0 5px 0 #3d0c13);
+  transform: none;
+}
+[data-theme="primesuspect"] .feedback-modal button.feedback-modal-submit:hover:not(:disabled) {
+  transform: none;
+  filter: brightness(1.1);
+  box-shadow: var(--psb-pri-hover, 0 6px 0 #3d0c13);
+}
+[data-theme="primesuspect"] .feedback-modal button.feedback-modal-submit:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: var(--psb-pri-press, 0 0 0 #3d0c13);
+}
+
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-success-icon { color: var(--royal-crimson, #6a1623); }
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-success-title {
+  font-family: var(--font-heading, 'Cinzel', Georgia, serif);
+  letter-spacing: 0.06em;
+  color: #241b22;
+}
+[data-theme="primesuspect"] .feedback-modal .feedback-modal-success-body {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  color: #4a3f35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .feedback-modal button.feedback-modal-submit:active:not(:disabled) { transform: none; }
 }

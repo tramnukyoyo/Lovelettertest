@@ -197,19 +197,24 @@ const GameHeader: React.FC<GameHeaderProps> = ({
     window.location.href = import.meta.env.BASE_URL || '/';
   }, []);
 
-  // TODO: Customize phase display for your game
+  // Phase chip copy. `lobby.state` is UPPERCASE (LOBBY / PLAYING / ENDED) —
+  // the old lowercase switch never matched, so every desktop header painted an
+  // EMPTY bordered pill next to the room code. Normalise, and let an unknown
+  // state return '' so the render guard below drops the chip entirely.
   const getPhaseDisplay = (state: string) => {
-    switch (state) {
-      case 'lobby':
-        return 'Waiting for players';
-      case 'playing':
-        return 'In Progress';
-      case 'finished':
-        return 'Game Over';
+    switch ((state || '').toUpperCase()) {
+      case 'LOBBY':
+        return t('header.phaseLobby');
+      case 'PLAYING':
+        return t('header.phasePlaying');
+      case 'ENDED':
+      case 'FINISHED':
+        return t('header.phaseEnded');
       default:
         return '';
     }
   };
+  const phaseDisplay = getPhaseDisplay(lobby.state);
 
   const connectedCount = lobby.players.filter((p: Player) => p.connected).length;
 
@@ -267,9 +272,12 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               </div>
             )}
 
-            <div className="game-header-phase-badge">
-              {getPhaseDisplay(lobby.state)}
-            </div>
+            {phaseDisplay && (
+              <div className={`game-header-phase-badge is-${(lobby.state || '').toLowerCase()}`}>
+                <span className="game-header-phase-dot" aria-hidden="true" />
+                {phaseDisplay}
+              </div>
+            )}
           </div>
         </div>
 
@@ -345,15 +353,24 @@ const GameHeader: React.FC<GameHeaderProps> = ({
                   if (socket) socket.emit('game:backToLobby', { roomCode: lobby.code });
                 }}
                 className="game-header-lobby-btn"
+                title={t('game.returnToLobby')}
+                aria-label={t('game.returnToLobby')}
               >
                 <RotateCcw className="w-4 h-4" />
-                {t('game.returnToLobby')}
+                {/* Label in a span so the 1024–1280 tier can drop to icon-only
+                    without the row overflowing (header.css). */}
+                <span className="game-header-btn-label">{t('game.returnToLobby')}</span>
               </button>
             )}
 
-            <button onClick={handleLeave} className="game-header-leave-btn">
+            <button
+              onClick={handleLeave}
+              className="game-header-leave-btn"
+              title={t('lobby.leaveRoom')}
+              aria-label={t('lobby.leaveRoom')}
+            >
               <ArrowLeft className="w-4 h-4" />
-              {t('lobby.leaveRoom')}
+              <span className="game-header-btn-label">{t('lobby.leaveRoom')}</span>
             </button>
 
             {/* Account control — utmost right in every header (platform

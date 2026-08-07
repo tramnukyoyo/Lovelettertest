@@ -1,0 +1,623 @@
+/* ============================================================================
+   PRIME SUSPECT — CARD INSPECTOR (the magnifying-glass dossier)
+   ----------------------------------------------------------------------------
+   Owned by CardInspectorModal.tsx (imported from that component, so it lands
+   after the fleet cascade). The inspector now renders the SAME shell as Card
+   Legend / Rules / How-to-Play:
+       .settings-modal-backdrop > .settings-modal-panel.hg-panel.hg-candlelight
+   so §14 of prime-suspect-ingame.css skins the panel, header, eyebrow, title,
+   footer and close button for free. Everything below is inspector-specific
+   geometry plus the button re-specification needed to beat the unlayered
+   `button:not(.secondary):not(.danger)` baseline in prime-suspect-unified.css
+   (specificity 0,3,1) which otherwise paints every control as a gold slab.
+   Internals use a fresh `hgi-*` namespace on purpose: the legacy
+   `.hg-inspector-*` landscape overrides (unified.css ~4732-4824) were written
+   for the old absolutely-positioned layout and must not reach the new one.
+   Capture-contract classes kept: .hg-inspector-modal .hg-guess-card-modal
+   .hg-inspector-card .hg-confirmation-card .hg-panel .hg-candlelight
+   ============================================================================ */
+
+[data-theme="primesuspect"] .hg-inspector-modal {
+  --hgi-s: 12px;
+  --hgi-m: 16px;
+  --hgi-l: 24px;
+}
+
+/* --- 1 · Panel ------------------------------------------------------------ */
+
+[data-theme="primesuspect"] .hgi-panel {
+  width: min(560px, 100%);
+  /* The backdrop already reserves the app-header band in its padding, so the
+     panel measures against the padded box — never taller than the gap left. */
+  max-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+[data-theme="primesuspect"] .hgi-panel .settings-modal-title {
+  min-width: 0;
+}
+
+/* The eyebrow/title fonts come from §14 of prime-suspect-ingame.css (Special
+   Elite eyebrow, Cinzel title) — the inspector inherits them by joining the
+   family. Only the long-provenance wrap behaviour is inspector-specific. */
+[data-theme="primesuspect"] .hgi-panel .hgi-eyebrow {
+  overflow-wrap: anywhere;
+}
+
+[data-theme="primesuspect"] .hgi-panel h2 {
+  overflow-wrap: anywhere;
+}
+
+/* §14.4 skins `.settings-modal-close` only for the legend/rules/tutorial
+   panels; without an equivalent here the global
+   `button:not(.secondary):not(.danger)` (0,3,1) repaints it as a gold slab. */
+[data-theme="primesuspect"] .hgi-panel .hgi-close {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 !important;
+  background: var(--psb-sec-face) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  border-radius: var(--psb-radius, 7px) !important;
+  color: var(--royal-gold-light) !important;
+  box-shadow: var(--psb-ico-rest) !important;
+  transition: filter 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+[data-theme="primesuspect"] .hgi-panel .hgi-close:hover {
+  filter: brightness(1.2);
+  color: #fff0cf !important;
+  border-color: var(--royal-gold) !important;
+  background: linear-gradient(180deg, var(--velvet-card), var(--velvet-raise)) !important;
+  box-shadow: var(--psb-ico-hover) !important;
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-panel .hgi-close:active {
+  filter: brightness(0.92);
+  transform: none !important;
+}
+
+/* --- 2 · Content region (the only scrolling layer) ------------------------ */
+
+[data-theme="primesuspect"] .hgi-panel .hgi-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hgi-m);
+  padding: var(--hgi-m) var(--hgi-m) var(--hgi-l) !important;
+}
+
+[data-theme="primesuspect"] .hgi-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hgi-s);
+  width: 100%;
+}
+
+[data-theme="primesuspect"] .hgi-card-frame {
+  position: relative;
+  flex: 0 0 auto;
+  border-radius: 14px;
+}
+
+[data-theme="primesuspect"] .hgi-card-frame.is-selected::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 18px;
+  border: 2px solid var(--royal-gold);
+  box-shadow:
+    0 0 26px rgba(231, 204, 122, 0.34),
+    inset 0 0 22px rgba(231, 204, 122, 0.12);
+  animation: hgi-seal-pulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes hgi-seal-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+[data-theme="primesuspect"] .hgi-selected-stamp {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  border: 1px solid rgba(231, 204, 122, 0.75);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: #f8eeda;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* --- 3 · Prev / next — engraved gold, 44px, in flow (never over the card) - */
+
+[data-theme="primesuspect"] .hgi-nav {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--psb-sec-face) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  border-radius: var(--psb-radius, 7px) !important;
+  color: var(--royal-gold-light) !important;
+  box-shadow: var(--psb-ico-rest) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  transition: filter 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+[data-theme="primesuspect"] .hgi-nav:hover {
+  filter: brightness(1.2);
+  border-color: var(--royal-gold) !important;
+  box-shadow: var(--psb-ico-hover) !important;
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-nav:active {
+  filter: brightness(0.92);
+  transform: none !important;
+}
+
+/* --- 4 · Dossier caption + case-notes slip ------------------------------- */
+
+[data-theme="primesuspect"] .hgi-info {
+  width: 100%;
+  max-width: 430px !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  text-align: center !important;
+}
+
+[data-theme="primesuspect"] .hgi-provenance {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(210, 178, 90, 0.82);
+}
+
+[data-theme="primesuspect"] .hgi-label {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-size: 0.82rem;
+  color: rgba(246, 240, 230, 0.7);
+}
+
+[data-theme="primesuspect"] .hgi-brief {
+  margin: 0;
+  padding: 11px 13px;
+  text-align: left;
+  border-radius: 9px;
+  border-left: 2px solid rgba(210, 178, 90, 0.42);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.18));
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.08);
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-size: 0.855rem;
+  line-height: 1.62;
+  color: rgba(246, 240, 230, 0.84);
+}
+
+/* --- 5 · Footer strip: dots + hint + primary action ---------------------- */
+
+[data-theme="primesuspect"] .hgi-panel .hgi-footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 10px var(--hgi-m) calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+[data-theme="primesuspect"] .hgi-dots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+[data-theme="primesuspect"] .hgi-dot {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 !important;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-theme="primesuspect"] .hgi-dot::before {
+  display: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-dot:hover,
+[data-theme="primesuspect"] .hgi-dot:active {
+  transform: none !important;
+  background: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-dot-pill {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(246, 240, 230, 0.3);
+  transition: width 0.18s ease, background-color 0.18s ease;
+}
+
+[data-theme="primesuspect"] .hgi-dot:hover .hgi-dot-pill {
+  background: rgba(246, 240, 230, 0.55);
+}
+
+[data-theme="primesuspect"] .hgi-dot.is-active .hgi-dot-pill {
+  width: 20px;
+  border-radius: 99px;
+  background: var(--royal-gold);
+  box-shadow: 0 0 10px rgba(231, 204, 122, 0.45);
+}
+
+[data-theme="primesuspect"] .hgi-hint {
+  text-align: center;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246, 240, 230, 0.4);
+}
+
+/* Pointer devices navigate with the arrow keys / the gold chevrons. */
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="primesuspect"] .hgi-hint {
+    display: none;
+  }
+}
+
+[data-theme="primesuspect"] .hgi-actions {
+  display: flex;
+  gap: 10px;
+}
+
+[data-theme="primesuspect"] .hgi-actions > .ps-btn {
+  flex: 1 1 0;
+  min-height: 52px;
+}
+
+/* Sealed / unavailable exhibit — in-palette, no Bootstrap grey. */
+[data-theme="primesuspect"] .ps-btn.hgi-btn-sealed:disabled,
+[data-theme="primesuspect"] .ps-btn.hgi-btn-sealed[disabled] {
+  filter: none;
+  opacity: 1;
+  background: linear-gradient(180deg, rgba(61, 44, 54, 0.9), rgba(38, 27, 34, 0.95)) !important;
+  border: 1px dashed rgba(210, 178, 90, 0.3) !important;
+  color: rgba(246, 240, 230, 0.38) !important;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.06) !important;
+}
+
+/* --- 6 · Target / guess / confirm sub-scenes ----------------------------- */
+
+[data-theme="primesuspect"] .hgi-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.6rem, 3vw, 1.25rem);
+  padding-bottom: calc(clamp(0.6rem, 3vw, 1.25rem) + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
+    radial-gradient(900px at 25% 14%, rgba(210, 178, 90, 0.1), transparent 60%),
+    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.78), transparent 58%),
+    rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="primesuspect"] .hgi-subpanel {
+  width: min(360px, 100%);
+  max-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+[data-theme="primesuspect"] .hgi-subpanel--wide {
+  width: min(440px, 100%);
+}
+
+[data-theme="primesuspect"] .hgi-subpanel .hgi-subcontent {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--hgi-m, 16px) !important;
+}
+
+[data-theme="primesuspect"] .hgi-subpanel .hgi-subfooter {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px var(--hgi-m, 16px) calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+[data-theme="primesuspect"] .hgi-subpanel .hgi-subfooter > .ps-btn {
+  flex: 1 1 0;
+}
+
+/* Suspect tiles — evidence sleeves, not generic pickers. */
+[data-theme="primesuspect"] .hgi-suspects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+[data-theme="primesuspect"] .hgi-suspect {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 12px 8px !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0.2)) !important;
+  border: 1px solid rgba(210, 178, 90, 0.28) !important;
+  border-radius: 10px !important;
+  color: var(--parchment) !important;
+  font-family: var(--font-body, 'Libre Franklin', sans-serif) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.09);
+  overflow: visible !important;
+  transition: filter 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+[data-theme="primesuspect"] .hgi-suspect::before {
+  display: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-suspect:hover {
+  filter: brightness(1.16);
+  border-color: rgba(210, 178, 90, 0.6) !important;
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-suspect:active {
+  filter: brightness(0.94);
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-suspect.is-target {
+  border-color: var(--royal-gold) !important;
+  box-shadow:
+    0 0 18px rgba(231, 204, 122, 0.26),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18);
+}
+
+[data-theme="primesuspect"] .hgi-suspect.is-immune {
+  opacity: 0.72;
+}
+
+[data-theme="primesuspect"] .hgi-suspect-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(150deg, var(--royal-gold), var(--royal-crimson));
+  overflow: hidden;
+  display: flex;
+}
+
+[data-theme="primesuspect"] .hgi-suspect-avatar > * {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+[data-theme="primesuspect"] .hgi-suspect-self {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f6ead0;
+  background: radial-gradient(circle at 34% 28%, var(--royal-crimson-light), var(--royal-crimson) 68%);
+  border: 1px solid rgba(231, 204, 122, 0.4);
+}
+
+[data-theme="primesuspect"] .hgi-suspect-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme="primesuspect"] .hgi-suspect-flag {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(210, 178, 90, 0.85);
+}
+
+/* Wax seal stamped on the chosen suspect. */
+[data-theme="primesuspect"] .hgi-seal {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f8eeda;
+  background: radial-gradient(circle at 34% 28%, var(--royal-crimson-light), var(--royal-crimson) 62%, var(--royal-crimson-dark));
+  border: 1px solid rgba(231, 204, 122, 0.78);
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Guess grid — the card IS the control. */
+[data-theme="primesuspect"] .hgi-guesses {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  justify-items: center;
+}
+
+[data-theme="primesuspect"] .hgi-guess {
+  padding: 3px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  filter: brightness(0.8) saturate(0.9);
+  transition: filter 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+[data-theme="primesuspect"] .hgi-guess::before {
+  display: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-guess:hover {
+  filter: none;
+  border-color: rgba(210, 178, 90, 0.45) !important;
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-guess:active {
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .hgi-guess.is-picked {
+  filter: none;
+  border-color: var(--royal-gold) !important;
+  box-shadow: 0 0 16px rgba(231, 204, 122, 0.35) !important;
+}
+
+/* Confirmation summary rows. */
+[data-theme="primesuspect"] .hgi-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  text-align: center;
+}
+
+[data-theme="primesuspect"] .hgi-summary-row {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-size: 0.84rem;
+  color: rgba(246, 240, 230, 0.72);
+}
+
+[data-theme="primesuspect"] .hgi-summary-row strong {
+  color: var(--royal-gold-light);
+  font-weight: 700;
+}
+
+[data-theme="primesuspect"] .hgi-preview {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+[data-theme="primesuspect"] .hgi-preview::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 50% 45%, rgba(231, 204, 122, 0.22), transparent 70%);
+  pointer-events: none;
+}
+
+/* --- 7 · Narrow phones + landscape -------------------------------------- */
+
+@media (max-width: 420px) {
+  [data-theme="primesuspect"] .hg-inspector-modal {
+    --hgi-s: 8px;
+    --hgi-m: 12px;
+    --hgi-l: 16px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  [data-theme="primesuspect"] .hgi-panel .hgi-content {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--hgi-m);
+  }
+
+  [data-theme="primesuspect"] .hgi-info {
+    max-width: 260px !important;
+    text-align: left !important;
+  }
+
+  [data-theme="primesuspect"] .hgi-brief {
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+
+  [data-theme="primesuspect"] .hgi-panel {
+    width: min(720px, 100%);
+  }
+}
+
+/* --- 8 · Reduced motion -------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .hgi-card-frame.is-selected::before {
+    animation: none;
+    opacity: 0.92;
+  }
+
+  [data-theme="primesuspect"] .hgi-dot-pill,
+  [data-theme="primesuspect"] .hgi-nav,
+  [data-theme="primesuspect"] .hgi-panel .hgi-close,
+  [data-theme="primesuspect"] .hgi-suspect,
+  [data-theme="primesuspect"] .hgi-guess {
+    transition: none;
+  }
+}

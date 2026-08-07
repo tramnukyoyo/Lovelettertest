@@ -116,6 +116,9 @@ export const en = {
     login: 'Log in',
     loginTitle: 'Log in or sign up to save your progress, GP and premium',
     logout: 'Log out',
+    phaseLobby: 'CASE PENDING',
+    phasePlaying: 'CASE OPEN',
+    phaseEnded: 'CASE CLOSED',
   },
 
   // Video
@@ -327,10 +330,16 @@ export const en = {
     close: 'Close notification',
   },
 
+  // Achievement toast
+  achievementToast: {
+    unlocked: 'Achievement unlocked',
+  },
+
   // Error boundary
   errorBoundary: {
-    title: 'Something went wrong',
-    message: "We're sorry, but something unexpected happened.",
+    title: 'The case file tore',
+    message: 'Something in the evidence room gave out.',
+    overline: 'Evidence room',
     refresh: 'Refresh Page',
     goHome: 'Go Home',
   },
@@ -382,6 +391,9 @@ export const en = {
     buying: 'Buying…',
     buyFor: 'Buy · {gp} GP',
     foreverEverywhere: '{name} is yours forever — on GameBuddies and in every game.',
+    equipped: 'EQUIPPED',
+    premiumTitle: 'Premium exclusives',
+    cardBackPreviewCaption: 'how your hand looks to the table',
   },
 
   // Streamer broadcast stage
@@ -577,12 +589,17 @@ export const en = {
     invalidRoomCode: 'Please enter a valid room code',
     contentFilterTitle: 'Content filter',
     contentFilterBody: 'Blocked by the content filter — try different wording.',
+    serverRejectedTitle: 'The file was rejected',
   },
 
   // Reconnect Overlay
   reconnect: {
-    frozenTitle: 'Connection lost',
-    frozenBody: 'Game paused. Reconnecting — you will pick up right where you left off.',
+    frozenTitle: 'INVESTIGATION INTERRUPTED',
+    frozenBody: 'The file is sealed until the line is back. Nothing you have noted is lost.',
+    frozenOverline: 'Case on hold',
+    attempt: 'Attempt {n}',
+    retrying: 'Retrying the line',
+    restoredOverline: 'Case reopened',
     title: 'Game Restored',
     playersReconnected: '{connected}/{total} reconnected',
     resumeGame: 'Resume Game',
@@ -654,8 +671,8 @@ export const en = {
   xp: {
     levelUp: 'LEVEL UP!',
     xpGained: 'XP GAINED',
-    victory: '🏆 Victory',
-    played: '💪 Played',
+    victory: 'Victory',
+    played: 'Played',
     dismiss: 'Dismiss notification',
     base: 'Base',
     win: 'Win',
@@ -696,6 +713,8 @@ export const en = {
     collapseSidebar: 'Collapse sidebar',
     showSidebar: 'Show sidebar',
     hideSidebar: 'Hide sidebar',
+    showMenu: 'Show menu',
+    hideMenu: 'Hide menu',
   },
 };
 

@@ -1452,7 +1452,12 @@
   .lobby-page .gs-lobby-col--brief .gs-pane-scroll,
   .lobby-page .gs-lobby-col--crew .gs-pane-scroll { height: 100%; }
 
-  .lobby-page .gs-lobby-col--brief.is-guest .gs-pane-scroll { justify-content: center; }
+  /* Top-aligned, not vertically centered: centering left ~280px of void above
+     CASE BRIEFING and ~250px below it — the emptiest region of the guest shot. */
+  .lobby-page .gs-lobby-col--brief.is-guest .gs-pane-scroll {
+    justify-content: flex-start;
+    padding-top: 1.25rem;
+  }
 
   /* Desktop grid stretches; avatars scale down as rows grow. */
   .lobby-page .gs-crew__grid {
@@ -1513,13 +1518,20 @@
   /* ---------- Invite band, desktop -------------------------------------- */
   /* 1:1 translation of Bad Actor's ba-crew-invite block (SUSD
      LobbyPage.layout.css:341-428); only color tokens differ. */
+  /* Two tracks now: the card-back designer moved INTO the action row (see
+     SoloInvitePanel `actionSlot`), so the old third column is gone. */
   .lobby-page .gs-crew-invite {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: clamp(10px, 1.6cqi, 28px);
     text-align: left;
   }
+
+  /* Explicit placement: the mascot can be hidden (gs-hide-short) and auto
+     placement would then drop the invite panel into the narrow `auto` track. */
+  .lobby-page .gs-crew-invite .lobby-mascot { grid-column: 1; grid-row: 1; }
+  .lobby-page .gs-crew-invite .solo-invite-panel { grid-column: 2; grid-row: 1; }
 
   .lobby-page .gs-crew-invite .lobby-mascot {
     width: clamp(48px, 5.5cqb, 82px);
@@ -1609,4 +1621,234 @@
 
 @media (prefers-reduced-motion: reduce) {
   .lobby-page .gs-crew__card { animation: none; }
+}
+
+/* ============================================================================
+   ROUND 2 — CANDLELIT CASE-FILE PASS (critic round 1, 4.5/10)
+   Everything below is scoped to `.lobby-page`. The two rules that must beat
+   `prime-suspect-unified.css` (loaded AFTER this file) carry an extra class so
+   specificity, not import order, decides.
+   ============================================================================ */
+
+/* ---------- 1+2 · Folder tab vs. pane heading collision (<=1024) ----------- */
+/* shell.css flattens the panes below 1025px with `padding: 0 !important`, so
+   the CASE FILE / CASE SETTINGS tab (top:-14px, ~18px tall) landed ON the
+   PLAYERS heading and on the gold SETTINGS accordion bar. The tab is lifted
+   fully clear of the box and the box gets margin to hang it in. */
+@media (max-width: 1024px) {
+  .lobby-page .gs-lobby-panes .gs-pane.lobby-waiting-card {
+    margin-top: 26px;
+  }
+
+  .lobby-page .gs-lobby-panes .gs-pane.lobby-waiting-card::after {
+    top: -21px;
+    left: 14px;
+  }
+
+  /* Nothing may hide under the sticky START bar (shell.css makes
+     .gs-scene-actions `position: sticky; bottom: 0` with an opaque fill —
+     that was the black strip eating COPY INVITE LINK at 375). */
+  .lobby-page .gs-lobby-col--crew .gs-pane-scroll,
+  .lobby-page .gs-lobby-col--brief .gs-pane-scroll {
+    padding-bottom: clamp(12px, 4vw, 22px);
+  }
+}
+
+/* The accordion header IS the settings title — HostSettings printed it a
+   second time inside the body (mirrors the .bluffalo-settings-title rule). */
+.lobby-page .collapsible-section .ps-settings-title { display: none; }
+
+/* ---------- 5+16 · Invite band breathing room on phones ------------------- */
+@media (max-width: 480px) {
+  .lobby-page .gs-crew-invite {
+    padding-inline: 12px;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-code-tiles {
+    gap: 6px;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-tile {
+    width: clamp(38px, 11vw, 52px);
+    height: clamp(46px, 13vw, 60px);
+    font-size: clamp(1.15rem, 5vw, 1.6rem);
+  }
+}
+
+/* ---------- 15 · ONE invite action rhythm at every width ------------------ */
+/* copy | QR | your card back degrade 3 -> 2 -> 1 per line and never leave the
+   pane. `flex: 1 1 180px` is the whole trick; the per-viewport column/row flip
+   that produced three unrelated rhythms is gone. */
+.lobby-page .gs-crew-invite .solo-invite-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.6rem;
+}
+
+.lobby-page .gs-crew-invite .solo-invite-actions > * {
+  flex: 1 1 180px;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+}
+
+/* The designer entry is a peer of the other two actions now, not a full-width
+   block bar underneath them (style-shop.css ships it as `width:100%`). */
+.lobby-page .gs-crew-invite .solo-invite-actions .ps-designer-btn {
+  min-height: 44px;
+  margin: 0;
+  border-radius: var(--radius-md);
+}
+
+/* ---------- 7 · Candlelight over the rainy blue city ---------------------- */
+/* The stage sits under a warm wash so the cool pixel backdrop reads as a lit
+   room instead of fighting the parchment/gold identity. A background (not a
+   pseudo-element) so it can never paint over scene content. */
+.lobby-page .gs-stage-inner {
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(255, 196, 110, 0.10), transparent 58%),
+    linear-gradient(180deg, rgba(74, 40, 22, 0.34), rgba(26, 14, 20, 0.56));
+}
+
+/* ---------- 7+8 · Crew seats become pinned suspect FILES ------------------ */
+.lobby-page .gs-crew__card {
+  position: relative;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(231, 204, 122, 0.10), transparent 60%),
+    linear-gradient(178deg, rgba(86, 66, 52, 0.50) 0%, rgba(48, 34, 40, 0.60) 42%, rgba(20, 14, 18, 0.72) 100%);
+}
+
+/* dog-eared corner — the file has been handled */
+.lobby-page .gs-crew__card::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  background: linear-gradient(135deg, transparent 50%, rgba(231, 204, 122, 0.20) 50%);
+  border-right: 1px solid rgba(210, 178, 90, 0.30);
+  border-bottom: 1px solid rgba(210, 178, 90, 0.30);
+}
+
+/* gold push-pin on the top edge — the seat is pinned to the board */
+.lobby-page .gs-crew__card::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 34% 30%, #fbeec0 0 22%, var(--royal-gold) 52%, var(--royal-gold-dark) 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 9px rgba(231, 204, 122, 0.45);
+}
+
+.lobby-page .gs-crew__card--empty::after { opacity: 0.35; filter: grayscale(0.5); }
+.lobby-page .gs-crew__card--empty::before { opacity: 0.4; }
+
+/* Dossier footer — two ruled evidence lines + a typewriter status stamp.
+   Decoration only (aria-hidden in the markup): it fills the lower third that
+   read as void without inventing a translatable string. */
+.lobby-page .gs-crew__file {
+  display: none;
+  width: 100%;
+  margin-top: auto;
+  padding-top: clamp(8px, 1.4cqb, 16px);
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(5px, 0.8cqb, 9px);
+}
+
+.lobby-page .gs-crew__file-rule {
+  width: min(84%, 190px);
+  height: 0;
+  border-top: 1px dotted rgba(210, 178, 90, 0.30);
+}
+
+.lobby-page .gs-crew__file-rule:nth-child(2) { width: min(58%, 130px); }
+
+.lobby-page .gs-crew__stamp {
+  font-family: var(--font-typewriter);
+  font-size: clamp(0.44rem, 0.95cqb, 0.6rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+  opacity: 0.7;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.lobby-page .gs-crew__stamp::after { content: 'STATEMENT PENDING'; }
+.lobby-page .gs-crew__card--empty .gs-crew__stamp::after { content: 'SEAT UNCLAIMED'; }
+
+/* ---------- 8 · Seats stop being 530px-tall empty rectangles -------------- */
+@media (min-width: 1025px) {
+  .lobby-page .gs-crew__grid { align-content: center; }
+
+  .lobby-page .gs-crew__card {
+    align-self: center;
+    aspect-ratio: 3 / 4;
+    max-height: min(420px, 100%);
+    justify-content: center;
+  }
+
+  .lobby-page .gs-crew__file { display: flex; }
+
+  /* The footer owns the bottom third; the old `margin-bottom:auto` on the tag
+     fought it and pushed the sprite + name into the top third. */
+  .lobby-page .gs-crew__tag { margin-bottom: 0; }
+}
+
+/* ---------- 9 · Guest folder says CASE BRIEFING, not CASE SETTINGS -------- */
+/* Decorative engraved tab, same idiom as the CASE FILE / CASE SETTINGS stamps
+   already set in prime-suspect-unified.css. The extra class beats that file's
+   `[data-theme] .gs-pane.lobby-settings-pane::after`. */
+[data-theme="primesuspect"] .lobby-page .gs-pane.lobby-settings-pane.is-guest::after {
+  content: 'CASE BRIEFING';
+}
+
+/* ---------- 9 · The briefing gets its drama ------------------------------ */
+/* Wax-seal CASE OPEN stamp on the section rule, and the one-liner set as a
+   pull-quote instead of a stray paragraph. */
+.lobby-page .lobby-settings-pane .ps-brief { position: relative; }
+
+.lobby-page .lobby-settings-pane .ps-brief .ps-settings-title::after {
+  content: 'CASE OPEN';
+  float: right;
+  margin-top: -3px;
+  padding: 3px 9px 4px;
+  border: 1px solid rgba(155, 30, 42, 0.85);
+  border-radius: 999px;
+  background: radial-gradient(circle at 34% 28%, rgba(190, 58, 62, 0.55), rgba(110, 18, 26, 0.65));
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: #f0d9c0;
+  transform: rotate(-3deg);
+}
+
+.lobby-page .lobby-settings-pane .ps-brief-teaser {
+  margin-top: clamp(6px, 1cqb, 12px);
+  padding: clamp(8px, 1.2cqb, 14px) clamp(10px, 1.4cqi, 16px);
+  border-left: 3px solid var(--royal-gold);
+  background: linear-gradient(90deg, rgba(231, 204, 122, 0.10), rgba(231, 204, 122, 0.02) 70%, transparent);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--parchment);
+  opacity: 1;
+}
+
+/* ---------- 10 · The host folder is no longer 600px of empty velvet ------- */
+/* HostSettings + the same read-only case facts the guest sees, separated by a
+   hairline so the folder reads as two filed sections. */
+.lobby-page .lobby-settings-pane .ps-host-settings + .ps-brief {
+  margin-top: clamp(10px, 1.6cqb, 22px);
+  padding-top: clamp(10px, 1.6cqb, 22px);
+  border-top: 1px dashed rgba(210, 178, 90, 0.28);
 }

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { Lobby } from '../../types';
+import type { Lobby, Player, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { motion } from 'framer-motion';
-import { Crown } from 'lucide-react';
+import { Crown, Flame, Award, ChevronUp } from 'lucide-react';
 import { Confetti, ScoreCountUp } from '../juice';
 import { FlairName } from '../core/ProfileIdentity';
 import { usePlayerProfile } from '../../services/playerProfiles';
@@ -14,6 +14,8 @@ import { usePostgame, resetPostgame } from '../../services/postgame';
 import { trackGameFinishedNow } from '../../services/analyticsService';
 import { GameAdRectangle } from '../ads';
 import PostGameShareCta from '../ui/PostGameShareCta';
+import DynamicCard from './DynamicCard';
+import '../../styles/game/surface-victory.css';
 
 /** Flair for reward/unlock rows, which only carry a platform playerId + name
  *  string (gb:postgame:summary) — same rendering as FlairName, keyed by id. */
@@ -27,6 +29,9 @@ const FlairNameById: React.FC<{ playerId?: string; name: string; className?: str
  * Shared platform rewards strip on the results screen: per-player +XP/+GP,
  * level-up badges, achievement unlocks, and the crew-streak banner. Data
  * arrives via gb:postgame:summary / gb:postgame:crewstreak (see App.tsx).
+ *
+ * Icons are lucide glyphs, never emoji (owner directive): full-colour system
+ * emoji against the gold/parchment front page read as unfinished.
  */
 const PostGameRewards: React.FC = () => {
   const { rewards, crewStreak, unlocks } = usePostgame();
@@ -35,9 +40,12 @@ const PostGameRewards: React.FC = () => {
   return (
     <div className="my-3 text-sm">
       {crewStreak && (
-        <div className="font-bold text-[var(--royal-gold-light)] mb-1.5">
-          🔥 {crewStreak.gamesTonight > 1 ? `Game ${crewStreak.gamesTonight} tonight!` : 'First game tonight!'}
-          {crewStreak.weekStreak > 1 ? ` · Crew streak: ${crewStreak.weekStreak} weeks` : ''}
+        <div className="ps-reward-line mb-1.5">
+          <Flame size={14} strokeWidth={2.2} className="ps-reward-ico" aria-hidden="true" />
+          <span>
+            {crewStreak.gamesTonight > 1 ? `Game ${crewStreak.gamesTonight} tonight!` : 'First game tonight!'}
+            {crewStreak.weekStreak > 1 ? ` · Crew streak: ${crewStreak.weekStreak} weeks` : ''}
+          </span>
         </div>
       )}
       {unlocks.length > 0 && (
@@ -46,9 +54,12 @@ const PostGameRewards: React.FC = () => {
             <div
               key={`${u.playerId}:${u.achievement.id}`}
               title={u.achievement.description}
-              className="font-bold text-[var(--royal-gold-light)]"
+              className="ps-reward-line"
             >
-              🏅 <FlairNameById playerId={u.playerId} name={u.playerName} /> unlocked “{u.achievement.name}”!
+              <Award size={14} strokeWidth={2.2} className="ps-reward-ico" aria-hidden="true" />
+              <span>
+                <FlairNameById playerId={u.playerId} name={u.playerName} /> unlocked “{u.achievement.name}”!
+              </span>
             </div>
           ))}
         </div>
@@ -60,9 +71,13 @@ const PostGameRewards: React.FC = () => {
               <FlairNameById playerId={r.playerId} name={r.playerName} className="truncate max-w-[120px]" />
               <span className="text-[#4ea7ea] font-semibold whitespace-nowrap">+{r.totalXp} XP</span>
               {r.gabuPoints > 0 && <span className="text-[var(--royal-gold)] font-semibold whitespace-nowrap">+{r.gabuPoints} GP</span>}
-              {r.leveledUp && r.newLevel != null && <span className="text-[#7cffb2] font-semibold whitespace-nowrap">⬆ Lv {r.newLevel}</span>}
+              {r.leveledUp && r.newLevel != null && (
+                <span className="text-[#7cffb2] font-semibold whitespace-nowrap inline-flex items-center gap-0.5">
+                  <ChevronUp size={13} strokeWidth={3} aria-hidden="true" /> Lv {r.newLevel}
+                </span>
+              )}
               {r.achievements.map((a) => (
-                <span key={a.id} title={a.name}>🏅</span>
+                <Award key={a.id} size={13} strokeWidth={2.2} className="ps-reward-ico" aria-label={a.name} />
               ))}
             </div>
           ))}
@@ -77,6 +92,9 @@ const PostGameRewards: React.FC = () => {
  * majority triggers gb:postgame:rematch-go, on which the HOST fires the game's
  * own `game:start` restart flow. The store resets when the victory screen
  * leaves (component unmount).
+ *
+ * This is the ONE primary CTA on the results screen (retention action) — every
+ * other action is demoted to the theme's secondary `.ps-btn--ghost` tier.
  */
 const RematchControls: React.FC<{ socket: Socket; isHost: boolean }> = ({ socket, isHost }) => {
   const { rematch, rematchGo } = usePostgame();
@@ -100,10 +118,10 @@ const RematchControls: React.FC<{ socket: Socket; isHost: boolean }> = ({ socket
   };
 
   return (
-    <div className="mt-3 flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1">
       <button
         onClick={handleVote}
-        className="ps-victory-btn--primary w-full px-6 py-3 text-sm sm:text-base min-h-[48px]"
+        className="ps-victory-btn--primary w-full px-6 py-3 text-sm sm:text-base min-h-[52px]"
         type="button"
       >
         {voted ? 'Voted ✓' : 'Rematch!'}
@@ -132,6 +150,70 @@ function getTokensToWin(playerCount: number): number {
   return 4;
 }
 
+/**
+ * The server logs the round narration as one blob, e.g.
+ *   "No cards left! Cards revealed — Falco held Lawyer (highest card wins the round)!"
+ * The dramatic clause belongs in the hero slot; the set-up and the rules
+ * parenthetical belong in a hairline caption. Split rather than dump the raw
+ * system-log string into the drama slot.
+ */
+function splitNarration(raw?: string): { hero: string; caption: string } {
+  if (!raw) return { hero: '', caption: '' };
+  let rest = raw.trim();
+  let paren = '';
+
+  const trailing = rest.match(/\s*\(([^()]*)\)\s*([!.?]*)\s*$/);
+  if (trailing && trailing.index != null) {
+    paren = trailing[1].trim();
+    rest = (rest.slice(0, trailing.index).trim() + (trailing[2] || '')).trim();
+  }
+
+  const parts = rest.split(/\s+[—–]\s+/);
+  const hero = (parts.pop() || rest).trim();
+  const lead = parts.join(' — ').trim();
+  const caption = [lead, paren].filter(Boolean).join(' — ');
+
+  return { hero, caption };
+}
+
+/**
+ * Reports whether the results panel actually overflows, so the bottom scroll
+ * vignette is only shown when there IS more case file below (owner directive:
+ * a visible scroll affordance wherever content cannot fit — but never a false
+ * one). Local to this panel; the shared shell ScrollHint is untouched.
+ */
+function useOverflowFlag(innerRef: React.RefObject<HTMLDivElement | null>, scrollRef: React.RefObject<HTMLDivElement | null>) {
+  const [overflowing, setOverflowing] = useState(false);
+
+  useEffect(() => {
+    const scroller = scrollRef.current;
+    const inner = innerRef.current;
+    if (!scroller || !inner) return;
+
+    const check = () => setOverflowing(scroller.scrollHeight - scroller.clientHeight > 6);
+    check();
+
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(check);
+    ro.observe(scroller);
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, [innerRef, scrollRef]);
+
+  return overflowing;
+}
+
+/** Wax-seal token pips: filled seals earned, hollow seals still to win. */
+const TokenPips: React.FC<{ tokens: number; total: number; stampLast?: boolean }> = ({ tokens, total, stampLast }) => (
+  <span className="ps-pips" role="img" aria-label={`${tokens} / ${total}`}>
+    {Array.from({ length: total }, (_, i) => {
+      const filled = i < tokens;
+      const isNew = !!stampLast && filled && i === tokens - 1;
+      return <i key={i} className={`ps-pip${filled ? ' is-filled' : ''}${isNew ? ' is-new' : ''}`} aria-hidden="true" />;
+    })}
+  </span>
+);
+
 export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   lobby,
   socket,
@@ -146,7 +228,12 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   const winnerId = lobby.gameData?.winner || lobby.gameData?.roundWinner;
   const winnerPlayer = lobby.players.find(p => p.id === winnerId);
   const tokensToWin = getTokensToWin(lobby.players.length);
-  const lastMessage = lobby.messages?.[lobby.messages.length - 1]?.message;
+
+  // Prefer the system narration over whatever chat happened to land last.
+  const systemMessages = (lobby.messages || []).filter(m => m.isSystem);
+  const lastMessage = (systemMessages.length > 0 ? systemMessages : (lobby.messages || []))
+    .slice(-1)[0]?.message;
+  const narration = splitNarration(lastMessage);
 
   const handleTryAnotherGame = () => {
     if (!socket.connected) return;
@@ -179,171 +266,254 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
     }
   }, [isGameWin, isBroadcastMirror, lobby.code]);
 
+  // Flag the document while a results overlay owns the screen. The platform XP
+  // toast is `position:fixed; top:100px; right:20px` and landed straight on the
+  // modal (375/768/1920); surface-victory.css re-docks it and reserves its strip.
+  useEffect(() => {
+    document.body.classList.add('ps-results-open');
+    return () => { document.body.classList.remove('ps-results-open'); };
+  }, []);
+
+  // The evidence spread: one card per suspect. Revealed hands go face up
+  // (the server reveals every hand once roundWinner is set); eliminated seats
+  // keep a face-down back so the row always reads as a full spread.
+  const tablePlayers = lobby.players.filter(p => !p.isSpectator && !p.isBigScreen);
+  const evidenceCount = Math.max(tablePlayers.length, 1);
+  const evidenceCardW = `clamp(44px, ${Math.min(20, 80 / evidenceCount).toFixed(1)}vw, ${Math.min(104, Math.round(372 / (1 + 0.84 * (evidenceCount - 1))))}px)`;
+
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const isScrollable = useOverflowFlag(innerRef, scrollRef);
+
+  const renderProgressRow = (p: Player, stampWinner: boolean) => (
+    <div key={p.id} className={`ps-progress-row${p.id === winnerId ? ' is-winner' : ''}`}>
+      <span className="ps-progress-name">
+        {p.id === winnerId && <Crown size={14} style={{ flexShrink: 0 }} aria-hidden="true" />}
+        <FlairName player={p} className="ps-truncate" />
+      </span>
+      <TokenPips tokens={p.tokens} total={tokensToWin} stampLast={stampWinner && p.id === winnerId} />
+    </div>
+  );
+
   // ── Round-Over Mode (no game winner yet) ──
+  // Contract: NO buttons here — the server auto-advances after 5s.
   if (!isGameWin) {
     return (
       <Portal>
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="hg-panel hg-candlelight border border-[rgba(var(--accent-color-rgb),0.35)] p-6 sm:p-10 rounded-2xl max-w-md w-full text-center shadow-[0_0_50px_rgba(var(--accent-color-rgb),0.25)]">
-          <h2 className="text-2xl sm:text-4xl font-black mb-3 sm:mb-4 text-[var(--royal-gold-light)] uppercase tracking-widest drop-shadow-md">
-            {t('victory.roundOver')}
-          </h2>
+        <div className="ps-victory-scrim">
+          <div className={`ps-victory-panel is-roundover hg-panel hg-candlelight${isScrollable ? ' is-scrollable' : ''}`}>
+            <div className="ps-victory-scroll" ref={scrollRef}>
+              <div ref={innerRef}>
+              {/* The label is the footnote; the suspect is the headline. */}
+              <div className="ps-eyebrow">{t('victory.roundOver')}</div>
 
-          <div className="my-4 sm:my-6">
-            <div className="text-[var(--parchment-dark)] mb-1 uppercase text-xs tracking-widest">{t('game.winner')}</div>
-            <div className="text-xl sm:text-3xl font-bold text-white">
-              {winnerPlayer && <FlairName player={winnerPlayer} />}
-            </div>
-            {lastMessage && (
-              <div className="text-sm text-[var(--parchment)] opacity-80 mt-2 italic leading-relaxed px-4">
-                {lastMessage}
-              </div>
-            )}
-          </div>
-
-          {/* Token Progress */}
-          <div className="my-4 sm:my-6 space-y-2">
-            <div className="text-[var(--parchment-dark)] uppercase text-xs tracking-widest mb-2">{t('victory.caseProgress')}</div>
-            {sortedPlayers.map(p => (
+              {/* Evidence laid out */}
               <div
-                key={p.id}
-                className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-sm ${
-                  p.id === winnerId ? 'bg-[rgba(var(--accent-color-rgb),0.15)] text-[var(--royal-gold-light)] font-bold' : 'text-[var(--parchment-dark)]'
-                }`}
+                className="ps-evidence-row"
+                aria-hidden="true"
+                style={{ ['--psv-card-w' as string]: evidenceCardW } as React.CSSProperties}
               >
-                <FlairName player={p} className="truncate mr-2" />
-                <span className="font-mono whitespace-nowrap">{p.tokens} / {tokensToWin}</span>
+                {tablePlayers.map((p, i) => {
+                  const offset = i - (tablePlayers.length - 1) / 2;
+                  const held: CardType | undefined = p.hand?.[0];
+                  const isWinnerCard = p.id === winnerId;
+                  return (
+                    <div
+                      key={p.id}
+                      className={`ps-evidence-card${isWinnerCard ? ' is-winner' : ''}${held ? '' : ' is-out'}`}
+                      style={{
+                        ['--psv-rot' as string]: `${(isWinnerCard ? 0 : offset * 4.5).toFixed(1)}deg`,
+                        ['--psv-lift' as string]: `${(Math.abs(offset) * 2.5).toFixed(1)}px`,
+                        ['--psv-delay' as string]: `${(i * 0.06).toFixed(2)}s`,
+                        zIndex: isWinnerCard ? 3 : 1,
+                      } as React.CSSProperties}
+                    >
+                      <DynamicCard cardType={(held ?? 0) as CardType} showFace={!!held} />
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
 
-          <div className="text-sm text-[var(--parchment-dark)] opacity-70 italic">
-            {t('victory.nextRoundIn')}
+              <div className="ps-eyebrow">{t('game.winner')}</div>
+              <div className="ps-winner-name">
+                {winnerPlayer && <FlairName player={winnerPlayer} />}
+              </div>
+
+              {narration.hero && <div className="ps-hero-line">{narration.hero}</div>}
+              {narration.caption && <div className="ps-caption">{narration.caption}</div>}
+
+              {/* Case progress — wax-seal pips, the round winner's newest seal stamped in */}
+              <div className="ps-progress-head ps-eyebrow">{t('victory.caseProgress')}</div>
+              <div className="ps-progress-list">
+                {sortedPlayers.map(p => renderProgressRow(p, true))}
+              </div>
+
+              <div className="ps-next-note">{t('victory.nextRoundIn')}</div>
+              </div>
+            </div>
+
+            <div className="ps-victory-fade" aria-hidden="true" />
+            {/* The 5s auto-advance made visible. */}
+            <div className="ps-round-tick-track" aria-hidden="true">
+              <div className="ps-round-tick" />
+            </div>
           </div>
         </div>
-      </div>
       </Portal>
     );
   }
 
-  // ── Game Victory Mode ──
+  // ── Game Victory Mode — CASE SOLVED, the conviction front page ──
   return (
     <Portal>
       {/* Noir/gold palette carried over from the retired animations/Confetti. */}
-      <Confetti colors={['#d2b25a', '#e7cc7a', '#8a2233', '#f6f0e6', '#a77e22']} />
+      <div className="ps-victory-confetti">
+        <Confetti colors={['#d2b25a', '#e7cc7a', '#8a2233', '#f6f0e6', '#a77e22']} />
+      </div>
       <motion.div
-        className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4"
+        className="ps-victory-scrim"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
         <motion.div
-          className="hg-panel hg-candlelight border border-[rgba(var(--accent-color-rgb),0.35)] p-6 sm:p-10 rounded-2xl max-w-md w-full text-center shadow-[0_0_60px_rgba(var(--accent-color-rgb),0.3)]"
-          initial={{ scale: 0.5, opacity: 0 }}
+          className={`ps-victory-panel is-gameover hg-panel hg-candlelight${isScrollable ? ' is-scrollable' : ''}`}
+          initial={{ scale: 0.7, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.1 }}
         >
-          {/* Title */}
-          <motion.h2
-            className="text-2xl sm:text-4xl font-black mb-2 text-[var(--royal-gold-light)] uppercase tracking-widest"
-            style={{ textShadow: '0 0 20px rgba(210,178,90,0.5), 0 0 40px rgba(210,178,90,0.2)' }}
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
-          >
-            {t('victory.caseSolved')}
-          </motion.h2>
+          <div className="ps-victory-scroll" ref={scrollRef}>
+            <div ref={innerRef}>
+            {/* Masthead */}
+            <header className="ps-masthead">
+              <div className="ps-dateline">{lobby.code}</div>
+              <motion.h2
+                className="ps-headline"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+              >
+                {t('victory.caseSolved')}
+              </motion.h2>
+              <div className="ps-masthead-rule" aria-hidden="true" />
+            </header>
 
-          {/* Crown + Winner Name */}
-          <motion.div
-            className="my-4 sm:my-8"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.4 }}
-          >
-            <Crown size={40} color="var(--royal-gold)" className="mx-auto mb-2" strokeWidth={1.5} />
-            <div className="text-2xl sm:text-3xl font-black text-white">
-              {winnerPlayer && <FlairName player={winnerPlayer} />}
+            <div className="ps-victory-grid">
+              {/* Left: the convicted */}
+              <motion.section
+                className="ps-verdict"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+              >
+                <div className="ps-crown" aria-hidden="true">
+                  <Crown size={56} color="var(--royal-gold)" strokeWidth={1.5} />
+                </div>
+                <div className="ps-eyebrow">{t('victory.winner')}</div>
+                <div className="ps-winner-name">
+                  {winnerPlayer && <FlairName player={winnerPlayer} />}
+                </div>
+              </motion.section>
+
+              {/* Right: the dossier */}
+              <motion.section
+                className="ps-dossier"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.6 }}
+              >
+                <div className="ps-progress-head ps-eyebrow">{t('victory.caseProgress')}</div>
+                <div className="ps-progress-list">
+                  {sortedPlayers.map((p, i) => (
+                    <motion.div
+                      key={p.id}
+                      initial={{ x: -16, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.2, delay: 0.6 + i * 0.08 }}
+                      className={`ps-progress-row${p.id === winnerId ? ' is-winner' : ''}`}
+                    >
+                      <span className="ps-progress-name">
+                        {p.id === winnerId && <Crown size={14} style={{ flexShrink: 0 }} aria-hidden="true" />}
+                        <FlairName player={p} className="ps-truncate" />
+                      </span>
+                      <span className="inline-flex items-center gap-2">
+                        <TokenPips tokens={p.tokens} total={tokensToWin} />
+                        <span className="font-mono text-xs opacity-70 whitespace-nowrap">
+                          <ScoreCountUp value={p.tokens} from={0} />/{tokensToWin}
+                        </span>
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Platform rewards (+XP/+GP, unlocks, crew streak). The slot is
+                    reserved so a late gb:postgame:summary can't shove the CTAs. */}
+                {!isBroadcastMirror && (
+                  <div className="ps-rewards-slot">
+                    <PostGameRewards />
+                  </div>
+                )}
+              </motion.section>
             </div>
-          </motion.div>
 
-          {/* Token Scoreboard */}
-          <motion.div
-            className="my-4 sm:my-6 space-y-1.5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.6 }}
-          >
-            <div className="text-[var(--parchment-dark)] uppercase text-xs tracking-widest mb-2">{t('victory.caseProgress')}</div>
-            {sortedPlayers.map((p, i) => (
-              <motion.div
-                key={p.id}
-                className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-sm ${
-                  p.id === winnerId
-                    ? 'bg-[rgba(var(--accent-color-rgb),0.2)] text-[var(--royal-gold-light)] font-bold'
-                    : 'text-[var(--parchment-dark)]'
-                }`}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.2, delay: 0.6 + i * 0.08 }}
-              >
-                <span className="flex items-center gap-1.5 truncate mr-2">
-                  {p.id === winnerId && <Crown size={14} style={{flexShrink:0}} />}
-                  <FlairName player={p} />
-                </span>
-                <span className="font-mono whitespace-nowrap"><ScoreCountUp value={p.tokens} from={0} /> / {tokensToWin}</span>
-              </motion.div>
-            ))}
-          </motion.div>
+            {/* CTAs — ONE primary (Rematch), hairline, then the secondary tier */}
+            <motion.div
+              className="ps-cta-block"
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.9 }}
+            >
+              {!isBroadcastMirror && <RematchControls socket={socket} isHost={isHost} />}
 
-          {/* Platform rewards (+XP/+GP, unlocks, crew streak) */}
-          {!isBroadcastMirror && <PostGameRewards />}
+              <hr className="ps-cta-divider" />
 
-          {/* Buttons / Waiting */}
-          <motion.div
-            className="mt-4 sm:mt-6"
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.9 }}
-          >
-            {me?.isHost ? (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => { if (socket.connected) socket.emit('game:start', {}); }}
-                  className="ps-victory-btn--primary flex-1 px-6 py-3 text-sm sm:text-base min-h-[48px]"
-                >
-                  {t('victory.newGame')}
-                </button>
-                <button
-                  onClick={() => { if (socket.connected) socket.emit('game:backToLobby', {}); }}
-                  className="ps-victory-btn--primary flex-1 px-6 py-3 text-sm sm:text-base min-h-[48px]"
-                >
-                  {t('victory.backToLobby')}
-                </button>
+              <div className="ps-cta-secondary">
+                {me?.isHost ? (
+                  <div className="ps-cta-pair">
+                    <button
+                      type="button"
+                      onClick={() => { if (socket.connected) socket.emit('game:start', {}); }}
+                      className="ps-btn ps-btn--ghost"
+                    >
+                      {t('victory.newGame')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { if (socket.connected) socket.emit('game:backToLobby', {}); }}
+                      className="ps-btn ps-btn--ghost"
+                    >
+                      {t('victory.backToLobby')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="ps-waiting-note">{t('victory.waitingForHost')}</div>
+                )}
+
+                {!isBroadcastMirror && (
+                  <div className="ps-victory-share">
+                    <PostGameShareCta roomCode={lobby.code} gameName="Prime Suspect" />
+                  </div>
+                )}
+
+                {lobby.isGameBuddiesRoom && (
+                  <button
+                    type="button"
+                    onClick={handleTryAnotherGame}
+                    className="ps-btn ps-btn--ghost"
+                  >
+                    {t('lobby.returnAll')}
+                  </button>
+                )}
               </div>
-            ) : (
-              <div className="text-sm text-[var(--parchment-dark)] opacity-70 italic">
-                {t('victory.waitingForHost')}
-              </div>
-            )}
+            </motion.div>
 
-            {/* Rematch vote (platform-wide majority vote) */}
-            {!isBroadcastMirror && <RematchControls socket={socket} isHost={isHost} />}
-            {!isBroadcastMirror && <PostGameShareCta roomCode={lobby.code} gameName="Prime Suspect" />}
+            {/* Game-over ad — below the victory actions. Non-premium players only
+                (Prime Suspect has no big-screen mode). */}
+            {!isBroadcastMirror && <GameAdRectangle placement="game_over" />}
+            </div>
+          </div>
 
-            {lobby.isGameBuddiesRoom && (
-              <button
-                onClick={handleTryAnotherGame}
-                className="ps-victory-btn--primary w-full mt-3 px-6 py-3 text-sm sm:text-base min-h-[48px]"
-              >
-                {t('lobby.returnAll')}
-              </button>
-            )}
-          </motion.div>
-
-          {/* Game-over ad — below the victory actions. Non-premium players only
-              (Prime Suspect has no big-screen mode). */}
-          {!isBroadcastMirror && <GameAdRectangle placement="game_over" />}
+          <div className="ps-victory-fade" aria-hidden="true" />
         </motion.div>
       </motion.div>
     </Portal>

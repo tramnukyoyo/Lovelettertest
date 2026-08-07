@@ -112,6 +112,9 @@ export const zhHant: Translations = {
     login: '登入',
     loginTitle: '登入或註冊以保存你的進度、GP 和高級會員資格',
     logout: '登出',
+    phaseLobby: '案件待審',
+    phasePlaying: '案件受理中',
+    phaseEnded: '案件結案',
   },
 
   // Video
@@ -304,10 +307,16 @@ export const zhHant: Translations = {
     close: '關閉通知',
   },
 
+  // Achievement toast
+  achievementToast: {
+    unlocked: '成就解鎖',
+  },
+
   // Error boundary
   errorBoundary: {
-    title: '發生了一些問題',
-    message: '很抱歉，發生了預期之外的錯誤。',
+    title: '案卷破損了',
+    message: '證物室裡有些東西壞了。',
+    overline: '證物室',
     refresh: '重新整理頁面',
     goHome: '回到首頁',
   },
@@ -359,6 +368,9 @@ export const zhHant: Translations = {
     buying: '購買中…',
     buyFor: '購買 · {gp} GP',
     foreverEverywhere: '{name}永久屬於你——在 GameBuddies 和所有遊戲中。',
+    equipped: '使用中',
+    premiumTitle: '高級會員專屬',
+    cardBackPreviewCaption: '你的手牌在牌桌上呈現的樣子',
   },
 
   // Streamer broadcast stage
@@ -497,12 +509,17 @@ export const zhHant: Translations = {
     invalidRoomCode: '請輸入有效的房間代碼',
     contentFilterTitle: '內容過濾',
     contentFilterBody: '已被內容過濾器攔截，請換個說法。',
+    serverRejectedTitle: '檔案已被拒絕',
   },
 
   // Reconnect Overlay
   reconnect: {
-    frozenTitle: '連線中斷',
-    frozenBody: '遊戲已暫停。正在重新連線 — 稍後會從中斷處繼續。',
+    frozenTitle: '調查中斷',
+    frozenBody: '線路恢復之前，案卷將暫時封存。你記錄的一切都不會遺失。',
+    frozenOverline: '案件暫停',
+    attempt: '第 {n} 次嘗試',
+    retrying: '正在恢復連線',
+    restoredOverline: '案件重啟',
     title: '遊戲已復原',
     playersReconnected: '{connected}/{total} 已重新連線',
     resumeGame: '繼續遊戲',
@@ -556,8 +573,8 @@ export const zhHant: Translations = {
   xp: {
     levelUp: '升級了！',
     xpGained: '獲得經驗值',
-    victory: '🏆 勝利',
-    played: '💪 已遊玩',
+    victory: '勝利',
+    played: '已遊玩',
     dismiss: '關閉通知',
     base: '基礎',
     win: '勝利',
@@ -598,6 +615,8 @@ export const zhHant: Translations = {
     collapseSidebar: '收合側邊欄',
     showSidebar: '顯示側邊欄',
     hideSidebar: '隱藏側邊欄',
+    showMenu: '顯示選單',
+    hideMenu: '隱藏選單',
   },
 
   // QR join scanner

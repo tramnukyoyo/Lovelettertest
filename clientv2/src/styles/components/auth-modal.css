@@ -193,6 +193,175 @@
   color: var(--text-secondary);
 }
 
+/* ===========================================================================
+   PRIME SUSPECT — the auth panel is a case file, not the arcade.
+
+   GameAuthModal reuses `.settings-modal`, so it inherits the parchment skin
+   (#c9b8a0) from prime-suspect-unified.css — but the copy above is painted with
+   `var(--text-secondary)`, which the theme resolves to near-white
+   (rgba(246,240,230,.90)) ≈ 1.3:1 on parchment. Re-tokenise the interior to
+   ink-on-parchment and retire the platform's hot pink / cyan.
+
+   prime-suspect-unified.css is @imported AFTER this file (and carries a bare
+   `button { … }` + `button:not(.secondary):not(.danger)` baseline at 0,2,1), so
+   every selector below is deliberately over-qualified. Do not shorten them.
+   =========================================================================== */
+[data-theme="primesuspect"] .settings-modal.auth-modal {
+  --text-primary: #241b22;
+  --text-secondary: #4a3f35;
+  --text-muted: #5a4f45;
+  --panel-border: rgba(74, 63, 53, 0.4);
+}
+[data-theme="primesuspect"] .auth-modal .auth-modal-content {
+  padding: 1rem !important;
+  gap: 0.7rem;
+}
+[data-theme="primesuspect"] .auth-modal .auth-modal-benefits {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: #4a3f35;
+}
+
+/* Mode switch — gold "filed" tab, never pink. */
+[data-theme="primesuspect"] .auth-modal button.auth-modal-tab {
+  min-height: 44px;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--psb-radius, 7px);
+  border: 1px solid rgba(74, 63, 53, 0.5);
+  background: linear-gradient(180deg, var(--velvet-raise, #34262f), var(--velvet-panel, #2c2029));
+  color: var(--parchment, #f6f0e6);
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: none;
+  transform: none;
+}
+[data-theme="primesuspect"] .auth-modal button.auth-modal-tab.active {
+  background: linear-gradient(180deg, var(--royal-gold-light, #e7cc7a), var(--royal-gold, #d2b25a));
+  border-color: var(--royal-gold-dark, #a77e22);
+  color: var(--royal-crimson-dark, #3d0c13);
+  box-shadow:
+    0 4px 0 rgba(42, 36, 32, 0.55),
+    0 9px 18px rgba(42, 36, 32, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+[data-theme="primesuspect"] .auth-modal button.auth-modal-tab:hover:not(:disabled) {
+  transform: none;
+  filter: brightness(1.12);
+}
+
+/* OAuth — parchment card with a tobacco keyline; gold (not cyan) on hover. */
+[data-theme="primesuspect"] .auth-modal button.auth-modal-oauth-btn {
+  min-height: 44px;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--psb-radius, 7px);
+  border: 2px solid rgba(74, 63, 53, 0.55);
+  background: var(--cream, #f9f6f0);
+  color: #241b22;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.88rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  box-shadow: 2px 2px 0 rgba(42, 36, 32, 0.2);
+  transform: none;
+}
+[data-theme="primesuspect"] .auth-modal button.auth-modal-oauth-btn:hover:not(:disabled) {
+  transform: none;
+  border-color: var(--royal-gold-dark, #a77e22);
+  background: #fff;
+  filter: none;
+}
+
+[data-theme="primesuspect"] .auth-modal .auth-modal-divider {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  letter-spacing: 0.18em;
+  color: #5a4f45;
+}
+[data-theme="primesuspect"] .auth-modal .auth-modal-divider::before,
+[data-theme="primesuspect"] .auth-modal .auth-modal-divider::after {
+  height: 1px;
+  background: rgba(74, 63, 53, 0.4);
+}
+
+/* Inputs — cream evidence slips with ink text. */
+[data-theme="primesuspect"] .auth-modal .auth-modal-input {
+  min-height: 44px;
+  border-radius: var(--psb-radius, 7px);
+  background: var(--cream, #f9f6f0);
+  border: 2px solid rgba(74, 63, 53, 0.5);
+  color: var(--ink-dark, #241b22);
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+[data-theme="primesuspect"] .auth-modal .auth-modal-input::placeholder { color: rgba(36, 27, 34, 0.5); }
+[data-theme="primesuspect"] .auth-modal .auth-modal-input:focus {
+  border-color: var(--royal-gold-dark, #a77e22);
+  box-shadow: 0 0 0 3px rgba(210, 178, 90, 0.28);
+}
+
+[data-theme="primesuspect"] .auth-modal .auth-modal-check {
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.8rem;
+  color: #4a3f35;
+}
+[data-theme="primesuspect"] .auth-modal .auth-modal-check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 0;
+  accent-color: var(--royal-crimson, #6a1623);
+}
+
+[data-theme="primesuspect"] .auth-modal .auth-modal-error {
+  border: 2px solid var(--royal-crimson, #6a1623);
+  background: rgba(106, 22, 35, 0.14);
+  color: var(--royal-crimson-dark, #3d0c13);
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+}
+
+/* Primary CTA — the same crimson tier as START GAME. */
+[data-theme="primesuspect"] .auth-modal button.auth-modal-submit {
+  min-height: 48px;
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--psb-radius, 7px);
+  background: var(--psb-pri-face, linear-gradient(180deg, #8a2233, #6a1623));
+  border: 1px solid var(--royal-gold, #d2b25a);
+  color: var(--parchment, #f6f0e6);
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: var(--psb-pri-rest, 0 5px 0 #3d0c13);
+  transform: none;
+}
+[data-theme="primesuspect"] .auth-modal button.auth-modal-submit:hover:not(:disabled) {
+  transform: none;
+  filter: brightness(1.1);
+  box-shadow: var(--psb-pri-hover, 0 6px 0 #3d0c13);
+}
+[data-theme="primesuspect"] .auth-modal button.auth-modal-submit:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: var(--psb-pri-press, 0 0 0 #3d0c13);
+}
+
+/* Confirm-email / success states read on parchment too. */
+[data-theme="primesuspect"] .auth-modal .auth-modal-status { color: #241b22; }
+[data-theme="primesuspect"] .auth-modal .auth-modal-status-icon { color: var(--rust, #b8572a); }
+[data-theme="primesuspect"] .auth-modal .auth-modal-status-title {
+  font-family: var(--font-heading, 'Cinzel', Georgia, serif);
+  letter-spacing: 0.06em;
+  color: #241b22;
+}
+[data-theme="primesuspect"] .auth-modal .auth-modal-status-body {
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  color: #4a3f35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .auth-modal button.auth-modal-submit:active:not(:disabled) { transform: none; }
+}
+
 /* ===================================================================
    Account control — login button / name+premium chip / logout menu.
    Kept here (not header.css) so it ships with the auth kit to every

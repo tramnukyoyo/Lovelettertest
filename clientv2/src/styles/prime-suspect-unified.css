@@ -5141,19 +5141,10 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   justify-content: center !important;
 }
 
-/* Add magnifying glass hint for hover */
-[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body::after {
-  content: "🔍effect";
-  font-size: 8px;
-  color: rgba(139, 90, 43, 0.7);
-  font-style: italic;
-  margin-top: 3px;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  white-space: nowrap;
-}
+/* NOTE: the old emoji "tap for effect" pseudo-element that used to live here was
+   removed. Emoji are never UI chrome in Prime Suspect (owner directive), and in
+   portrait the hand card is now large enough to print its real
+   .card-description instead of a hint glyph. */
 
 /* Mobile long-press preview card - medium size */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-preview-card {
@@ -5425,6 +5416,328 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   .hg-noir-modal {
     padding: 20px !important;
   }
+}
+
+/* ============================================================================
+   MOBILE TABLE — SUSPECTS STRIP CHROME (all orientations)
+   The strip is a horizontal scroller; it needs a real affordance, never a clip.
+   ========================================================================= */
+
+.hg-suspects-strip { min-width: 0; }
+
+/* tiles are clickable → brightness/opacity feedback ONLY (never transform) */
+.hg-suspect-tile {
+  transition: filter 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  background-color: transparent;
+}
+.hg-suspect-tile.is-targetable { cursor: pointer; }
+.hg-suspect-tile.is-locked { cursor: not-allowed; }
+.hg-suspect-tile.is-targetable:active { filter: brightness(1.18); }
+.hg-suspect-tile.is-out { opacity: 0.5; filter: grayscale(1); }
+.hg-suspect-tile.is-protected { opacity: 0.72; }
+.hg-suspect-tile.is-turn {
+  background-color: rgba(var(--primary-rgb), 0.12);
+  box-shadow: inset 0 0 0 2px var(--royal-crimson), 0 0 18px rgba(var(--primary-rgb), 0.25);
+}
+.hg-suspect-tile.is-targeted {
+  background-color: rgba(var(--accent-color-rgb), 0.2);
+  box-shadow: inset 0 0 0 2px var(--royal-gold), 0 0 20px rgba(210, 178, 90, 0.32);
+}
+.hg-suspect-tile.is-piercable { box-shadow: inset 0 0 0 1px rgba(231, 204, 122, 0.5); }
+
+.hg-suspects-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  pointer-events: none;
+  z-index: 2;
+}
+.hg-suspects-fade--left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(26, 19, 25, 0.92), transparent);
+}
+.hg-suspects-fade--right {
+  right: 0;
+  background: linear-gradient(270deg, rgba(26, 19, 25, 0.92), transparent);
+}
+
+/* tappable "more suspects" chevron — the strip must never clip silently */
+.hg-suspects-more {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  margin-top: -16px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  background: linear-gradient(180deg, rgba(52, 38, 47, 0.96), rgba(28, 21, 27, 0.96));
+  color: var(--royal-gold-light);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: filter 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.hg-suspects-more:hover { filter: brightness(1.15); }
+.hg-suspects-more:focus-visible {
+  outline: 2px solid var(--royal-gold-light);
+  outline-offset: 2px;
+}
+
+/* opponent's REVEALED card (Butler/Inspector peeks) — its own size class so the
+   hand card can grow without inflating the suspects strip */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card {
+  --hg-card-width: clamp(56px, 5.5vw, 7vw);
+  --hg-card-height: clamp(84px, 8.5vw, 11vw);
+  width: clamp(56px, 5.5vw, 7vw) !important;
+  height: clamp(84px, 8.5vw, 11vw) !important;
+  flex-shrink: 0 !important;
+}
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card .card-header { padding: 2px 3px !important; }
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card .card-name,
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card .effect-tag {
+  font-size: 6px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card .card-description,
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card .card-value-br { display: none !important; }
+
+/* hand slot — the tap target itself never moves (owner rule: clickables animate
+   brightness/opacity only). Selection reads through DynamicCard's gold ring. */
+.hg-mobile-hand-slot {
+  transition: filter 0.15s ease, opacity 0.15s ease;
+}
+.hg-mobile-hand-slot.is-selected { filter: brightness(1.14); }
+.hg-mobile-hand-slot:focus-visible {
+  outline: 2px solid var(--royal-gold-light);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hg-mobile-hand-slot,
+  .hg-suspect-tile,
+  .hg-suspects-more { transition: none; }
+}
+
+/* deck STACK layers — DynamicCard backs filling the button, same card language
+   as the evidence pile (gold rule / velvet matte), not a raw <img> */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-stack-card {
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================================
+   PORTRAIT PHONE / TABLET TABLE — an honest vertical stack.
+   The base .hg-mobile-* rules above are percentages lifted from a 2784x1536
+   LANDSCAPE mock; in portrait they leave ~60% of the screen empty, squeeze the
+   suspects into a 22%-wide column and shrink the hand to a 56px thumbnail.
+   Here the same regions are re-anchored as four stacked bands:
+     header · suspects strip · evidence+case file · case notes · hand
+   ========================================================================= */
+@media (max-width: 1024px) and (orientation: portrait) {
+  [data-theme="primesuspect"] .hg-mobile-layout {
+    /* clears BOTH states of the top chrome: the 52px game header when the
+       shell chrome is revealed, and the .gs-chrome-toggle tab when it is not */
+    --ps-m-top: calc(54px + env(safe-area-inset-top, 0px));
+    --ps-m-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    --ps-m-gap: 10px;
+    --ps-m-suspects-h: clamp(138px, 22svh, 178px);
+    --ps-m-notes-h: clamp(78px, 15svh, 132px);
+    /* reserved lane for the "must play the Accomplice" ribbon — it used to sit
+       at bottom:96px, i.e. straight on top of the hand */
+    --ps-m-alert-h: 26px;
+    --hg-m-hand-w: clamp(96px, 26vw, 132px);
+    --hg-m-hand-h: calc(var(--hg-m-hand-w) * 1.5);
+    /* top edge of the case-notes sheet — shared anchor for the alert lane */
+    --ps-m-notes-top-gap: calc(
+      var(--ps-m-bottom) + var(--hg-m-hand-h) + var(--ps-m-gap)
+      + var(--ps-m-notes-h) + var(--ps-m-gap)
+    );
+  }
+
+  [data-theme="primesuspect"] .hg-mobile-alert-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--ps-m-notes-top-gap);
+    transform: none;
+    height: var(--ps-m-alert-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* --- band 1: suspects, full width across the top ------------------------ */
+  [data-theme="primesuspect"] .hg-mobile-opponent-area {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: var(--ps-m-top);
+    width: auto;
+    height: var(--ps-m-suspects-h);
+    max-height: none;
+    overflow: hidden;
+    z-index: 5;
+  }
+
+  /* the strip's own cards shrink so three suspects fit the band honestly */
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card,
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-opponent-card {
+    --hg-card-width: clamp(30px, 8vw, 42px);
+    --hg-card-height: calc(var(--hg-card-width) * 1.5);
+    width: var(--hg-card-width) !important;
+    height: var(--hg-card-height) !important;
+  }
+  [data-theme="primesuspect"] .hg-mobile-opponent-card {
+    width: clamp(30px, 8vw, 42px);
+    height: calc(clamp(30px, 8vw, 42px) * 1.5);
+  }
+
+  /* --- band 2: evidence + case file, centred in the space that is left ---- */
+  [data-theme="primesuspect"] .hg-mobile-deck-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: auto;
+    transform: none;
+    top: calc(var(--ps-m-top) + var(--ps-m-suspects-h) + var(--ps-m-gap));
+    bottom: calc(var(--ps-m-notes-top-gap) + var(--ps-m-alert-h));
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+
+  /* both columns share one baseline — the per-column translate-x/-y hacks that
+     used to nudge them apart are gone from the TSX, so they centre honestly */
+  [data-theme="primesuspect"] .hg-mobile-deck-label {
+    font-size: clamp(11px, 3vw, 13px);
+    letter-spacing: 0.12em;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card,
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card,
+  [data-theme="primesuspect"] button.hg-mobile-deck-card,
+  [data-theme="primesuspect"] button.hg-mobile-discard-card,
+  [data-theme="primesuspect"] .hg-mobile-discard-card {
+    --hg-card-width: clamp(72px, 20vw, 104px);
+    --hg-card-height: calc(var(--hg-card-width) * 1.5);
+    width: var(--hg-card-width) !important;
+    height: var(--hg-card-height) !important;
+    transform: none !important;
+  }
+
+  /* --- band 3: the Case Log as a bottom sheet, not a 60px edge gutter ----- */
+  [data-theme="primesuspect"] .hg-mobile-notes-area {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: calc(var(--ps-m-bottom) + var(--hg-m-hand-h) + var(--ps-m-gap));
+    width: auto;
+    height: var(--ps-m-notes-h);
+    padding: 8px 10px;
+    z-index: 10;
+  }
+
+  /* the log is the deduction record — give it room to breathe, not 9px type */
+  [data-theme="primesuspect"] .hg-mobile-notes-log { padding-right: 2px; }
+
+  /* --- band 4: the hand is the hero, docked in the thumb zone ------------- */
+  [data-theme="primesuspect"] .hg-mobile-player-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: var(--ps-m-bottom);
+    width: auto;
+    height: var(--hg-m-hand-h);
+    max-height: none;
+    padding-bottom: 0;
+    z-index: 30;
+  }
+
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card {
+    --hg-card-width: var(--hg-m-hand-w);
+    --hg-card-height: var(--hg-m-hand-h);
+    width: var(--hg-m-hand-w) !important;
+    height: var(--hg-m-hand-h) !important;
+  }
+
+  /* at this size the card can finally carry its real dossier copy again */
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-name,
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .hold-badge {
+    font-size: 8px !important;
+    padding: 2px 4px !important;
+  }
+}
+
+/* ============================================================================
+   ORIENTATION HINT — a quiet docked strip, never a full-screen gate
+   ========================================================================= */
+/* NOTE: the selector carries [data-theme] because .hg-panel (which this strip
+   also wears, for the velvet+gold face) sets position:relative at that same
+   specificity — a bare .hg-orientation-hint would lose and stop being fixed. */
+[data-theme="primesuspect"] .hg-orientation-hint,
+.hg-orientation-hint {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.hg-orientation-hint__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--royal-gold);
+}
+
+.hg-orientation-hint__text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: var(--parchment);
+}
+
+.hg-orientation-hint__close {
+  flex-shrink: 0;
+  min-width: 34px;
+  padding: 0.3rem 0.4rem;
 }
 
 /* Scrollbar hide utility for mobile */
@@ -17020,80 +17333,97 @@ button svg.lucide,
 }
 
 .pp-player-name-display {
+  font-family: var(--font-title, 'Cinzel', serif);
   font-size: clamp(24px, 7vw, 42px);
   font-weight: 800;
-  color: var(--gb-cyan);
-  text-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+  color: var(--royal-gold-light);
+  text-shadow:
+    0 0 24px rgba(210, 178, 90, 0.45),
+    0 2px 0 rgba(0, 0, 0, 0.55);
   margin: 0;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .pp-privacy-card {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
-  max-width: 300px;
+  max-width: 320px;
+  /* candlelit dossier panel (see .hg-panel / .hg-candlelight) */
+  background:
+    radial-gradient(700px at 30% 10%, rgba(246, 240, 230, 0.06), transparent 58%),
+    linear-gradient(135deg, rgba(52, 38, 47, 0.86), rgba(36, 27, 34, 0.7));
+  border: 1px solid rgba(210, 178, 90, 0.38);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(210, 178, 90, 0.3);
 }
 
 .pp-privacy-icon {
-  font-size: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--royal-gold);
 }
 
 .pp-privacy-text {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.84rem;
+  line-height: 1.35;
+  color: var(--parchment);
   text-align: left;
 }
 
-/* Buttons */
-.pp-reveal-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 16px 40px;
-  border: none;
-  border-radius: var(--radius-xl);
-  background: var(--gb-cyan);
-  color: #000;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-}
-
-.pp-reveal-btn:active {
-  transform: scale(0.96);
-}
-
+/* Buttons — the Pass & Play CTAs now wear the shared .ps-btn--primary crimson
+   slab (see prime-suspect-ingame.css §1). These rules only supply the extra
+   size/reach a "pass the device" tap target wants; colour, border, engraved
+   gold label and press feedback all come from .ps-btn. */
+.pp-reveal-btn,
 .pp-done-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding: 16px 40px;
-  border: none;
-  border-radius: var(--radius-xl);
-  background: var(--gb-pink);
-  color: #fff;
+  min-height: 52px;
+  padding: 14px 34px;
   font-size: 1rem;
-  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0 20px rgba(255, 0, 136, 0.3);
 }
 
-.pp-done-btn:active {
-  transform: scale(0.96);
+/* kill the inherited scale-on-press from styles/features/pass-play.css —
+   clickables in this game animate brightness, never geometry */
+.pp-reveal-btn:active,
+.pp-done-btn:active,
+.pp-advance-btn:active {
+  transform: none;
+  filter: brightness(1.06);
 }
 
 .pp-done-btn--disabled,
 .pp-done-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* .pp-done-btn is currently unused in the TSX; keep it on-theme in case it
+   returns, so it can never fall back to a bare/neon button. */
+.pp-done-btn {
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  border-radius: var(--radius-sm, 6px);
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  color: var(--royal-gold-light);
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow:
+    0 4px 0 var(--royal-crimson-dark),
+    0 10px 22px rgba(61, 12, 19, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.28);
 }
 
 /* Reveal content area */
@@ -17146,17 +17476,22 @@ button svg.lucide,
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--panel-border);
+  background: rgba(210, 178, 90, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(210, 178, 90, 0.35);
   transition: background 0.3s, box-shadow 0.3s;
 }
 
+/* turns already taken = filed in gold; the live turn = wax-red seal */
 .pp-progress-dot.done {
-  background: #2ed573;
+  background: var(--royal-gold);
+  box-shadow: inset 0 0 0 1px rgba(120, 90, 30, 0.6);
 }
 
 .pp-progress-dot.current {
-  background: var(--gb-cyan);
-  box-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+  background: var(--royal-crimson);
+  box-shadow:
+    inset 0 0 0 1px rgba(231, 204, 122, 0.55),
+    0 0 10px rgba(210, 178, 90, 0.45);
 }
 
 /* Animation */
@@ -17176,7 +17511,8 @@ button svg.lucide,
   .pp-advance-btn { transition: none; }
 }
 
-/* PP transition screen (between turns only — no wrapper around game) */
+/* PP transition screen (between turns only — no wrapper around game).
+   Candlelit interrogation-room wash instead of flat black. */
 .pp-transition-screen {
   position: fixed;
   inset: 0;
@@ -17185,11 +17521,23 @@ button svg.lucide,
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  background: rgba(0, 0, 0, 0.92);
+  gap: clamp(16px, 3.5svh, 24px);
+  background:
+    radial-gradient(120% 90% at 50% 20%, rgba(42, 30, 38, 0.97), rgba(12, 9, 12, 0.98));
   animation: pp-fade-in 0.3s ease;
   text-align: center;
-  padding: 32px 24px;
+  padding:
+    max(24px, env(safe-area-inset-top, 0px)) 24px
+    max(24px, env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* eyebrow over the name: quiet parchment, not a platform grey */
+.pp-transition-screen .pp-pass-label {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  color: var(--parchment-dark);
+  letter-spacing: 0.24em;
 }
 
 /* PP "Pass Device" modal — covers game after turn is done */
@@ -17200,7 +17548,7 @@ button svg.lucide,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(12, 9, 12, 0.88);
   animation: pp-fade-in 0.25s ease;
   padding: 24px;
 }
@@ -17211,14 +17559,21 @@ button svg.lucide,
   align-items: center;
   gap: 16px;
   padding: 32px 28px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   max-width: 320px;
   width: 100%;
   text-align: center;
+  /* candlelit dossier panel (see .hg-panel / .hg-candlelight) */
+  background:
+    radial-gradient(700px at 30% 12%, rgba(246, 240, 230, 0.07), transparent 58%),
+    linear-gradient(135deg, rgba(52, 38, 47, 0.88), rgba(36, 27, 34, 0.72));
+  border: 1px solid rgba(210, 178, 90, 0.4);
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(210, 178, 90, 0.3);
 }
 
+/* the "filed" stamp — a gold wax seal, not a platform green tick */
 .pp-advance-check {
   width: 48px;
   height: 48px;
@@ -17226,36 +17581,31 @@ button svg.lucide,
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #2ed573;
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: 700;
+  background: radial-gradient(circle at 34% 30%, #fbeec0 0 20%, var(--royal-gold) 52%, var(--royal-gold-dark) 100%);
+  border: 1px solid rgba(120, 90, 30, 0.7);
+  color: var(--royal-crimson-dark);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
 .pp-advance-label {
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: var(--parchment);
   margin: 0;
 }
 
+/* colour/border/press feedback come from .ps-btn--primary (applied in the TSX) */
 .pp-advance-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 14px 32px;
-  border: none;
-  border-radius: var(--radius-xl);
-  background: var(--gb-pink);
-  color: #fff;
+  min-height: 50px;
+  padding: 14px 30px;
   font-size: 1rem;
-  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(255, 0, 136, 0.4);
-  transition: transform 0.15s;
-}
-
-.pp-advance-btn:active {
-  transform: scale(0.96);
 }
 
 

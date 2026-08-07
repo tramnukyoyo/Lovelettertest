@@ -136,12 +136,13 @@ const PortalCloseOverlay: React.FC<PortalCloseOverlayProps> = ({
         {/* Progress ring */}
         <svg className="portal-ring" viewBox="0 0 180 180">
           <defs>
-            {/* Prairie sunset arc: sun core → cream → amber → orange */}
+            {/* Candlelit arc: parchment → royal gold → wax seal (was a leftover
+                prairie-sunset amber/orange ramp). */}
             <linearGradient id="portalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ffe9a8" />
-              <stop offset="33%" stopColor="#ffd084" />
-              <stop offset="66%" stopColor="#ffb648" />
-              <stop offset="100%" stopColor="#e0763c" />
+              <stop offset="0%" stopColor="#f6f0e6" />
+              <stop offset="33%" stopColor="#e7cc7a" />
+              <stop offset="66%" stopColor="#d2b25a" />
+              <stop offset="100%" stopColor="#8a2233" />
             </linearGradient>
           </defs>
           <circle className="portal-ring-bg" cx="90" cy="90" r={radius} />

@@ -126,6 +126,12 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
+  /** Client mirror of the server token target (identical to VictoryScreen's
+   *  getTokensToWin / GuestBriefingPanel) so the table, the seats and the
+   *  round-over screen can never disagree about the win condition. */
+  const tokensToWin = lobby.players.length === 2 ? 7 : lobby.players.length === 3 ? 5 : 4;
+  const tokensLabel = t('game.tokensLabel');
+
   // Case Log = system/game-log events ONLY (player chat lives in the rail).
   const caseLog = (lobby.messages || []).filter(m => m.playerId === 'system' || (m as any).isSystem);
 
@@ -427,10 +433,10 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
         {/* Case Log — always-visible bottom-LEFT corner panel (system events only) */}
         {!isBroadcastMirror && (
-          <div className="ps-caselog" aria-label={t('caseNotes.title')}>
+          <div className="ps-caselog" aria-label={t('caseNotes.caseLog')}>
             <div className="ps-caselog-header">
               <ScrollText size={12} className="ps-caselog-icon" />
-              <span className="ps-caselog-title">{t('caseNotes.title')}</span>
+              <span className="ps-caselog-title">{t('caseNotes.caseLog')}</span>
               <span className="ps-caselog-count">{caseLog.length}</span>
             </div>
             <div className="ps-caselog-body">
@@ -447,17 +453,17 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
         )}
 
         {/* TOP SECTION: Opponents Area - Dark Table Surface */}
-        <div className="ps-opponents-area relative flex-[3] min-h-0 p-3 flex items-center justify-center gap-6 overflow-hidden">
+        <div className="ps-opponents-area relative flex-[27] min-h-0 p-3 flex items-center justify-center gap-6 overflow-hidden">
 
           {otherPlayers.map(player => (
              <div
                 key={player.id}
                 className={`
                     relative ps-suspect flex flex-col items-center transition-all p-2 rounded-xl
-                    ${player.isEliminated ? 'opacity-50 grayscale cursor-not-allowed' : player.isImmune && selectedCard !== 1 ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
-                    ${targetId === player.id ? 'ps-opp-targeted bg-[rgba(var(--accent-color-rgb),0.2)] ring-4 ring-[var(--royal-gold)] scale-105' : ''}
+                    ${player.isEliminated ? 'ps-suspect--closed cursor-not-allowed' : player.isImmune && selectedCard !== 1 ? 'cursor-not-allowed' : 'cursor-pointer'}
+                    ${player.isImmune && !player.isEliminated ? 'ps-suspect--sealed' : ''}
+                    ${targetId === player.id ? 'ps-opp-targeted bg-[rgba(var(--accent-color-rgb),0.2)]' : ''}
                     ${lobby.gameData?.currentTurn === player.id ? 'ps-opp-active bg-[rgba(var(--primary-rgb),0.10)]' : ''}
-                    ${player.isImmune && selectedCard === 1 ? 'ring-2 ring-yellow-500/50' : ''}
                 `}
                 onClick={() => {
                   if (player.isEliminated || !player.id) return;
@@ -493,13 +499,23 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                             {player.isBot && <Bot size={12} color="var(--parchment-dark)" />}
                         </div>
                         <div className="hg-meta flex items-center gap-2 text-[10px]">
-                             <span className="ps-token-mini"><span className="ps-token-mini-disc" aria-hidden="true">★</span>{t('game.tokens').replace('{count}', String(player.tokens))}</span>
+                             <span
+                               className="ps-token-mini"
+                               title={t('game.tokens').replace('{count}', String(player.tokens))}
+                             >
+                               <span className="ps-token-mini-disc" aria-hidden="true" />
+                               <span className="ps-token-mini-count">{player.tokens} / {tokensToWin}</span>
+                             </span>
                         </div>
                     </div>
-                    {/* Eliminated Overlay */}
+                    {/* Lawyer immunity → gold wax seal ribbon across the file corner */}
+                    {player.isImmune && !player.isEliminated && (
+                        <span className="ps-seal-ribbon" aria-hidden="true" />
+                    )}
+                    {/* Eliminated → the file is closed: desaturated + red wax stamp */}
                     {player.isEliminated && (
-                        <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center">
-                            <Skull className="w-6 h-6 text-[var(--royal-crimson-light)]" />
+                        <div className="ps-closed-overlay">
+                            <span className="ps-closed-stamp">{t('game.caseClosed')}</span>
                         </div>
                     )}
                 </div>
@@ -549,11 +565,14 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
         </div>
 
         {/* MIDDLE SECTION: Deck Area */}
-        <div className="bg-[rgba(0,0,0,0.22)] p-2 flex-[4] min-h-0 flex relative shadow-inner border-y border-[rgba(var(--accent-color-rgb),0.12)]">
+        <div className="ps-evidence-band p-2 flex-[26] min-h-0 flex relative shadow-inner">
 
           {/* Center Area: Deck & Discard - No Border */}
           <div className="flex-1 flex flex-row items-center justify-center gap-20 relative">
             <div className="ps-deck-evidence-row flex flex-row items-center justify-center gap-20">
+              {/* The desk the two piles sit ON — torn-parchment top edge, velvet
+                  blotter, gold hairline. Decoration only; hugs the pile row. */}
+              <div className="ps-evidence-desk" aria-hidden="true" />
               {/* Discard Pile */}
               <div className="flex flex-col items-center relative">
                  <h3 className="text-sm font-bold text-[var(--royal-gold-light)] uppercase tracking-wider mb-2">
@@ -656,7 +675,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                     )}
 
                     {lastDiscardEvent && (
-                      <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
+                      <div className="ps-evidence-stamp absolute left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
                         <span className="hg-stamp text-[var(--parchment)] px-3 py-1 rounded-full text-[10px] font-bold">
                           {t('evidence.latestEvidence')}: {getTranslatedCardName(lastDiscardEvent.card as any, language)}
                           {typeof lastDiscardOrder === 'number' ? ` #${lastDiscardOrder}` : ''} - {lastDiscardEvent.playerName}
@@ -673,7 +692,16 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   Case File <span className="text-[var(--parchment-dark)]">({lobby.gameData.deckCount})</span>
                 </h3>
                 <div
-                    className={`relative hg-deck-card transition-all ${waitingToDraw ? 'cursor-pointer hover:scale-105' : ''}${drawHint ? ' idle-hint' : ''}`}
+                    className={`relative hg-deck-card transition-all${waitingToDraw ? ' ps-deck-ready cursor-pointer' : ''}${drawHint ? ' idle-hint' : ''}`}
+                    role={waitingToDraw ? 'button' : undefined}
+                    tabIndex={waitingToDraw ? 0 : undefined}
+                    aria-label={waitingToDraw ? t('game.draw') : undefined}
+                    onKeyDown={(e) => {
+                      if (!waitingToDraw) return;
+                      if (e.key !== 'Enter' && e.key !== ' ') return;
+                      e.preventDefault();
+                      if (socket.connected && !drawPendingRef.current) { drawPendingRef.current = true; playDrawSound(); socket.emit('player:draw', {}); }
+                    }}
                     onClick={() => { if (waitingToDraw && socket.connected && !drawPendingRef.current) { drawPendingRef.current = true; playDrawSound(); socket.emit('player:draw', {}); } }}
                 >
                   {/* Detective decoration: rotated rubber CLASSIFIED stamp (decorative only) */}
@@ -704,12 +732,11 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                           <img src={CARD_BACK_IMAGE} alt="Draw" className="w-full h-full object-cover rounded-xl shadow-2xl" />
                       </motion.div>
                   )}
-                  {/* Draw indicator */}
+                  {/* Draw indicator — THE primary call to action on a draw turn
+                      (the tray keeps only a quiet YOUR TURN status pill). */}
                   {waitingToDraw && (
-                      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap">
-                          <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-                            {t('game.draw')}
-                          </span>
+                      <div className="ps-deck-draw-cta z-50 whitespace-nowrap">
+                          <span className="ps-deck-draw-label">{t('game.draw')}</span>
                       </div>
                   )}
                 </div>
@@ -725,23 +752,28 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
 
         {/* BOTTOM SECTION: Player Area */}
         <div className={`
-          bg-[rgba(0,0,0,0.20)] flex-[3] min-h-0 p-3 relative flex flex-col overflow-hidden transition-all border-t border-[rgba(var(--accent-color-rgb),0.10)]
-          ${amEliminated ? 'opacity-50 grayscale' : ''}
-          ${isMyTurn && !amEliminated ? 'ring-2 ring-[var(--royal-gold)] ring-inset shadow-[inset_0_0_30px_rgba(var(--accent-color-rgb),0.28)]' : ''}
+          ps-hand-tray flex-[27] min-h-0 p-3 relative flex flex-col overflow-hidden transition-all
+          ${amEliminated ? 'ps-hand-tray--closed' : ''}
+          ${isMyTurn && !amEliminated ? 'ps-hand-tray--active' : ''}
         `}>
-            <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[rgba(var(--accent-color-rgb),0.18)] via-[rgba(var(--accent-color-rgb),0.45)] to-[rgba(var(--accent-color-rgb),0.18)] ${isMyTurn ? 'animate-pulse' : ''}`}></div>
+            <div className={`ps-tray-rule ${isMyTurn ? 'is-live' : ''}`} aria-hidden="true"></div>
 
-            <div className="flex items-center gap-3 mb-3 z-10 relative">
+            <div className="ps-tray-toolbar flex items-center gap-3 mb-3 z-10 relative">
               <motion.span
-                className={`ps-token-coin${tokensIncreased ? ' is-pulse' : ''}`}
-                animate={tokensIncreased ? { scale: [1, 1.18, 1] } : {}}
+                className={`ps-token-track${tokensIncreased ? ' is-pulse' : ''}`}
+                animate={tokensIncreased ? { opacity: [1, 0.55, 1] } : {}}
                 transition={{ duration: 0.6 }}
+                title={t('game.tokens').replace('{count}', String(me?.tokens || 0))}
               >
-                <span className="ps-token-disc" aria-hidden="true">★</span>
-                {t('game.tokens').replace('{count}', String(me?.tokens || 0))}
+                <span className="ps-token-track-label">{tokensLabel}</span>
+                <span className="ps-token-seals" aria-hidden="true">
+                  {Array.from({ length: tokensToWin }).map((_, i) => (
+                    <span key={`seal-${i}`} className={`ps-seal${i < (me?.tokens || 0) ? ' is-filled' : ''}`} />
+                  ))}
+                </span>
+                <span className="ps-token-track-count">{me?.tokens || 0} / {tokensToWin}</span>
               </motion.span>
-              {isMyTurn && <span className="ps-turn-badge">⚖ {t('game.yourTurn')}</span>}
-              {waitingToDraw && <span className="ps-chip ps-chip--draw">{t('game.drawCard')}</span>}
+              {isMyTurn && <span className="ps-turn-badge">{t('game.yourTurn')}</span>}
               {mustPlayAccomplice && !waitingToDraw && (
                 <span className="ps-chip ps-chip--warn">
                   {t('game.mustPlayAccomplice')}

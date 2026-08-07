@@ -63,9 +63,13 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
     description: t(s.descriptionKey)
   })), [language]);
 
-  // Auto-play logic for sidebar variant
+  // Auto-play logic for sidebar variant.
+  // Auto-advancing slides IS motion: honour prefers-reduced-motion by holding
+  // the slide still (the dots stay clickable, so nothing becomes unreachable).
   useEffect(() => {
     if (variant !== 'sidebar' || !autoPlay) return;
+    if (typeof window !== 'undefined'
+      && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
 
     const timer = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % slideData.length);

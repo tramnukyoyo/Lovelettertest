@@ -1,6 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Shield, Crown, Skull, Bot } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Shield, Crown, Skull, Bot, ChevronRight } from 'lucide-react';
 import type { CardType, Player } from '../../types';
 import DynamicCard from './DynamicCard';
 import { CARD_BACK_IMAGE } from './cardDatabase';
@@ -40,18 +39,53 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
+  // Horizontal overflow tracking — the strip runs full-width across the top of
+  // the portrait table; with 4+ suspects it scrolls, so it needs a real
+  // affordance (edge fades + a tappable chevron), never a silent clip.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [overflow, setOverflow] = useState({ left: false, right: false });
+
+  const measure = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setOverflow({
+      left: el.scrollLeft > 4,
+      right: max > 4 && el.scrollLeft < max - 4,
+    });
+  }, []);
+
+  useEffect(() => {
+    measure();
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [measure, players.length]);
+
+  const scrollForward = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: Math.round(el.clientWidth * 0.7), behavior: 'smooth' });
+  }, []);
+
   if (players.length === 0) {
     return (
-      <div className="flex items-center justify-center h-24 text-[var(--parchment-dark)] italic text-sm">
+      <div className="flex items-center justify-center h-full text-[var(--parchment-dark)] italic text-sm">
         {t('game.waitingForOpponents')}
       </div>
     );
   }
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="hg-suspects-strip relative w-full h-full">
       {/* Scroll container with snap */}
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 scrollbar-hide">
+      <div
+        ref={scrollRef}
+        onScroll={measure}
+        className="hg-suspects-track flex h-full items-start overflow-x-auto overflow-y-hidden snap-x snap-mandatory gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 scrollbar-hide"
+      >
         {players.map((player) => {
           const isCurrentTurn = currentTurnId === player.id;
           const isTargeted = targetId === player.id;
@@ -61,28 +95,27 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
           const canTarget = !isEliminated && (!isImmune || selectedCard === 1);
 
           return (
-            <motion.div
+            <div
               key={player.id}
               className={`
-                snap-center flex-shrink-0 flex flex-col items-center p-1.5 sm:p-2 rounded-xl transition-all
+                hg-suspect-tile snap-center flex-shrink-0 flex flex-col items-center p-1.5 sm:p-2 rounded-xl
                 min-w-[80px] sm:min-w-[100px] max-w-[100px] sm:max-w-[120px]
-                ${isEliminated ? 'opacity-50 grayscale' : ''}
-                ${!canTarget && !isEliminated ? 'opacity-70' : ''}
-                ${isTargeted ? 'bg-[rgba(var(--accent-color-rgb),0.2)] ring-2 ring-[var(--royal-gold)] scale-105' : ''}
-                ${isCurrentTurn ? 'ring-2 ring-[var(--royal-crimson)] bg-[rgba(var(--primary-rgb),0.10)]' : ''}
-                ${isImmune && selectedCard === 1 ? 'ring-1 ring-yellow-500/50' : ''}
-                ${canTarget ? 'cursor-pointer active:scale-95' : 'cursor-not-allowed'}
+                ${isEliminated ? 'is-out' : ''}
+                ${!canTarget && !isEliminated ? 'is-protected' : ''}
+                ${isTargeted ? 'is-targeted' : ''}
+                ${isCurrentTurn ? 'is-turn' : ''}
+                ${isImmune && selectedCard === 1 ? 'is-piercable' : ''}
+                ${canTarget ? 'is-targetable' : 'is-locked'}
               `}
               onClick={() => {
                 if (canTarget && player.id) {
                   onSelectTarget(player.id);
                 }
               }}
-              whileTap={canTarget ? { scale: 0.95 } : undefined}
             >
               {/* Avatar with status indicators */}
-              <div className="relative mb-1 sm:mb-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden">
+              <div className="relative mb-1">
+                <div className="hg-suspect-avatar w-10 h-10 rounded-full bg-gradient-to-br from-[var(--royal-gold)] to-[var(--royal-crimson)] p-0.5 overflow-hidden">
                   <div className="w-full h-full rounded-full bg-[var(--velvet-dark)] overflow-hidden">
                     <Avatar
                       src={player.avatarUrl}
@@ -109,20 +142,20 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
 
               {/* Player name */}
               <div className="flex items-center gap-1 max-w-full">
-                <FlairName player={player} className="text-xs font-bold text-[var(--parchment)] truncate" />
-                {player.isHost && <Crown size={12} color="var(--royal-gold)" style={{flexShrink:0}} />}
-                {player.isBot && <Bot size={12} color="var(--parchment-dark)" style={{flexShrink:0}} />}
+                <FlairName player={player} className="hg-suspect-name text-xs font-bold text-[var(--parchment)] truncate" />
+                {player.isHost && <Crown size={12} color="var(--royal-gold)" style={{ flexShrink: 0 }} />}
+                {player.isBot && <Bot size={12} color="var(--parchment-dark)" style={{ flexShrink: 0 }} />}
               </div>
 
               {/* Tokens */}
-              <div className="text-xs text-[var(--parchment-dark)] flex items-center gap-1">
+              <div className="hg-suspect-tokens text-xs text-[var(--parchment-dark)] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--royal-crimson)]" />
                 {t('game.tokens').replace('{count}', String(player.tokens))}
               </div>
 
               {/* Card count / preview */}
               <div
-                className="mt-1 sm:mt-2 relative"
+                className="hg-suspect-cards mt-1 relative"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (onInspectOpponent) {
@@ -138,7 +171,6 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
                     return (
                       <div
                         key={`opponent-card-${player.id}-${i}`}
-                        className="transition-all"
                         style={{
                           transform: `rotate(${(i - 0.5) * 8}deg)`,
                           zIndex: i,
@@ -157,7 +189,7 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
                             <DynamicCard
                               cardType={cardToDisplay}
                               showFace={true}
-                              className="hg-mobile-hand-card"
+                              className="hg-mobile-suspect-card"
                             />
                           </div>
                         ) : (
@@ -181,17 +213,25 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
                   </div>
                 )}
               </div>
-            </motion.div>
+            </div>
           );
         })}
       </div>
 
-      {/* Fade edges to indicate scrollability */}
-      {players.length > 3 && (
-        <>
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[var(--velvet-dark)] to-transparent pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[var(--velvet-dark)] to-transparent pointer-events-none" />
-        </>
+      {/* Edge fades — only when the strip actually overflows in that direction */}
+      {overflow.left && <div className="hg-suspects-fade hg-suspects-fade--left" aria-hidden="true" />}
+      {overflow.right && <div className="hg-suspects-fade hg-suspects-fade--right" aria-hidden="true" />}
+
+      {/* Tappable "more suspects" chevron (never a silent clip) */}
+      {overflow.right && (
+        <button
+          type="button"
+          className="hg-suspects-more"
+          onClick={scrollForward}
+          aria-label={t('mobile.moreSuspects')}
+        >
+          <ChevronRight size={16} aria-hidden="true" />
+        </button>
       )}
     </div>
   );

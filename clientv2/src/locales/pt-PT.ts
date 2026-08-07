@@ -117,6 +117,9 @@ export const ptPT: Translations = {
     login: 'Entrar',
     loginTitle: 'Inicia sessão ou regista-te para guardar o teu progresso, GP e premium',
     logout: 'Sair',
+    phaseLobby: 'CASO PENDENTE',
+    phasePlaying: 'CASO ABERTO',
+    phaseEnded: 'CASO ENCERRADO',
   },
 
   // Video
@@ -330,11 +333,17 @@ export const ptPT: Translations = {
     close: 'Fechar notificacao',
   },
 
+  // Achievement toast
+  achievementToast: {
+    unlocked: 'Conquista desbloqueada',
+  },
+
   // Error boundary
   // AI-TRANSLATED on 2026-05-19, please review
   errorBoundary: {
-    title: 'Algo correu mal',
-    message: 'Lamentamos, mas algo inesperado aconteceu.',
+    title: 'O processo rasgou-se',
+    message: 'Algo na sala de provas avariou-se.',
+    overline: 'Sala de provas',
     refresh: 'Recarregar pagina',
     goHome: 'Ir para o inicio',
   },
@@ -388,6 +397,9 @@ export const ptPT: Translations = {
     buying: 'A comprar…',
     buyFor: 'Comprar · {gp} GP',
     foreverEverywhere: '{name} é teu para sempre — no GameBuddies e em todos os jogos.',
+    equipped: 'EQUIPADO',
+    premiumTitle: 'Exclusivos Premium',
+    cardBackPreviewCaption: 'como a tua mão aparece à mesa',
   },
 
   // Streamer broadcast stage
@@ -590,12 +602,17 @@ export const ptPT: Translations = {
     invalidRoomCode: 'Por favor, introduz um codigo de sala valido',
     contentFilterTitle: 'Filtro de conteudo',
     contentFilterBody: 'Bloqueado pelo filtro de conteudo, tenta outras palavras.',
+    serverRejectedTitle: 'O processo foi rejeitado',
   },
 
   // Reconnect Overlay
   reconnect: {
-    frozenTitle: 'Ligação perdida',
-    frozenBody: 'Jogo em pausa. A religar — vais continuar exatamente onde paraste.',
+    frozenTitle: 'INVESTIGAÇÃO INTERROMPIDA',
+    frozenBody: 'O processo fica selado até a ligação voltar. Nada do que anotaste se perde.',
+    frozenOverline: 'Caso em pausa',
+    attempt: 'Tentativa {n}',
+    retrying: 'A restabelecer a ligação',
+    restoredOverline: 'Caso reaberto',
     title: 'Jogo restaurado',
     playersReconnected: '{connected}/{total} reconectados',
     resumeGame: 'Continuar jogo',
@@ -667,8 +684,8 @@ export const ptPT: Translations = {
   xp: {
     levelUp: 'SUBIU DE NÍVEL!',
     xpGained: 'XP GANHO',
-    victory: '🏆 Vitória',
-    played: '💪 Jogou',
+    victory: 'Vitória',
+    played: 'Jogou',
     dismiss: 'Dispensar notificação',
     base: 'Base',
     win: 'Vitória',
@@ -709,5 +726,7 @@ export const ptPT: Translations = {
     collapseSidebar: 'Recolher barra lateral',
     showSidebar: 'Mostrar barra lateral',
     hideSidebar: 'Ocultar barra lateral',
+    showMenu: 'Mostrar menu',
+    hideMenu: 'Ocultar menu',
   },
 };

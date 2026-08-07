@@ -117,6 +117,9 @@ export const de: Translations = {
     login: 'Anmelden',
     loginTitle: 'Melde dich an oder registriere dich, um Fortschritt, GP und Premium zu sichern',
     logout: 'Abmelden',
+    phaseLobby: 'FALL ANHÄNGIG',
+    phasePlaying: 'FALL OFFEN',
+    phaseEnded: 'FALL GESCHLOSSEN',
   },
 
   // Video
@@ -321,11 +324,17 @@ export const de: Translations = {
     close: 'Benachrichtigung schließen',
   },
 
+  // Achievement toast
+  achievementToast: {
+    unlocked: 'Erfolg freigeschaltet',
+  },
+
   // Error boundary
   // AI-TRANSLATED on 2026-05-19, please review
   errorBoundary: {
-    title: 'Etwas ist schiefgelaufen',
-    message: 'Es tut uns leid, aber etwas Unerwartetes ist passiert.',
+    title: 'Die Akte ist zerrissen',
+    message: 'Etwas im Beweisraum ist kaputtgegangen.',
+    overline: 'Beweisraum',
     refresh: 'Seite neu laden',
     goHome: 'Zur Startseite',
   },
@@ -379,6 +388,9 @@ export const de: Translations = {
     buying: 'Wird gekauft…',
     buyFor: 'Kaufen · {gp} GP',
     foreverEverywhere: '{name} gehört dir für immer — auf GameBuddies und in jedem Spiel.',
+    equipped: 'AUSGERÜSTET',
+    premiumTitle: 'Premium-Exklusivartikel',
+    cardBackPreviewCaption: 'wie deine Hand am Tisch aussieht',
   },
 
   // Streamer broadcast stage
@@ -581,11 +593,16 @@ export const de: Translations = {
     invalidRoomCode: 'Bitte gib einen gültigen Raum-Code ein',
     contentFilterTitle: 'Inhaltsfilter',
     contentFilterBody: 'Vom Inhaltsfilter blockiert — bitte anders formulieren.',
+    serverRejectedTitle: 'Die Akte wurde abgelehnt',
   },
 
   reconnect: {
-    frozenTitle: 'Verbindung unterbrochen',
-    frozenBody: 'Spiel pausiert. Verbindung wird wiederhergestellt – es geht genau dort weiter, wo ihr aufgehört habt.',
+    frozenTitle: 'ERMITTLUNG UNTERBROCHEN',
+    frozenBody: 'Die Akte ist versiegelt, bis die Leitung zurück ist. Nichts von deinen Notizen geht verloren.',
+    frozenOverline: 'Fall pausiert',
+    attempt: 'Versuch {n}',
+    retrying: 'Leitung wird wiederhergestellt',
+    restoredOverline: 'Fall wieder eröffnet',
     title: 'Spiel wiederhergestellt',
     playersReconnected: '{connected}/{total} verbunden',
     resumeGame: 'Spiel fortsetzen',
@@ -657,8 +674,8 @@ export const de: Translations = {
   xp: {
     levelUp: 'LEVEL-UP!',
     xpGained: 'XP ERHALTEN',
-    victory: '🏆 Sieg',
-    played: '💪 Gespielt',
+    victory: 'Sieg',
+    played: 'Gespielt',
     dismiss: 'Benachrichtigung schließen',
     base: 'Basis',
     win: 'Sieg',
@@ -699,5 +716,7 @@ export const de: Translations = {
     collapseSidebar: 'Seitenleiste einklappen',
     showSidebar: 'Seitenleiste anzeigen',
     hideSidebar: 'Seitenleiste ausblenden',
+    showMenu: 'Menü anzeigen',
+    hideMenu: 'Menü ausblenden',
   },
 };

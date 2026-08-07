@@ -178,16 +178,52 @@
   box-shadow: 2px 2px 0 0 var(--px-border-dark);
 }
 
-.game-header-phase-badge {
+/* Phase chip — a small case-status stamp beside the room code. GameHeader only
+   renders it when the phase resolves to real copy, so this box never paints
+   around an empty string (the old lowercase switch made it do exactly that).
+   Colour comes from is-* modifiers redefining ONE local custom prop. */
+.game-header .game-header-phase-badge {
+  --phase-accent: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--bg-darker);
-  border: 1.5px solid var(--px-border);
+  border: 1.5px solid color-mix(in srgb, var(--phase-accent) 42%, var(--px-border));
   border-radius: 0;
   font-family: var(--font-title);
   font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  color: var(--primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--phase-accent);
   box-shadow: 2px 2px 0 0 var(--px-border-dark);
+}
+
+.game-header .game-header-phase-badge.is-lobby { --phase-accent: var(--text-secondary); }
+.game-header .game-header-phase-badge.is-playing { --phase-accent: var(--primary); }
+.game-header .game-header-phase-badge.is-ended { --phase-accent: var(--gb-lie); }
+
+/* Status dot: steady in lobby/end, a slow candle-pulse while the case is live */
+.game-header-phase-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  background: var(--phase-accent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--phase-accent) 60%, transparent);
+}
+
+.game-header-phase-badge.is-playing .game-header-phase-dot {
+  animation: phaseDotPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes phaseDotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-header-phase-badge.is-playing .game-header-phase-dot { animation: none; }
 }
 
 /* Right Section - Controls */
@@ -316,6 +352,125 @@
 .desktop-only { display: flex; }
 
 /* ====== GAME HEADER RESPONSIVE ====== */
+
+/* Narrow desktop (1024–1440): the full control row (video · language · mute ·
+   feedback · settings · try-another-game · return-to-lobby · leave · account)
+   no longer fits at 1.5rem padding + 0.75rem gaps, so every label used to wrap
+   — the wordmark broke into "Prime / Suspect" and the buttons grew ragged
+   internal baselines. Tighten the rhythm and forbid wrapping instead: one line,
+   smaller type, same controls.
+   NOTE on specificity: prime-suspect-unified.css re-declares the un-prefixed
+   header classes LATER in the cascade (.game-header-container padding 1.5rem,
+   .game-header-right gap .75rem, .game-header-logo-text 1.125rem), so every
+   rule here is scoped to `.game-header …` to out-specify it. */
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  .game-header .game-header-container { padding: 0 0.85rem; }
+
+  .game-header .game-header-left { gap: 0.6rem; }
+
+  .game-header .game-header-right { gap: 0.4rem; }
+
+  .game-header .game-header-logo-text {
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .game-header .game-header-logo-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .game-header .game-header-gb-branding {
+    font-size: 0.58rem;
+    white-space: nowrap;
+  }
+
+  .game-header .game-header-room-code { padding: 2px 0.4rem; }
+
+  .game-header .game-header-room-label { font-size: 0.75rem; }
+
+  .game-header .game-header-room-value { font-size: 0.9rem; }
+
+  .game-header .game-header-phase-badge {
+    padding: 2px 0.45rem;
+    font-size: 0.68rem;
+  }
+
+  /* Action buttons: one nowrap line each, tighter face */
+  .game-header .game-header-lobby-btn,
+  .game-header .game-header-leave-btn,
+  .game-header .game-header-account-chip {
+    padding-inline: 0.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  /* The prime-suspect theme layer sets padding/font-size on these two with
+     !important, so the narrow-desktop tier has to answer in kind. */
+  .game-header .video-join-btn {
+    padding: 0.42rem 0.6rem !important;
+    font-size: 0.72rem !important;
+    white-space: nowrap;
+  }
+
+  .game-header .gamebuddies-return-btn.inline {
+    padding: 0.28rem 0.5rem !important;
+    font-size: 0.68rem !important;
+    white-space: nowrap;
+  }
+
+  .game-header .video-join-text,
+  .game-header .game-header-account-name {
+    white-space: nowrap;
+  }
+
+  /* two-line return label: both lines nowrap, one notch smaller
+     (out-specifies the theme's .gamebuddies-return-btn.inline .gb-return-*) */
+  .game-header .gamebuddies-return-btn.inline .gb-return-main {
+    font-size: 0.68rem;
+    white-space: nowrap;
+  }
+
+  .game-header .gamebuddies-return-btn.inline .gb-return-sub {
+    font-size: 0.52rem;
+    white-space: nowrap;
+  }
+
+  .game-header .game-header-gp {
+    padding: 2px 6px;
+    font-size: 0.72rem;
+  }
+
+  .game-header .game-header-settings-btn,
+  .game-header .game-header-leave-btn,
+  .game-header .game-header-lobby-btn {
+    min-width: 34px;
+    min-height: 34px;
+    padding-block: 0.35rem;
+  }
+}
+
+/* Small desktop (1024–1280): the compact tier above still measures ~1170px of
+   controls, so the lowest-information labels drop to icon-only (both keep
+   title + aria-label). Icon-only beats a wrapped or clipped row — and the row
+   is now nowrap, so it MUST fit. */
+@media (min-width: 1024px) and (max-width: 1279.98px) {
+  .game-header .game-header-right { gap: 0.3rem; }
+
+  .game-header .game-header-divider { display: none; }
+
+  .game-header .game-header-room-label { display: none; }
+
+  .game-header .game-header-btn-label { display: none; }
+
+  .game-header .video-join-text { display: none; }
+
+  .game-header .game-header-lobby-btn,
+  .game-header .game-header-leave-btn {
+    padding-inline: 0.45rem;
+  }
+}
 
 /* Mobile (< 1024px) */
 @media (max-width: 1023px) {

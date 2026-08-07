@@ -13,10 +13,11 @@
  * locked items can be TRIED ON before the bottom-sheet confirmation commits
  * the buy.
  */
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Crown, Lock, Coins, Check } from 'lucide-react';
 import type { Player } from '../../types';
-import { t } from '../../utils/translations';
+import { t, getTranslations } from '../../utils/translations';
+import ScrollHint from '../../shell/ScrollHint';
 import {
   usePlatformCosmetics, requestPlatformCosmetics, buyPlatformCosmetic, equipPlatformCosmetic,
   type IdentityCatalogItem,
@@ -28,6 +29,21 @@ import { Avatar } from '../core/Avatar';
 import DynamicCard from '../hearts-gambit/DynamicCard';
 
 type Slot = 'frame' | 'flair';
+
+/**
+ * Optional copy lookup — returns '' (instead of the raw key + a console warn)
+ * when a key has not been added to the locale tables yet, so a label that is
+ * still awaiting copy simply doesn't render rather than printing its key.
+ */
+const optionalCopy = (path: string): string => {
+  let value: unknown = getTranslations();
+  for (const key of path.split('.')) {
+    if (typeof value === 'object' && value !== null && key in value) {
+      value = (value as Record<string, unknown>)[key];
+    } else return '';
+  }
+  return typeof value === 'string' ? value : '';
+};
 
 interface Props {
   players: Player[];
@@ -83,6 +99,7 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
   const previewFrameName = previewFrameId
     ? (catalogOf('frame').find(c => c.id === previewFrameId)?.name ?? previewFrameId)
     : t('designer.classic');
+  const previewCaption = optionalCopy('designer.cardBackPreviewCaption') || 'how your hand looks to the table';
 
   const pick = (slot: Slot, id: string) => {
     if (unlocked(slot, id)) { setTryOn(null); equip(slot, id); }
@@ -98,102 +115,151 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
   const confirmPrice = confirm ? priceOf(confirm.slot, confirm.id) : 0;
   const confirmBusy = confirm ? platform.busyItemId === confirm.id : false;
 
-  const renderChips = (slot: Slot, current: string) => {
-    const defs: Array<{ id: string; name: string; premiumOnly?: boolean }> = [
+  /** Copy still awaiting the locale tables — renders only once it lands. */
+  const equippedLabel = optionalCopy('designer.equipped');
+  const premiumSectionTitle = optionalCopy('designer.premiumTitle');
+
+  const renderChips = (slot: Slot, current: string, tier: 'standard' | 'premium' | 'all' = 'all') => {
+    const all: Array<{ id: string; name: string; premiumOnly?: boolean }> = [
       { id: '', name: t('designer.classic') },
       ...catalogOf(slot),
     ];
+    const defs = tier === 'all'
+      ? all
+      : all.filter((o) => (tier === 'premium' ? !!o.premiumOnly : !o.premiumOnly));
     return defs.map((opt) => {
       const locked = !!opt.id && !unlocked(slot, opt.id);
       const active = (tryOn?.slot === slot ? tryOn.id : current) === opt.id;
       const isEquipped = !tryOn && current === opt.id;
       const price = opt.id ? priceOf(slot, opt.id) : 0;
       const theme = slot === 'frame' && opt.id ? FRAME_THEMES[opt.id] : undefined;
+      // Three separable tiers: locked (velvet + price tag) · owned (gold
+      // hairline) · equipped (engraved gold face + check).
+      const state = locked ? 'locked' : isEquipped ? 'equipped' : 'owned';
       return (
         <button
           key={opt.id || 'classic'}
           type="button"
-          className={`psshop-chip ${slot === 'flair' && opt.id ? cosmeticClass(opt.id) : ''} ${active ? 'selected' : ''} ${locked ? 'locked' : ''}`}
-          style={theme ? { borderColor: theme.accent, boxShadow: `inset 0 0 6px ${theme.glow}` } : undefined}
+          className={`psshop-chip is-${state}${active ? ' selected' : ''}${locked ? ' locked' : ''}`}
+          /* Frame accent travels as custom props so the tier borders/rings
+             below stay in charge — an inline `border-color`/`box-shadow` would
+             out-rank every state rule. */
+          style={theme ? ({ ['--psshop-accent']: theme.accent, ['--psshop-glow']: theme.glow } as React.CSSProperties) : undefined}
           onClick={() => pick(slot, opt.id)}
           title={opt.name}
+          aria-pressed={isEquipped}
         >
-          {opt.premiumOnly && <Crown size={9} aria-hidden="true" />}
-          {locked ? <Lock size={9} aria-hidden="true" /> : isEquipped ? <Check size={10} aria-hidden="true" /> : null}
-          {opt.name}
+          {opt.premiumOnly && <Crown size={11} aria-hidden="true" className="psshop-chip-glyph" />}
+          {locked
+            ? <Lock size={11} aria-hidden="true" className="psshop-chip-glyph" />
+            : isEquipped ? <Check size={12} aria-hidden="true" className="psshop-chip-glyph" /> : null}
+          {/* The flair gradient lives on the LABEL, never on the button: the
+              gradient recipe sets -webkit-text-fill-color:transparent, which
+              would clip the label to the button's own background. */}
+          <span className={`psshop-chip-label ${slot === 'flair' && opt.id && !isEquipped ? cosmeticClass(opt.id) : ''}`.trim()}>
+            {opt.name}
+          </span>
           {locked && !opt.premiumOnly && <span className="psshop-price" aria-hidden="true">{price}</span>}
+          {isEquipped && equippedLabel && <span className="psshop-chip-state" aria-hidden="true">{equippedLabel}</span>}
         </button>
       );
     });
   };
 
+  /** Premium-exclusive items get their own crown-ruled block per slot. */
+  const hasPremiumTier = (slot: Slot) => catalogOf(slot).some((c) => c.premiumOnly);
+  const renderSlotSection = (slot: Slot, current: string, title: string, hint: string) => (
+    <div className="psshop-section">
+      <div className="psshop-section-title">
+        {title}
+        <span className="psshop-hint">{hint}</span>
+      </div>
+      <div className="psshop-chips">{renderChips(slot, current, 'standard')}</div>
+      {hasPremiumTier(slot) && (
+        <>
+          <div className="psshop-crownrule" aria-hidden="true">
+            <Crown size={12} />
+            {premiumSectionTitle && <span>{premiumSectionTitle}</span>}
+          </div>
+          <div className="psshop-chips psshop-chips--premium">{renderChips(slot, current, 'premium')}</div>
+        </>
+      )}
+    </div>
+  );
+
   return (
     <div className="psshop-backdrop" onClick={onClose}>
       <div className="psshop-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t('designer.cardBackTitle')}>
-        <button className="psshop-close" onClick={onClose} aria-label="Close"><X size={18} /></button>
-        <div className="psshop-head">
-          <h2 className="psshop-title">{t('designer.cardBackTitle')}</h2>
-          {platform.status === 'ready' && !premium && (
-            <span className="psshop-balance" title={t('designer.yourGp')}><Coins size={12} aria-hidden="true" /> {platform.balance.toLocaleString()} GP</span>
+        <button className="psshop-close" onClick={onClose} aria-label={t('common.close')}><X size={18} /></button>
+        {/* Masthead + live preview never scroll: the balance and the dismiss
+            control must stay reachable while reading prices further down. */}
+        <div className="psshop-stage">
+          <div className="psshop-head">
+            <div className="psshop-headline">
+              <span className="psshop-eyebrow">{t('designer.title')}</span>
+              <h2 className="psshop-title">{t('designer.cardBackTitle')}</h2>
+            </div>
+            {platform.status === 'ready' && !premium && (
+              <span className="psshop-balance" title={t('designer.yourGp')}><Coins size={12} aria-hidden="true" /> {platform.balance.toLocaleString()} GP</span>
+            )}
+          </div>
+
+          {/* Live preview — the REAL card backs the table renders (DynamicCard
+              fr-theme token rule), fanned like an opponent's hand. */}
+          <div className="psshop-preview">
+            <div className="psshop-fan">
+              {[0, 1, 2].map((i) => (
+                <DynamicCard
+                  key={i}
+                  cardType={0}
+                  showFace={false}
+                  ownerFrameClass={frameThemeClass(previewFrameId || null)}
+                  className={`psshop-fan-card psshop-fan-card-${i}`}
+                />
+              ))}
+            </div>
+            <span className="psshop-prev-caption">
+              <strong>{previewFrameName}</strong>
+              <span>{previewCaption}</span>
+            </span>
+          </div>
+
+          {/* "Your player card" mini — frame ring + name flair exactly as the
+              roster row + dock chip render them; follows try-ons. */}
+          <div className="psshop-pcard">
+            <span className="psshop-pcard-caption">{t('designer.playerCardCaption')}</span>
+            <div className="psshop-pcard-row">
+              <div className="player-list-items">
+                <div className="player-list-item is-me">
+                  <div className="player-avatar-container">
+                    <span className={previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : undefined} style={previewFrameWrap ? { ['--frame-ring' as string]: '2px' } : undefined}>
+                      <Avatar src={me?.avatarUrl} className="player-avatar" />
+                    </span>
+                  </div>
+                  <div className="player-info"><span className={`player-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span></div>
+                </div>
+              </div>
+              <span className="gs-chip is-me" title={me?.name}>
+                <span className={`gs-chip-av ${previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : ''}`.trim()}>
+                  <Avatar src={me?.avatarUrl} />
+                </span>
+                <span className={`gs-chip-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span>
+              </span>
+            </div>
+          </div>
+
+          {premium && (
+            <p className="psshop-note psshop-note-premium"><Crown size={12} aria-hidden="true" /> {t('designer.premiumIncluded')}</p>
+          )}
+          {platform.status === 'guest' && (
+            <p className="psshop-note">{t('playerList.signInToBuyStyles')}</p>
           )}
         </div>
 
-        {/* Live preview — the REAL card backs the table renders (DynamicCard
-            fr-theme token rule), fanned like an opponent's hand. */}
-        <div className="psshop-preview">
-          <div className="psshop-fan">
-            {[0, 1, 2].map((i) => (
-              <DynamicCard
-                key={i}
-                cardType={0}
-                showFace={false}
-                ownerFrameClass={frameThemeClass(previewFrameId || null)}
-                className={`psshop-fan-card psshop-fan-card-${i}`}
-              />
-            ))}
-          </div>
-          <span className="psshop-prev-caption">{previewFrameName} — how your hand looks to the table</span>
-        </div>
-
-        {/* "Your player card" mini — frame ring + name flair exactly as the
-            roster row + dock chip render them; follows try-ons. */}
-        <div className="psshop-pcard">
-          <span className="psshop-pcard-caption">{t('designer.playerCardCaption')}</span>
-          <div className="psshop-pcard-row">
-            <div className="player-list-items">
-              <div className="player-list-item is-me">
-                <div className="player-avatar-container">
-                  <span className={previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : undefined} style={previewFrameWrap ? { ['--frame-ring' as string]: '2px' } : undefined}>
-                    <Avatar src={me?.avatarUrl} className="player-avatar" />
-                  </span>
-                </div>
-                <div className="player-info"><span className={`player-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span></div>
-              </div>
-            </div>
-            <span className="gs-chip is-me" title={me?.name}>
-              <span className={`gs-chip-av ${previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : ''}`.trim()}>
-                <Avatar src={me?.avatarUrl} />
-              </span>
-              <span className={`gs-chip-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span>
-            </span>
-          </div>
-        </div>
-
-        {premium && (
-          <p className="psshop-note psshop-note-premium"><Crown size={12} aria-hidden="true" /> {t('designer.premiumIncluded')}</p>
-        )}
-        {platform.status === 'guest' && (
-          <p className="psshop-note">{t('playerList.signInToBuyStyles')}</p>
-        )}
-
-        <div className="psshop-section">
-          <div className="psshop-section-title">{t('designer.framesTitle')} <span className="psshop-hint">· {t('designer.framesHint')}</span></div>
-          <div className="psshop-chips">{renderChips('frame', frame)}</div>
-        </div>
-
-        <div className="psshop-section">
-          <div className="psshop-section-title">{t('designer.flairsTitle')} <span className="psshop-hint">· {t('designer.flairsHint')}</span></div>
-          <div className="psshop-chips">{renderChips('flair', flair)}</div>
+        <div className="psshop-body">
+          {renderSlotSection('frame', frame, t('designer.framesTitle'), t('designer.framesHint'))}
+          {renderSlotSection('flair', flair, t('designer.flairsTitle'), t('designer.flairsHint'))}
+          <ScrollHint />
         </div>
 
         {/* Purchase confirmation — bottom sheet so the live preview stays visible. */}

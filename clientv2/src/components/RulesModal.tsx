@@ -183,6 +183,12 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
             <p>{t('rules.important.line2')}</p>
           </div>
         </div>
+
+        {/* Hairline footer — Card Legend and How-to-Play both close on one, so
+            the Rules panel no longer ends on a raw scroll edge. */}
+        <div className="settings-modal-footer">
+          <div className="settings-hint">{t('rules.footer')}</div>
+        </div>
       </div>
     </div>,
     document.body

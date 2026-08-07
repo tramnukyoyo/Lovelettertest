@@ -114,8 +114,24 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       <div className="chat-messages">
         {messages.length === 0 ? (
           <div className="chat-empty">
+            {/* Empty state = a quiet dossier ghost, never a blank box: a
+                watermark print above three unwritten ruled lines. Decoration
+                only — aria-hidden, no pointer events (chat.css). */}
+            <span className="chat-empty-seal" aria-hidden="true">
+              <svg viewBox="0 0 40 40" width="52" height="52" fill="none"
+                stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" focusable="false">
+                <path d="M20 34c-4-3-6-7.5-6-12a6 6 0 0 1 12 0c0 3-.6 6-2 8.6" />
+                <path d="M20 30c-2-2.4-3-5-3-8a3 3 0 0 1 6 0c0 2-.3 3.6-.9 5" />
+                <path d="M9.6 26.6A16 16 0 0 1 8 20a12 12 0 0 1 24 0c0 4-.8 7.8-2.4 11" />
+                <path d="M20 4.6A15.4 15.4 0 0 0 6.6 12" />
+                <path d="M33.4 12A15.4 15.4 0 0 0 24.6 5.2" />
+              </svg>
+            </span>
             <p>{t('chat.noMessages')}</p>
             <p className="chat-empty-hint">{t('chat.sayHello')}</p>
+            <span className="chat-empty-rules" aria-hidden="true">
+              <i /><i /><i />
+            </span>
           </div>
         ) : (
           messages.map((msg) => {

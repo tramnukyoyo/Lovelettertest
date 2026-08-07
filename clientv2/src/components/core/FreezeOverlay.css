@@ -1,21 +1,41 @@
-/* FreezeOverlay - blocking curtain while the socket is dead mid-game.
-   The positioning block mirrors ReconnectOverlay so both outage screens live
-   on the same layer. Every colour falls back to a literal, because this file
-   is byte-identical across the client fleet and not every game defines the
-   same theme variables. */
+/* ============================================================================
+   FreezeOverlay — "INVESTIGATION INTERRUPTED"
+
+   Was: an opaque near-black wall (`background: var(--bg-darker)`) that deleted
+   the noir scene, the case file and the suspects — everything the player is
+   being told is still safe. Now a candlelit scrim: the table stays visible,
+   the card is the thing that goes on hold.
+
+   `--bg-darker` is declared TWICE at :root (prime-suspect-unified.css:163 as
+   `transparent`, base/variables.css:147 as `--velvet-darker`) so the curtain's
+   opacity used to depend on CSS import order. This file no longer consumes it —
+   `--ps-scrim` is explicit and cascade-order-proof.
+   ============================================================================ */
 
 .freeze-overlay {
+  --ps-scrim-core: rgba(18, 13, 17, 0.62);
+  --ps-scrim-edge: rgba(18, 13, 17, 0.92);
+  --ps-gold: var(--royal-gold, #d2b25a);
+  --ps-gold-light: var(--royal-gold-light, #e7cc7a);
+  --ps-wax: var(--wax-seal, #6a1623);
+
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 9998;
+  /* Above the settings modal (9999) so a modal that was open when the line died
+     cannot sit on top of the freeze; below the toast rail (10001) so a kick or
+     admin notice still reaches the player. */
+  z-index: var(--z-outage, 10000);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-darker, #0d0f1a);
-  animation: freeze-fade-in 0.2s ease-out;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 42%, var(--ps-scrim-core) 0%, var(--ps-scrim-edge) 70%);
+  -webkit-backdrop-filter: blur(2px) saturate(0.6);
+  backdrop-filter: blur(2px) saturate(0.6);
+  animation: freeze-fade-in 0.24s ease-out;
   /* Swallow every pointer / touch / scroll gesture aimed at the frozen game
      underneath. The game tree stays mounted behind this, so without these the
      player could still drag, tap and scroll a world that is not advancing. */
@@ -32,71 +52,229 @@
   to { opacity: 1; }
 }
 
+/* ── The case file on hold ────────────────────────────────────────────────── */
+
 .freeze-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
   text-align: center;
-  padding: 2.5rem 2rem;
-  max-width: 380px;
-  width: 90%;
-  border-radius: 0;
-  background: var(--panel-bg, #171a2b);
-  border: 2px solid var(--px-border, #2a2f47);
-  box-shadow: 6px 6px 0 var(--px-border-dark, #0a0c16);
+  padding: 2rem 1.75rem 1.75rem;
+  max-width: 420px;
+  width: 100%;
+  border-radius: var(--radius-md, 8px);
+  background:
+    linear-gradient(180deg, rgba(52, 38, 47, 0.98), rgba(44, 32, 41, 0.99));
+  /* Was `6px 6px 0 var(--px-border-dark)` — the exact colour of the curtain
+     behind it, i.e. mathematically invisible. */
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(246, 240, 230, 0.06);
+  color: var(--parchment, #f6f0e6);
+  cursor: default;
 }
 
-.freeze-icon {
-  font-size: 3rem;
-  line-height: 1;
-  margin-bottom: 1rem;
-  animation: freeze-pulse 2s ease-in-out infinite;
+/* Hairline gold rule under the seal, like a stamped file header. */
+.freeze-card__text::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(210, 178, 90, 0.4), transparent);
+}
+
+/* Wax-seal disc — replaces the ⏸ emoji glyph (owner directive: no emoji). */
+.freeze-seal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%,
+    color-mix(in srgb, var(--ps-wax) 78%, #000 0%) 0%,
+    color-mix(in srgb, var(--ps-wax) 30%, transparent) 100%);
+  border: 1px solid rgba(210, 178, 90, 0.6);
+  box-shadow:
+    0 0 0 6px rgba(210, 178, 90, 0.07),
+    inset 0 2px 6px rgba(0, 0, 0, 0.45);
+  color: var(--ps-gold);
+  animation: freeze-pulse 2.6s ease-in-out infinite;
 }
 
 @keyframes freeze-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.45; }
+  50% { opacity: 0.62; }
+}
+
+.freeze-card__text {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.freeze-eyebrow {
+  margin: 0;
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ps-gold);
+  opacity: 0.85;
 }
 
 .freeze-title {
-  font-size: 1.5rem;
+  margin: 0;
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-size: clamp(1.25rem, 4.5vw, 1.6rem);
   font-weight: 700;
-  color: var(--text-primary, #f7e7c5);
-  margin-bottom: 0.5rem;
-  font-family: var(--font-title, 'Orbitron', sans-serif);
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: var(--parchment, #f6f0e6);
+  overflow-wrap: anywhere;
 }
 
 .freeze-body {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-body, system-ui, sans-serif);
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--text-secondary, #9aa0b5);
-  margin-bottom: 1.5rem;
+  color: var(--parchment-dark, #d9cfbe);
 }
 
-.freeze-dots {
+/* ── Determinate progress: how far into the current backoff window ────────── */
+
+.freeze-progress {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: rgba(246, 240, 230, 0.12);
+  overflow: hidden;
+}
+
+.freeze-progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--ps-gold);
+  transform-origin: left center;
+  animation-name: freeze-progress-sweep;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes freeze-progress-sweep {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.freeze-status {
   display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--parchment-dark, #d9cfbe);
+}
+
+.freeze-status__attempt {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.freeze-status__time {
+  flex-shrink: 0;
+  color: var(--ps-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.freeze-escape {
+  margin-top: 0.85rem;
+  width: 100%;
+}
+
+/* ── variant="lobby": a marked-offline banner, not a curtain ──────────────── */
+
+.freeze-overlay--banner {
+  top: calc(var(--header-height, 66px) + env(safe-area-inset-top, 0px));
+  bottom: auto;
+  display: block;
+  padding: 0;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  /* The lobby stays browsable underneath. */
+  pointer-events: none;
+  touch-action: auto;
+  user-select: auto;
+  -webkit-user-select: auto;
+  cursor: auto;
+}
+
+@media (max-width: 767px) {
+  .freeze-overlay--banner {
+    top: calc(var(--header-height-mobile, 48px) + env(safe-area-inset-top, 0px));
+  }
+}
+
+.freeze-overlay--banner .freeze-card {
+  pointer-events: auto;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-.freeze-dot {
-  width: 8px;
-  height: 8px;
+  text-align: left;
+  gap: 0.85rem;
+  max-width: none;
+  width: 100%;
+  padding: 0.6rem 1rem;
   border-radius: 0;
-  background: var(--primary, #e94560);
-  animation: freeze-dot-blink 1.2s ease-in-out infinite;
+  border-width: 0 0 1px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
 }
 
-.freeze-dot:nth-child(2) { animation-delay: 0.2s; }
-.freeze-dot:nth-child(3) { animation-delay: 0.4s; }
+.freeze-overlay--banner .freeze-card__text::before { display: none; }
 
-@keyframes freeze-dot-blink {
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 1; }
+.freeze-overlay--banner .freeze-seal {
+  width: 38px;
+  height: 38px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.freeze-overlay--banner .freeze-card__text { gap: 0.25rem; }
+.freeze-overlay--banner .freeze-title { font-size: 1rem; }
+.freeze-overlay--banner .freeze-body { display: none; }
+.freeze-overlay--banner .freeze-escape { margin-top: 0.5rem; width: auto; }
+
+/* ── Narrow phones ────────────────────────────────────────────────────────── */
+
+@media (max-width: 400px) {
+  .freeze-overlay { padding: 16px; }
+  .freeze-card { padding: 1.5rem 1.15rem 1.35rem; gap: 0.9rem; }
+  .freeze-seal { width: 66px; height: 66px; }
+  .freeze-status { font-size: 0.68rem; letter-spacing: 0.08em; }
+}
+
+/* Landscape phone: the curtain must never need scrolling. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .freeze-card { flex-direction: row; align-items: center; text-align: left; padding: 1.1rem 1.25rem; gap: 1rem; max-width: 560px; }
+  .freeze-card__text::before { display: none; }
+  .freeze-seal { width: 54px; height: 54px; }
+  .freeze-title { font-size: 1.1rem; }
+  .freeze-body { font-size: 0.8rem; }
+  .freeze-escape { margin-top: 0.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .freeze-overlay,
-  .freeze-icon,
-  .freeze-dot {
-    animation: none;
-  }
+  .freeze-seal { animation: none; }
+  .freeze-progress__fill { animation: none; transform: scaleX(1); opacity: 0.5; }
 }

@@ -681,3 +681,85 @@
   text-shadow: none !important;
   -webkit-text-stroke: 0 !important;
 }
+
+/* ============ THE GRADIENT-FLAIR CHIP TRAP (card-back designer) ============ */
+/* CardBackDesigner puts the flair class on the CHIP BUTTON itself so the chip
+ * previews the effect. For the ten gradient flairs that means the BUTTON's own
+ * background is clipped to its glyphs (`background-clip: text` +
+ * `-webkit-text-fill-color: transparent`) — the label then paints gold-on-gold
+ * over the chip plate and eleven chips render as empty bars with a padlock.
+ * (Same fleet trap that ate "(You)" in ClueScale.)
+ *
+ * Fix without touching the shared platform block above: un-clip the background
+ * so the gradient becomes the chip's PLATE (a far better swatch than tinted
+ * 12px text ever was) and repaint the label in ink on top. The solid-colour and
+ * glow flairs are deliberately NOT listed — their coloured labels already read
+ * correctly. */
+.psshop-chips .psshop-chip.flair-shimmer,
+.psshop-chips .psshop-chip.flair-rainbow,
+.psshop-chips .psshop-chip.flair-fire,
+.psshop-chips .psshop-chip.flair-frost,
+.psshop-chips .psshop-chip.flair-galaxy,
+.psshop-chips .psshop-chip.flair-royal,
+.psshop-chips .psshop-chip.flair-premium-aura,
+.psshop-chips .psshop-chip.flair-chrome,
+.psshop-chips .psshop-chip.flair-holographic,
+.psshop-chips .psshop-chip.flair-molten {
+  -webkit-background-clip: border-box !important;
+          background-clip: border-box !important;
+  -webkit-text-fill-color: #1b1015 !important;
+  color: #1b1015 !important;
+  filter: none !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+/* The lock / crown glyphs and the GP price pill are children, so they inherit
+ * the transparent fill on every other flair chip too — restore them once. */
+.psshop-chips .psshop-chip[class*="flair-"] > * {
+  -webkit-text-fill-color: initial;
+}
+
+/* ============ DESIGNER MODAL — a real bottom edge + scroll affordance ====== */
+/* At 1080px the catalog ran past the viewport with no footer, no visible edge
+ * and no hint that it scrolled, so the buy/confirm path looked unreachable.
+ * The panel keeps its own scroller (no markup change) but gains: a shorter cap
+ * so the gold border always frames it, a visible gold scrollbar, and the
+ * classic local/scroll background-attachment shadow pair — the bottom shadow
+ * only shows while there IS more catalog below. */
+.psshop-backdrop .psshop-panel {
+  max-height: min(88dvh, 900px);
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-500, #c9a227) transparent;
+  background:
+    linear-gradient(var(--velvet-900, #1c0f14) 30%, rgba(28, 15, 20, 0)) top / 100% 26px no-repeat local,
+    linear-gradient(rgba(28, 15, 20, 0), var(--velvet-900, #1c0f14) 70%) bottom / 100% 26px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)) top / 100% 14px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)) bottom / 100% 14px no-repeat scroll,
+    var(--velvet-900, #1c0f14);
+}
+
+.psshop-backdrop .psshop-panel::-webkit-scrollbar { width: 8px; }
+.psshop-backdrop .psshop-panel::-webkit-scrollbar-thumb {
+  background: rgba(201, 162, 39, 0.55);
+  border-radius: 999px;
+}
+
+/* The close control must stay reachable while the catalog scrolls. */
+.psshop-backdrop .psshop-close {
+  position: sticky;
+  top: 0;
+  align-self: flex-end;
+  z-index: 6;
+  /* Its own pinned row — no negative pull, so it can never sit on the title
+     or the GP pill at any width (owner: no overlap, ever). */
+  margin: 0 -4px 0 0;
+  border-radius: 8px;
+  background: rgba(28, 15, 20, 0.85);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+}
+
+.psshop-backdrop .psshop-close:focus-visible {
+  outline: 2px solid var(--gold-400, #e6c777);
+  outline-offset: 2px;
+}

@@ -328,7 +328,7 @@ function App() {
       setSiteNotification({
         id: `srv-err-${now}`,
         type: 'warning',
-        title: isFilter ? t('errors.contentFilterTitle') : 'Error',
+        title: isFilter ? t('errors.contentFilterTitle') : t('errors.serverRejectedTitle'),
         message: isFilter ? t('errors.contentFilterBody') : msg,
         target: 'all',
       });

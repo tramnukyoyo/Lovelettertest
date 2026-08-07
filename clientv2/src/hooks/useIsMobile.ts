@@ -8,15 +8,22 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook to detect if the current device is mobile based on viewport width.
- * Mobile is defined as viewport width <= 1024px (includes tablets).
+ * Mobile is defined as viewport width < 1024px (includes tablets).
  * Updates on window resize.
+ *
+ * The `< 1024` boundary is load-bearing: styles/shell/shell.css hides the
+ * desktop rail at `max-width: 1023.98px`. With the old `<= 1024` test, a
+ * viewport of exactly 1024px was "mobile" in JS (GameShell stripped the header
+ * + presence dock) while CSS still painted the rail — 1024 rendered as a bare
+ * stage with a floating chevron and nothing else. JS and CSS must flip on the
+ * same pixel.
  */
 export const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 1024);
+      setIsMobile(window.innerWidth < 1024);
     };
 
     // Initial check

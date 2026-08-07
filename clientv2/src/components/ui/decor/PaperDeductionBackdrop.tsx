@@ -66,25 +66,53 @@ export default function PaperDeductionBackdrop() {
         </svg>
       </div>
 
-      {/* far fog bank — slow drift */}
+      {/* far fog bank — slow drift.
+          The banks are flat rects, so their BOTTOM edge used to cut a hard
+          horizontal seam across the whole stage (~y350 at 1920) where the
+          skyline stopped and flat night began. A vertical mask dissolves each
+          bank into the sky instead, so the scenery reads as one space. */}
       <div className="gb-fog-far">
         <svg viewBox="0 0 96 18" shapeRendering="crispEdges" width="100%" height="100%" fill="var(--fog-far, #6f7a8c)">
-          <rect x="0"  y="12" width="96" height="6" />
-          <rect x="10" y="8"  width="30" height="4" />
-          <rect x="22" y="5"  width="12" height="3" />
-          <rect x="54" y="8"  width="26" height="4" />
-          <rect x="62" y="5"  width="10" height="3" />
+          <defs>
+            <linearGradient id="gbFogFarFade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#fff" stopOpacity="0.85" />
+              <stop offset="0.35" stopColor="#fff" stopOpacity="0.7" />
+              <stop offset="1" stopColor="#fff" stopOpacity="0" />
+            </linearGradient>
+            <mask id="gbFogFarMask">
+              <rect x="0" y="0" width="96" height="18" fill="url(#gbFogFarFade)" />
+            </mask>
+          </defs>
+          <g mask="url(#gbFogFarMask)">
+            <rect x="0"  y="12" width="96" height="6" />
+            <rect x="10" y="8"  width="30" height="4" />
+            <rect x="22" y="5"  width="12" height="3" />
+            <rect x="54" y="8"  width="26" height="4" />
+            <rect x="62" y="5"  width="10" height="3" />
+          </g>
         </svg>
       </div>
 
-      {/* near fog bank — faster drift, denser */}
+      {/* near fog bank — faster drift, denser (same bottom-edge dissolve) */}
       <div className="gb-fog-near">
         <svg viewBox="0 0 96 20" shapeRendering="crispEdges" width="100%" height="100%" fill="var(--fog-near, #4a5260)">
-          <rect x="0"  y="13" width="96" height="7" />
-          <rect x="8"  y="9"  width="34" height="4" />
-          <rect x="18" y="6"  width="14" height="3" />
-          <rect x="50" y="9"  width="32" height="4" />
-          <rect x="60" y="6"  width="12" height="3" />
+          <defs>
+            <linearGradient id="gbFogNearFade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#fff" stopOpacity="0.8" />
+              <stop offset="0.3" stopColor="#fff" stopOpacity="0.62" />
+              <stop offset="1" stopColor="#fff" stopOpacity="0" />
+            </linearGradient>
+            <mask id="gbFogNearMask">
+              <rect x="0" y="0" width="96" height="20" fill="url(#gbFogNearFade)" />
+            </mask>
+          </defs>
+          <g mask="url(#gbFogNearMask)">
+            <rect x="0"  y="13" width="96" height="7" />
+            <rect x="8"  y="9"  width="34" height="4" />
+            <rect x="18" y="6"  width="14" height="3" />
+            <rect x="50" y="9"  width="32" height="4" />
+            <rect x="60" y="6"  width="12" height="3" />
+          </g>
         </svg>
       </div>
 

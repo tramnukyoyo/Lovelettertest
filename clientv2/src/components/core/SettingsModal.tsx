@@ -10,8 +10,10 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Volume2, Palette, Globe, FileText } from 'lucide-react';
 import { getCurrentLanguage, setCurrentLanguage, t } from '../../utils/translations';
+import { getTranslation } from '../../utils/gameTranslations';
 import { backgroundMusic, soundEffects } from '../../utils/audio';
 import { useIsMobile } from '../../hooks/useIsMobile';
+import ScrollHint from '../../shell/ScrollHint';
 
 // localStorage keys for audio settings
 const STORAGE_KEYS = {
@@ -147,9 +149,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
           className="settings-modal"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
+          {/* Header — dossier masthead: rust "CASE FILE" stamp over the title.
+              The .settings-modal-eyebrow skin already exists in the theme; it
+              had simply never been mounted. */}
           <div className="settings-modal-header">
-            <h2 className="settings-modal-title">{t('settings.title')}</h2>
+            <div className="settings-modal-title">
+              <span className="settings-modal-eyebrow">{getTranslation('game.caseFile')}</span>
+              <h2>{t('settings.title')}</h2>
+            </div>
             <button
               onClick={onClose}
               className="settings-modal-close"
@@ -281,6 +288,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               </div>
             </div>
 
+            {/* "More below" affordance — mobile drops the tab bar, so all three
+                sections stack into one scroller and will overflow at 667–844px. */}
+            <ScrollHint />
           </div>
         </motion.div>
       </motion.div>

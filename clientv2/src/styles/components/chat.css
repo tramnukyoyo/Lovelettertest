@@ -78,16 +78,19 @@
   gap: var(--spacing-xs);
 }
 
-/* Empty state */
-.chat-empty {
+/* Empty state — a case-notes sheet nobody has written on yet.
+   (Scoped `.chat-window .chat-empty` so it out-specifies the legacy
+   `.chat-empty` block that loads later in prime-suspect-unified.css.) */
+.chat-window .chat-empty {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.15rem;
   text-align: center;
   color: var(--text-secondary);
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-md);
 }
 
 .chat-empty p {
@@ -100,6 +103,42 @@
   opacity: 0.7;
   margin-top: var(--spacing-sm) !important;
 }
+
+/* Watermark print — the "nothing filed yet" tell, kept at whisper opacity */
+.chat-window .chat-empty-seal {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--royal-gold, var(--primary));
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.chat-window .chat-empty-seal svg { display: block; }
+
+/* Three unwritten ruled lines under the copy — a ghost of the real message
+   list rather than empty air (fleet rule: empty states are dashed ghosts). */
+.chat-window .chat-empty-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(80%, 190px);
+  margin-top: 0.9rem;
+  pointer-events: none;
+}
+
+.chat-window .chat-empty-rules i {
+  display: block;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--royal-gold, var(--primary)) 34%, transparent) 0 8px,
+    transparent 8px 14px
+  );
+  opacity: 0.5;
+}
+
+.chat-window .chat-empty-rules i:nth-child(2) { width: 86%; }
+.chat-window .chat-empty-rules i:nth-child(3) { width: 62%; }
 
 /* Messages */
 .chat-message {

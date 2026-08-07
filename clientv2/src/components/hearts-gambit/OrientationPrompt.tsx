@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { RotateCcw, X } from 'lucide-react';
 import { useOrientation } from '../../hooks/useIsMobile';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
@@ -9,14 +9,19 @@ interface OrientationPromptProps {
 }
 
 const STORAGE_KEY = 'hg-orientation-dismissed';
+const AUTO_DISMISS_MS = 6000;
 
 /**
- * Prompts mobile users to rotate to landscape mode for optimal gameplay.
- * Dismissible and remembers dismissal in sessionStorage.
+ * Quiet landscape HINT — deliberately NOT a blocking gate.
+ * Portrait is a first-class layout (see the portrait block in
+ * prime-suspect-unified.css); this is only an ambient note that landscape
+ * gives the table more room. It is a dismissible candlelit strip docked at
+ * the bottom edge, auto-retires after 6s, and never covers the whole screen.
  */
 const OrientationPrompt: React.FC<OrientationPromptProps> = ({ className = '' }) => {
   const orientation = useOrientation();
   const [isDismissed, setIsDismissed] = useState(false);
+  const reduced = useReducedMotion();
 
   // Translation helper
   const language = getCurrentLanguage();
@@ -38,55 +43,40 @@ const OrientationPrompt: React.FC<OrientationPromptProps> = ({ className = '' })
   // Only show in portrait mode when not dismissed
   const shouldShow = orientation === 'portrait' && !isDismissed;
 
+  // Auto-retire: a hint must never linger over the table.
+  useEffect(() => {
+    if (!shouldShow) return;
+    const id = setTimeout(handleDismiss, AUTO_DISMISS_MS);
+    return () => clearTimeout(id);
+  }, [shouldShow]);
+
   return (
     <AnimatePresence>
       {shouldShow && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className={`fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 ${className}`}
+          role="status"
+          initial={reduced ? { opacity: 0 } : { opacity: 0, y: 12 }}
+          animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          exit={reduced ? { opacity: 0 } : { opacity: 0, y: 12 }}
+          transition={{ duration: 0.25 }}
+          className={`hg-orientation-hint hg-panel hg-candlelight ${className}`}
         >
-          {/* Rotating phone icon animation */}
-          <motion.div
-            animate={{ rotate: [0, -90, -90, 0] }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatDelay: 1,
-              times: [0, 0.3, 0.7, 1]
-            }}
-            className="mb-6"
-          >
-            <div className="relative w-16 h-24 border-4 border-[var(--royal-gold)] rounded-xl">
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-4 h-1 bg-[var(--royal-gold)] rounded-full opacity-50" />
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 border-2 border-[var(--royal-gold)] rounded-full" />
-            </div>
-          </motion.div>
+          <span className="hg-orientation-hint__icon" aria-hidden="true">
+            <RotateCcw size={16} />
+          </span>
 
-          <RotateCcw className="w-8 h-8 text-[var(--royal-gold-light)] mb-4 animate-pulse" />
-
-          <h2 className="text-xl font-bold text-[var(--parchment)] text-center mb-2">
+          <p className="hg-orientation-hint__text">
             {t('orientation.rotateForBestExperience')}
-          </h2>
-
-          <p className="text-sm text-[var(--parchment-dark)] text-center max-w-xs mb-8">
-            {t('orientation.description')}
           </p>
 
           <button
+            type="button"
             onClick={handleDismiss}
-            className="flex items-center gap-2 bg-[rgba(var(--accent-color-rgb),0.2)] hover:bg-[rgba(var(--accent-color-rgb),0.3)] text-[var(--parchment)] px-6 py-3 rounded-xl text-sm font-bold transition-all border border-[rgba(var(--accent-color-rgb),0.3)]"
+            className="ps-btn ps-btn--subtle ps-btn--sm hg-orientation-hint__close"
+            aria-label={t('orientation.continueInPortrait')}
           >
-            <X size={16} />
-            {t('orientation.continueInPortrait')}
+            <X size={16} aria-hidden="true" />
           </button>
-
-          {/* Decorative corners */}
-          <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-[rgba(var(--accent-color-rgb),0.3)]" />
-          <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-[rgba(var(--accent-color-rgb),0.3)]" />
-          <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-[rgba(var(--accent-color-rgb),0.3)]" />
-          <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-[rgba(var(--accent-color-rgb),0.3)]" />
         </motion.div>
       )}
     </AnimatePresence>

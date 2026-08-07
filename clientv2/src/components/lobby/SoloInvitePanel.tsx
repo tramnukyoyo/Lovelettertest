@@ -18,6 +18,13 @@ interface SoloInvitePanelProps {
   minPlayers: number;
   currentPlayers: number;
   hideRoomCode?: boolean;
+  /**
+   * Extra action that belongs in the SAME wrapping row as copy / share / QR
+   * (the lobby passes its card-back designer entry here). Rendered as a
+   * sibling button so the invite band degrades 3 → 2 → 1 per line instead of
+   * ejecting the last action out of the pane at 768/1366.
+   */
+  actionSlot?: React.ReactNode;
 }
 
 interface InviteFriend {
@@ -101,6 +108,7 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
   minPlayers,
   currentPlayers,
   hideRoomCode = false,
+  actionSlot,
 }) => {
   const [linkCopied, setLinkCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
@@ -215,6 +223,8 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
             <span>{t('invitePanel.qr')}</span>
           </button>
         )}
+
+        {actionSlot}
       </div>
 
       {showQr && !hideRoomCode && (

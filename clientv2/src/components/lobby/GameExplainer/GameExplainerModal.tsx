@@ -87,6 +87,8 @@ const GameExplainerModal: React.FC<Props> = ({
   }
 
   const Demo = demoSpec.Component;
+  // Step pips: without them the reader cannot tell how long the briefing is.
+  const activeBeatIndex = Math.max(0, demoSpec.beats.indexOf(activeBeat));
 
   return createPortal(
     <div
@@ -142,13 +144,28 @@ const GameExplainerModal: React.FC<Props> = ({
           )}
         </div>
 
-        <button
-          type="button"
-          className="game-explainer-skip"
-          onClick={handleClose}
-        >
-          {t('gameExplainer.skip')}
-        </button>
+        {/* Candlelit step pips — how many beats there are, and where we are. */}
+        {!reducedMotion && demoSpec.beats.length > 1 && (
+          <div className="game-explainer-pips" aria-hidden="true">
+            {demoSpec.beats.map((b, i) => (
+              <span
+                key={b.captionKey}
+                className={`game-explainer-pip${i === activeBeatIndex ? ' is-active' : ''}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Footer row — SKIP no longer floats over the last copy line. */}
+        <div className="game-explainer-footer">
+          <button
+            type="button"
+            className="game-explainer-skip"
+            onClick={handleClose}
+          >
+            {t('gameExplainer.skip')}
+          </button>
+        </div>
       </div>
     </div>,
     document.body

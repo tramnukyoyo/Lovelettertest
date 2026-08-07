@@ -199,6 +199,10 @@ export const translations = {
     'lobby.rule4': 'After each round, players vote for the "dumbest" answer 🗳️',
     'lobby.rule5': 'The player with the most votes loses a life 💔',
     'lobby.rule6': 'Last player standing wins! 🏆',
+    'lobby.crewStatusPending': 'Statement pending',
+    'lobby.crewStatusEmpty': 'Seat unclaimed',
+    'lobby.caseBriefingTab': 'Case briefing',
+    'lobby.caseOpenStamp': 'Case open',
     
     // Categories
     'category.general': 'General Knowledge',
@@ -615,6 +619,7 @@ export const translations = {
     'rules.important.line1Bold': 'without',
     'rules.important.line1Post': ' applying its effect.',
     'rules.important.line2': 'If you play a card that requires choosing a player, and all other players are protected by the Lawyer, your card is played without effect.',
+    'rules.footer': 'Case briefing · Prime Suspect',
     'tutorial.done': 'Done',
     'tutorial.closeTutorial': 'Close tutorial',
     'tutorial.previousSlide': 'Previous slide',
@@ -728,6 +733,7 @@ export const translations = {
 
     // Case Notes
     'caseNotes.title': 'Case Notes',
+    'caseNotes.caseLog': 'CASE LOG',
     'caseNotes.chat': 'Case File Chat',
 
     // Game UI
@@ -735,10 +741,12 @@ export const translations = {
     'game.waitingForOpponents': 'Waiting for opponents...',
     'game.startGame': 'Start Game',
     'game.tokens': '{count} Tokens',
+    'game.tokensLabel': 'TOKENS',
     'game.yourTurn': 'YOUR TURN',
     'game.drawCard': 'DRAW A CARD!',
     'game.draw': 'DRAW',
     'game.eliminated': 'ELIMINATED',
+    'game.caseClosed': 'CASE CLOSED',
     'game.mustPlayAccomplice': 'Must Play Accomplice!',
     'game.playing': 'Playing',
     'game.target': 'Target',
@@ -794,8 +802,12 @@ export const translations = {
     'cardInspector.guessing': 'Guessing',
     'cardInspector.playCard': 'Play Card',
     'cardInspector.swipeToNavigate': 'Swipe to navigate',
+    'cardInspector.navigateHint': 'Arrow keys or swipe',
     'cardInspector.goToCard': 'Go to card {number}',
     'cardInspector.confirmTarget': 'Confirm Target',
+    'cardInspector.eyebrowTarget': 'NAME YOUR SUSPECT',
+    'cardInspector.eyebrowGuess': 'CALL THE CARD',
+    'cardInspector.eyebrowConfirm': 'FILE THE ACCUSATION',
 
     // Evidence
     'evidence.chronology': 'Chronology',
@@ -853,7 +865,7 @@ export const translations = {
     'victory.roundOver': 'Round Over',
     'victory.nextRoundIn': 'Next round starting...',
     'victory.caseProgress': 'Case Progress',
-    'game.needMorePlayers': 'Need at least 2 players to start. Current: {count}',
+    'game.needMorePlayers': 'Waiting for one more suspect to take a seat.',
 
     // Bottom Tab Bar
     'bottomTab.game': 'Game',
@@ -874,6 +886,7 @@ export const translations = {
 
     // Mobile Game UI
     'mobile.yourHand': 'Your Hand',
+    'mobile.moreSuspects': 'More suspects',
     'mobile.tapToDraw': 'TAP TO DRAW',
     'mobile.noEventsYet': 'No events yet',
     'mobile.leaveConfirm': 'Are you sure you want to leave?',
@@ -1033,6 +1046,7 @@ export const translations = {
     'gameExplainer.tapForFullGuide': 'Tap for full guide',
     'gameExplainer.skip': 'Skip',
     'gameExplainer.howToPlay': 'How to play',
+    'gameExplainer.caseBriefingTab': 'Case briefing',
     'game.unknown': 'Unknown',
     'game.empty': 'Empty',
     'game.caseFile': 'Case File',
@@ -1257,6 +1271,10 @@ export const translations = {
     'lobby.rule4': 'Nach jeder Runde stimmen Spieler für die "dümmste" Antwort 🗳️',
     'lobby.rule5': 'Der Spieler mit den meisten Stimmen verliert ein Leben 💔',
     'lobby.rule6': 'Letzter Spieler stehend gewinnt! 🏆',
+    'lobby.crewStatusPending': 'Aussage ausstehend',
+    'lobby.crewStatusEmpty': 'Platz frei',
+    'lobby.caseBriefingTab': 'Fallakte',
+    'lobby.caseOpenStamp': 'Fall offen',
     
     // Categories
     'category.general': 'Allgemeinwissen',
@@ -1673,6 +1691,7 @@ export const translations = {
     'rules.important.line1Bold': 'ohne',
     'rules.important.line1Post': ' ihren Effekt anzuwenden.',
     'rules.important.line2': 'Spielst du eine Karte, die einen Spieler erfordert, und alle anderen Spieler sind durch den Anwalt geschützt, wird deine Karte ohne Wirkung gespielt.',
+    'rules.footer': 'Fallakte · Prime Suspect',
     'tutorial.done': 'Fertig',
     'tutorial.closeTutorial': 'Tutorial schließen',
     'tutorial.previousSlide': 'Vorherige Seite',
@@ -1787,6 +1806,7 @@ export const translations = {
 
     // Case Notes
     'caseNotes.title': 'Fallnotizen',
+    'caseNotes.caseLog': 'AKTENVERZEICHNIS',
     'caseNotes.chat': 'Fallakte Chat',
 
     // Game UI
@@ -1794,10 +1814,12 @@ export const translations = {
     'game.waitingForOpponents': 'Warte auf Gegner...',
     'game.startGame': 'Spiel starten',
     'game.tokens': '{count} Token',
+    'game.tokensLabel': 'TOKEN',
     'game.yourTurn': 'DU BIST DRAN',
     'game.drawCard': 'ZIEHE EINE KARTE!',
     'game.draw': 'ZIEHEN',
     'game.eliminated': 'AUSGESCHIEDEN',
+    'game.caseClosed': 'FALL GESCHLOSSEN',
     'game.mustPlayAccomplice': 'Komplize muss gespielt werden!',
     'game.playing': 'Spielt',
     'game.target': 'Ziel',
@@ -1853,8 +1875,12 @@ export const translations = {
     'cardInspector.guessing': 'Rate',
     'cardInspector.playCard': 'Karte spielen',
     'cardInspector.swipeToNavigate': 'Wischen zum Navigieren',
+    'cardInspector.navigateHint': 'Pfeiltasten oder wischen',
     'cardInspector.goToCard': 'Gehe zu Karte {number}',
     'cardInspector.confirmTarget': 'Ziel bestätigen',
+    'cardInspector.eyebrowTarget': 'VERDÄCHTIGEN BENENNEN',
+    'cardInspector.eyebrowGuess': 'KARTE BENENNEN',
+    'cardInspector.eyebrowConfirm': 'ANKLAGE EINREICHEN',
 
     // Evidence
     'evidence.chronology': 'Chronologie',
@@ -1912,7 +1938,7 @@ export const translations = {
     'victory.roundOver': 'Runde vorbei',
     'victory.nextRoundIn': 'Nächste Runde startet...',
     'victory.caseProgress': 'Fallfortschritt',
-    'game.needMorePlayers': 'Mindestens 2 Spieler benötigt. Aktuell: {count}',
+    'game.needMorePlayers': 'Wartet auf einen weiteren Verdächtigen am Tisch.',
 
     // Bottom Tab Bar
     'bottomTab.game': 'Spiel',
@@ -1933,6 +1959,7 @@ export const translations = {
 
     // Mobile Game UI
     'mobile.yourHand': 'Deine Hand',
+    'mobile.moreSuspects': 'Weitere Verdächtige',
     'mobile.tapToDraw': 'TIPPEN ZUM ZIEHEN',
     'mobile.noEventsYet': 'Noch keine Ereignisse',
     'mobile.leaveConfirm': 'Bist du sicher, dass du gehen möchtest?',
@@ -2092,6 +2119,7 @@ export const translations = {
     'gameExplainer.tapForFullGuide': 'Tippen für die volle Anleitung',
     'gameExplainer.skip': 'Überspringen',
     'gameExplainer.howToPlay': 'Spielanleitung',
+    'gameExplainer.caseBriefingTab': 'Fallakte',
     'game.unknown': 'Unbekannt',
     'game.empty': 'Leer',
     'game.caseFile': 'Fallakte',
@@ -2316,6 +2344,10 @@ export const translations = {
     'lobby.rule4': 'Despues de cada ronda, los jugadores votan por la respuesta "mas tonta" 🗳️',
     'lobby.rule5': 'El jugador con mas votos pierde una vida 💔',
     'lobby.rule6': 'El ultimo jugador en pie gana! 🏆',
+    'lobby.crewStatusPending': 'Declaración pendiente',
+    'lobby.crewStatusEmpty': 'Asiento libre',
+    'lobby.caseBriefingTab': 'Resumen del caso',
+    'lobby.caseOpenStamp': 'Caso abierto',
 
     // Categories
     'category.general': 'Conocimiento general',
@@ -2732,6 +2764,7 @@ export const translations = {
     'rules.important.line1Bold': 'sin',
     'rules.important.line1Post': ' aplicar su efecto.',
     'rules.important.line2': 'Si juegas una carta que requiere elegir a un jugador y todos los demás están protegidos por el Abogado, tu carta se juega sin efecto.',
+    'rules.footer': 'Resumen del caso · Prime Suspect',
     'tutorial.done': 'Listo',
     'tutorial.closeTutorial': 'Cerrar tutorial',
     'tutorial.previousSlide': 'Diapositiva anterior',
@@ -2845,6 +2878,7 @@ export const translations = {
 
     // Case Notes
     'caseNotes.title': 'Notas del caso',
+    'caseNotes.caseLog': 'REGISTRO DEL CASO',
     'caseNotes.chat': 'Chat del archivo del caso',
 
     // Game UI
@@ -2852,10 +2886,12 @@ export const translations = {
     'game.waitingForOpponents': 'Esperando oponentes...',
     'game.startGame': 'Iniciar juego',
     'game.tokens': '{count} Fichas',
+    'game.tokensLabel': 'FICHAS',
     'game.yourTurn': 'TU TURNO',
     'game.drawCard': 'ROBA UNA CARTA!',
     'game.draw': 'ROBAR',
     'game.eliminated': 'ELIMINADO',
+    'game.caseClosed': 'CASO CERRADO',
     'game.mustPlayAccomplice': 'Debes jugar al Complice!',
     'game.playing': 'Jugando',
     'game.target': 'Objetivo',
@@ -2911,8 +2947,12 @@ export const translations = {
     'cardInspector.guessing': 'Adivinando',
     'cardInspector.playCard': 'Jugar carta',
     'cardInspector.swipeToNavigate': 'Desliza para navegar',
+    'cardInspector.navigateHint': 'Flechas o desliza',
     'cardInspector.goToCard': 'Ir a carta {number}',
     'cardInspector.confirmTarget': 'Confirmar objetivo',
+    'cardInspector.eyebrowTarget': 'NOMBRA A TU SOSPECHOSO',
+    'cardInspector.eyebrowGuess': 'ADIVINA LA CARTA',
+    'cardInspector.eyebrowConfirm': 'PRESENTA LA ACUSACIÓN',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -2970,7 +3010,7 @@ export const translations = {
     'victory.roundOver': 'Ronda terminada',
     'victory.nextRoundIn': 'Siguiente ronda iniciando...',
     'victory.caseProgress': 'Progreso del caso',
-    'game.needMorePlayers': 'Se necesitan al menos 2 jugadores para iniciar. Actual: {count}',
+    'game.needMorePlayers': 'Esperando a que otro sospechoso tome asiento.',
 
     // Bottom Tab Bar
     'bottomTab.game': 'Juego',
@@ -2991,6 +3031,7 @@ export const translations = {
 
     // Mobile Game UI
     'mobile.yourHand': 'Tu mano',
+    'mobile.moreSuspects': 'Más sospechosos',
     'mobile.tapToDraw': 'TOCA PARA ROBAR',
     'mobile.noEventsYet': 'Aun no hay eventos',
     'mobile.leaveConfirm': 'Estas seguro de que quieres salir?',
@@ -3150,6 +3191,7 @@ export const translations = {
     'gameExplainer.tapForFullGuide': 'Toca para la guía completa',
     'gameExplainer.skip': 'Saltar',
     'gameExplainer.howToPlay': 'Cómo jugar',
+    'gameExplainer.caseBriefingTab': 'Resumen del caso',
     'game.unknown': 'Desconocido',
     'game.empty': 'Vacío',
     'game.caseFile': 'Expediente',
@@ -3376,6 +3418,10 @@ export const translations = {
     'lobby.rule4': 'Depois de cada rodada, os jogadores votam na resposta "mais burra" 🗳️',
     'lobby.rule5': 'O jogador com mais votos perde uma vida 💔',
     'lobby.rule6': 'O último jogador de pé vence! 🏆',
+    'lobby.crewStatusPending': 'Depoimento pendente',
+    'lobby.crewStatusEmpty': 'Assento livre',
+    'lobby.caseBriefingTab': 'Resumo do caso',
+    'lobby.caseOpenStamp': 'Caso aberto',
 
     // Categories
     'category.general': 'Conhecimentos gerais',
@@ -3792,6 +3838,7 @@ export const translations = {
     'rules.important.line1Bold': 'sem',
     'rules.important.line1Post': ' aplicar o efeito dela.',
     'rules.important.line2': 'Se você jogar uma carta que exige escolher um jogador e todos os outros estiverem protegidos pelo Advogado, sua carta é jogada sem efeito.',
+    'rules.footer': 'Resumo do caso · Prime Suspect',
     'tutorial.done': 'Pronto',
     'tutorial.closeTutorial': 'Fechar tutorial',
     'tutorial.previousSlide': 'Slide anterior',
@@ -3905,6 +3952,7 @@ export const translations = {
 
     // Case Notes
     'caseNotes.title': 'Anotações do caso',
+    'caseNotes.caseLog': 'REGISTRO DO CASO',
     'caseNotes.chat': 'Chat do arquivo do caso',
 
     // Game UI
@@ -3912,10 +3960,12 @@ export const translations = {
     'game.waitingForOpponents': 'Esperando adversários...',
     'game.startGame': 'Começar jogo',
     'game.tokens': '{count} fichas',
+    'game.tokensLabel': 'FICHAS',
     'game.yourTurn': 'SUA VEZ',
     'game.drawCard': 'COMPRE UMA CARTA!',
     'game.draw': 'COMPRAR',
     'game.eliminated': 'ELIMINADO',
+    'game.caseClosed': 'CASO ENCERRADO',
     'game.mustPlayAccomplice': 'Precisa jogar o Cúmplice!',
     'game.playing': 'Jogando',
     'game.target': 'Alvo',
@@ -3971,8 +4021,12 @@ export const translations = {
     'cardInspector.guessing': 'Chutando',
     'cardInspector.playCard': 'Jogar carta',
     'cardInspector.swipeToNavigate': 'Deslize para navegar',
+    'cardInspector.navigateHint': 'Setas ou deslize',
     'cardInspector.goToCard': 'Ir para a carta {number}',
     'cardInspector.confirmTarget': 'Confirmar alvo',
+    'cardInspector.eyebrowTarget': 'NOMEIE SEU SUSPEITO',
+    'cardInspector.eyebrowGuess': 'ADIVINHE A CARTA',
+    'cardInspector.eyebrowConfirm': 'REGISTRE A ACUSAÇÃO',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -4030,7 +4084,7 @@ export const translations = {
     'victory.roundOver': 'Rodada encerrada',
     'victory.nextRoundIn': 'Próxima rodada começando...',
     'victory.caseProgress': 'Progresso do caso',
-    'game.needMorePlayers': 'Precisa de pelo menos 2 jogadores para começar. Atual: {count}',
+    'game.needMorePlayers': 'Aguardando mais um suspeito se sentar.',
 
     // Bottom Tab Bar
     'bottomTab.game': 'Jogo',
@@ -4051,6 +4105,7 @@ export const translations = {
 
     // Mobile Game UI
     'mobile.yourHand': 'Sua mão',
+    'mobile.moreSuspects': 'Mais suspeitos',
     'mobile.tapToDraw': 'TOQUE PARA COMPRAR',
     'mobile.noEventsYet': 'Nenhum evento ainda',
     'mobile.leaveConfirm': 'Tem certeza de que quer sair?',
@@ -4210,6 +4265,7 @@ export const translations = {
     'gameExplainer.tapForFullGuide': 'Toque para o guia completo',
     'gameExplainer.skip': 'Pular',
     'gameExplainer.howToPlay': 'Como jogar',
+    'gameExplainer.caseBriefingTab': 'Resumo do caso',
     'game.unknown': 'Desconhecido',
     'game.empty': 'Vazio',
     'game.caseFile': 'Arquivo do caso',
@@ -4436,6 +4492,10 @@ export const translations = {
     'lobby.rule4': 'Depois de cada ronda, os jogadores votam na resposta "mais parva" 🗳️',
     'lobby.rule5': 'O jogador com mais votos perde uma vida 💔',
     'lobby.rule6': 'O último jogador de pé ganha! 🏆',
+    'lobby.crewStatusPending': 'Depoimento pendente',
+    'lobby.crewStatusEmpty': 'Lugar livre',
+    'lobby.caseBriefingTab': 'Resumo do caso',
+    'lobby.caseOpenStamp': 'Caso aberto',
 
     // Categories
     'category.general': 'Conhecimentos gerais',
@@ -4852,6 +4912,7 @@ export const translations = {
     'rules.important.line1Bold': 'sem',
     'rules.important.line1Post': ' aplicar o seu efeito.',
     'rules.important.line2': 'Se jogares uma carta que exige escolher um jogador e todos os outros estiverem protegidos pelo Advogado, a tua carta é jogada sem efeito.',
+    'rules.footer': 'Resumo do caso · Prime Suspect',
     'tutorial.done': 'Concluído',
     'tutorial.closeTutorial': 'Fechar tutorial',
     'tutorial.previousSlide': 'Diapositivo anterior',
@@ -4965,6 +5026,7 @@ export const translations = {
 
     // Case Notes
     'caseNotes.title': 'Notas do caso',
+    'caseNotes.caseLog': 'REGISTO DO CASO',
     'caseNotes.chat': 'Chat do ficheiro do caso',
 
     // Game UI
@@ -4972,10 +5034,12 @@ export const translations = {
     'game.waitingForOpponents': 'A aguardar adversários...',
     'game.startGame': 'Começar jogo',
     'game.tokens': '{count} fichas',
+    'game.tokensLabel': 'FICHAS',
     'game.yourTurn': 'A TUA VEZ',
     'game.drawCard': 'COMPRA UMA CARTA!',
     'game.draw': 'COMPRAR',
     'game.eliminated': 'ELIMINADO',
+    'game.caseClosed': 'CASO ENCERRADO',
     'game.mustPlayAccomplice': 'Tens de jogar o Cúmplice!',
     'game.playing': 'A jogar',
     'game.target': 'Alvo',
@@ -5031,8 +5095,12 @@ export const translations = {
     'cardInspector.guessing': 'A adivinhar',
     'cardInspector.playCard': 'Jogar carta',
     'cardInspector.swipeToNavigate': 'Desliza para navegar',
+    'cardInspector.navigateHint': 'Setas ou deslize',
     'cardInspector.goToCard': 'Ir para a carta {number}',
     'cardInspector.confirmTarget': 'Confirmar alvo',
+    'cardInspector.eyebrowTarget': 'NOMEIE O SEU SUSPEITO',
+    'cardInspector.eyebrowGuess': 'ADIVINHE A CARTA',
+    'cardInspector.eyebrowConfirm': 'REGISTE A ACUSAÇÃO',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -5090,7 +5158,7 @@ export const translations = {
     'victory.roundOver': 'Ronda terminada',
     'victory.nextRoundIn': 'Próxima ronda a começar...',
     'victory.caseProgress': 'Progresso do caso',
-    'game.needMorePlayers': 'São precisos pelo menos 2 jogadores para começar. Atual: {count}',
+    'game.needMorePlayers': 'À espera de mais um suspeito para se sentar.',
 
     // Bottom Tab Bar
     'bottomTab.game': 'Jogo',
@@ -5111,6 +5179,7 @@ export const translations = {
 
     // Mobile Game UI
     'mobile.yourHand': 'A tua mão',
+    'mobile.moreSuspects': 'Mais suspeitos',
     'mobile.tapToDraw': 'TOCA PARA COMPRAR',
     'mobile.noEventsYet': 'Ainda não há eventos',
     'mobile.leaveConfirm': 'Tens a certeza de que queres sair?',
@@ -5270,6 +5339,7 @@ export const translations = {
     'gameExplainer.tapForFullGuide': 'Toca para o guia completo',
     'gameExplainer.skip': 'Saltar',
     'gameExplainer.howToPlay': 'Como jogar',
+    'gameExplainer.caseBriefingTab': 'Resumo do caso',
     'game.unknown': 'Desconhecido',
     'game.empty': 'Vazio',
     'game.caseFile': 'Ficheiro do caso',
@@ -5494,6 +5564,10 @@ export const translations = {
     'lobby.rule4': '每回合結束後，玩家投票選出「最爛」的答案 🗳️',
     'lobby.rule5': '得票最多的玩家會失去一條生命 💔',
     'lobby.rule6': '最後存活的玩家獲勝！🏆',
+    'lobby.crewStatusPending': '供詞待定',
+    'lobby.crewStatusEmpty': '空位待補',
+    'lobby.caseBriefingTab': '案情簡報',
+    'lobby.caseOpenStamp': '案件受理中',
 
     // Categories
     'category.general': '常識',
@@ -5910,6 +5984,7 @@ export const translations = {
     'rules.important.line1Bold': '不要',
     'rules.important.line1Post': '套用它的效果。',
     'rules.important.line2': '如果你打出一張需要選擇玩家的牌，而所有其他玩家都受到律師保護，你的牌打出後不會產生效果。',
+    'rules.footer': '案情簡報 · Prime Suspect',
     'tutorial.done': '完成',
     'tutorial.closeTutorial': '關閉教學',
     'tutorial.previousSlide': '上一張投影片',
@@ -6023,6 +6098,7 @@ export const translations = {
 
     // Case Notes
     'caseNotes.title': '案件筆記',
+    'caseNotes.caseLog': '案件紀錄',
     'caseNotes.chat': '案件檔案聊天',
 
     // Game UI
@@ -6030,10 +6106,12 @@ export const translations = {
     'game.waitingForOpponents': '等待對手中…',
     'game.startGame': '開始遊戲',
     'game.tokens': '{count} 枚代幣',
+    'game.tokensLabel': '代幣',
     'game.yourTurn': '輪到你',
     'game.drawCard': '抽一張牌！',
     'game.draw': '抽牌',
     'game.eliminated': '已淘汰',
+    'game.caseClosed': '案件結案',
     'game.mustPlayAccomplice': '必須打出共犯！',
     'game.playing': '正在打出',
     'game.target': '目標',
@@ -6089,8 +6167,12 @@ export const translations = {
     'cardInspector.guessing': '猜測中',
     'cardInspector.playCard': '打出牌',
     'cardInspector.swipeToNavigate': '滑動以瀏覽',
+    'cardInspector.navigateHint': '方向鍵或滑動',
     'cardInspector.goToCard': '前往第 {number} 張牌',
     'cardInspector.confirmTarget': '確認目標',
+    'cardInspector.eyebrowTarget': '指認你的嫌疑人',
+    'cardInspector.eyebrowGuess': '喊出卡牌',
+    'cardInspector.eyebrowConfirm': '提出指控',
 
     // Evidence
     'evidence.chronology': '時序',
@@ -6148,7 +6230,7 @@ export const translations = {
     'victory.roundOver': '回合結束',
     'victory.nextRoundIn': '下一回合開始中…',
     'victory.caseProgress': '案件進度',
-    'game.needMorePlayers': '至少需要 2 名玩家才能開始。目前：{count}',
+    'game.needMorePlayers': '正在等待另一位嫌疑人入座。',
 
     // Bottom Tab Bar
     'bottomTab.game': '遊戲',
@@ -6169,6 +6251,7 @@ export const translations = {
 
     // Mobile Game UI
     'mobile.yourHand': '你的手牌',
+    'mobile.moreSuspects': '更多嫌疑人',
     'mobile.tapToDraw': '點一下抽牌',
     'mobile.noEventsYet': '尚無事件',
     'mobile.leaveConfirm': '你確定要離開嗎？',
@@ -6328,6 +6411,7 @@ export const translations = {
     'gameExplainer.tapForFullGuide': '點一下查看完整指南',
     'gameExplainer.skip': '略過',
     'gameExplainer.howToPlay': '玩法說明',
+    'gameExplainer.caseBriefingTab': '案情簡報',
     'game.unknown': '未知',
     'game.empty': '空',
     'game.caseFile': '案件檔案',

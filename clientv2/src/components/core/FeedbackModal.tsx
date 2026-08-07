@@ -18,6 +18,7 @@ import type { Lobby } from '../../types';
 import socketService from '../../services/socketService';
 import { loadSession } from '../../services/gameBuddiesSession';
 import { t } from '../../utils/translations';
+import { getTranslation } from '../../utils/gameTranslations';
 
 interface FeedbackModalProps {
   /** Present when reporting from inside a game; omit on the home screen. */
@@ -86,7 +87,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ lobby, onClose }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="feedback-modal-backdrop"
+        className="settings-modal-backdrop feedback-modal-backdrop"
         onClick={onClose}
       >
         <motion.div
@@ -94,13 +95,17 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ lobby, onClose }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="feedback-modal"
+          className="settings-modal feedback-modal"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
-          <div className="feedback-modal-header">
-            <h2 className="feedback-modal-title">{t('feedback.title')}</h2>
-            <button onClick={onClose} className="feedback-modal-close" aria-label={t('common.close')}>
+          {/* Header — same dossier masthead + backdrop anchor as SettingsModal
+              and GameAuthModal, so the three modals are one panel family. */}
+          <div className="settings-modal-header feedback-modal-header">
+            <div className="settings-modal-title">
+              <span className="settings-modal-eyebrow">{getTranslation('game.caseFile')}</span>
+              <h2>{t('feedback.title')}</h2>
+            </div>
+            <button onClick={onClose} className="settings-modal-close" aria-label={t('common.close')}>
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -112,7 +117,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ lobby, onClose }) => {
               <div className="feedback-modal-success-body">{t('feedback.successBody')}</div>
             </div>
           ) : (
-            <div className="feedback-modal-content">
+            <div className="settings-modal-content feedback-modal-content">
               <p className="feedback-modal-intro">{t('feedback.intro')}</p>
 
               {/* Type chips */}
