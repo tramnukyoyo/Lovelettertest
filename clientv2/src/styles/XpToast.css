@@ -19,6 +19,19 @@
   isolation: isolate;
 }
 
+/* styles/game/surface-victory.css:490-506 still re-docks `.xp-toast-container`
+   with top/bottom/left/right/transform/width from the days when it was
+   `position: fixed`. It is a static flex child of the rail lane now, so the
+   offsets are inert — but `width: min(340px, …)` and, below 1100px,
+   `transform: translateX(-50%)` DO still apply and would shove the reward card
+   170px out of its lane. Neutralised here at higher specificity so import order
+   cannot decide it; the source block is reported for deletion. Placement while
+   results are open is owned by the rail (components/ui/toastRail.css). */
+body.ps-results-open .xp-toast-container.xp-toast-container {
+  transform: none;
+  width: 100%;
+}
+
 .xp-toast {
   --xp-accent: var(--royal-gold, #d2b25a);
   --xp-card: var(--velvet-panel, #2c2029);

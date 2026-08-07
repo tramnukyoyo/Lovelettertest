@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { Lobby, Player, CardType } from '../../types';
 import type { Socket } from 'socket.io-client';
 import { motion } from 'framer-motion';
-import { Crown, Flame, Award, ChevronUp } from 'lucide-react';
+import { Crown, Flame, Award, ChevronUp, Check, ChevronDown } from 'lucide-react';
 import { Confetti, ScoreCountUp } from '../juice';
 import { FlairName } from '../core/ProfileIdentity';
 import { usePlayerProfile } from '../../services/playerProfiles';
@@ -30,26 +30,38 @@ const FlairNameById: React.FC<{ playerId?: string; name: string; className?: str
  * level-up badges, achievement unlocks, and the crew-streak banner. Data
  * arrives via gb:postgame:summary / gb:postgame:crewstreak (see App.tsx).
  *
+ * The per-player rows are a LEDGER, not four ragged sentences: name left,
+ * XP/GP right-aligned in fixed columns with tabular figures, the case-winner's
+ * line one weight step heavier. Achievement glyphs are NOT repeated per row —
+ * the unlock list above already names each one, and a bare duplicated award
+ * icon trailing a row carried no meaning.
+ *
  * Icons are lucide glyphs, never emoji (owner directive): full-colour system
  * emoji against the gold/parchment front page read as unfinished.
  */
-const PostGameRewards: React.FC = () => {
+const PostGameRewards: React.FC<{ winnerName?: string }> = ({ winnerName }) => {
   const { rewards, crewStreak, unlocks } = usePostgame();
+  const lang = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, lang);
   if (rewards.length === 0 && !crewStreak && unlocks.length === 0) return null;
 
   return (
-    <div className="my-3 text-sm">
+    <div className="ps-rewards">
       {crewStreak && (
-        <div className="ps-reward-line mb-1.5">
+        <div className="ps-reward-line">
           <Flame size={14} strokeWidth={2.2} className="ps-reward-ico" aria-hidden="true" />
           <span>
-            {crewStreak.gamesTonight > 1 ? `Game ${crewStreak.gamesTonight} tonight!` : 'First game tonight!'}
-            {crewStreak.weekStreak > 1 ? ` · Crew streak: ${crewStreak.weekStreak} weeks` : ''}
+            {crewStreak.gamesTonight > 1
+              ? t('victory.crewGameN').replace('{n}', String(crewStreak.gamesTonight))
+              : t('victory.crewFirstGame')}
+            {crewStreak.weekStreak > 1
+              ? ` · ${t('victory.crewStreakWeeks').replace('{n}', String(crewStreak.weekStreak))}`
+              : ''}
           </span>
         </div>
       )}
       {unlocks.length > 0 && (
-        <div className="flex flex-col gap-0.5 mb-1.5">
+        <div className="ps-reward-unlocks">
           {unlocks.slice(0, 4).map((u) => (
             <div
               key={`${u.playerId}:${u.achievement.id}`}
@@ -58,31 +70,76 @@ const PostGameRewards: React.FC = () => {
             >
               <Award size={14} strokeWidth={2.2} className="ps-reward-ico" aria-hidden="true" />
               <span>
-                <FlairNameById playerId={u.playerId} name={u.playerName} /> unlocked “{u.achievement.name}”!
+                <FlairNameById playerId={u.playerId} name={u.playerName} />{' '}
+                {t('victory.achievementUnlocked')
+                  .replace('{player}', '')
+                  .replace('{achievement}', u.achievement.name)
+                  .trimStart()}
               </span>
             </div>
           ))}
         </div>
       )}
       {rewards.length > 0 && (
-        <div className="flex flex-col gap-0.5 max-h-28 overflow-y-auto">
+        <div className="ps-ledger">
           {rewards.map((r) => (
-            <div key={r.playerId} className="flex items-center justify-center gap-2 text-[var(--parchment)]">
-              <FlairNameById playerId={r.playerId} name={r.playerName} className="truncate max-w-[120px]" />
-              <span className="text-[#4ea7ea] font-semibold whitespace-nowrap">+{r.totalXp} XP</span>
-              {r.gabuPoints > 0 && <span className="text-[var(--royal-gold)] font-semibold whitespace-nowrap">+{r.gabuPoints} GP</span>}
-              {r.leveledUp && r.newLevel != null && (
-                <span className="text-[#7cffb2] font-semibold whitespace-nowrap inline-flex items-center gap-0.5">
-                  <ChevronUp size={13} strokeWidth={3} aria-hidden="true" /> Lv {r.newLevel}
-                </span>
-              )}
-              {r.achievements.map((a) => (
-                <Award key={a.id} size={13} strokeWidth={2.2} className="ps-reward-ico" aria-label={a.name} />
-              ))}
+            <div
+              key={r.playerId}
+              className={`ps-ledger-row${winnerName && r.playerName === winnerName ? ' is-winner' : ''}`}
+            >
+              <FlairNameById playerId={r.playerId} name={r.playerName} className="ps-ledger-name ps-truncate" />
+              <span className="ps-ledger-xp">+{r.totalXp} XP</span>
+              <span className="ps-ledger-gp">{r.gabuPoints > 0 ? `+${r.gabuPoints} GP` : ''}</span>
+              <span className="ps-ledger-lvl">
+                {r.leveledUp && r.newLevel != null && (
+                  <>
+                    <ChevronUp size={12} strokeWidth={3} aria-hidden="true" />
+                    {`Lv ${r.newLevel}`}
+                  </>
+                )}
+              </span>
             </div>
           ))}
         </div>
       )}
+    </div>
+  );
+};
+
+/**
+ * The rewards slot only RESERVES height while the platform summary is still in
+ * flight. gb:postgame:summary can arrive after the panel paints — but it can
+ * also never arrive at all (guest room, platform offline), and an unconditional
+ * 92px reserve then left a dead band of velvet between the winner block and the
+ * primary CTA at every width. Pending = a dashed ghost of the ledger (designed
+ * space); resolved or timed out = the reserve collapses to nothing.
+ */
+const REWARDS_WAIT_MS = 4000;
+
+const RewardsSlot: React.FC<{ winnerName?: string }> = ({ winnerName }) => {
+  const { rewards, crewStreak, unlocks } = usePostgame();
+  const resolved = rewards.length > 0 || !!crewStreak || unlocks.length > 0;
+  const [waited, setWaited] = useState(false);
+  const lang = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, lang);
+
+  useEffect(() => {
+    const id = setTimeout(() => setWaited(true), REWARDS_WAIT_MS);
+    return () => clearTimeout(id);
+  }, []);
+
+  const pending = !resolved && !waited;
+
+  return (
+    <div className={`ps-rewards-slot${pending ? ' is-pending' : ''}`}>
+      {resolved ? (
+        <PostGameRewards winnerName={winnerName} />
+      ) : pending ? (
+        <div className="ps-rewards-ghost">
+          <span className="sr-only">{t('victory.rewardsPending')}</span>
+          <i aria-hidden="true" /><i aria-hidden="true" /><i aria-hidden="true" />
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -100,6 +157,8 @@ const RematchControls: React.FC<{ socket: Socket; isHost: boolean }> = ({ socket
   const { rematch, rematchGo } = usePostgame();
   const [voted, setVoted] = useState(false);
   const firedRef = useRef(false);
+  const lang = getCurrentLanguage();
+  const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, lang);
 
   // Host: majority reached → fire the existing restart flow exactly once.
   useEffect(() => {
@@ -124,15 +183,22 @@ const RematchControls: React.FC<{ socket: Socket; isHost: boolean }> = ({ socket
         className="ps-victory-btn--primary w-full px-6 py-3 text-sm sm:text-base min-h-[52px]"
         type="button"
       >
-        {voted ? 'Voted ✓' : 'Rematch!'}
+        {voted ? (
+          <span className="ps-voted">
+            <Check size={17} strokeWidth={3} aria-hidden="true" />
+            {t('victory.voted')}
+          </span>
+        ) : t('victory.rematch')}
       </button>
       {rematch && rematch.votes > 0 && (
         <div className="text-sm font-bold text-[var(--parchment)]">
-          {rematch.votes}/{rematch.needed} want a rematch
+          {t('victory.rematchTally')
+            .replace('{votes}', String(rematch.votes))
+            .replace('{needed}', String(rematch.needed))}
         </div>
       )}
       {!isHost && !rematch?.votes && (
-        <div className="text-xs text-[var(--parchment-dark)] opacity-70">Majority vote starts the rematch</div>
+        <div className="text-xs text-[var(--parchment-dark)] opacity-70">{t('victory.rematchHint')}</div>
       )}
     </div>
   );
@@ -285,6 +351,13 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   const innerRef = useRef<HTMLDivElement | null>(null);
   const isScrollable = useOverflowFlag(innerRef, scrollRef);
 
+  // Confetti density is a stage decision, not a viewport unit: the front page
+  // only reads as a physical burst on the wide canvas.
+  const [wideStage] = useState(
+    () => typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      && window.matchMedia('(min-width: 1024px)').matches
+  );
+
   const renderProgressRow = (p: Player, stampWinner: boolean) => (
     <div key={p.id} className={`ps-progress-row${p.id === winnerId ? ' is-winner' : ''}`}>
       <span className="ps-progress-name">
@@ -352,7 +425,9 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
               </div>
             </div>
 
-            <div className="ps-victory-fade" aria-hidden="true" />
+            <div className="ps-victory-fade" aria-hidden="true">
+              <ChevronDown size={16} strokeWidth={2.6} />
+            </div>
             {/* The 5s auto-advance made visible. */}
             <div className="ps-round-tick-track" aria-hidden="true">
               <div className="ps-round-tick" />
@@ -366,9 +441,27 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   // ── Game Victory Mode — CASE SOLVED, the conviction front page ──
   return (
     <Portal>
-      {/* Noir/gold palette carried over from the retired animations/Confetti. */}
+      {/* Two on-theme layers, both token-coloured (no off-palette primaries):
+          a dense gold/parchment rain, plus one wax-red burst out of the
+          masthead so the theme trio reads in a single frame. */}
       <div className="ps-victory-confetti">
-        <Confetti colors={['#d2b25a', '#e7cc7a', '#8a2233', '#f6f0e6', '#a77e22']} />
+        <Confetti
+          count={wideStage ? 130 : 64}
+          durationMs={4200}
+          colors={[
+            'var(--royal-gold, #d2b25a)',
+            'var(--royal-gold-light, #e7cc7a)',
+            'var(--parchment, #f6f0e6)',
+            'var(--royal-gold-dark, #a77e22)',
+          ]}
+        />
+        <Confetti
+          mode="burst"
+          origin={{ xPct: 50, yPct: 32 }}
+          count={wideStage ? 54 : 28}
+          durationMs={1800}
+          colors={['#a72b3d', '#8a2233', 'var(--royal-gold-light, #e7cc7a)']}
+        />
       </div>
       <motion.div
         className="ps-victory-scrim"
@@ -386,7 +479,12 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             <div ref={innerRef}>
             {/* Masthead */}
             <header className="ps-masthead">
-              <div className="ps-dateline">{lobby.code}</div>
+              {/* A bare room code under a hairline read as mojibake ("CAGAEU").
+                  Label it so the dateline reads as a case-file number. */}
+              <div className="ps-dateline">
+                <span className="ps-dateline-label">{t('victory.caseFileNo')}</span>
+                <span className="ps-dateline-code">{lobby.code}</span>
+              </div>
               <motion.h2
                 className="ps-headline"
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -446,13 +544,9 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                   ))}
                 </div>
 
-                {/* Platform rewards (+XP/+GP, unlocks, crew streak). The slot is
-                    reserved so a late gb:postgame:summary can't shove the CTAs. */}
-                {!isBroadcastMirror && (
-                  <div className="ps-rewards-slot">
-                    <PostGameRewards />
-                  </div>
-                )}
+                {/* Platform rewards (+XP/+GP, unlocks, crew streak). The slot
+                    reserves height ONLY while the summary is still in flight. */}
+                {!isBroadcastMirror && <RewardsSlot winnerName={winnerPlayer?.name} />}
               </motion.section>
             </div>
 
@@ -513,7 +607,9 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             </div>
           </div>
 
-          <div className="ps-victory-fade" aria-hidden="true" />
+          <div className="ps-victory-fade" aria-hidden="true">
+            <ChevronDown size={16} strokeWidth={2.6} />
+          </div>
         </motion.div>
       </motion.div>
     </Portal>

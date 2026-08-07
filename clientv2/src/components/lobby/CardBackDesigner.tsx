@@ -118,6 +118,10 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
   /** Copy still awaiting the locale tables — renders only once it lands. */
   const equippedLabel = optionalCopy('designer.equipped');
   const premiumSectionTitle = optionalCopy('designer.premiumTitle');
+  /* Receipt stamp on the buy sheet, so the money moment reads as a filed
+     document rather than a floating web dialog. Copy request pending — the
+     literal is the EN fallback until the key lands in all 6 locales. */
+  const confirmEyebrow = optionalCopy('designer.confirmEyebrow') || 'PURCHASE ORDER';
 
   const renderChips = (slot: Slot, current: string, tier: 'standard' | 'premium' | 'all' = 'all') => {
     const all: Array<{ id: string; name: string; premiumOnly?: boolean }> = [
@@ -149,8 +153,21 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
           title={opt.name}
           aria-pressed={isEquipped}
         >
+          {/* Frame chips SHOW the ring they sell: the same avatar-frame-wrap the
+              roster row + dock chip render, at swatch size. A frame was
+              otherwise sold as a word and a price tag. Flair chips already
+              preview themselves — the gradient rides their label. */}
+          {slot === 'frame' && (
+            <span
+              className={`psshop-chip-swatch avatar-frame-wrap ${cosmeticClass(opt.id)}`.trim()}
+              style={{ ['--frame-ring' as string]: '2px' }}
+              aria-hidden="true"
+            >
+              <Avatar src={me?.avatarUrl} />
+            </span>
+          )}
           {opt.premiumOnly && <Crown size={11} aria-hidden="true" className="psshop-chip-glyph" />}
-          {locked
+          {locked && (opt.premiumOnly || !price)
             ? <Lock size={11} aria-hidden="true" className="psshop-chip-glyph" />
             : isEquipped ? <Check size={12} aria-hidden="true" className="psshop-chip-glyph" /> : null}
           {/* The flair gradient lives on the LABEL, never on the button: the
@@ -159,7 +176,10 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
           <span className={`psshop-chip-label ${slot === 'flair' && opt.id && !isEquipped ? cosmeticClass(opt.id) : ''}`.trim()}>
             {opt.name}
           </span>
-          {locked && !opt.premiumOnly && <span className="psshop-price" aria-hidden="true">{price}</span>}
+          {/* Lock folds onto the price pill — one "locked, costs X" token. */}
+          {locked && !opt.premiumOnly && !!price && (
+            <span className="psshop-price" aria-hidden="true"><Lock size={9} />{price}</span>
+          )}
           {isEquipped && equippedLabel && <span className="psshop-chip-state" aria-hidden="true">{equippedLabel}</span>}
         </button>
       );
@@ -269,6 +289,7 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
           return (
             <div className="psshop-confirm-backdrop" onClick={() => { if (!confirmBusy) { setConfirm(null); setTryOn(null); } }}>
               <div className="psshop-confirm" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={`${t('designer.buy')} ${label}`}>
+                <span className="psshop-eyebrow">{confirmEyebrow}</span>
                 <div className="psshop-confirm-title">{t('designer.buyQuestion', { name: label })}</div>
                 {confirmPremiumOnly ? (
                   <p className="psshop-note">{t('designer.premiumExclusive')}</p>

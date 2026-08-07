@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import { useWebRTC } from '../../contexts/WebRTCContext';
 import { useIsMobile } from '../../hooks/useIsMobile';
-import { t } from '../../utils/translations';
+import { t, getCurrentLanguage } from '../../utils/translations';
+import { getTranslation } from '../../utils/gameTranslations';
 // Heavy effect services (MediaPipe / three.js) are dynamically imported in the
 // preview-rebuild effect — only when the user enables an effect. Defaults come
 // from the lightweight config module so this modal stays out of those chunks.
@@ -31,6 +32,16 @@ import type { FaceAvatarConfig, FaceAvatarService } from '../../services/faceAva
 import type { VirtualBackgroundService } from '../../services/virtualBackgroundService';
 
 type TabId = 'devices' | 'background' | 'audio' | 'avatar';
+
+/**
+ * Eyebrow copy with an EN literal fallback: `getTranslation` returns the KEY
+ * itself on a miss, so a `|| fallback` never fires. Used until the new eyebrow
+ * key lands in all six locale tables (copy request filed).
+ */
+const eyebrowCopy = (key: string, fallback: string): string => {
+  const value = getTranslation(key, getCurrentLanguage());
+  return value === key ? fallback : value;
+};
 
 interface DeviceSettingsModalProps {
   isOpen: boolean;
@@ -326,13 +337,19 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
       <div className="device-settings-modal" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="device-settings-header">
-          <h2>
-            {isMobile
-              ? (mode === 'setup' ? t('video.modal.titleSetupMobile') : t('video.modal.titleEditMobile'))
-              : (mode === 'setup' ? t('video.modal.titleSetup') : t('video.modal.titleEdit'))
-            }
-          </h2>
-          <button className="device-settings-close" onClick={onClose}>
+          {/* Dossier masthead — the same eyebrow + title block the settings /
+              auth / feedback panels carry, so this modal joins the family
+              instead of being the one bare <h2> in the set. */}
+          <div className="settings-modal-title">
+            <span className="settings-modal-eyebrow">{eyebrowCopy('game.surveillance', 'SURVEILLANCE')}</span>
+            <h2>
+              {isMobile
+                ? (mode === 'setup' ? t('video.modal.titleSetupMobile') : t('video.modal.titleEditMobile'))
+                : (mode === 'setup' ? t('video.modal.titleSetup') : t('video.modal.titleEdit'))
+              }
+            </h2>
+          </div>
+          <button className="device-settings-close" onClick={onClose} aria-label={t('common.close')}>
             <X className="w-5 h-5" />
           </button>
         </div>

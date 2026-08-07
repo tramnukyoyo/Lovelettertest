@@ -121,7 +121,7 @@ const FreezeOverlay: React.FC<FreezeOverlayProps> = ({ variant = 'full' }) => {
     >
       <div className="freeze-card">
         <span className="freeze-seal" aria-hidden="true">
-          <Pause size={isBanner ? 20 : 40} strokeWidth={1.5} />
+          <Pause size={isBanner ? 20 : 30} strokeWidth={1.5} />
         </span>
 
         <div className="freeze-card__text">
@@ -137,11 +137,14 @@ const FreezeOverlay: React.FC<FreezeOverlayProps> = ({ variant = 'full' }) => {
             />
           </div>
 
+          {/* The bar above is the retry pulse, not a loading bar — so the label
+              is constant and the attempt number trails it as a count. Swapping
+              the whole label to "Attempt 1" (as it used to) made a restarting
+              backoff window look like progress toward something. */}
           <p className="freeze-status">
             <span className="freeze-status__attempt">
-              {attempt > 0
-                ? tr('reconnect.attempt', 'Attempt {n}', { n: attempt })
-                : tr('reconnect.retrying', 'Retrying the line')}
+              {tr('reconnect.retrying', 'Retrying the line')}
+              {attempt > 0 && <span className="freeze-status__count"> · {attempt}</span>}
             </span>
             <span className="freeze-status__time">{formatElapsed(elapsedMs)}</span>
           </p>

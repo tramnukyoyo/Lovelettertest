@@ -396,3 +396,76 @@
   .game-explainer-skip,
   .game-explainer-close { transition: none; }
 }
+
+/* ============================================================================
+   ROUND 3 — CASCADE GUARD (the briefing's two controls were gold slabs)
+   prime-suspect-unified.css loads after this file and carries a bare
+   `button { … }` baseline plus `button:not(.secondary):not(.danger)
+   { background: var(--accent-color); color: white; border: none }` at (0,2,1).
+   Everything above declares the dossier recipe at (0,1,0), so it lost: the X
+   rendered as a 79x63 royal-gold plate — the brightest, biggest thing in a
+   modal whose job is to READ — and SKIP as a full-bleed gold bar competing
+   with it. Three classes + the type selector (0,3,1) reclaim both.
+   ============================================================================ */
+.game-explainer-overlay .game-explainer-modal button.game-explainer-close {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--parchment-dark, #cdbfa4);
+  background: rgba(21, 12, 17, 0.7);
+  border: 1px solid rgba(210, 178, 90, 0.35);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.game-explainer-overlay .game-explainer-modal button.game-explainer-close:hover {
+  /* rule 8: no transform on a clickable — the shared baseline animates a
+     translate + scale under the pointer. */
+  transform: none;
+  filter: brightness(1.2);
+  color: var(--royal-gold-light, #f0dc9a);
+  background: rgba(21, 12, 17, 0.92);
+  border-color: rgba(210, 178, 90, 0.6);
+}
+
+.game-explainer-overlay .game-explainer-modal button.game-explainer-skip {
+  min-height: 40px;
+  padding: 8px 20px;
+  border: 1px solid rgba(210, 178, 90, 0.45);
+  border-radius: 999px;
+  background: rgba(231, 204, 122, 0.06);
+  color: var(--parchment-dark, #cdbfa4);
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  box-shadow: none;
+}
+
+.game-explainer-overlay .game-explainer-modal button.game-explainer-skip:hover {
+  transform: none;
+  filter: brightness(1.25);
+  color: var(--royal-gold-light, #f0dc9a);
+  background: rgba(231, 204, 122, 0.12);
+}
+
+/* The baseline also paints a sheen pseudo-element on every button. */
+.game-explainer-overlay .game-explainer-modal button::before,
+.game-explainer-overlay .game-explainer-modal button:hover::before {
+  display: none;
+}
+
+/* At phone width SKIP stretched edge-to-edge and out-shouted the copy band;
+   it is a quiet dismissal, right-aligned like it is on desktop. */
+@media (max-width: 640px) {
+  .game-explainer-footer { justify-content: flex-end; }
+  .game-explainer-overlay .game-explainer-modal button.game-explainer-skip {
+    width: auto;
+    padding: 10px 26px;
+  }
+}

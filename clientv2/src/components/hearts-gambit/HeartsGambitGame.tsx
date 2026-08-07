@@ -143,6 +143,9 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
     : lobby.players.find(p => p.socketId === lobby.mySocketId);
   const isMyTurn = !isSpectator && lobby.gameData?.currentTurn === me?.id;
   const myHand = me?.hand || [];
+  /** Cards this player has already played/discarded — the "filed by you" record
+   *  shown in the hand band on wide stages. */
+  const myFiled: CardType[] = me?.discarded || [];
   const otherPlayers = lobby.players.filter(p => p.id !== me?.id && !p.isSpectator);
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
   const amEliminated = me?.isEliminated || false;
@@ -438,6 +441,44 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
               <ScrollText size={12} className="ps-caselog-icon" />
               <span className="ps-caselog-title">{t('caseNotes.caseLog')}</span>
               <span className="ps-caselog-count">{caseLog.length}</span>
+            </div>
+            {/* Dossier roster — the notebook's head on wide stages (CSS-gated to
+                @container stage >= 1440px; hidden everywhere else). It is the
+                deduction scoreboard: seat order, wax-seal token track against the
+                win target, and the three turn states (active / sealed / out). */}
+            <div className="ps-roster">
+              <div className="ps-roster-head">
+                <span className="ps-roster-eyebrow">{t('playerList.players')}</span>
+                <span className="ps-roster-target">
+                  {t('game.tokens').replace('{count}', String(tokensToWin))}
+                </span>
+              </div>
+              <ul className="ps-roster-list">
+                {lobby.players.filter(p => !p.isSpectator).map((p, i) => {
+                  const isActiveSeat = lobby.gameData?.currentTurn === p.id;
+                  const isSealed = !!p.isImmune && !p.isEliminated;
+                  return (
+                    <li
+                      key={`roster-${p.id}`}
+                      className={`ps-roster-row${isActiveSeat ? ' is-active' : ''}${p.isEliminated ? ' is-out' : ''}${isSealed ? ' is-sealed' : ''}`}
+                    >
+                      <span className="ps-roster-index" aria-hidden="true">{i + 1}</span>
+                      <span className="ps-roster-ident">
+                        <FlairName player={p} className="ps-roster-name" />
+                        {p.id === me?.id && <span className="ps-roster-you">{t('playerList.you')}</span>}
+                      </span>
+                      <span className="ps-roster-seals" aria-hidden="true">
+                        {Array.from({ length: tokensToWin }).map((_, s) => (
+                          <span key={`roster-seal-${p.id}-${s}`} className={`ps-seal${s < (p.tokens || 0) ? ' is-filled' : ''}`} />
+                        ))}
+                      </span>
+                      <span className="ps-roster-state">
+                        {p.isEliminated ? t('playerList.out') : isSealed ? t('cardInspector.protected') : ''}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
             <div className="ps-caselog-body">
               {caseLog.length === 0 ? (
@@ -786,11 +827,12 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
               )}
 
               {/* Card Legend, Rules & How to Play Buttons */}
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ps-tray-tools ml-auto flex items-center gap-2">
                 <button
                   onClick={() => setIsLegendOpen(true)}
                   className="ps-btn ps-btn--ghost ps-btn--sm"
                   title={t('cardLegend.title')}
+                  aria-label={t('cardLegend.title')}
                 >
                   <BookOpen size={16} />
                   {t('cardLegend.title')}
@@ -799,6 +841,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   onClick={() => setIsRulesOpen(true)}
                   className="ps-btn ps-btn--ghost ps-btn--sm"
                   title={t('rules.button')}
+                  aria-label={t('rules.button')}
                 >
                   <ScrollText size={16} />
                   {t('rules.button')}
@@ -807,12 +850,45 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   onClick={() => setIsTutorialOpen(true)}
                   className="ps-btn ps-btn--ghost ps-btn--sm"
                   title={t('tutorial.howToPlay')}
+                  aria-label={t('tutorial.howToPlay')}
                 >
                   <HelpCircle size={16} />
                   {t('tutorial.howToPlay')}
                 </button>
               </div>
             </div>
+
+            {/* FILED BY YOU — the cards this player has already played, stacked as
+                index tabs. Wide stages only (CSS-gated); it turns the left half of
+                the hand band from empty velvet into the player's own case record. */}
+            <aside className="ps-tray-flank ps-tray-flank--filed">
+              <div className="ps-filed">
+                <div className="ps-filed-head">
+                  <span className="ps-filed-title">{t('evidence.title')}</span>
+                  <span className="ps-filed-count">{myFiled.length}</span>
+                </div>
+                {myFiled.length === 0 ? (
+                  <div className="ps-filed-empty">
+                    <span className="ps-filed-ghost" aria-hidden="true" />
+                    <span className="ps-filed-ghost" aria-hidden="true" />
+                    <span className="ps-filed-empty-text">{t('evidence.noEvidenceYet')}</span>
+                  </div>
+                ) : (
+                  <ul className="ps-filed-list">
+                    {myFiled.slice(-6).map((filedCard, i) => (
+                      <li key={`filed-${i}-${filedCard}`} className="ps-filed-item">
+                        <CardHoverZone card={filedCard} className="ps-filed-chip">
+                          <span className="ps-filed-chip-value">{filedCard}</span>
+                          <span className="ps-filed-chip-name">
+                            {getTranslatedCardName(filedCard as any, language)}
+                          </span>
+                        </CardHoverZone>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </aside>
 
             <div className="ps-hand-area w-full flex justify-center items-end flex-1 min-h-0 pb-2 gap-4">
                {/* My Hand */}

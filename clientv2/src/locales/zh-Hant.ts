@@ -53,6 +53,7 @@ export const zhHant: Translations = {
     yourName: '你的名字',
     roomCode: '房間代碼',
     enterName: '輸入你的名字',
+    formNote: '簽署案卷以解封',
     enterRoomCode: '輸入房間代碼',
     create: '建立',
     join: '加入',
@@ -307,6 +308,18 @@ export const zhHant: Translations = {
     close: '關閉通知',
   },
 
+  // Toast eyebrow categories (kick / site notification / admin message)
+  toast: {
+    category: {
+      removed: '已移除',
+      notice: '通知',
+      confirmed: '已確認',
+      warning: '警告',
+      error: '錯誤',
+      message: '訊息',
+    },
+  },
+
   // Achievement toast
   achievementToast: {
     unlocked: '成就解鎖',
@@ -371,6 +384,7 @@ export const zhHant: Translations = {
     equipped: '使用中',
     premiumTitle: '高級會員專屬',
     cardBackPreviewCaption: '你的手牌在牌桌上呈現的樣子',
+    confirmEyebrow: '採購單',
   },
 
   // Streamer broadcast stage

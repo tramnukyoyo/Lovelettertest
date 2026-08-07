@@ -1947,15 +1947,21 @@
    is `.settings-modal`). We scope to `:not([data-broadcast-mirror-portal])` so
    only the core SettingsModal backdrop is hit — Card Legend / Rules / Tutorial
    carry that attribute and are styled by their own scoped rules below. */
+/* Desktop ANCHORS the dossier panel in the stage. `align-items: flex-start` +
+   a header-clearing top pad at all widths left the 345px General panel floating
+   at y≈100 with ~630px of dead stage beneath it, while the 900px shop panel in
+   the identical viewport ran top-to-bottom — one family, two anchors. The
+   flex-start rule survives only in the <=926px block below, where the notch
+   clearance genuinely needs it. */
 [data-theme="primesuspect"] .settings-modal-backdrop:not([data-broadcast-mirror-portal]) {
   position: fixed;
   inset: 0;
   z-index: var(--z-settings-modal);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: clamp(0.75rem, 3vw, 1.5rem);
-  padding-top: calc(var(--app-header-height, 66px) + env(safe-area-inset-top, 0px) + 2.25rem);
+  padding-top: calc(var(--app-header-height, 66px) + env(safe-area-inset-top, 0px) + 1rem);
   background:
     radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
     radial-gradient(900px at 25% 14%, rgba(var(--accent-color-rgb), 0.10), transparent 60%),
@@ -2069,12 +2075,10 @@
   border-color: rgba(var(--accent-color-rgb), 0.35);
 }
 
-[data-theme="primesuspect"] .settings-modal-content {
-  padding: 1rem 1.1rem 0.6rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
+/* (`.settings-modal-content` used to be declared three times — here, again at
+   the `!important` block below, and a third time in components/settings-modal.css.
+   Collapsed into the single block in settings-modal.css, which now owns
+   display/flow/padding/gap for the dossier panel.) */
 
 [data-theme="primesuspect"] .settings-section {
   padding: 0.9rem 0.9rem 0.85rem;
@@ -2218,9 +2222,8 @@
   background: #8b3a3a !important;
 }
 
-[data-theme="primesuspect"] .settings-modal-content {
-  padding: 1rem !important;
-}
+/* (Second duplicate `.settings-modal-content` removed — see the note above; the
+   single owner is components/settings-modal.css.) */
 
 [data-theme="primesuspect"] .settings-section {
   background: rgba(255, 255, 255, 0.2) !important;
@@ -5563,18 +5566,51 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
       var(--ps-m-bottom) + var(--hg-m-hand-h) + var(--ps-m-gap)
       + var(--ps-m-notes-h) + var(--ps-m-gap)
     );
+    /* exactly how much room the evidence band has left, and therefore the
+       largest the stack may be. Deriving the card from the band (instead of
+       guessing a vw clamp) means growing the alert lane, the roster or the case
+       log can never push a card past the band edge at any height. */
+    --ps-m-deck-h: calc(
+      100svh - var(--ps-m-top) - var(--ps-m-suspects-h) - var(--ps-m-gap)
+      - var(--ps-m-notes-top-gap) - var(--ps-m-alert-h)
+    );
+    /* 42px = band padding + the EVIDENCE / CASE FILE label row */
+    --ps-m-deck-card-max: calc((var(--ps-m-deck-h) - 42px) / 1.5);
   }
 
-  [data-theme="primesuspect"] .hg-mobile-alert-rail {
+  /* while a card is staged the same lane carries the Confirm/Cancel bar, so it
+     has to grow to a real 44px tap target. --ps-m-deck-card-max is derived from
+     the lane height, so the evidence stack gives the pixels back automatically —
+     the bar can never come to rest on the hand, the log or a card. */
+  [data-theme="primesuspect"] .hg-mobile-layout.is-choosing {
+    --ps-m-alert-h: 52px;
+  }
+  /* both the Accomplice ribbon AND the commit bar want the lane — reserve two
+     rows so they stack instead of landing on each other */
+  [data-theme="primesuspect"] .hg-mobile-layout.is-choosing.is-alerting {
+    --ps-m-alert-h: 82px;
+  }
+
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-alert-rail,
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-commit-bar {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 12px;
+    right: 12px;
+    top: auto;
     bottom: var(--ps-m-notes-top-gap);
     transform: none;
     height: var(--ps-m-alert-h);
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  /* ribbon on the upper row, bar on the lower (thumb) row */
+  [data-theme="primesuspect"] .hg-mobile-layout.is-choosing .hg-mobile-alert-rail {
+    height: 26px;
+    bottom: calc(var(--ps-m-notes-top-gap) + var(--ps-m-alert-h) - 26px);
+  }
+  [data-theme="primesuspect"] .hg-mobile-layout.is-choosing .hg-mobile-commit-bar {
+    height: 52px;
   }
 
   /* --- band 1: suspects, full width across the top ------------------------ */
@@ -5588,6 +5624,39 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     max-height: none;
     overflow: hidden;
     z-index: 5;
+  }
+
+  /* the band needs the dossier face the rest of the game wears — without a fill
+     the backdrop moon (.gb-moon) sat *inside* the roster and ate its border.
+     Specificity note: prime-suspect-ingame.css §(b) styles the same selector at
+     0,2,0 and is imported later, so this rule qualifies with .hg-mobile-layout. */
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-opponent-area,
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-deck-area {
+    border-radius: 12px;
+    background:
+      radial-gradient(700px at 30% 0%, rgba(246, 240, 230, 0.05), transparent 60%),
+      linear-gradient(135deg, rgba(52, 38, 47, 0.86), rgba(36, 27, 34, 0.72));
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    box-shadow:
+      inset 0 0 0 1px rgba(210, 178, 90, 0.3),
+      0 10px 28px rgba(0, 0, 0, 0.45);
+  }
+  /* the deck band is a wide table surface, not a card — keep it inset */
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-deck-area {
+    left: 12px;
+    right: 12px;
+    padding: 4px 10px;
+  }
+  /* the candle pool (prime-suspect-ingame.css §(b)) sat at z-index:-1, i.e.
+     behind the band's own background — now that the band HAS a face, lift the
+     pool onto it and float the two columns above the glow */
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-deck-area::before {
+    z-index: 0;
+  }
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-deck-col {
+    position: relative;
+    z-index: 1;
   }
 
   /* the strip's own cards shrink so three suspects fit the band honestly */
@@ -5631,7 +5700,7 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   [data-theme="primesuspect"] button.hg-mobile-deck-card,
   [data-theme="primesuspect"] button.hg-mobile-discard-card,
   [data-theme="primesuspect"] .hg-mobile-discard-card {
-    --hg-card-width: clamp(72px, 20vw, 104px);
+    --hg-card-width: clamp(56px, min(20vw, var(--ps-m-deck-card-max)), 104px);
     --hg-card-height: calc(var(--hg-card-width) * 1.5);
     width: var(--hg-card-width) !important;
     height: var(--hg-card-height) !important;
@@ -5681,12 +5750,19 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     font-size: 11px !important;
     line-height: 1.2 !important;
   }
+  /* NOTE: every declaration here needs !important. prime-suspect-ingame.css
+     §17.3 sets `-webkit-line-clamp: 6` on `[data-theme] .hg-dynamic-card:not(
+     .hg-card-back) .card-description` at the SAME specificity and is @imported
+     later, so without !important the clamp lost and the copy was guillotined
+     mid-glyph by `overflow:hidden` — a half-height row of letters, no ellipsis.
+     3 lines is what the ~52px body of a 132x198 hand card can actually hold. */
   [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
     display: -webkit-box !important;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
     font-size: 10px !important;
     line-height: 1.2 !important;
   }
@@ -5696,18 +5772,133 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   }
 }
 
+/* ----------------------------------------------------------------------------
+   PORTRAIT TABLET (>=600px wide) — fill the table, don't float in it.
+   At 768x1024 the bands are anchored by height, so the evidence band inherited
+   every leftover pixel (~420px of empty night around two 104px cards). Give the
+   tablet a bigger table: taller roster + case log, and an evidence stack that
+   actually scales with the extra width.
+   ------------------------------------------------------------------------- */
+@media (min-width: 600px) and (max-width: 1023.98px) and (min-height: 880px) and (orientation: portrait) {
+  [data-theme="primesuspect"] .hg-mobile-layout {
+    --ps-m-gap: 14px;
+    --ps-m-suspects-h: clamp(178px, 22svh, 230px);
+    --ps-m-notes-h: clamp(132px, 18svh, 190px);
+  }
+
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-opponent-area,
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-deck-area {
+    left: 20px;
+    right: 20px;
+  }
+
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-notes-area {
+    left: 20px;
+    right: 20px;
+  }
+
+  /* the suspects get real presence instead of 42px thumbnails */
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-suspect-card,
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-opponent-card {
+    --hg-card-width: clamp(42px, 7vw, 60px);
+    --hg-card-height: calc(var(--hg-card-width) * 1.5);
+    width: var(--hg-card-width) !important;
+    height: var(--hg-card-height) !important;
+  }
+  [data-theme="primesuspect"] .hg-mobile-opponent-card {
+    width: clamp(42px, 7vw, 60px);
+    height: calc(clamp(42px, 7vw, 60px) * 1.5);
+  }
+
+  /* The evidence stack is the centrepiece of the leftover run — let it grow to
+     whatever the band can actually hold (--ps-m-deck-card-max), so the ~420px
+     dead zone becomes table instead of empty night. is-choosing needs no
+     override: shrinking the band shrinks the max, and the card with it. */
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-dynamic-card.hg-mobile-deck-card,
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-dynamic-card.hg-mobile-evidence-card,
+  [data-theme="primesuspect"] .hg-mobile-layout button.hg-mobile-deck-card,
+  [data-theme="primesuspect"] .hg-mobile-layout button.hg-mobile-discard-card,
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-discard-card {
+    --hg-card-width: clamp(88px, min(26vw, var(--ps-m-deck-card-max)), 168px);
+    --hg-card-height: calc(var(--hg-card-width) * 1.5);
+    width: var(--hg-card-width) !important;
+    height: var(--hg-card-height) !important;
+  }
+
+  [data-theme="primesuspect"] .hg-mobile-deck-label {
+    font-size: clamp(13px, 1.9vw, 16px);
+  }
+}
+
+/* ============================================================================
+   COMMIT BAR (Confirm / Cancel) + ALERT RAIL — docked, never floating
+   The commit control for a whole turn used to be an inline-styled cluster
+   (fixed bottom:1% right:1%, .hg-btn-tiny, raw Tailwind `bg-green-600`, English
+   string literals) sitting straight on top of the hand row. It is now a real
+   action bar wearing the .ps-btn family. In portrait it lives in the reserved
+   alert lane (see the portrait block above, 0,3,0 — it outranks these);
+   in landscape it docks bottom-right, clear of the hand (left 16% / width 53%).
+   ========================================================================= */
+[data-theme="primesuspect"] .hg-mobile-commit-bar {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+[data-theme="primesuspect"] .hg-mobile-commit-btn {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0.5rem 1.15rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+[data-theme="primesuspect"] .hg-mobile-commit-btn.ps-btn--ghost {
+  min-width: 92px;
+}
+[data-theme="primesuspect"] .hg-mobile-commit-btn.ps-btn--primary {
+  min-width: 116px;
+}
+
+/* the "must play the Accomplice" ribbon: in landscape it carried
+   `fixed bottom-24 left-1/2` from the TSX, i.e. it sat on the hand. Anchor it
+   in the free strip between the evidence band and the hand instead. */
+[data-theme="primesuspect"] .hg-mobile-alert-rail {
+  position: absolute;
+  left: 16%;
+  width: 52.91%;
+  top: 66%;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
 /* ============================================================================
    ORIENTATION HINT — a quiet docked strip, never a full-screen gate
    ========================================================================= */
 /* NOTE: the selector carries [data-theme] because .hg-panel (which this strip
    also wears, for the velvet+gold face) sets position:relative at that same
    specificity — a bare .hg-orientation-hint would lose and stop being fixed. */
+/* NOTE 2: the strip used to dock at `bottom: safe + 12px` — which is exactly
+   where the hand row lives (.hg-mobile-player-area, bottom var(--ps-m-bottom),
+   z-30). On a first visit it therefore covered the player's own card for its
+   whole 6s life, at the one moment they are trying to read the board. Re-anchor
+   it ABOVE the hand; --hg-m-hand-h comes from the portrait block on
+   .hg-mobile-layout, which is this strip's ancestor (fallback 0px elsewhere). */
 [data-theme="primesuspect"] .hg-orientation-hint,
 .hg-orientation-hint {
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px) + 12px + var(--hg-m-hand-h, 0px) + 10px
+  );
   z-index: 60;
   display: flex;
   align-items: center;
@@ -17008,13 +17199,17 @@ button svg.lucide,
   margin-bottom: var(--spacing-md);
 }
 
+/* The ENTRY POINT to Pass & Play was still wearing the GameBuddies neon:
+   a cyan pill and a cyan add-player button in a gold/crimson candlelit lobby.
+   Everything below is the same dossier language as the in-game P&P screens
+   (velvet ground, gold hairline, crimson slab for the live choice). */
 .pp-toggle-buttons {
   display: flex;
   gap: 2px;
-  background: var(--bg-secondary);
+  background: linear-gradient(180deg, rgba(26, 19, 25, 0.72), rgba(36, 27, 34, 0.6));
   border-radius: var(--radius-lg);
   padding: 2px;
-  border: 1px solid var(--panel-border);
+  border: 1px solid rgba(210, 178, 90, 0.32);
 }
 
 .pp-toggle-btn {
@@ -17023,24 +17218,39 @@ button svg.lucide,
   align-items: center;
   justify-content: center;
   gap: 6px;
+  min-height: 40px;
   padding: 8px 12px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: calc(var(--radius-lg) - 2px);
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--parchment-dark);
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.82rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, filter 0.12s ease;
 }
 
 .pp-toggle-btn.active {
-  background: var(--gb-cyan);
-  color: #000;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  color: var(--royal-gold-light);
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.24);
 }
 
 .pp-toggle-btn:not(.active):hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(210, 178, 90, 0.1);
+  border-color: rgba(210, 178, 90, 0.34);
+  color: var(--royal-gold-light);
+}
+
+.pp-toggle-btn:focus-visible {
+  outline: 2px solid var(--royal-gold-light);
+  outline-offset: 2px;
 }
 
 /* ----- Mode Label (non-host) ----- */
@@ -17050,10 +17260,11 @@ button svg.lucide,
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.78rem;
-  color: var(--gb-cyan);
-  background: rgba(0, 217, 255, 0.08);
-  border: 1px solid rgba(0, 217, 255, 0.2);
+  color: var(--royal-gold-light);
+  background: rgba(210, 178, 90, 0.09);
+  border: 1px solid rgba(210, 178, 90, 0.28);
   border-radius: var(--radius-md);
 }
 
@@ -17072,18 +17283,21 @@ button svg.lucide,
 
 .pp-player-input {
   flex: 1;
+  min-height: 40px;
   padding: 8px 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--panel-border);
+  background: rgba(26, 19, 25, 0.66);
+  border: 1px solid rgba(210, 178, 90, 0.3);
   border-radius: var(--radius-md);
-  color: var(--text-primary);
+  color: var(--parchment);
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.85rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .pp-player-input:focus {
-  border-color: var(--gb-cyan);
+  border-color: var(--royal-gold);
+  box-shadow: 0 0 0 2px rgba(210, 178, 90, 0.18);
 }
 
 .pp-player-input::placeholder {
@@ -17095,15 +17309,25 @@ button svg.lucide,
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(210, 178, 90, 0.55);
   border-radius: var(--radius-md);
-  background: var(--gb-cyan);
-  color: #000;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  color: var(--royal-gold-light);
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, filter 0.12s ease;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.24), 0 2px 6px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
+}
+
+.pp-add-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.pp-add-btn:focus-visible {
+  outline: 2px solid var(--royal-gold-light);
+  outline-offset: 2px;
 }
 
 .pp-add-btn:disabled {
@@ -17121,8 +17345,9 @@ button svg.lucide,
   display: flex;
   align-items: center;
   gap: 4px;
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--parchment-dark);
   margin: 0;
 }
 
@@ -17137,14 +17362,15 @@ button svg.lucide,
   align-items: center;
   justify-content: space-between;
   padding: 6px 10px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--panel-border);
+  background: linear-gradient(180deg, rgba(52, 38, 47, 0.62), rgba(36, 27, 34, 0.5));
+  border: 1px solid rgba(210, 178, 90, 0.26);
   border-radius: var(--radius-md);
 }
 
 .pp-player-name {
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.82rem;
-  color: var(--text-primary);
+  color: var(--parchment);
   font-weight: 500;
 }
 
@@ -17325,10 +17551,12 @@ button svg.lucide,
 
 /* Waiting state */
 .pp-pass-label {
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  /* was var(--text-secondary) — a platform grey inside a candlelit surface */
+  color: var(--parchment-dark);
   margin: 0;
 }
 

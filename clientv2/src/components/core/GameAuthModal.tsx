@@ -15,7 +15,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, LogIn, MailCheck, CheckCircle2 } from 'lucide-react';
-import { t } from '../../utils/translations';
+import { t, getCurrentLanguage } from '../../utils/translations';
 import { getTranslation } from '../../utils/gameTranslations';
 import {
   signInWithPassword,
@@ -35,6 +35,16 @@ interface GameAuthModalProps {
 
 type Mode = 'signin' | 'signup';
 type Phase = 'form' | 'pending-confirm' | 'success';
+
+/**
+ * Eyebrow copy with an EN literal fallback: `getTranslation` returns the KEY
+ * itself on a miss, so a `|| fallback` never fires. Used until the new eyebrow
+ * keys land in all six locale tables (copy request filed).
+ */
+const eyebrowCopy = (key: string, fallback: string): string => {
+  const value = getTranslation(key, getCurrentLanguage());
+  return value === key ? fallback : value;
+};
 
 // Brand marks inline so the file stays copy-paste self-contained.
 const GoogleIcon: React.FC = () => (
@@ -159,7 +169,10 @@ const GameAuthModal: React.FC<GameAuthModalProps> = ({ onClose, roomCode, player
         >
           <div className="settings-modal-header">
             <div className="settings-modal-title">
-              <span className="settings-modal-eyebrow">{getTranslation('game.caseFile')}</span>
+              {/* The sign-in dossier is a PERSONNEL FILE — one identical
+                  "CASE FILE" stamp across settings/auth/feedback made the
+                  eyebrow decoration instead of hierarchy. */}
+              <span className="settings-modal-eyebrow">{eyebrowCopy('game.personnelFile', 'PERSONNEL FILE')}</span>
               <h2>{mode === 'signup' ? t('authModal.titleSignup') : t('authModal.titleSignin')}</h2>
             </div>
             <button onClick={onClose} className="settings-modal-close" aria-label={t('common.close')}>

@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { Users, Plus, Lightbulb, ExternalLink, ScanLine } from 'lucide-react';
+import { Users, Lightbulb, ExternalLink, ScanLine } from 'lucide-react';
 import { GAME_META } from '../config/gameMeta';
 import { HomeHeader, FloatingLabelInput, JoinFromInviteModal } from '../components/core';
 import LegalFooter from '../components/core/LegalFooter';
@@ -276,7 +276,10 @@ const HomePage: React.FC<HomePageProps> = ({
                   {!isConnecting && (
                     joinMode
                       ? <Users className="w-4 h-4" />
-                      : <Plus className="w-4 h-4" />
+                      // The create CTA's glyph is a wax seal, not a generic
+                      // plus: the button IS the act of sealing/unsealing the
+                      // case file. Pure CSS disc (no emoji, no new asset).
+                      : <span className="home-btn-seal" aria-hidden="true" />
                   )}
                   <span>
                     {isConnecting
@@ -290,7 +293,8 @@ const HomePage: React.FC<HomePageProps> = ({
               {/* The CTA's resting (disabled) state is a designed "sealed
                   dossier", not a greyed-out button — this hairline note is what
                   makes that state EXPLAIN itself instead of reading as broken.
-                  Shown only while the CTA is genuinely un-armed. */}
+                  Shown only while the CTA is genuinely un-armed. `home.formNote`
+                  is now defined in all six locales. */}
               {!isConnecting && !playerName.trim() && (
                 <p className="home-form-note">{t('home.formNote')}</p>
               )}
@@ -326,6 +330,17 @@ const HomePage: React.FC<HomePageProps> = ({
               )}
             </form>
           </motion.div>
+
+          {/* ── The evidence stack: three face-down, wax-sealed case files
+                fanned under the form. This is the landing's middle act — the
+                page otherwise sells a deduction CARD game without ever showing
+                a card. Purely decorative (aria-hidden, pointer-events:none),
+                laid out with real gaps so the three never overlap, and revealed
+                by CSS only where there is genuine vertical room (never on the
+                phone stack or on short 768px-tall desktops). ── */}
+          <div className="home-card-fan" aria-hidden="true">
+            <i /><i /><i />
+          </div>
         </div>
 
         {/* Tip Banner — a hairline strip spanning both columns, closing the

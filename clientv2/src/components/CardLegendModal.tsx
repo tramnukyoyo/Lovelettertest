@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { getTranslatedCardDatabase } from './hearts-gambit/cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../utils/gameTranslations';
+import '../styles/game/prime-suspect-modal-family.css';
 
 interface CardLegendModalProps {
   onClose: () => void;

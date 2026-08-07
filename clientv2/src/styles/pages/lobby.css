@@ -1654,6 +1654,107 @@
   }
 }
 
+/* ============================================================================
+   ROUND 3 · BLOCKER 1+2+6 — THE 1024 GAP
+   shell.css flips the lobby to "one natural page scroll" at `max-width:
+   1023.98px`, and this file rebuilds the two-column board at `min-width:
+   1025px`. EXACTLY 1024 fell between them: the panes kept the desktop
+   internal-scroller machinery inside a single stacked column, so
+   `.gs-crew{flex:1 1 auto;min-height:0}` and `.gs-crew__grid{flex:1 1 auto;
+   min-height:0}` were shrunk below their content — the seat cards spilled over
+   the PLAYERS heading, the mascot painted on top of the Milo/Nero seats, and
+   the whole invite band (six code tiles + all three actions) plus the host
+   folder's CASE BRIEFING facts were clipped away by the scroller.
+
+   The fix is in two parts: shrink discipline that applies at every narrow
+   width (nothing may be compressed below its own content, ever), and the flat
+   one-page-scroll regime supplied ONLY inside the 1024 band, so none of it can
+   out-specify the chrome owner's phone rules in shell.css.
+   ============================================================================ */
+/* --- Shrink discipline (all narrow widths) -------------------------------- */
+@media (max-width: 1024px) {
+  /* The pane is a plain stacked section here — no second nested scroller, so
+     nothing inside it can be squeezed out of existence. */
+  .lobby-page .gs-pane.lobby-waiting-card .gs-pane-scroll {
+    flex: 0 0 auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Belt and braces: even if a future rule re-opens the scroller, no child of
+     it may be compressed below its own content again. */
+  .lobby-page .gs-pane.lobby-waiting-card .gs-pane-scroll > * { flex-shrink: 0; }
+
+  .lobby-page .gs-crew { flex: 0 0 auto; }
+
+  .lobby-page .gs-crew__grid {
+    flex: 0 0 auto;
+    align-content: start;
+  }
+
+  .lobby-page .gs-crew-invite > *,
+  .lobby-page .gs-crew-invite .solo-invite-panel > * { flex-shrink: 0; }
+
+  /* A squeezed seat can never spill past its own border again. min-width is
+     set alongside min-height because the tile carries `aspect-ratio: 1/1` —
+     a lone min-height would turn the circular avatar into an oval. */
+  .lobby-page .gs-crew__av {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
+
+/* --- The gap itself: EXACTLY 1024 ----------------------------------------- */
+/* Scoped to the one-pixel band shell.css cannot reach (`max-width: 1023.98px`)
+   so none of it can out-specify the chrome owner's phone rules — below 1024
+   shell.css already asserts every declaration in this block. */
+@media (min-width: 1024px) and (max-width: 1024.98px) {
+  .lobby-page .gs-stage-inner {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .lobby-page .gs-lobby-scene {
+    flex: none;
+    min-height: 100%;
+    height: auto;
+    /* Trailing room for the sticky START bar to land in, so the invite band
+       can be scrolled fully clear of it (shell.css does this below 1024). */
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .lobby-page .gs-lobby-panes {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+
+  .lobby-page .gs-lobby-scene .gs-scene-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background: linear-gradient(
+      180deg,
+      var(--velvet-panel, var(--bg-secondary, #15131f)),
+      var(--velvet-darker, var(--bg-darker, #0f0b12))
+    );
+    border-top: 1px solid rgba(210, 178, 90, 0.42);
+    box-shadow: 0 -12px 20px -8px rgba(0, 0, 0, 0.6);
+    padding-top: 0.6rem;
+    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .lobby-page .lobby-start-section,
+  .lobby-page .lobby-start-btn { width: 100%; }
+
+  /* Same call shell.css makes on phones: in the stacked single column the
+     detective is a 88px decorative interruption between the seat row and the
+     room code — and it was the sprite painting over the Milo/Nero seats. */
+  .lobby-page .gs-crew-invite .lobby-mascot { display: none; }
+}
+
+/* Seats are self-contained files: nothing may paint outside a card's border. */
+.lobby-page .gs-crew__card { overflow: hidden; }
+
 /* The accordion header IS the settings title — HostSettings printed it a
    second time inside the body (mirrors the .bluffalo-settings-title rule). */
 .lobby-page .collapsible-section .ps-settings-title { display: none; }
@@ -1818,21 +1919,6 @@
    pull-quote instead of a stray paragraph. */
 .lobby-page .lobby-settings-pane .ps-brief { position: relative; }
 
-.lobby-page .lobby-settings-pane .ps-brief .ps-settings-title::after {
-  content: 'CASE OPEN';
-  float: right;
-  margin-top: -3px;
-  padding: 3px 9px 4px;
-  border: 1px solid rgba(155, 30, 42, 0.85);
-  border-radius: 999px;
-  background: radial-gradient(circle at 34% 28%, rgba(190, 58, 62, 0.55), rgba(110, 18, 26, 0.65));
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.5);
-  font-size: 0.55rem;
-  letter-spacing: 0.2em;
-  color: #f0d9c0;
-  transform: rotate(-3deg);
-}
-
 .lobby-page .lobby-settings-pane .ps-brief-teaser {
   margin-top: clamp(6px, 1cqb, 12px);
   padding: clamp(8px, 1.2cqb, 14px) clamp(10px, 1.4cqi, 16px);
@@ -1847,8 +1933,188 @@
 /* ---------- 10 · The host folder is no longer 600px of empty velvet ------- */
 /* HostSettings + the same read-only case facts the guest sees, separated by a
    hairline so the folder reads as two filed sections. */
-.lobby-page .lobby-settings-pane .ps-host-settings + .ps-brief {
+/* (…and after the phone accordion, which wraps the same settings block.) */
+.lobby-page .lobby-settings-pane .ps-host-settings + .ps-brief,
+.lobby-page .lobby-settings-pane .collapsible-section + .ps-brief {
   margin-top: clamp(10px, 1.6cqb, 22px);
   padding-top: clamp(10px, 1.6cqb, 22px);
   border-top: 1px dashed rgba(210, 178, 90, 0.28);
+}
+
+/* ============================================================================
+   ROUND 3 — CRITIC PASS (5.5/10). Layout blockers live in the 1024 block
+   above; everything below is the surface work.
+   ============================================================================ */
+
+/* ---------- 11 · The folder tab is the folder's ONLY label ---------------- */
+/* The tab read CASE SETTINGS and 12px under it the pane heading read SETTINGS;
+   the guest folder said CASE BRIEFING twice. The heading stays in the
+   accessibility tree (it is the section's <h3>) but leaves the picture, so the
+   engraved tab — the metaphor this surface is selling — stands alone.
+   `.gs-crew__title` (PLAYERS under a CASE FILE tab) is deliberately untouched:
+   different words, so it adds information instead of repeating it. */
+.lobby-page .lobby-settings-pane .ps-settings-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+/* ---------- 5 · The briefing folder closes instead of trailing off -------- */
+/* Guest @1920 ran ~450px of empty velvet below "FULL BRIEFING IN THE ? BUTTON"
+   to the pane floor. Two moves: the folder is capped to its own content
+   (`align-self: start`, in the desktop block below), and it now ENDS on the
+   same dossier idiom the seats use — two dotted evidence rules and a wax
+   CASE OPEN seal, so the last thing you read is a designed edge. */
+.lobby-page .ps-brief-close {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(5px, 0.8cqb, 9px);
+  width: 100%;
+  margin-top: clamp(10px, 1.6cqb, 20px);
+  padding-top: clamp(8px, 1.2cqb, 14px);
+}
+
+.lobby-page .ps-brief-close-rule {
+  width: min(84%, 210px);
+  height: 0;
+  border-top: 1px dotted rgba(210, 178, 90, 0.30);
+}
+
+.lobby-page .ps-brief-close-rule:nth-child(2) { width: min(56%, 140px); }
+
+.lobby-page .ps-brief-seal {
+  margin-top: 2px;
+  padding: 3px 11px 4px;
+  border: 1px solid rgba(155, 30, 42, 0.85);
+  border-radius: 999px;
+  background: radial-gradient(circle at 34% 28%, rgba(190, 58, 62, 0.55), rgba(110, 18, 26, 0.65));
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-typewriter);
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #f0d9c0;
+  transform: rotate(-3deg);
+}
+
+.lobby-page .ps-brief-seal::after { content: 'CASE OPEN'; }
+
+/* ---------- 5 · "Waiting for host…" is a status strip, not a floating line - */
+/* It used to hang alone in ~200px of velvet between the seats and the invite
+   band. It is rendered inside the crew block now (LobbyPage.tsx), directly
+   under the seat row, and reads as the board's own status stamp. */
+.lobby-page .gs-crew .lobby-waiting-host {
+  flex-shrink: 0;
+  margin: 0;
+  padding-top: clamp(6px, 1cqb, 12px);
+  font-family: var(--font-typewriter);
+  font-size: clamp(0.6rem, 1.25cqb, 0.78rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+  opacity: 0.85;
+  text-align: center;
+}
+
+/* ---------- 7 · The SETTINGS accordion is a parchment plate, not gold ----- */
+/* prime-suspect-unified.css carries `button:not(.secondary):not(.danger)
+   { background: var(--accent-color); color: white }` (0,2,1) and loads AFTER
+   this file — that is what turned the only collapsible header on the page into
+   a full-bleed royal-gold slab sitting right under the gold CASE SETTINGS tab.
+   Three classes + the type selector (0,3,1) reclaim it. */
+.lobby-page .collapsible-section > button.collapsible-section-header {
+  background: linear-gradient(180deg, rgba(61, 44, 54, 0.62), rgba(18, 13, 17, 0.62));
+  border: 1px solid var(--px-border);
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.28);
+  color: var(--royal-gold-light);
+  transition: filter 0.15s ease;
+}
+
+.lobby-page .collapsible-section > button.collapsible-section-header:hover {
+  /* rule 8: brightness only — the shared button baseline animates a translate
+     + scale, which moves a 48px tap target under the finger. */
+  transform: none;
+  filter: brightness(1.12);
+}
+
+.lobby-page .collapsible-section > button.collapsible-section-header::before,
+.lobby-page .collapsible-section > button.collapsible-section-header:hover::before {
+  display: none;
+}
+
+.lobby-page .collapsible-section > button.collapsible-section-header .collapsible-section-title {
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--royal-gold-light);
+}
+
+.lobby-page .collapsible-section > button.collapsible-section-header .collapsible-section-chevron {
+  color: var(--royal-gold);
+}
+
+.lobby-page .collapsible-section {
+  background: transparent;
+  border: 1px solid var(--px-border);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lobby-page .collapsible-section > button.collapsible-section-header { transition: none; }
+}
+
+/* ---------- 10 · No invite action label may touch the pane border --------- */
+/* `white-space: nowrap` on the designer entry meant "YOUR CARD BACK" pushed
+   its own padding off the right edge at 1366. The widest label now sets its
+   own track and wraps like COPY INVITE LINK already does. */
+.lobby-page .gs-crew-invite .solo-invite-actions > * {
+  flex: 1 1 168px;
+  min-width: 0;
+}
+
+.lobby-page .gs-crew-invite .solo-invite-actions .solo-invite-btn,
+.lobby-page .gs-crew-invite .solo-invite-actions .ps-designer-btn {
+  padding-inline: clamp(8px, 1.1cqi, 16px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ---------- 5 · Desktop: folders end where their content ends ------------- */
+@media (min-width: 1025px) {
+  .lobby-page .gs-pane.gs-lobby-col--brief {
+    align-self: start;
+    max-height: 100%;
+  }
+
+  .lobby-page .gs-lobby-col--brief .gs-pane-scroll { height: auto; }
+
+  /* The seat row keeps its optical centre but stops absorbing every spare
+     pixel, so the status strip sits tight under the seats. `min-content`
+     floors replace the `min-height: 0` that let the 1024 board crush itself —
+     when the pane genuinely runs out of room the SCROLLER takes over (and the
+     ScrollHint gets a real target) instead of the seats being squeezed. */
+  .lobby-page .gs-crew { min-height: min-content; }
+
+  .lobby-page .gs-crew__grid {
+    flex: 0 0 auto;
+    min-height: min-content;
+    margin-top: auto;
+  }
+
+  /* The auto space goes ABOVE the seat row and BELOW the block's last element,
+     never between them: the host's seat row centres as before, and the guest's
+     status strip travels WITH the seats instead of floating in ~150px of
+     velvet halfway to the invite band. */
+  .lobby-page .gs-crew > :last-child { margin-bottom: auto; }
 }

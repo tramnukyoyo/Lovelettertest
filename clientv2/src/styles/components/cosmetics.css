@@ -722,44 +722,66 @@
 /* ============ DESIGNER MODAL — a real bottom edge + scroll affordance ====== */
 /* At 1080px the catalog ran past the viewport with no footer, no visible edge
  * and no hint that it scrolled, so the buy/confirm path looked unreachable.
- * The panel keeps its own scroller (no markup change) but gains: a shorter cap
- * so the gold border always frames it, a visible gold scrollbar, and the
- * classic local/scroll background-attachment shadow pair — the bottom shadow
- * only shows while there IS more catalog below. */
+ * A shorter cap keeps the gold border framing the panel at every height. The
+ * panel itself no longer scrolls (`overflow: hidden` in style-shop.css — the
+ * masthead is anchored to it); the scroller is `.psshop-body`, which carries
+ * the gold scrollbar + the fade/chevron affordance in style-shop.css. The old
+ * background-attachment shadow pair lived here and was inert on a non-scrolling
+ * box — only the velvet face it painted is load-bearing, and the body's fade
+ * stop is matched to it. */
 .psshop-backdrop .psshop-panel {
   max-height: min(88dvh, 900px);
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--gold-500, #c9a227) transparent;
-  background:
-    linear-gradient(var(--velvet-900, #1c0f14) 30%, rgba(28, 15, 20, 0)) top / 100% 26px no-repeat local,
-    linear-gradient(rgba(28, 15, 20, 0), var(--velvet-900, #1c0f14) 70%) bottom / 100% 26px no-repeat local,
-    radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)) top / 100% 14px no-repeat scroll,
-    radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)) bottom / 100% 14px no-repeat scroll,
-    var(--velvet-900, #1c0f14);
+  background: var(--velvet-900, #1c0f14);
 }
 
-.psshop-backdrop .psshop-panel::-webkit-scrollbar { width: 8px; }
-.psshop-backdrop .psshop-panel::-webkit-scrollbar-thumb {
-  background: rgba(201, 162, 39, 0.55);
-  border-radius: 999px;
-}
-
-/* The close control must stay reachable while the catalog scrolls. */
-.psshop-backdrop .psshop-close {
-  position: sticky;
-  top: 0;
-  align-self: flex-end;
-  z-index: 6;
-  /* Its own pinned row — no negative pull, so it can never sit on the title
-     or the GP pill at any width (owner: no overlap, ever). */
-  margin: 0 -4px 0 0;
-  border-radius: 8px;
-  background: rgba(28, 15, 20, 0.85);
-  border: 1px solid rgba(201, 162, 39, 0.4);
-}
-
+/* The close control stays reachable while the catalog scrolls for free now:
+   `.psshop-panel` is `overflow: hidden` and only `.psshop-body` scrolls, so the
+   absolutely-anchored button (style-shop.css) can no longer scroll away. The
+   old `position: sticky` workaround gave the button its own flow row ABOVE the
+   masthead — a ~48px empty velvet strip across the top of the panel holding
+   nothing but the X. Skin + placement live in style-shop.css; only the focus
+   ring stays here. */
 .psshop-backdrop .psshop-close:focus-visible {
-  outline: 2px solid var(--gold-400, #e6c777);
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
   outline-offset: 2px;
+}
+
+/* ============ DESIGNER MODAL — the bottom edge stops guillotining ========= */
+/* Round 2 capped the panel height but left the affordance fighting the goods:
+ * the NAME FLAIR heading was sliced horizontally by the panel's bottom edge
+ * (cap-height cut in half, reading as a clipping bug rather than as scrolled
+ * content) and the chevron tab parked ON the "Aurora Ring" chip, covering its
+ * price. Three moves, all on the SCROLLER so the anchored masthead is
+ * untouched:
+ *   1. a 64px scrim above the fold — a heading DISSOLVES instead of being
+ *      guillotined,
+ *   2. the chevron pinned into the scrollbar gutter, bottom-right, where no
+ *      purchasable chip lives,
+ *   3. real clearance under the last catalogue block so nothing buyable ever
+ *      ends underneath either.
+ * Specificity: `.psshop-backdrop …` (one class deeper than style-shop.css,
+ * which loads after this file). */
+.psshop-backdrop .psshop-body .gs-scroll-hint {
+  position: sticky;
+  bottom: 0;
+  left: auto;
+  right: auto;
+  width: 100%;
+  height: 64px;
+  margin-top: -64px;
+  padding: 0 14px 10px 0;
+  transform: none;
+  justify-content: flex-end;
+  align-items: flex-end;
+  background: linear-gradient(
+    to top,
+    var(--velvet-900, #1c0f14) 0 30%,
+    rgba(28, 15, 20, 0.78) 62%,
+    rgba(28, 15, 20, 0) 100%
+  );
+}
+
+.psshop-backdrop .psshop-body > .psshop-section:last-child,
+.psshop-backdrop .psshop-body > .psshop-section:has(+ .gs-scroll-hint) {
+  padding-bottom: 4.25rem;
 }

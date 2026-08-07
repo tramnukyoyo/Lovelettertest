@@ -97,7 +97,9 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
         <div className="card-description">{cardData.description}</div>
       </div>
 
-      {/* Bottom-right mirrored value (rotated 180deg via CSS) — playing-card feel */}
+      {/* Bottom-right corner value — playing-card feel. NOT mirrored: the rank IS
+          the guess target in this deduction loop, so a rotated 6 printed a literal
+          9 (see prime-suspect-ingame.css §18.2). */}
       <div className="card-value-br" aria-hidden="true">{cardData.value}</div>
     </div>
   );

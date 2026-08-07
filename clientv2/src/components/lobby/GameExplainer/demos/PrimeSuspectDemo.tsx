@@ -46,7 +46,11 @@ const PARCHMENT = '#f6f0e6';
 const TEXT_DARK = '#2a1810';
 const TEXT_DIM = '#bb9b6e';
 const RED = '#dc2626';
-const CYAN = '#7df9ff';
+/* "You" accent. Was #7df9ff — a neon cyan that, together with the cold card
+   backs, was the only cool family on a candlelit parchment/gold surface. A
+   bright warm chalk keeps the local seat instantly distinguishable from the
+   gold of the other three without importing a second palette. */
+const CHALK = '#fdf2d4';
 
 const DURATION_MS = 22000;
 const BEAT2_AT = 4500;
@@ -85,6 +89,10 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
   const renderCardBack = (cx: number, cy: number, opacity = 1, scale = 1, rotate = 0) => (
     <g transform={`translate(${cx} ${cy}) rotate(${rotate}) scale(${scale})`} opacity={opacity}>
       <rect x={-CARD_W / 2} y={-CARD_H / 2} width={CARD_W} height={CARD_H} rx={5} fill={CRIMSON} stroke={GOLD} strokeWidth={2} />
+      {/* The shipped back art is steel-blue/navy — the ONLY cold family on a
+          parchment / royal-gold / wax-red surface, which made the hero
+          illustration read as borrowed. Pushed into the velvet + gold range so
+          the deck belongs to the same case file as the seats. */}
       <image
         href={cardBackImg}
         x={-CARD_W / 2 + 2}
@@ -92,6 +100,19 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
         width={CARD_W - 4}
         height={CARD_H - 4}
         preserveAspectRatio="xMidYMid slice"
+        style={{ filter: 'sepia(0.72) saturate(1.45) hue-rotate(-14deg) brightness(0.9) contrast(1.06)' }}
+      />
+      {/* Gold line-work inset — the wax-seal idiom the seat cards use. */}
+      <rect
+        x={-CARD_W / 2 + 5}
+        y={-CARD_H / 2 + 5}
+        width={CARD_W - 10}
+        height={CARD_H - 10}
+        rx={3}
+        fill="none"
+        stroke={GOLD}
+        strokeWidth={0.8}
+        opacity={0.55}
       />
     </g>
   );
@@ -350,7 +371,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
         const cx = playerX(idx);
         const cy = PLAYER_Y;
         const isLocal = idx === LOCAL_IDX;
-        const accent = isLocal ? CYAN : GOLD;
+        const accent = isLocal ? CHALK : GOLD;
         const isEliPublicReveal = idx === 2 && eliPublicRevealT > 0;
         const isLouRevealing = idx === LOCAL_IDX && louRevealT > 0 && louRevealT < 1.0001;
         const isEliPeek = idx === 2 && eliPeekT > 0 && ms < BEAT4_AT - 400;
@@ -366,8 +387,8 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
               {renderCardBack(cx, cy + 50)}
               <g opacity={eliPeekT}>
                 {renderCardFace(cx + 60, cy + 30, 8, 0.95, 0.85, -8, true)}
-                <line x1={cx + 18} y1={cy + 50} x2={cx + 50} y2={cy + 35} stroke={CYAN} strokeWidth={1.2} strokeDasharray="2 2" opacity={0.7} />
-                <text x={cx + 60} y={cy + 80} fontSize={7} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CYAN} textAnchor="middle" letterSpacing={1.5}>{t('psDemo.seenByLou')}</text>
+                <line x1={cx + 18} y1={cy + 50} x2={cx + 50} y2={cy + 35} stroke={CHALK} strokeWidth={1.2} strokeDasharray="2 2" opacity={0.7} />
+                <text x={cx + 60} y={cy + 80} fontSize={7} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CHALK} textAnchor="middle" letterSpacing={1.5}>{t('psDemo.seenByLou')}</text>
               </g>
             </g>
           );
@@ -378,7 +399,7 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
         return (
           <g key={`p-${idx}`} opacity={setupOp * loopFade}>
             <circle cx={cx} cy={cy} r={26} fill={VELVET_2} stroke={accent} strokeWidth={2.5} />
-            {isLocal && <circle cx={cx} cy={cy} r={30} fill="none" stroke={CYAN} strokeWidth={2} opacity={0.8} />}
+            {isLocal && <circle cx={cx} cy={cy} r={30} fill="none" stroke={CHALK} strokeWidth={2} opacity={0.8} />}
             <text x={cx} y={cy + 6} fontSize={20} fontFamily="'Special Elite', monospace" fontWeight={800} fill={accent} textAnchor="middle">
               {name[0]}
             </text>
@@ -442,8 +463,8 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
             const dstY = PLAYER_Y + 50;
             return (
               <g opacity={peekBeamT}>
-                <line x1={srcX} y1={srcY} x2={dstX} y2={dstY} stroke={CYAN} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.7} />
-                <text x={(srcX + dstX) / 2} y={(srcY + dstY) / 2 - 6} fontSize={10} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CYAN} textAnchor="middle" letterSpacing={2}>{t('psDemo.peek')}</text>
+                <line x1={srcX} y1={srcY} x2={dstX} y2={dstY} stroke={CHALK} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.7} />
+                <text x={(srcX + dstX) / 2} y={(srcY + dstY) / 2 - 6} fontSize={10} fontFamily="'Special Elite', monospace" fontWeight={700} fill={CHALK} textAnchor="middle" letterSpacing={2}>{t('psDemo.peek')}</text>
               </g>
             );
           })()}

@@ -491,13 +491,29 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
   if (!lobby.gameData) {
     return (
       <div className="h-full flex items-center justify-center text-[var(--parchment)]">
-        Loading Game Data...
+        {t('mobile.loadingGameData')}
       </div>
     );
   }
 
+  /* The commit bar (Confirm / Cancel) is a docked action lane, not a floating
+     corner cluster. `is-choosing` on the root widens the reserved alert lane and
+     tucks the evidence stack in by the same amount, so the bar can never come to
+     rest on top of the hand or the case log. Purely visual — derived state. */
+  const showCommitBar =
+    playStep === 'SELECTED' &&
+    selectedCard !== null &&
+    (isMyTurn || isSpectator) &&
+    !waitingToDraw &&
+    lobby.state !== 'LOBBY';
+
+  /* The Accomplice ribbon shares that lane. When BOTH are up the lane has to
+     reserve both rows (`is-alerting`), or the bar would land on the ribbon. */
+  const showAccompliceAlert =
+    mustPlayAccomplice && isMyTurn && !waitingToDraw && lobby.state !== 'LOBBY';
+
   return (
-    <div className="hearts-gambit-game hg-mobile-layout h-full text-[var(--parchment)] overflow-hidden">
+    <div className={`hearts-gambit-game hg-mobile-layout h-full text-[var(--parchment)] overflow-hidden${showCommitBar ? ' is-choosing' : ''}${showAccompliceAlert ? ' is-alerting' : ''}`}>
       {/* Orientation prompt */}
       <OrientationPrompt />
 
@@ -529,13 +545,13 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
           {isMyTurn && !amEliminated && (
             <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-2 py-1 rounded-full text-xs font-bold animate-pulse">
-              {waitingToDraw ? 'DRAW!' : 'YOUR TURN'}
+              {waitingToDraw ? t('game.draw') : t('game.yourTurn')}
             </span>
           )}
 
           {amEliminated && (
             <span className="bg-[var(--royal-crimson-dark)] text-white text-xs font-black px-2 py-1 rounded-full flex items-center gap-1">
-              <Skull size={12} /> OUT
+              <Skull size={12} aria-hidden="true" /> {t('game.eliminated')}
             </span>
           )}
         </div>
@@ -776,8 +792,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       )}
 
       {/* Must Play Accomplice floating indicator */}
-      {mustPlayAccomplice && isMyTurn && !waitingToDraw && lobby.state !== 'LOBBY' && (
-        <div className="hg-mobile-alert-rail fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+      {showAccompliceAlert && (
+        <div className="hg-mobile-alert-rail pointer-events-none">
           <span className="bg-[var(--royal-crimson)] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
             {t('game.mustPlayAccomplice')} (7)
           </span>
@@ -815,27 +831,29 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         </div>
       )}
 
-      {/* Floating Confirm/Cancel - tiny buttons, bottom right corner */}
+      {/* Commit bar — docked in the reserved action lane above the case log */}
       <AnimatePresence>
-        {playStep === 'SELECTED' && selectedCard !== null && (isMyTurn || isSpectator) && !waitingToDraw && lobby.state !== 'LOBBY' && (
+        {showCommitBar && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{ position: 'fixed', bottom: '1%', right: '1%', zIndex: 100 }}
-            className={`flex gap-[0.5vw] ${isSpectator ? 'pointer-events-none opacity-95' : ''}`}
+            transition={{ duration: 0.18 }}
+            className={`hg-mobile-commit-bar ${isSpectator ? 'pointer-events-none opacity-95' : ''}`}
           >
             <button
+              type="button"
               onClick={handleConfirmSelection}
-              className="hg-btn-tiny bg-green-600 text-white"
+              className="ps-btn ps-btn--primary hg-mobile-commit-btn"
             >
-              Confirm
+              {t('game.confirm')}
             </button>
             <button
+              type="button"
               onClick={resetPlayState}
-              className="hg-btn-tiny bg-black/80 text-white/60"
+              className="ps-btn ps-btn--ghost hg-mobile-commit-btn"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           </motion.div>
         )}
@@ -858,7 +876,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             >
               <h3 className="text-center text-base font-bold text-[var(--royal-gold-light)] mb-3 uppercase tracking-wider"
                   style={{ fontFamily: 'var(--font-typewriter)' }}>
-                Select Target
+                {t('cardInspector.selectTarget')}
               </h3>
 
               {/* Player grid - 2 columns with noir styling */}
@@ -931,7 +949,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             >
               <h3 className="text-center text-base font-bold text-[var(--royal-gold-light)] mb-3 uppercase tracking-wider"
                   style={{ fontFamily: 'var(--font-typewriter)' }}>
-                Guess Their Card
+                {t('cardInspector.guessTheirCard')}
               </h3>
 
               {/* Cards 2-8 grid - noir styled */}

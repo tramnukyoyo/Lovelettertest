@@ -68,6 +68,16 @@ const GuestBriefingPanel: React.FC<GuestBriefingPanelProps> = ({ lobby }) => {
         <li>{t('briefing.step3')}</li>
       </ol>
       <p className="ps-brief-more">{t('briefing.openFullBriefing')}</p>
+
+      {/* The folder CLOSES instead of trailing off into empty velvet: two ruled
+          evidence lines and a wax CASE OPEN seal, the same dossier idiom the
+          seat cards end on. Pure decoration (aria-hidden, text set in CSS like
+          the CASE FILE folder tab), so it adds no translatable string. */}
+      <div className="ps-brief-close" aria-hidden="true">
+        <span className="ps-brief-close-rule" />
+        <span className="ps-brief-close-rule" />
+        <span className="ps-brief-seal" />
+      </div>
     </div>
   );
 };

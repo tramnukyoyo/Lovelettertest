@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, HelpCircle, X } from 'lucide-react';
 import { getTranslation, getCurrentLanguage } from '../utils/gameTranslations';
+import '../styles/game/prime-suspect-modal-family.css';
 
 interface TutorialSlide {
   image: string;
@@ -203,10 +204,14 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
         className="settings-modal-panel hg-panel hg-candlelight tutorial-panel"
         onPointerDown={e => e.stopPropagation()}
       >
+        {/* Same titling grammar as every sibling dossier panel: the eyebrow is
+            a provenance phrase (CASE FILES · CASE BRIEFING · EVIDENCE LOCKER),
+            the headline names the thing on show. Position lives only in the
+            footer dot pager, so no second, contradictable counter. */}
         <div className="settings-modal-header">
           <div className="settings-modal-title">
-            <div className="settings-modal-eyebrow">{currentSlide + 1} / {slides.length}</div>
-            <h2 id="tutorial-title">{t('tutorial.howToPlay')}</h2>
+            <div className="settings-modal-eyebrow">{t('tutorial.howToPlay')}</div>
+            <h2 id="tutorial-title">{slide.title}</h2>
           </div>
           <button
             ref={closeButtonRef}
@@ -230,7 +235,6 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
               className="tutorial-image"
               aria-hidden="true"
             />
-            <h3 className="tutorial-slide-title">{slide.title}</h3>
             <p className="tutorial-description">{slide.description}</p>
           </div>
         </div>
@@ -255,7 +259,11 @@ const TutorialCarousel: React.FC<TutorialCarouselProps> = ({
                 onClick={() => setCurrentSlide(index)}
                 aria-label={t('tutorial.goToSlide').replace('{number}', String(index + 1))}
                 aria-current={index === currentSlide ? 'true' : 'false'}
-              />
+              >
+                {/* Pill inside a 44px-wide hit box — same pager as the Card
+                    Inspector, so the family has one pagination vocabulary. */}
+                <span className="tutorial-dot-pill" />
+              </button>
             ))}
           </div>
 

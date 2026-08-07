@@ -57,6 +57,7 @@ export const es: Translations = {
     yourName: 'Tu nombre',
     roomCode: 'Codigo de sala',
     enterName: 'Ingresa tu nombre',
+    formNote: 'Firma el expediente para desbloquearlo',
     enterRoomCode: 'Ingresa el codigo de sala',
     create: 'Crear',
     join: 'Unirse',
@@ -231,6 +232,18 @@ export const es: Translations = {
     close: 'Cerrar notificacion',
   },
 
+  // Toast eyebrow categories (kick / site notification / admin message)
+  toast: {
+    category: {
+      removed: 'Expulsado',
+      notice: 'Aviso',
+      confirmed: 'Confirmado',
+      warning: 'Advertencia',
+      error: 'Error',
+      message: 'Mensaje',
+    },
+  },
+
   // Achievement toast
   achievementToast: {
     unlocked: 'Logro desbloqueado',
@@ -298,6 +311,7 @@ export const es: Translations = {
     equipped: 'EQUIPADO',
     premiumTitle: 'Exclusivos Premium',
     cardBackPreviewCaption: 'cómo se ve tu mano en la mesa',
+    confirmEyebrow: 'ORDEN DE COMPRA',
   },
 
   // Streamer broadcast stage

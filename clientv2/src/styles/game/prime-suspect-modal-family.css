@@ -1,0 +1,153 @@
+/* ============================================================================
+   PRIME SUSPECT — DOSSIER MODAL FAMILY (shared panel geometry)
+   ----------------------------------------------------------------------------
+   Owned by CardLegendModal.tsx / RulesModal.tsx / TutorialCarousel.tsx (each
+   imports this file, so it lands after the fleet cascade). Its only job is to
+   give the three sibling panels the SAME scroll recipe the Card Inspector
+   already uses (prime-suspect-card-inspector.css §1–2), replacing three
+   different guessed chrome heights:
+
+       .card-legend-content  max-height: calc(85vh - 140px)
+       .rules-content        max-height: calc(88vh - 120px)
+       .tutorial-content     max-height: calc(85vh - 150px)
+
+   Each of those numbers assumes a one-line header. The moment a title wraps —
+   the DE/PT-BR titles do at 375px — the real chrome is taller than the guess,
+   the outer `.settings-modal-panel { overflow-y: auto }` starts scrolling too,
+   and you get two nested scrollbars with the gold header sliding away inside
+   its own frame.
+
+   The fix is structural, not arithmetic: the panel is a flex column that never
+   scrolls, the header and footer are fixed rails, and the content block is the
+   one flexible, scrolling layer. No height has to be predicted.
+
+   Selectors are anchored on BOTH `.settings-modal-panel` and the panel's own
+   class (0,3,0) so they outrank the landscape re-declaration in
+   prime-suspect-unified.css (`@media (max-height: 500px)`, 0,2,0 !important)
+   regardless of bundle order. The `max-height` caps those files set on the
+   PANELS are intentionally left alone — capping the panel is correct; capping
+   the inner content by guesswork is what was broken.
+   ============================================================================ */
+
+[data-theme="primesuspect"] .settings-modal-panel.card-legend-panel,
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel,
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Header + footer are rails: they keep their height, never scroll away. */
+[data-theme="primesuspect"] .settings-modal-panel.card-legend-panel > .settings-modal-header,
+[data-theme="primesuspect"] .settings-modal-panel.card-legend-panel > .settings-modal-footer,
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel > .settings-modal-header,
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel > .settings-modal-footer,
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel > .settings-modal-header,
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel > .settings-modal-footer {
+  flex: 0 0 auto;
+}
+
+/* The single scrolling layer. `max-height: none` retires the guessed caps. */
+[data-theme="primesuspect"] .settings-modal-panel.card-legend-panel .card-legend-content,
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel .rules-content,
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel .tutorial-content {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Long localized titles must wrap inside the header rail, not push the close
+   button out of the panel. */
+[data-theme="primesuspect"] .settings-modal-panel.card-legend-panel .settings-modal-title,
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel .settings-modal-title,
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel .settings-modal-title {
+  min-width: 0;
+}
+
+[data-theme="primesuspect"] .settings-modal-panel.card-legend-panel .settings-modal-title > *,
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel .settings-modal-title > *,
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel .settings-modal-title > * {
+  overflow-wrap: anywhere;
+}
+
+/* The How-to-Play headline now carries the slide title (the eyebrow carries
+   the provenance), so it must sit on the Cinzel scale of its siblings and
+   still breathe when a title runs to two lines. */
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel .settings-modal-title h2 {
+  line-height: 1.2;
+}
+
+/* ----------------------------------------------------------------------------
+   How-to-Play pager — one pagination vocabulary for the family.
+   The modal dots were 9px buttons that grew on hover (`transform: scale(1.15)`
+   in prime-suspect-ingame.css §14.6): below the 44px target floor and a moving
+   click target. Rebuilt on the Card Inspector's `.hgi-dot` pattern — a
+   transparent 44px hit box wrapping an 8px pill that stretches to a gold bar
+   when active. Scoped to `.tutorial-navigation` so the SIDEBAR variant's
+   `.tutorial-dot-wrapper > span.tutorial-dot` progress rings stay untouched.
+   -------------------------------------------------------------------------- */
+
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dots {
+  display: flex;
+  align-items: center;
+  gap: 0 !important;
+}
+
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dots .tutorial-dot {
+  width: 44px !important;
+  height: 36px !important;
+  min-width: 44px;
+  min-height: 36px;
+  padding: 0 !important;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dots .tutorial-dot::before {
+  display: none !important;
+}
+
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dots .tutorial-dot:hover,
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dots .tutorial-dot:active {
+  background: none !important;
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dot-pill {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(246, 240, 230, 0.3);
+  transition: width 0.18s ease, background-color 0.18s ease;
+}
+
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dot:hover .tutorial-dot-pill {
+  background: rgba(246, 240, 230, 0.55);
+}
+
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dot.active .tutorial-dot-pill {
+  width: 20px;
+  border-radius: 99px;
+  background: var(--royal-gold);
+  box-shadow: 0 0 10px rgba(231, 204, 122, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .tutorial-navigation .tutorial-dot-pill {
+    transition: none;
+  }
+}

@@ -14,6 +14,30 @@ interface MobileChatDrawerProps {
   mySocketId?: string;
 }
 
+/* Owner rule: no emoji as UI chrome. The drawer header used 💬 and the empty
+   state a 🕵️ — both rendered as full-colour system glyphs inside gold case-file
+   chips. These are the same line-art marks the desktop rail uses
+   (SidebarTabs.tsx CaseNotesIcon / ChatWindow's fingerprint seal), so the phone
+   drawer and the desktop CHAT tab now speak ONE visual language. */
+const CaseNotesMark = () => (
+  <svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor"
+    strokeWidth="1.3" strokeLinecap="square" aria-hidden="true" focusable="false">
+    <path d="M2.2 2.4h11.6v8.4H7.6L4.3 13.6v-2.8H2.2z" />
+    <path d="M4.9 5.6h6.2M4.9 8h4.2" />
+  </svg>
+);
+
+const CaseSealMark = () => (
+  <svg viewBox="0 0 40 40" width="34" height="34" fill="none" stroke="currentColor"
+    strokeWidth="1.2" strokeLinecap="round" aria-hidden="true" focusable="false">
+    <path d="M20 34c-4-3-6-7.5-6-12a6 6 0 0 1 12 0c0 3-.6 6-2 8.6" />
+    <path d="M20 30c-2-2.4-3-5-3-8a3 3 0 0 1 6 0c0 2-.3 3.6-.9 5" />
+    <path d="M9.6 26.6A16 16 0 0 1 8 20a12 12 0 0 1 24 0c0 4-.8 7.8-2.4 11" />
+    <path d="M20 4.6A15.4 15.4 0 0 0 6.6 12" />
+    <path d="M33.4 12A15.4 15.4 0 0 0 24.6 5.2" />
+  </svg>
+);
+
 /**
  * Full-screen chat drawer for mobile.
  * Noir-styled to match the HeartsGambit theme.
@@ -105,15 +129,15 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(212,175,55,0.2)] bg-[rgba(0,0,0,0.3)]">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.2)] flex items-center justify-center">
-                    <span className="text-lg">💬</span>
+                  <div className="w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.2)] flex items-center justify-center text-[var(--royal-gold-light)]">
+                    <CaseNotesMark />
                   </div>
                   <div>
                     <h2 className="text-[var(--royal-gold-light)] font-bold text-sm uppercase tracking-wider">
                       {t('caseNotes.chat')}
                     </h2>
                     <p className="text-[var(--parchment-dark)] text-xs">
-                      {messages.length} message{messages.length !== 1 ? 's' : ''}
+                      {t('chat.messageCount').replace('{count}', String(messages.length))}
                     </p>
                   </div>
                 </div>
@@ -129,16 +153,22 @@ const MobileChatDrawer: React.FC<MobileChatDrawerProps> = ({
               {/* Messages area */}
               <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
                 {messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-[rgba(212,175,55,0.1)] flex items-center justify-center mb-4">
-                      <span className="text-3xl">🕵️</span>
-                    </div>
+                  <div className="chat-empty flex flex-col items-center justify-center h-full text-center py-12">
+                    {/* quiet on-theme ghost, not a blank box: watermark seal over
+                        three unwritten ruled lines — identical to the desktop rail's
+                        CHAT empty state (styles/components/chat.css). */}
+                    <span className="chat-empty-seal mb-4" aria-hidden="true">
+                      <CaseSealMark />
+                    </span>
                     <p className="text-[var(--parchment-dark)] text-sm italic">
                       {t('chat.noMessagesYet')}
                     </p>
                     <p className="text-[var(--parchment-dark)] text-xs mt-1 opacity-70">
                       {t('chat.startInvestigation')}
                     </p>
+                    <span className="chat-empty-rules" aria-hidden="true">
+                      <i /><i /><i />
+                    </span>
                   </div>
                 ) : (
                   messages.map((msg) => {

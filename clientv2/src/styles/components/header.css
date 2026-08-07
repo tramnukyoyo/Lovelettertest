@@ -35,10 +35,14 @@
   align-items: center;
   gap: var(--spacing-sm);
   text-decoration: none;
-  transition: transform 0.2s ease;
+  /* Owner rule: clickables animate brightness/opacity only — never transform.
+     The old scale(1.02)/scale(0.98) pair moved the wordmark under the cursor
+     (and, at the narrow-desktop tier where the logo now clips, would have
+     shaved its last glyph on hover). */
+  transition: filter 0.2s ease;
 }
 
-.game-header-logo:hover { transform: scale(1.02); }
+.game-header-logo:hover { filter: brightness(1.12); }
 
 .game-header-logo-icon {
   width: 36px;
@@ -178,42 +182,70 @@
   box-shadow: 2px 2px 0 0 var(--px-border-dark);
 }
 
-/* Phase chip — a small case-status stamp beside the room code. GameHeader only
-   renders it when the phase resolves to real copy, so this box never paints
-   around an empty string (the old lowercase switch made it do exactly that).
-   Colour comes from is-* modifiers redefining ONE local custom prop. */
+/* Phase chip — the case-status stamp beside the room code, and the ONLY state
+   signal the header carries. GameHeader only renders it when the phase resolves
+   to real copy, so this box never paints around an empty string.
+
+   Round 3: lobby and play used to be two unrelated widgets — lobby painted a
+   legible parchment chip while PLAYING resolved `--phase-accent: var(--primary)`
+   = --royal-crimson (#6a1623), i.e. near-black text AND a near-black border on a
+   dark header (well under 3:1). Now every state shares ONE face — gold hairline,
+   parchment label, ink ground — and the is-* modifiers only escalate the LIVE
+   state: PLAYING gets the crimson wash, the brighter gold rule and the pulsing
+   ember dot, so lobby → play reads as a deliberate step up. */
 .game-header .game-header-phase-badge {
-  --phase-accent: var(--primary);
+  --phase-rule: rgba(210, 178, 90, 0.42);
+  --phase-dot: var(--royal-gold, #d2b25a);
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-darker);
-  border: 1.5px solid color-mix(in srgb, var(--phase-accent) 42%, var(--px-border));
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--phase-rule);
   border-radius: 0;
   font-family: var(--font-title);
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--phase-accent);
+  color: var(--parchment, #f6f0e6);
   box-shadow: 2px 2px 0 0 var(--px-border-dark);
 }
 
-.game-header .game-header-phase-badge.is-lobby { --phase-accent: var(--text-secondary); }
-.game-header .game-header-phase-badge.is-playing { --phase-accent: var(--primary); }
-.game-header .game-header-phase-badge.is-ended { --phase-accent: var(--gb-lie); }
+/* quiet: the case is not open yet */
+.game-header .game-header-phase-badge.is-lobby {
+  --phase-dot: rgba(210, 178, 90, 0.75);
+}
+
+/* LOUDEST: the case is live — crimson ground, brighter rule, ember dot */
+.game-header .game-header-phase-badge.is-playing {
+  --phase-rule: rgba(231, 204, 122, 0.72);
+  --phase-dot: var(--gb-lie, #ff6b6b);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--royal-crimson, #6a1623) 72%, transparent),
+      color-mix(in srgb, var(--royal-crimson-dark, #3d0c13) 82%, transparent));
+  box-shadow:
+    2px 2px 0 0 var(--px-border-dark),
+    inset 0 1px 0 rgba(231, 204, 122, 0.18);
+}
+
+/* closed: the verdict is in */
+.game-header .game-header-phase-badge.is-ended {
+  --phase-rule: rgba(231, 204, 122, 0.6);
+  --phase-dot: var(--royal-gold-light, #e7cc7a);
+}
 
 /* Status dot: steady in lobby/end, a slow candle-pulse while the case is live */
-.game-header-phase-dot {
+.game-header .game-header-phase-dot {
   width: 7px;
   height: 7px;
   flex: 0 0 auto;
-  background: var(--phase-accent);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--phase-accent) 60%, transparent);
+  background: var(--phase-dot);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--phase-dot) 60%, transparent);
 }
 
-.game-header-phase-badge.is-playing .game-header-phase-dot {
+.game-header .game-header-phase-badge.is-playing .game-header-phase-dot {
   animation: phaseDotPulse 2.4s ease-in-out infinite;
 }
 
@@ -223,7 +255,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .game-header-phase-badge.is-playing .game-header-phase-dot { animation: none; }
+  .game-header .game-header-phase-badge.is-playing .game-header-phase-dot { animation: none; }
 }
 
 /* Right Section - Controls */
@@ -313,7 +345,7 @@
   box-shadow: 1px 1px 0 0 var(--px-border-dark);
 }
 
-.game-header-logo:active { transform: scale(0.98); }
+.game-header-logo:active { filter: brightness(0.9); }
 
 /* Focus Visible States */
 .game-header-copy-btn:focus-visible,
@@ -370,26 +402,73 @@
 
   .game-header .game-header-right { gap: 0.4rem; }
 
+  /* ROUND 3 — the 1366 wordmark collision.
+     `white-space: nowrap` (below) stopped the left group WRAPPING but nothing
+     gave it room, so at 1366 the group's intrinsic width exceeded its share of
+     the row and the opaque room-code chip painted straight over the wordmark's
+     final glyph ("Prime Suspec"). Three moves, in order of preference:
+       1. free real width at this tier (divider + "Room:" label + subline out);
+       2. let the room pill keep its intrinsic size — it must never be squeezed;
+       3. as a last resort make the LOGO the thing that gives (min-width:0 +
+          ellipsis), so a too-narrow row degrades to a truncation, never to two
+          elements occupying the same pixels (owner rule: no overlap EVER). */
+  .game-header .game-header-left {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .game-header .game-header-logo {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .game-header .game-header-logo-text-container {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .game-header .game-header-room-info {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  /* The one-line wordmark IS the header identity at this width — the two-line
+     0.58rem "by GameBuddies.io" subline under it only adds noise and forces the
+     logo block to reserve a second baseline. Drop it; the platform return button
+     already carries "GAMEBUDDIES.IO" on the right. */
+  .game-header .game-header-gb-branding { display: none; }
+
+  /* ~62px reclaimed for the wordmark: the 1px rule between logo and room pill
+     (plus its two 0.6rem gaps) and the "Room:" label, which the code pill's
+     letterspaced value + copy button already make redundant. */
+  .game-header .game-header-divider { display: none; }
+
+  .game-header .game-header-room-label { display: none; }
+
   .game-header .game-header-logo-text {
     font-size: 1rem;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .game-header .game-header-logo-icon {
     width: 30px;
     height: 30px;
-  }
-
-  .game-header .game-header-gb-branding {
-    font-size: 0.58rem;
-    white-space: nowrap;
+    flex: 0 0 auto;
   }
 
   .game-header .game-header-room-code { padding: 2px 0.4rem; }
 
-  .game-header .game-header-room-label { font-size: 0.75rem; }
-
   .game-header .game-header-room-value { font-size: 0.9rem; }
+
+  .game-header .game-header-copy-btn {
+    min-width: 30px;
+    min-height: 30px;
+    width: 30px;
+    height: 30px;
+  }
 
   .game-header .game-header-phase-badge {
     padding: 2px 0.45rem;
@@ -449,6 +528,17 @@
     min-height: 34px;
     padding-block: 0.35rem;
   }
+}
+
+/* Mid desktop (1280–1365): measuring the round-2 capture, the right control row
+   occupies ~860px at 1366 while the left group asks for ~481px — a ~2px deficit,
+   which is exactly the one-glyph overlap the critic caught. The reclaims above
+   (~61px) clear 1366 with ~59px to spare, but at 1280 the row is another 86px
+   shorter and would collide again. "JOIN VIDEO" keeps its camera icon (and its
+   title/aria-label) and gives up its ~70px label here — the same trade the
+   <1280 tier already makes, one step earlier. */
+@media (min-width: 1280px) and (max-width: 1365.98px) {
+  .game-header .video-join-text { display: none; }
 }
 
 /* Small desktop (1024–1280): the compact tier above still measures ~1170px of

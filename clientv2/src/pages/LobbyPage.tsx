@@ -403,9 +403,14 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                             </li>
                           ))}
                         </ul>
-                      </div>
 
-                      {!isHost && <p className="lobby-waiting-host">{t('game.waitingForHost')}</p>}
+                        {/* Status strip of the board itself. It used to sit
+                            BETWEEN the crew block and the invite band, where it
+                            floated alone in ~200px of velvet on the guest view;
+                            inside the crew block it reads as the seat row's own
+                            stamp, tight under the seats. */}
+                        {!isHost && <p className="lobby-waiting-host">{t('game.waitingForHost')}</p>}
+                      </div>
 
                       {/* Invite band pinned to the crew pane's bottom edge:
                           mascot | room code + actions | card-back designer. */}
@@ -445,24 +450,24 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                       briefing. Never an empty pane (standard rule 6). */}
                   <div className={`gs-pane lobby-waiting-card lobby-settings-pane gs-lobby-col gs-lobby-col--brief${isHost ? '' : ' is-guest'}`}>
                     <div className="gs-pane-scroll">
-                      {isHost ? (
+                      {/* The host folder held one ADD BOT button and ~600px of
+                          empty velvet. The same read-only case facts the guest
+                          sees fill it — real data, no invented dead controls
+                          (the plugin exposes no settings:update). The briefing
+                          renders at EVERY width: gating it behind the desktop
+                          branch made 375/768/1024 an information regression
+                          against 1366/1920. Only the interactive settings fold
+                          into the phone accordion. */}
+                      {isHost && (
                         isMobile ? (
                           <CollapsibleSection title={t('settings.title')}>
                             <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
                           </CollapsibleSection>
                         ) : (
-                          <>
-                            <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
-                            {/* The host folder held one ADD BOT button and ~600px
-                                of empty velvet. The same read-only case facts the
-                                guest sees fill it — real data, no invented dead
-                                controls (the plugin exposes no settings:update). */}
-                            <GuestBriefingPanel lobby={lobby} />
-                          </>
+                          <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
                         )
-                      ) : (
-                        <GuestBriefingPanel lobby={lobby} />
                       )}
+                      <GuestBriefingPanel lobby={lobby} />
                       {/* One-viewport directive (rule 7): the explainer NEVER
                           renders in-pane — desktop included. It stays mounted
                           (display:none) so the first-visit auto-open and the

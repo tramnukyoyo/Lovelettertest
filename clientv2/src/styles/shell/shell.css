@@ -90,7 +90,12 @@
     transform: translateY(0);
   }
 
-  /* Peek strip: the visible 8px edge doubles as the reveal affordance */
+  /* Peek strip: the visible 8px edge doubles as the reveal affordance.
+     Round 3 — in this theme `--primary-rgb` is royal crimson, so a 0.35-alpha
+     crimson strip on the candlelit stage was invisible: in fullscreen captures
+     the header simply read as ABSENT, with no hint that hovering the top edge
+     brings back the room code / leave control. Gold hairline + a centred grab
+     handle, matching the .gs-chrome-toggle folder-tab language. */
   .gs-hud-wrap::after {
     content: '';
     position: absolute;
@@ -98,16 +103,38 @@
     right: 0;
     bottom: 0;
     height: 8px;
-    background: rgba(var(--primary-rgb), 0.35);
+    background:
+      linear-gradient(180deg,
+        rgba(231, 204, 122, 0.55),
+        rgba(210, 178, 90, 0.28));
     border-bottom: 2px solid var(--px-border-dark);
-    transition: background 0.2s;
+    transition: opacity 0.2s;
     pointer-events: none;
   }
 
+  /* the grab handle — three hairline ridges, centred, aria-free decoration */
+  .gs-hud-wrap::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 1px;
+    width: 46px;
+    height: 4px;
+    transform: translateX(-50%);
+    background: repeating-linear-gradient(90deg,
+      var(--velvet-darker, #120d11) 0 6px,
+      transparent 6px 10px);
+    opacity: 0.85;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 1;
+  }
+
   .gs-hud-wrap:hover::after,
-  .gs-hud-wrap:focus-within::after {
-    background: transparent;
-    border-bottom-color: transparent;
+  .gs-hud-wrap:focus-within::after,
+  .gs-hud-wrap:hover::before,
+  .gs-hud-wrap:focus-within::before {
+    opacity: 0;
   }
 }
 
@@ -261,10 +288,14 @@
   white-space: nowrap;
 }
 
+/* Token count. `--primary` is --royal-crimson (#6a1623) in this theme, i.e. an
+   almost-black number on the almost-black dock — the count was invisible at
+   every width. Gold reads, and gold IS the token colour everywhere else. */
 .gs-chip-score {
   font-family: var(--font-title);
-  color: var(--primary);
+  color: var(--royal-gold-light, #e7cc7a);
   font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .gs-chip-status {
@@ -287,6 +318,14 @@
 .gs-chip-host {
   color: var(--primary);
   font-size: 0.7rem;
+}
+
+/* Wide desktops: 9ch truncated "Falco…" with ~1450px of empty dock beside it
+   read as a broken overflow, not as a design. Give names room where there is
+   room — the ellipsis stays as the >14ch safety net. */
+@media (min-width: 1440px) {
+  .gs-chip-name { max-width: 14ch; }
+  .gs-chip { padding-right: 0.7rem; }
 }
 
 /* Phones: chips compress to avatar-only (the ladder's presence step) */
@@ -464,14 +503,35 @@
   /* Drop the decorative mascot on phones to save vertical space. */
   .lobby-mascot { display: none !important; }
 
-  /* Full-width Start, pinned to the bottom of the scroll so it's always reachable. */
+  /* ROUND 3 — the sticky START bar sliced the invite band in half.
+     `.gs-scene-actions` is the LAST child of `.gs-lobby-scene`, so `bottom: 0`
+     pins it to the scrollport for the whole scroll INCLUDING the very end: at
+     max scroll the room-code tiles and the "share the link" line still sat
+     under it, cut through the middle, and the most important element in the
+     lobby was unreadable. Reserving trailing space inside the sticky element's
+     containing block gives the bar somewhere of its own to land, so every real
+     row can be scrolled fully clear of it. Guests get no SceneActions (START is
+     host-only), so `:has()` keeps the reserve off screens with no bar. */
+  .gs-lobby-scene:has(.gs-scene-actions) {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Full-width Start, pinned to the bottom of the scroll so it's always reachable.
+     Opaque ground + a gold hairline on top: while mid-scroll the bar DOES pass
+     over content, and a hard lit edge reads as "a bar in front of the page"
+     instead of "the page has been sliced". */
   .gs-lobby-scene .gs-scene-actions {
     position: sticky;
     bottom: 0;
     z-index: 3;
-    background: var(--bg-secondary, var(--bg-darker, #15131f));
-    padding-top: 0.5rem;
-    padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+    background:
+      linear-gradient(180deg,
+        var(--velvet-panel, var(--bg-secondary, #15131f)),
+        var(--velvet-darker, var(--bg-darker, #0f0b12)));
+    border-top: 1px solid rgba(210, 178, 90, 0.42);
+    box-shadow: 0 -12px 20px -8px rgba(0, 0, 0, 0.6);
+    padding-top: 0.6rem;
+    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
   }
   .lobby-start-section { width: 100%; }
   .lobby-start-btn { width: 100%; }
@@ -505,18 +565,47 @@
   overflow-x: hidden;
   scrollbar-width: none;
   position: relative;
-  /* dossier surface: faint typewriter ruling + a warm candle wash from the top,
-     so the tail below the last suspect reads as empty case paper, not a hole */
+  /* DOSSIER SURFACE (round 3: raised from whisper to legible).
+     Round 2 shipped this wash at 0.05/0.07 alpha, which measured as flat plum in
+     the captures — below VERA the rail read as ~570px of undesigned dead zone at
+     1920. Same language as `.ps-caselog-body` (the detective's notebook), just
+     dialled up until it actually reads:
+       1. candle wash falling from the tab bar (the rail's key light)
+       2. 28px typewriter ruling — the sheet the roster is typed on
+       3. a wax-seal watermark parked near the foot of the sheet, so the tail
+          below the last suspect is "empty case paper", not a hole
+       4. a warm crimson floor + the inner gold hairline that frames the page
+     The seal is background-only (attachment: scroll on a scroller = pinned to
+     the visible padding box), so it never moves under the roster rows. */
   background:
-    radial-gradient(120% 60% at 50% 0%,
-      rgba(231, 204, 122, 0.07) 0%, rgba(231, 204, 122, 0) 62%),
+    radial-gradient(120% 55% at 50% 0%,
+      rgba(245, 226, 168, 0.11) 0%, rgba(245, 226, 168, 0) 62%),
     repeating-linear-gradient(180deg,
-      rgba(210, 178, 90, 0.05) 0 1px,
-      rgba(210, 178, 90, 0) 1px 28px),
+      transparent 0 27px,
+      rgba(210, 178, 90, 0.085) 27px 28px),
+    radial-gradient(circle at 50% calc(100% - 92px),
+      transparent 0 32px,
+      var(--rail-seal-ring, transparent) 32px 34px,
+      transparent 34px),
+    radial-gradient(circle at 50% calc(100% - 92px),
+      var(--rail-seal-fill, transparent) 0 27px,
+      transparent 28px),
+    radial-gradient(140% 42% at 50% 100%,
+      rgba(106, 22, 35, 0.24), transparent 72%),
     linear-gradient(180deg,
-      rgba(0, 0, 0, 0.12) 0%,
-      rgba(0, 0, 0, 0.28) 100%);
-  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.08);
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.3) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(231, 204, 122, 0.09),
+    inset 0 1px 0 rgba(231, 204, 122, 0.14);
+}
+
+/* The wax seal only belongs to the SUSPECTS sheet — the CHAT tab already ends
+   its empty state with its own fingerprint seal, and two watermarks stacked in
+   one 320px column read as noise. */
+.gs-rail .sidebar-tabs-container .sidebar-content:has(.player-list) {
+  --rail-seal-ring: rgba(231, 204, 122, 0.13);
+  --rail-seal-fill: rgba(106, 22, 35, 0.3);
 }
 
 .gs-rail .sidebar-tabs-container .sidebar-content::-webkit-scrollbar { width: 0; }

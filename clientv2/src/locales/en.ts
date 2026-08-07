@@ -57,6 +57,7 @@ export const en = {
     yourName: 'Your Name',
     roomCode: 'Room Code',
     enterName: 'Enter your name',
+    formNote: 'Sign the case file to unseal it',
     enterRoomCode: 'Enter room code',
     create: 'Create',
     join: 'Join',
@@ -330,6 +331,18 @@ export const en = {
     close: 'Close notification',
   },
 
+  // Toast eyebrow categories (kick / site notification / admin message)
+  toast: {
+    category: {
+      removed: 'Removed',
+      notice: 'Notice',
+      confirmed: 'Confirmed',
+      warning: 'Warning',
+      error: 'Error',
+      message: 'Message',
+    },
+  },
+
   // Achievement toast
   achievementToast: {
     unlocked: 'Achievement unlocked',
@@ -394,6 +407,7 @@ export const en = {
     equipped: 'EQUIPPED',
     premiumTitle: 'Premium exclusives',
     cardBackPreviewCaption: 'how your hand looks to the table',
+    confirmEyebrow: 'PURCHASE ORDER',
   },
 
   // Streamer broadcast stage

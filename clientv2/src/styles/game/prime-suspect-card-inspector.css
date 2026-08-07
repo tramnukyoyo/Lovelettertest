@@ -23,9 +23,59 @@
   --hgi-l: 24px;
 }
 
+/* --- 0 · Backdrop ground --------------------------------------------------
+   The inspector carries `data-broadcast-mirror-portal="card-inspector"` like
+   every other member of the family, so unified.css's
+   `.settings-modal-backdrop:not([data-broadcast-mirror-portal])` — commented
+   there as "core SettingsModal only" — deliberately no longer reaches it. The
+   ground it used to borrow is restated here, owned by the inspector:
+   · deeper base wash, because an exhibit view wants nothing legible behind it;
+   · on phones the top padding collapses to the safe-area inset only, so no
+     8px strip of game chrome survives above the panel's gold frame.
+   The round-1 stacking fix is preserved verbatim: `var(--z-settings-modal)`
+   (9999) is exactly what the `:not(...)` rule used to hand the inspector, so
+   re-adding the attribute changes nothing about what it sits above. */
+
+[data-theme="primesuspect"] .settings-modal-backdrop.hg-inspector-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-settings-modal, 9999);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  padding-top: calc(var(--app-header-height, 66px) + env(safe-area-inset-top, 0px) + 2.25rem);
+  background:
+    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
+    radial-gradient(900px at 25% 14%, rgba(210, 178, 90, 0.1), transparent 60%),
+    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.88), transparent 58%),
+    rgba(0, 0, 0, 0.86);
+  pointer-events: auto;
+}
+
+@media (max-width: 926px) {
+  [data-theme="primesuspect"] .settings-modal-backdrop.hg-inspector-modal {
+    padding: 0.5rem;
+    /* Flush to the top edge: the old 0.5rem left a sliver of the table's gold
+       chrome half-cut by the viewport, reading as a render artifact. */
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+@media (max-height: 500px) {
+  [data-theme="primesuspect"] .settings-modal-backdrop.hg-inspector-modal {
+    padding: 4px;
+    padding-top: max(4px, env(safe-area-inset-top, 0px));
+  }
+}
+
 /* --- 1 · Panel ------------------------------------------------------------ */
 
-[data-theme="primesuspect"] .hgi-panel {
+/* `.settings-modal-panel` is re-declared inside unified.css's landscape block
+   (`max-height: calc(100dvh - 8px) !important; overflow-y: auto !important`),
+   so the flex recipe is anchored on BOTH classes to outrank it regardless of
+   bundle order. */
+[data-theme="primesuspect"] .settings-modal-panel.hgi-panel {
   width: min(560px, 100%);
   /* The backdrop already reserves the app-header band in its padding, so the
      panel measures against the padded box — never taller than the gap left. */
@@ -92,7 +142,10 @@
   flex-direction: column;
   align-items: center;
   gap: var(--hgi-m);
-  padding: var(--hgi-m) var(--hgi-m) var(--hgi-l) !important;
+  /* 24px of head-room: `.hgi-selected-stamp` hangs 14px above the card frame
+     and this box is the scroll clipper, so a smaller inset shaves the wax
+     stamp and its shadow on every phone. */
+  padding: 24px var(--hgi-m) var(--hgi-l) !important;
 }
 
 [data-theme="primesuspect"] .hgi-stage {
@@ -212,19 +265,53 @@
   color: rgba(246, 240, 230, 0.7);
 }
 
+/* The case-notes slip: a labelled note torn from the file and laid under the
+   exhibit — parchment wash, gold binding edge on the left, a folded corner
+   top-right. The wash stays low-alpha so it warms the velvet without lifting
+   to a light surface (the copy on it must stay parchment-on-dark). */
 [data-theme="primesuspect"] .hgi-brief {
+  position: relative;
   margin: 0;
-  padding: 11px 13px;
+  padding: 11px 20px 13px 14px;
   text-align: left;
-  border-radius: 9px;
-  border-left: 2px solid rgba(210, 178, 90, 0.42);
+  border-radius: 0;
+  border-left: 2px solid rgba(210, 178, 90, 0.55);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.18));
-  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.08);
+    linear-gradient(180deg, rgba(246, 240, 230, 0.1), rgba(246, 240, 230, 0.05));
+  box-shadow: inset 0 1px 0 rgba(246, 240, 230, 0.14);
+  /* Torn note, not a div: the top-right corner is folded away. */
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+}
+
+/* The fold itself — the triangle that survives the parent clip. */
+[data-theme="primesuspect"] .hgi-brief::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  background: linear-gradient(225deg, rgba(0, 0, 0, 0.42), rgba(246, 240, 230, 0.14));
+  pointer-events: none;
+}
+
+[data-theme="primesuspect"] .hgi-brief-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(210, 178, 90, 0.78);
+}
+
+[data-theme="primesuspect"] .hgi-brief-text {
+  margin: 0;
   font-family: var(--font-body, 'Libre Franklin', sans-serif);
   font-size: 0.855rem;
   line-height: 1.62;
-  color: rgba(246, 240, 230, 0.84);
+  color: rgba(246, 240, 230, 0.86);
 }
 
 /* --- 5 · Footer strip: dots + hint + primary action ---------------------- */
@@ -234,8 +321,10 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
-  padding: 10px var(--hgi-m) calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  gap: 8px;
+  /* In the browse-only configuration this strip carries the pager and nothing
+     else, so it is sized to the pager rather than to the (rarer) action row. */
+  padding: 4px var(--hgi-m) calc(8px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 [data-theme="primesuspect"] .hgi-dots {
@@ -246,11 +335,13 @@
   gap: 0;
 }
 
+/* 44px wide keeps the horizontal target between neighbours; the height is
+   trimmed because the row sits alone in the footer band. */
 [data-theme="primesuspect"] .hgi-dot {
   width: 44px;
-  height: 44px;
+  height: 36px;
   min-width: 44px;
-  min-height: 44px;
+  min-height: 36px;
   padding: 0 !important;
   margin: 0;
   display: flex;
@@ -351,7 +442,7 @@
     rgba(0, 0, 0, 0.8);
 }
 
-[data-theme="primesuspect"] .hgi-subpanel {
+[data-theme="primesuspect"] .settings-modal-panel.hgi-subpanel {
   width: min(360px, 100%);
   max-height: 100% !important;
   display: flex !important;
@@ -359,7 +450,7 @@
   overflow: hidden !important;
 }
 
-[data-theme="primesuspect"] .hgi-subpanel--wide {
+[data-theme="primesuspect"] .settings-modal-panel.hgi-subpanel--wide {
   width: min(440px, 100%);
 }
 
@@ -497,12 +588,15 @@
   box-shadow: 0 3px 9px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-/* Guess grid — the card IS the control. */
+/* Guess rack — the card IS the control. Wrapping flex, not a 4-col grid: with
+   seven cards a grid leaves an empty cell beside the last one, which reads as
+   an unfinished row. Wrapped rows centre under the full row instead. */
 [data-theme="primesuspect"] .hgi-guesses {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
   gap: 8px;
-  justify-items: center;
 }
 
 [data-theme="primesuspect"] .hgi-guess {
@@ -595,12 +689,12 @@
     text-align: left !important;
   }
 
-  [data-theme="primesuspect"] .hgi-brief {
+  [data-theme="primesuspect"] .hgi-brief-text {
     font-size: 0.76rem;
     line-height: 1.5;
   }
 
-  [data-theme="primesuspect"] .hgi-panel {
+  [data-theme="primesuspect"] .settings-modal-panel.hgi-panel {
     width: min(720px, 100%);
   }
 }

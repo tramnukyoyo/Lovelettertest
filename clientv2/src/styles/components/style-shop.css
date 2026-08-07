@@ -54,14 +54,25 @@
   min-width: 44px;
   min-height: 44px;
   padding: 0;
-  border-radius: 0;
-  background: var(--rust, #b8572a);
-  border: 2px solid #2a2420;
-  color: var(--aged-newspaper, #f4e8c1);
+  /* Same dismiss recipe as the settings/auth/feedback close (velvet card, gold
+     hairline, gold X) — rust stays reserved for the "CASE FILE" stamp, so the
+     brightest thing on the panel is never the way OUT of it. */
+  border-radius: var(--psb-radius, 7px);
+  background: var(--psb-sec-face, linear-gradient(180deg, #34262f, #2c2029));
+  border: var(--psb-border-soft, 1px solid rgba(210, 178, 90, 0.55));
+  color: var(--royal-gold-light, #e7cc7a);
   cursor: pointer;
-  transition: filter 0.15s ease;
+  transition: filter 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.psshop-close:hover { filter: brightness(1.18); }
+.psshop-close:hover {
+  filter: brightness(1.18);
+  border-color: var(--royal-gold, #d2b25a);
+  color: #fff0cf;
+}
+.psshop-close:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
+}
 
 /* Masthead band — the dossier header the settings modal uses, so the two
    panels read as one family. */
@@ -119,14 +130,41 @@
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(210, 178, 90, 0.55) transparent;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 12px 1rem 1rem;
+  /* No bottom padding: the sticky hint sticks to the bottom of the SCROLLPORT,
+     so any padding here renders BELOW the fade band and prints the next
+     heading un-faded and half-cut. The clearance lives on the last section. */
+  padding: 12px 1rem 0;
 }
-/* Retint the fleet scroll affordance for the velvet body. */
+/* Last catalogue block clears the fade band + the chevron gutter, so nothing
+   purchasable ever ends underneath the affordance.
+   (`:last-child` = no hint mounted; `:has()` = the section before the hint —
+   `:last-of-type` cannot be used, the hint is a <div> too.) */
+.psshop-body > .psshop-section:last-child,
+.psshop-body > .psshop-section:has(+ .gs-scroll-hint) {
+  padding-bottom: 3rem;
+}
+/* Retint the fleet scroll affordance for the velvet body. The stop colour must
+   be the PANEL face (velvet-900, set in cosmetics.css) — velvet-panel is two
+   steps lighter and printed as a grey-mauve smear across the last chip row.
+   The chevron rides the scrollbar gutter on the right instead of sitting on a
+   purchasable chip (the tab is pointer-events:auto by fleet contract). */
 .psshop-body .gs-scroll-hint {
-  background: linear-gradient(transparent, var(--velvet-panel, #2c2029) 70%);
+  height: 56px;
+  margin-top: -56px;
+  justify-content: flex-end;
+  padding-right: 12px;
+  background: linear-gradient(transparent, var(--velvet-900, #1c0f14) 72%);
+}
+.psshop-body::-webkit-scrollbar { width: 8px; }
+.psshop-body::-webkit-scrollbar-thumb {
+  background: rgba(210, 178, 90, 0.55);
+  border-radius: 999px;
 }
 
 /* Preview: a fan of REAL DynamicCard backs (hg-back-<style> overlays). */
@@ -248,10 +286,19 @@
   background: linear-gradient(90deg, rgba(210, 178, 90, 0.5), rgba(210, 178, 90, 0.05));
 }
 
-.psshop-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Evidence tags filed in a rack: label-derived widths gave rows of 2/3/2/3/1
+   with 100–300px holes, and the double-wide "EQUIPPED" chip broke row 1. One
+   column rhythm for the standard AND the premium block. */
+.psshop-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
 .psshop-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
   gap: 6px;
   min-height: 44px;
   padding: 6px 13px;
@@ -271,9 +318,37 @@
   box-shadow: inset 0 0 8px var(--psshop-glow, transparent);
   transition: border-color 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
 }
-.psshop-chip-label { display: inline-block; }
+.psshop-chip-label {
+  display: inline-block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
 .psshop-chip-glyph { flex: 0 0 auto; }
 .psshop-chip:hover { border-color: var(--royal-gold, #d2b25a); filter: brightness(1.14); }
+
+/* ---- the goods, previewed ------------------------------------------------
+   A frame chip used to be a tinted rectangle with a name and a price: the
+   buyer spent 250 GP on trust. Every frame chip now leads with the SAME
+   avatar-frame-wrap the roster/dock render, so the chip IS the swatch. */
+.psshop-chip-swatch {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+}
+.psshop-chip-swatch img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+/* On the engraved gold "equipped" face the ring needs a dark seat to read. */
+.psshop-chip.is-equipped .psshop-chip-swatch { background: rgba(61, 12, 19, 0.35); }
 
 /* ---- three separable tiers ---- */
 .psshop-chip.is-locked {
@@ -318,7 +393,11 @@
     0 0 0 2px var(--royal-gold-light, #e7cc7a),
     0 0 14px rgba(231, 204, 122, 0.28);
 }
+/* The lock folds ONTO the price pill — one "you don't own this yet, it costs
+   X" token instead of two competing glyphs bracketing the name. */
 .psshop-price {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; gap: 3px;
   font-size: 0.62rem; line-height: 1; padding: 3px 6px;
   color: var(--royal-crimson-dark, #3d0c13); background: var(--royal-gold, #d2b25a);
 }
@@ -330,14 +409,26 @@
   background: linear-gradient(to top, rgba(10, 6, 8, 0.78) 0%, rgba(10, 6, 8, 0.38) 30%, transparent 55%);
   display: flex; align-items: flex-end; justify-content: center; padding: 16px;
 }
+/* The money moment is a FILED DOCUMENT, not a rounded web sheet: square corners
+   + the tobacco frame + the hard drop shadow every other dossier panel wears.
+   (`--gold-500` was a second, cooler gold competing with the identity's
+   --royal-gold two inches above it — gone.) */
 .psshop-confirm {
-  width: min(340px, 92vw); padding: 14px 16px; border-radius: 14px;
-  background: var(--velvet-900, #1c0f14); border: 2px solid var(--gold-500, #c9a227);
-  box-shadow: 0 -6px 40px rgba(0, 0, 0, 0.6);
+  width: min(340px, 92vw); padding: 14px 16px; border-radius: 0;
+  background: var(--velvet-900, #1c0f14);
+  border: 4px solid var(--tobacco-brown, #4a3f35);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.45), 0 -6px 40px rgba(0, 0, 0, 0.6);
   display: flex; flex-direction: column; gap: 7px;
   color: var(--parchment, #eadfc8);
 }
-.psshop-confirm-title { font-size: 0.95rem; font-weight: 900; color: var(--gold-400, #e6c777); }
+.psshop-confirm .psshop-eyebrow { margin-bottom: -5px; opacity: 0.66; }
+.psshop-confirm-title {
+  font-family: var(--font-heading, 'Cinzel', Georgia, serif);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--royal-gold-light, #e7cc7a);
+}
 .psshop-crow { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; }
 .psshop-crow > span:last-child { font-weight: 800; }
 .psshop-gold { color: var(--gold-400, #e6c777); display: inline-flex; align-items: center; gap: 4px; }
@@ -474,14 +565,19 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  border-radius: 0;
-  background: var(--rust, #b8572a);
-  border: 2px solid #2a2420;
-  color: var(--aged-newspaper, #f4e8c1);
-  box-shadow: none;
+  border-radius: var(--psb-radius);
+  background: var(--psb-sec-face);
+  border: var(--psb-border-soft);
+  color: var(--royal-gold-light);
+  box-shadow: var(--psb-ico-rest);
   transform: none;
 }
-[data-theme="primesuspect"] .psshop-panel button.psshop-close:hover { transform: none; filter: brightness(1.18); }
+[data-theme="primesuspect"] .psshop-panel button.psshop-close:hover {
+  transform: none;
+  filter: brightness(1.18);
+  border-color: var(--royal-gold);
+  color: #fff0cf;
+}
 
 [data-theme="primesuspect"] .psshop-panel button.psshop-cancel,
 [data-theme="primesuspect"] .psshop-panel button.psshop-buy {

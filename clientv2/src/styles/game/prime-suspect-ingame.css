@@ -3603,3 +3603,495 @@
     padding-bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* ============================================================================
+   18 · ROUND-3 DESKTOP TABLE PASS
+   ----------------------------------------------------------------------------
+     18.1 narrow stages: the tray toolbar can never wrap onto the hand card
+     18.2 the card value pip is never a rotated 6/9
+     18.3 card inspector: the card is the exhibit, the panel holds the words
+     18.4 short + narrow stages (1024x768): the three bands fit the container
+     18.5 the notebook is one opaque object, not a window onto the band seams
+     18.6 wide stages: the hand band becomes a real three-part composition and
+          the notebook earns its height with the dossier roster
+   Loads last, so it wins the cascade. Token-driven, scoped to [data-theme],
+   reduced-motion guarded.
+   ============================================================================ */
+
+/* ---- 18.1 · NARROW STAGES — the toolbar stays ONE row --------------------- */
+/* Below a ~704px stage (a 1024px viewport with the rail open) the three ghost
+   buttons wrapped to a second toolbar row. The row keeps its z-10 stacking while
+   the hand card keeps deriving its height from the card token, so the CARD LEGEND
+   button was painted straight over the held card's top border, its top-left value
+   pip and the top quarter of its art. Two independent guards:
+     (a) icon-only utility buttons keep the toolbar on one line;
+     (b) the hand card is clamped against the tray band with a reserve that
+         assumes the toolbar row, exactly like the piles are clamped in 17.5.
+   Never let the hand derive its height from a viewport constant while a wrapping
+   toolbar shares the band.
+   Threshold: the stage is the viewport minus the 320px rail, so 1024 -> 704 and
+   1280 -> 960. Measured EN labels + badges ask ~960px, and the German locale asks
+   another ~15%, so the collapse has to start ABOVE the 1280 tier. 1366 -> 1046
+   keeps its full labels (round-2 capture shows ~600px of slack there). */
+@container stage (max-width: 980px) {
+  [data-theme="primesuspect"] .ps-tray-toolbar {
+    flex-wrap: nowrap;
+    row-gap: 0;
+    gap: 0.6rem;
+  }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-tray-tools { flex: 0 0 auto; }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-token-track { min-width: 0; }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-btn--sm {
+    padding-inline: 0.5rem;
+    gap: 0;
+    /* collapses the label text node; the lucide icon carries a width/height
+       attribute so it is unaffected. `title` keeps the hover/AT affordance. */
+    font-size: 0;
+    letter-spacing: 0;
+  }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-btn--sm > svg {
+    width: 17px;
+    height: 17px;
+  }
+  [data-theme="primesuspect"] .ps-hand-area {
+    --ps-fit-hand-card: min(var(--hg-card-height, 208px), max(88px, calc(33.75cqb - 98px)));
+  }
+}
+
+/* ---- 18.2 · CARD VALUE PIP — a 6 must never read as a 9 ------------------- */
+/* Playing cards get away with a 180deg-mirrored corner because their pips are
+   suit glyphs. Here the NUMBER is the guess target in a deduction loop, so a
+   rotated 6 printed a literal 9 in the bottom-right corner of DOUBLE AGENT.
+   The pip stays a corner badge; it just no longer lies. */
+[data-theme="primesuspect"] .hg-dynamic-card:not(.hg-card-back) .card-value-br {
+  transform: none;
+}
+
+/* ---- 18.3 · CARD INSPECTOR — one authoritative rules text ----------------- */
+/* The inspector printed the effect twice (card face + footer brief) plus the name
+   twice. The big card is the ARTWORK + RANK exhibit; the panel does the talking. */
+[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-description {
+  display: none !important;
+}
+[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-art {
+  height: 76% !important;
+}
+[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-body {
+  height: 24% !important;
+  justify-content: center !important;
+  padding-bottom: calc(var(--psc-pad) + var(--psc-badge) * 0.35) !important;
+}
+
+/* ---- 18.4 · SHORT + NARROW STAGES (the 1024x768 laptop) ------------------- */
+/* At a 704x642 stage the 27/26/27 split plus the reserve strips left the hand
+   band too thin for the card it had to hold. Re-proportion the three bands and
+   re-derive every fit token against the NEW percentages (the 33.75/32.5cqb
+   constants in 17.2/17.5 assume the default split). Scoped tight so the
+   1366x768 stage, which is fine today, is untouched. */
+@container stage (max-width: 760px) and (max-height: 720px) {
+  [data-theme="primesuspect"] .ps-opponents-area {
+    flex: 0 0 31%;
+    --ps-fit-seat-card: min(var(--hg-card-height, 208px), max(74px, calc(31cqb - 104px)));
+  }
+  [data-theme="primesuspect"] .ps-evidence-band {
+    flex: 0 0 33%;
+    padding-bottom: 2rem;
+  }
+  [data-theme="primesuspect"] .ps-deck-evidence-row {
+    --ps-fit-pile-card: min(var(--hg-card-height, 208px), max(70px, calc(33cqb - 98px)));
+  }
+  [data-theme="primesuspect"] .ps-hand-tray { flex: 0 0 36%; }
+  [data-theme="primesuspect"] .ps-hand-area {
+    --ps-fit-hand-card: min(var(--hg-card-height, 208px), max(84px, calc(36cqb - 92px)));
+  }
+}
+
+/* ---- 18.5 · THE NOTEBOOK IS ONE OBJECT ------------------------------------ */
+/* The panel spans all three bands, and the band backgrounds behind it change
+   tint at the hand-tray seam — at 92% alpha that seam ran straight through the
+   lined paper. An opaque parchment fill makes it read as a notebook lying ON the
+   table instead of a window onto it. */
+@container stage (min-width: 1440px) {
+  [data-theme="primesuspect"] .ps-caselog {
+    background:
+      radial-gradient(680px at 25% 10%, rgba(246, 240, 230, 0.07), transparent 55%),
+      linear-gradient(180deg, rgba(48, 34, 43, 0.985), rgba(30, 21, 27, 0.995));
+    backdrop-filter: none;
+  }
+}
+
+/* ---- 18.6 · WIDE STAGES — the hand band is a composition ------------------ */
+/* Round 2 moved the dead flank rather than removing it: at 1920 the notebook was
+   ~950px of blank rules and the hand band was a ~1340x340 strip holding one
+   140x200 card. Both now carry real, non-duplicated content:
+     • the notebook head becomes the DOSSIER ROSTER — seat order, the wax-seal
+       token track against the win target, and the immune / out states;
+     • the hand band becomes three columns — FILED BY YOU | the held evidence
+       (now the hero of the band it owns) | the utility column. */
+
+/* Both new blocks are wide-stage-only; they must not exist anywhere else. */
+[data-theme="primesuspect"] .ps-roster,
+[data-theme="primesuspect"] .ps-tray-flank { display: none; }
+
+@container stage (min-width: 1440px) {
+
+  /* ·· the notebook head — dossier roster ·································· */
+  [data-theme="primesuspect"] .ps-roster {
+    display: block;
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    padding: 0.55rem 0.7rem 0.65rem;
+    border-bottom: 1px solid rgba(210, 178, 90, 0.28);
+    background: rgba(0, 0, 0, 0.16);
+  }
+  [data-theme="primesuspect"] .ps-roster-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+  }
+  [data-theme="primesuspect"] .ps-roster-eyebrow {
+    font-family: var(--font-mono, 'Special Elite', monospace);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--parchment-dark);
+  }
+  [data-theme="primesuspect"] .ps-roster-target {
+    font-family: var(--font-mono, 'Special Elite', monospace);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--royal-gold-light);
+    white-space: nowrap;
+  }
+  [data-theme="primesuspect"] .ps-roster-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+  }
+  [data-theme="primesuspect"] .ps-roster-row {
+    display: grid;
+    grid-template-columns: 1.1rem minmax(0, 1fr) auto;
+    grid-template-areas: 'idx ident seals' 'idx state seals';
+    align-items: center;
+    column-gap: 0.45rem;
+    padding: 0.24rem 0.4rem;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    border-left: 2px solid rgba(210, 178, 90, 0.22);
+    background: rgba(0, 0, 0, 0.18);
+  }
+  [data-theme="primesuspect"] .ps-roster-index {
+    grid-area: idx;
+    font-family: var(--font-mono, 'Special Elite', monospace);
+    font-size: 0.6rem;
+    color: var(--parchment-dark);
+    text-align: center;
+  }
+  [data-theme="primesuspect"] .ps-roster-ident {
+    grid-area: ident;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+  [data-theme="primesuspect"] .ps-roster-name {
+    font-family: var(--font-body, 'Libre Franklin', sans-serif);
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: rgba(246, 240, 230, 0.92);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  [data-theme="primesuspect"] .ps-roster-you {
+    font-family: var(--font-mono, 'Special Elite', monospace);
+    font-size: 0.5rem;
+    letter-spacing: 0.14em;
+    color: var(--royal-gold-light);
+    border: 1px solid rgba(210, 178, 90, 0.45);
+    border-radius: 3px;
+    padding: 0 0.25rem;
+    flex: 0 0 auto;
+  }
+  [data-theme="primesuspect"] .ps-roster-seals {
+    grid-area: seals;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.16rem;
+  }
+  [data-theme="primesuspect"] .ps-roster-seals .ps-seal {
+    width: 8px;
+    height: 8px;
+  }
+  [data-theme="primesuspect"] .ps-roster-state {
+    grid-area: state;
+    font-family: var(--font-mono, 'Special Elite', monospace);
+    font-size: 0.52rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--parchment-dark);
+  }
+  [data-theme="primesuspect"] .ps-roster-state:empty { display: none; }
+
+  /* the three turn states, matching the seats (17.4) */
+  [data-theme="primesuspect"] .ps-roster-row.is-active {
+    border-left-color: var(--royal-gold);
+    background: linear-gradient(90deg, rgba(231, 204, 122, 0.16), rgba(0, 0, 0, 0.18) 60%);
+    box-shadow: inset 0 0 0 1px rgba(210, 178, 90, 0.24);
+  }
+  [data-theme="primesuspect"] .ps-roster-row.is-sealed {
+    border-left-color: var(--royal-gold-light);
+  }
+  [data-theme="primesuspect"] .ps-roster-row.is-sealed .ps-roster-state {
+    color: var(--royal-gold-light);
+  }
+  [data-theme="primesuspect"] .ps-roster-row.is-out {
+    filter: grayscale(0.85);
+    opacity: 0.6;
+  }
+  [data-theme="primesuspect"] .ps-roster-row.is-out .ps-roster-state {
+    color: rgba(238, 150, 160, 0.92);
+  }
+
+  /* ·· the hand band — FILED | held evidence | utility ····················· */
+  [data-theme="primesuspect"] .ps-hand-tray {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr) minmax(0, 0.85fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'filed hand tools';
+    align-items: stretch;
+    column-gap: clamp(1rem, 2.5cqi, 2.75rem);
+    /* the notebook owns the far-left flank (17.7); the columns start past it */
+    padding: 1rem clamp(1rem, 4cqi, 5rem) 1rem var(--ps-notebook-inset);
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
+    grid-area: tools;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    min-width: 0;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-tray-tools {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.4rem;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-btn--sm {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-token-track,
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-turn-badge {
+    align-self: stretch;
+    justify-content: center;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area {
+    grid-area: hand;
+    /* the held evidence is the hero of the band it owns */
+    --hg-card-height: clamp(200px, 27cqb, 300px);
+    --ps-fit-hand-card: min(var(--hg-card-height), max(120px, calc(33.75cqb - 84px)));
+  }
+  [data-theme="primesuspect"] .ps-tray-flank {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+  }
+  [data-theme="primesuspect"] .ps-tray-flank--filed {
+    grid-area: filed;
+    align-items: stretch;
+  }
+
+  /* the notebook occupies the far left, so the band's own left inset only has to
+     clear it for the columns, not for the (grid-placed) content */
+  [data-theme="primesuspect"] .ps-hand-tray {
+    padding-left: var(--ps-notebook-inset);
+    padding-right: clamp(1rem, 4cqi, 5rem);
+  }
+}
+
+/* ·· FILED BY YOU — the player's own case record ···························· */
+[data-theme="primesuspect"] .ps-filed {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid rgba(210, 178, 90, 0.3);
+  background: linear-gradient(180deg, rgba(46, 33, 42, 0.82), rgba(28, 19, 25, 0.86));
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.1), 0 6px 18px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+[data-theme="primesuspect"] .ps-filed-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  border-bottom: 1px solid rgba(210, 178, 90, 0.24);
+  background: rgba(0, 0, 0, 0.22);
+}
+[data-theme="primesuspect"] .ps-filed-title {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--royal-gold-light);
+}
+[data-theme="primesuspect"] .ps-filed-count {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.58rem;
+  color: var(--parchment-dark);
+  padding: 0.02rem 0.42rem;
+  border-radius: 999px;
+  background: rgba(210, 178, 90, 0.14);
+  border: 1px solid rgba(210, 178, 90, 0.3);
+}
+[data-theme="primesuspect"] .ps-filed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(210, 178, 90, 0.4) transparent;
+}
+[data-theme="primesuspect"] .ps-filed-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.28rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(210, 178, 90, 0.26);
+  border-left: 3px solid rgba(210, 178, 90, 0.6);
+  background: linear-gradient(90deg, rgba(238, 228, 206, 0.09), rgba(0, 0, 0, 0.2));
+  transition: filter 0.18s ease;
+}
+[data-theme="primesuspect"] .ps-filed-item:hover .ps-filed-chip { filter: brightness(1.2); }
+[data-theme="primesuspect"] .ps-filed-chip-value {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--royal-gold-light), var(--royal-gold-dark));
+  border: 1px solid rgba(120, 90, 30, 0.7);
+  color: var(--royal-crimson-dark);
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 900;
+  font-size: 0.66rem;
+  line-height: 1;
+}
+[data-theme="primesuspect"] .ps-filed-chip-name {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(246, 240, 230, 0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+/* empty state = dashed ghosts of the real chip, never a blank box */
+[data-theme="primesuspect"] .ps-filed-empty {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0.6rem;
+}
+[data-theme="primesuspect"] .ps-filed-ghost {
+  height: 26px;
+  border-radius: 4px;
+  border: 1px dashed rgba(210, 178, 90, 0.26);
+  background: rgba(0, 0, 0, 0.14);
+}
+[data-theme="primesuspect"] .ps-filed-empty-text {
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-style: italic;
+  font-size: 0.72rem;
+  color: rgba(246, 240, 230, 0.45);
+  text-align: center;
+  margin-top: 0.15rem;
+}
+
+/* ---- 18.7 · THE NOTEBOOK'S EMPTY STATE ------------------------------------ */
+/* At 1920 the notebook is a ~950px column and its "no messages yet" state was a
+   single italic line pinned to the top-left corner of it — the biggest single
+   patch of dead pixels on the stage. Playbook rule 7: an empty state is a DASHED
+   GHOST of the real element, centred in the space it owns. Here that is a ghost
+   case-note slip (dashed sleeve + ruled lines) with the caption under it, so the
+   notebook reads as "waiting for evidence" instead of "unfinished". */
+[data-theme="primesuspect"] .ps-caselog-empty {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.2rem;
+  text-align: center;
+}
+[data-theme="primesuspect"] .ps-caselog-empty::before {
+  content: '';
+  flex: 0 1 auto;
+  width: 100%;
+  max-width: 184px;
+  height: clamp(30px, 24%, 88px);
+  border: 1px dashed rgba(210, 178, 90, 0.26);
+  border-left-width: 2px;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(1.25em - 1px),
+      rgba(210, 178, 90, 0.11) calc(1.25em - 1px) 1.25em);
+  background-position: 0 0.5em;
+  opacity: 0.85;
+}
+/* the compact peek variants have no room for the ghost slip */
+@media (max-width: 767px), (max-height: 500px) and (orientation: landscape) {
+  [data-theme="primesuspect"] .ps-caselog-empty::before { display: none; }
+  [data-theme="primesuspect"] .ps-caselog-empty {
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+/* ---- 18.8 · FILED BY YOU — the flank never out-shouts the hand ------------- */
+/* The filed column is a supporting record, not a second focal point: cap its
+   width so the held card keeps the optical centre of the band. */
+@container stage (min-width: 1440px) {
+  [data-theme="primesuspect"] .ps-tray-flank--filed {
+    justify-content: flex-start;
+  }
+  [data-theme="primesuspect"] .ps-tray-flank--filed .ps-filed {
+    max-width: 300px;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
+    max-width: 300px;
+    justify-self: end;
+  }
+}

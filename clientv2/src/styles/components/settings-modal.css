@@ -648,8 +648,14 @@
   max-height: calc(100dvh - var(--app-header-height, 66px) - 3.75rem);
 }
 
-/* --- Masthead: rust "CASE FILE" stamp over the title --------------------- */
-[data-theme="primesuspect"] .settings-modal .settings-modal-title {
+/* --- Masthead: rust "CASE FILE" stamp over the title ---------------------
+   `.device-settings-header` is listed alongside `.settings-modal` because the
+   device modal now mounts the SAME title block (eyebrow + h2) — without it the
+   device eyebrow fell back to the loose theme rule (VT323 @1rem, a font this
+   client never loads) and the one modal that just joined the family would have
+   worn a different stamp than the other three. */
+[data-theme="primesuspect"] .settings-modal .settings-modal-title,
+[data-theme="primesuspect"] .device-settings-header .settings-modal-title {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -657,7 +663,8 @@
   min-width: 0;
   margin: 0;
 }
-[data-theme="primesuspect"] .settings-modal .settings-modal-eyebrow {
+[data-theme="primesuspect"] .settings-modal .settings-modal-eyebrow,
+[data-theme="primesuspect"] .device-settings-header .settings-modal-eyebrow {
   /* The theme block asks for VT323, which this client never loads — pin the
      typewriter meta face that IS loaded so the stamp reads as intended. */
   display: inline-block !important;
@@ -673,6 +680,14 @@
 [data-theme="primesuspect"] .settings-modal .settings-modal-header h2 {
   font-size: 1.15rem !important;
   line-height: 1.2;
+}
+/* The device modal's own theme block pins Special Elite on its <h2>; the other
+   three dossier titles are Cinzel. Same family = same title face. */
+[data-theme="primesuspect"] .device-settings-header .settings-modal-title h2 {
+  font-family: var(--font-heading) !important;
+  font-size: 1.15rem !important;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
 }
 
 /* --- Depth hierarchy: only the CHOSEN control sits proud ------------------ */
@@ -704,8 +719,14 @@
 }
 [data-theme="primesuspect"] .settings-modal .settings-modal-tab.active::after { display: none; }
 
-/* --- Density: one gutter, real row anatomy ------------------------------- */
+/* --- Density: one gutter, real row anatomy -------------------------------
+   SINGLE OWNER of the dossier content box. It was declared three times (twice
+   more in prime-suspect-unified.css) and the `gap` below only worked because
+   one of those set `display: flex`; the flow lives here now, so the spacing no
+   longer depends on import order. */
 [data-theme="primesuspect"] .settings-modal .settings-modal-content {
+  display: flex;
+  flex-direction: column;
   padding: 0.85rem 1rem 1rem !important;
   gap: 0.7rem;
 }
@@ -755,9 +776,15 @@
   gap: 0.4rem 0.8rem;
 }
 
-/* --- Scroll affordance (mobile stacks all three sections) ---------------- */
+/* --- Scroll affordance ---------------------------------------------------
+   The fade stop must be the SECTION face (rgba(255,255,255,.24) over the
+   #c9b8a0 panel ≈ #d6c9b7), not the panel face — against the lighter card it
+   printed as a grey bar straight across the middle of the Legal block. The
+   chevron rides the right gutter so it can never park on a legal link. */
 [data-theme="primesuspect"] .settings-modal .settings-modal-content .gs-scroll-hint {
-  background: linear-gradient(transparent, #c9b8a0 72%);
+  background: linear-gradient(transparent, #d6c9b7 72%);
+  justify-content: flex-end;
+  padding-right: 8px;
 }
 
 @media (max-width: 767px) {
@@ -798,4 +825,40 @@
   }
 
   .settings-row { padding: var(--spacing-xs) var(--spacing-sm); }
+}
+
+/* ===========================================================================
+   PRIME SUSPECT — DEVICE SETTINGS MODAL joins the dossier family.
+   This modal has no co-located stylesheet; its base skin lives in
+   prime-suspect-unified.css, which is @imported AFTER this file. Every rule
+   below therefore carries an extra class step so it out-ranks the base
+   declarations without a single `!important` (except where the theme layer
+   already used one).
+   =========================================================================== */
+
+/* Scrim — the settings/auth/feedback backdrop and the shop backdrop both ground
+   on the identical candlelit wash; this overlay was the last flat
+   rgba(0,0,0,.85) hole in the set, so the family broke the moment a player
+   opened camera settings. */
+[data-theme="primesuspect"] .device-settings-modal-overlay {
+  background:
+    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
+    radial-gradient(900px at 25% 14%, rgba(var(--accent-color-rgb, 210, 178, 90), 0.10), transparent 60%),
+    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.75), transparent 58%),
+    rgba(10, 6, 8, 0.74);
+}
+
+/* Touch targets — the close was 32x32 and the tabs had no floor at all
+   (~33px), the only two controls in the modal set still under the 44px bar. */
+[data-theme="primesuspect"] .device-settings-modal .device-settings-close {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  flex: 0 0 auto;
+}
+[data-theme="primesuspect"] .device-settings-tabs .device-settings-tab {
+  min-height: 44px;
+  padding-block: 0.4rem;
 }

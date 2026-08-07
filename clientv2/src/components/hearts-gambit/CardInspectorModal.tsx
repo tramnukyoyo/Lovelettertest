@@ -270,7 +270,13 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
   // something the title does not already say.
   const showLabel = !!currentCard.label && currentCard.label !== currentCardName;
 
-  const eyebrow = cards.length > 1
+  // ONE position readout. When the dot pager renders (2–10 exhibits) it is the
+  // single source of position — it already carries `aria-current` plus a
+  // per-dot "Go to card N" label — so the eyebrow stays pure provenance and can
+  // never contradict the pill. Above 10 cards there is no pager, so the eyebrow
+  // takes the counter back rather than leaving the reader without one.
+  const hasPager = cards.length > 1 && cards.length <= 10;
+  const eyebrow = cards.length > 1 && !hasPager
     ? `${title} · ${currentIndex + 1}/${cards.length}`
     : title;
 
@@ -280,6 +286,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
       {isOpen && (
         <motion.div
           className="hg-inspector-modal settings-modal-backdrop"
+          data-broadcast-mirror-portal="card-inspector"
           role="dialog"
           aria-modal="true"
           aria-labelledby="hg-inspector-title"
@@ -372,14 +379,19 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 {showLabel && (
                   <div className="hgi-label">{currentCard.label}</div>
                 )}
-                <p className="hgi-brief">{briefText}</p>
+                {/* Case-notes slip: a labelled torn note clipped into the
+                    dossier, not a generic tooltip rectangle. */}
+                <div className="hgi-brief">
+                  <span className="hgi-brief-label">{t('cardInspector.caseNotes')}</span>
+                  <p className="hgi-brief-text">{briefText}</p>
+                </div>
               </div>
             </div>
 
             {/* Hairline footer: pagination · hint · the one primary action */}
             {(cards.length > 1 || (currentCard.source === 'hand' && currentCard.handIndex !== undefined)) && (
               <div className="settings-modal-footer hgi-footer">
-                {cards.length > 1 && cards.length <= 10 && (
+                {hasPager && (
                   <div className="hgi-dots">
                     {cards.map((_, idx) => (
                       <button

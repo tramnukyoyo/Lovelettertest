@@ -12,7 +12,6 @@ import { X, Volume2, Palette, Globe, FileText } from 'lucide-react';
 import { getCurrentLanguage, setCurrentLanguage, t } from '../../utils/translations';
 import { getTranslation } from '../../utils/gameTranslations';
 import { backgroundMusic, soundEffects } from '../../utils/audio';
-import { useIsMobile } from '../../hooks/useIsMobile';
 import ScrollHint from '../../shell/ScrollHint';
 
 // localStorage keys for audio settings
@@ -32,8 +31,6 @@ type SettingsTab = 'general' | 'audio';
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [language, setLanguage] = useState(getCurrentLanguage());
-  // Mobile shows every section in one scroll (no tabs); desktop keeps the tabs.
-  const isMobile = useIsMobile();
 
   // Helper to safely get localStorage (handles private mode/quota errors)
   const safeGetItem = (key: string): string | null => {
@@ -154,7 +151,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               had simply never been mounted. */}
           <div className="settings-modal-header">
             <div className="settings-modal-title">
-              <span className="settings-modal-eyebrow">{getTranslation('game.caseFile')}</span>
+              {/* Eyebrow differentiates the dossier: settings = CASE FILE,
+                  auth = PERSONNEL FILE, feedback = INCIDENT REPORT,
+                  device = SURVEILLANCE. One shared stamp on all four turned the
+                  eyebrow into decoration instead of hierarchy. */}
+              <span className="settings-modal-eyebrow">{getTranslation('game.caseFile', language)}</span>
               <h2>{t('settings.title')}</h2>
             </div>
             <button
@@ -166,29 +167,31 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             </button>
           </div>
 
-          {/* Tabs (desktop only — mobile shows all sections in one scroll) */}
-          {!isMobile && (
-            <div className="settings-modal-tabs">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`settings-modal-tab ${activeTab === tab.id ? 'active' : ''}`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          {/* Tabs at EVERY width. Mobile used to drop the bar and stack
+              General + Audio + Legal into one scroller, which pushed the
+              legally-required IMPRESSUM / PRIVACY / TERMS row below the fold at
+              375×667 — it was the content getting clipped. One section + Legal
+              fits the panel outright. */}
+          <div className="settings-modal-tabs">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`settings-modal-tab ${activeTab === tab.id ? 'active' : ''}`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
           {/* Content */}
           <div className="settings-modal-content">
             {/* General */}
-            {(isMobile || activeTab === 'general') && (
+            {activeTab === 'general' && (
               <div className="settings-section">
                 {/* Language */}
                 <div className="settings-row">
@@ -215,7 +218,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             )}
 
             {/* Audio */}
-            {(isMobile || activeTab === 'audio') && (
+            {activeTab === 'audio' && (
               <div className="settings-section">
                 {/* Music Volume */}
                 <div className="settings-row">

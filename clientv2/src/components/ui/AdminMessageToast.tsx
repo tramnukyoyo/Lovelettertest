@@ -27,6 +27,12 @@ import './AdminMessageToast.css';
 /** Long enough to notice mid-round, short enough not to camp on the HUD. */
 const AUTO_DISMISS_MS = 8000;
 
+/** t() returns the key itself on a miss, so `t(k) || fallback` NEVER fires. */
+function tr(key: string, fallback: string): string {
+  const value = t(key);
+  return value === key ? fallback : value;
+}
+
 const AdminMessageToast: React.FC = () => {
   const { toast } = useAdminInbox();
 
@@ -43,9 +49,13 @@ const AdminMessageToast: React.FC = () => {
       <span className="ps-toast__icon">
         <Mail size={18} strokeWidth={1.75} aria-hidden="true" />
       </span>
-      {/* Spans, not <p>: a button's content model is phrasing content only. */}
+      {/* Spans, not <p>: a button's content model is phrasing content only.
+          Slots follow the family order eyebrow (category) → title (who) → text
+          (payload); the sender used to occupy the eyebrow, leaving this the only
+          rail member with no title tier. */}
       <button className="ps-toast__action" type="button" onClick={openInbox}>
-        <span className="ps-toast__eyebrow">{toast.fromName || 'GameBuddies'}</span>
+        <span className="ps-toast__eyebrow">{tr('toast.category.message', 'Message')}</span>
+        <span className="ps-toast__title">{toast.fromName || 'GameBuddies'}</span>
         <span className="ps-toast__text">{toast.body}</span>
         <span className="ps-toast__cta">{t('adminMessage.newMessageHint')}</span>
       </button>

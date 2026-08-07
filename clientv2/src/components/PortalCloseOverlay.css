@@ -77,15 +77,18 @@
   left: 15%; top: 75%;
   animation-delay: 0.6s;
 }
+/* `--success-400` is #7bff8d and `--gold-400` is #ffe39a (styles/base/variables.css:
+   128/140) — a neon-green and a lemon spark in a candlelit case file. The return
+   transition is the last thing a player sees in this game; it stays in palette. */
 .portal-particle:nth-child(4) {
   width: 7px; height: 7px;
-  background: var(--success-400);
+  background: var(--parchment-dark, #d9cfbe);
   left: 90%; top: 70%;
   animation-delay: 0.9s;
 }
 .portal-particle:nth-child(5) {
   width: 9px; height: 9px;
-  background: var(--gold-400);
+  background: var(--royal-gold-light, #e7cc7a);
   left: 5%; top: 50%;
   animation-delay: 1.2s;
 }
@@ -197,7 +200,7 @@
   width: 230px;
   height: 230px;
   border-bottom-color: var(--secondary-light);
-  border-left-color: var(--success-400);
+  border-left-color: var(--parchment-dark, #d9cfbe);
   animation: portalRingRotate 5s linear infinite reverse;
 }
 
@@ -353,7 +356,7 @@
   margin-left: -12px;
   box-shadow: 0 4px 16px rgba(var(--secondary-rgb), 0.3);
   animation: playerAvatarBounce 0.5s ease-out backwards;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: filter 0.2s ease, border-color 0.2s ease;
 }
 
 .portal-player-avatar:nth-child(1) {
@@ -370,11 +373,11 @@
   animation-delay: 0.2s;
 }
 .portal-player-avatar:nth-child(4) {
-  border-color: var(--success-400);
+  border-color: var(--parchment-dark, #d9cfbe);
   animation-delay: 0.3s;
 }
 .portal-player-avatar:nth-child(5) {
-  border-color: var(--gold-400);
+  border-color: var(--royal-gold-light, #e7cc7a);
   animation-delay: 0.4s;
 }
 .portal-player-avatar:nth-child(6) {
@@ -396,8 +399,10 @@
   }
 }
 
+/* Brightness, not transform: a seat that grows under the cursor reflows the
+   overlapping avatar row (owner directive: no motion on pointer targets). */
 .portal-player-avatar:hover {
-  transform: scale(1.1) translateY(-4px);
+  filter: brightness(1.15);
   z-index: 10;
 }
 

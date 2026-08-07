@@ -561,9 +561,11 @@ export const translations = {
     'chat.justNow': 'just now',
     'chat.minutesAgo': '{minutes}m ago',
     'chat.hoursAgo': '{hours}h ago',
+    'chat.messageCount': '{count} messages',
 
     // Tutorial Carousel (HeartsGambit specific)
     'tutorial.howToPlay': 'How to Play',
+    'tutorial.fieldManual': 'Field Manual',
     'briefing.openFullBriefing': 'Full briefing in the ? button',
     'rules.button': 'Rules',
     'rules.modalTitle': 'Rules',
@@ -740,6 +742,9 @@ export const translations = {
     'game.waitingForPlayers': 'Waiting for Players',
     'game.waitingForOpponents': 'Waiting for opponents...',
     'game.startGame': 'Start Game',
+    'game.personnelFile': 'PERSONNEL FILE',
+    'game.incidentReport': 'INCIDENT REPORT',
+    'game.surveillance': 'SURVEILLANCE',
     'game.tokens': '{count} Tokens',
     'game.tokensLabel': 'TOKENS',
     'game.yourTurn': 'YOUR TURN',
@@ -808,6 +813,7 @@ export const translations = {
     'cardInspector.eyebrowTarget': 'NAME YOUR SUSPECT',
     'cardInspector.eyebrowGuess': 'CALL THE CARD',
     'cardInspector.eyebrowConfirm': 'FILE THE ACCUSATION',
+    'cardInspector.caseNotes': 'Case Notes',
 
     // Evidence
     'evidence.chronology': 'Chronology',
@@ -896,6 +902,17 @@ export const translations = {
     'victory.victory': 'Victory!',
     'victory.winner': 'Winner',
     'victory.nextRound': 'Next Round',
+    'victory.caseFileNo': 'CASE FILE No.',
+    'victory.rematch': 'Rematch!',
+    'victory.voted': 'Voted',
+    'victory.rematchTally': '{votes}/{needed} want a rematch',
+    'victory.rematchHint': 'Majority vote starts the rematch',
+    'victory.rewardsPending': 'Tallying the case notes…',
+    'victory.crewFirstGame': 'First game tonight!',
+    'victory.crewGameN': 'Game {n} tonight!',
+    'victory.crewStreakWeeks': 'Crew streak: {n} weeks',
+    'victory.achievementUnlocked': '{player} unlocked “{achievement}”!',
+    'victory.scrollMore': 'Scroll for more',
 
     // Drawer titles (App.tsx)
     'drawer.chat': 'Chat',
@@ -1633,9 +1650,11 @@ export const translations = {
     'chat.justNow': 'gerade eben',
     'chat.minutesAgo': 'vor {minutes}m',
     'chat.hoursAgo': 'vor {hours}h',
+    'chat.messageCount': '{count} Nachrichten',
 
     // Tutorial Carousel (HeartsGambit specific)
     'tutorial.howToPlay': 'Spielanleitung',
+    'tutorial.fieldManual': 'Handbuch',
     'briefing.openFullBriefing': 'Vollständiges Briefing im ?-Button',
     'rules.button': 'Regeln',
     'rules.modalTitle': 'Regeln',
@@ -1813,6 +1832,9 @@ export const translations = {
     'game.waitingForPlayers': 'Warte auf Spieler',
     'game.waitingForOpponents': 'Warte auf Gegner...',
     'game.startGame': 'Spiel starten',
+    'game.personnelFile': 'PERSONALAKTE',
+    'game.incidentReport': 'VORFALLBERICHT',
+    'game.surveillance': 'ÜBERWACHUNG',
     'game.tokens': '{count} Token',
     'game.tokensLabel': 'TOKEN',
     'game.yourTurn': 'DU BIST DRAN',
@@ -1881,6 +1903,7 @@ export const translations = {
     'cardInspector.eyebrowTarget': 'VERDÄCHTIGEN BENENNEN',
     'cardInspector.eyebrowGuess': 'KARTE BENENNEN',
     'cardInspector.eyebrowConfirm': 'ANKLAGE EINREICHEN',
+    'cardInspector.caseNotes': 'Fallnotizen',
 
     // Evidence
     'evidence.chronology': 'Chronologie',
@@ -1969,6 +1992,17 @@ export const translations = {
     'victory.victory': 'Sieg!',
     'victory.winner': 'Gewinner',
     'victory.nextRound': 'Nächste Runde',
+    'victory.caseFileNo': 'AKTENZEICHEN',
+    'victory.rematch': 'Revanche!',
+    'victory.voted': 'Gestimmt',
+    'victory.rematchTally': '{votes}/{needed} wollen eine Revanche',
+    'victory.rematchHint': 'Mehrheit startet die Revanche',
+    'victory.rewardsPending': 'Aktennotizen werden ausgezählt…',
+    'victory.crewFirstGame': 'Erstes Spiel heute Abend!',
+    'victory.crewGameN': 'Spiel {n} heute Abend!',
+    'victory.crewStreakWeeks': 'Crew-Serie: {n} Wochen',
+    'victory.achievementUnlocked': '{player} hat „{achievement}“ freigeschaltet!',
+    'victory.scrollMore': 'Für mehr scrollen',
 
     // Drawer titles (App.tsx)
     'drawer.chat': 'Chat',
@@ -2706,9 +2740,11 @@ export const translations = {
     'chat.justNow': 'justo ahora',
     'chat.minutesAgo': 'hace {minutes}m',
     'chat.hoursAgo': 'hace {hours}h',
+    'chat.messageCount': '{count} mensajes',
 
     // Tutorial Carousel (HeartsGambit specific)
     'tutorial.howToPlay': 'Como jugar',
+    'tutorial.fieldManual': 'Manual de campo',
     'briefing.openFullBriefing': 'Briefing completo en el botón ?',
     'rules.button': 'Reglas',
     'rules.modalTitle': 'Reglas',
@@ -2885,6 +2921,9 @@ export const translations = {
     'game.waitingForPlayers': 'Esperando jugadores',
     'game.waitingForOpponents': 'Esperando oponentes...',
     'game.startGame': 'Iniciar juego',
+    'game.personnelFile': 'EXPEDIENTE PERSONAL',
+    'game.incidentReport': 'INFORME DE INCIDENTE',
+    'game.surveillance': 'VIGILANCIA',
     'game.tokens': '{count} Fichas',
     'game.tokensLabel': 'FICHAS',
     'game.yourTurn': 'TU TURNO',
@@ -2953,6 +2992,7 @@ export const translations = {
     'cardInspector.eyebrowTarget': 'NOMBRA A TU SOSPECHOSO',
     'cardInspector.eyebrowGuess': 'ADIVINA LA CARTA',
     'cardInspector.eyebrowConfirm': 'PRESENTA LA ACUSACIÓN',
+    'cardInspector.caseNotes': 'Notas del caso',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -3041,6 +3081,17 @@ export const translations = {
     'victory.victory': 'Victoria!',
     'victory.winner': 'Ganador',
     'victory.nextRound': 'Siguiente ronda',
+    'victory.caseFileNo': 'EXPEDIENTE N.°',
+    'victory.rematch': 'Revancha!',
+    'victory.voted': 'Votado',
+    'victory.rematchTally': '{votes}/{needed} quieren la revancha',
+    'victory.rematchHint': 'La mayoria inicia la revancha',
+    'victory.rewardsPending': 'Contando las notas del caso…',
+    'victory.crewFirstGame': 'Primera partida de la noche!',
+    'victory.crewGameN': 'Partida {n} de la noche!',
+    'victory.crewStreakWeeks': 'Racha del grupo: {n} semanas',
+    'victory.achievementUnlocked': '{player} desbloqueo “{achievement}”!',
+    'victory.scrollMore': 'Desliza para ver mas',
 
     // Drawer titles (App.tsx)
     'drawer.chat': 'Chat',
@@ -3780,9 +3831,11 @@ export const translations = {
     'chat.justNow': 'agora mesmo',
     'chat.minutesAgo': 'há {minutes}min',
     'chat.hoursAgo': 'há {hours}h',
+    'chat.messageCount': '{count} mensagens',
 
     // Tutorial Carousel (HeartsGambit specific)
     'tutorial.howToPlay': 'Como jogar',
+    'tutorial.fieldManual': 'Manual de campo',
     'briefing.openFullBriefing': 'Resumo completo no botão ?',
     'rules.button': 'Regras',
     'rules.modalTitle': 'Regras',
@@ -3959,6 +4012,9 @@ export const translations = {
     'game.waitingForPlayers': 'Esperando jogadores',
     'game.waitingForOpponents': 'Esperando adversários...',
     'game.startGame': 'Começar jogo',
+    'game.personnelFile': 'FICHA PESSOAL',
+    'game.incidentReport': 'RELATÓRIO DE OCORRÊNCIA',
+    'game.surveillance': 'VIGILÂNCIA',
     'game.tokens': '{count} fichas',
     'game.tokensLabel': 'FICHAS',
     'game.yourTurn': 'SUA VEZ',
@@ -4027,6 +4083,7 @@ export const translations = {
     'cardInspector.eyebrowTarget': 'NOMEIE SEU SUSPEITO',
     'cardInspector.eyebrowGuess': 'ADIVINHE A CARTA',
     'cardInspector.eyebrowConfirm': 'REGISTRE A ACUSAÇÃO',
+    'cardInspector.caseNotes': 'Notas do caso',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -4115,6 +4172,17 @@ export const translations = {
     'victory.victory': 'Vitória!',
     'victory.winner': 'Vencedor',
     'victory.nextRound': 'Próxima rodada',
+    'victory.caseFileNo': 'FICHA Nº',
+    'victory.rematch': 'Revanche!',
+    'victory.voted': 'Votado',
+    'victory.rematchTally': '{votes}/{needed} querem revanche',
+    'victory.rematchHint': 'A maioria inicia a revanche',
+    'victory.rewardsPending': 'Contando as notas do caso…',
+    'victory.crewFirstGame': 'Primeira partida da noite!',
+    'victory.crewGameN': 'Partida {n} da noite!',
+    'victory.crewStreakWeeks': 'Sequência da galera: {n} semanas',
+    'victory.achievementUnlocked': '{player} desbloqueou “{achievement}”!',
+    'victory.scrollMore': 'Deslize para ver mais',
 
     // Drawer titles (App.tsx)
     'drawer.chat': 'Chat',
@@ -4854,9 +4922,11 @@ export const translations = {
     'chat.justNow': 'agora mesmo',
     'chat.minutesAgo': 'há {minutes}min',
     'chat.hoursAgo': 'há {hours}h',
+    'chat.messageCount': '{count} mensagens',
 
     // Tutorial Carousel (HeartsGambit specific)
     'tutorial.howToPlay': 'Como jogar',
+    'tutorial.fieldManual': 'Manual de campo',
     'briefing.openFullBriefing': 'Resumo completo no botão ?',
     'rules.button': 'Regras',
     'rules.modalTitle': 'Regras',
@@ -5033,6 +5103,9 @@ export const translations = {
     'game.waitingForPlayers': 'A aguardar jogadores',
     'game.waitingForOpponents': 'A aguardar adversários...',
     'game.startGame': 'Começar jogo',
+    'game.personnelFile': 'FICHA PESSOAL',
+    'game.incidentReport': 'RELATÓRIO DE OCORRÊNCIA',
+    'game.surveillance': 'VIGILÂNCIA',
     'game.tokens': '{count} fichas',
     'game.tokensLabel': 'FICHAS',
     'game.yourTurn': 'A TUA VEZ',
@@ -5101,6 +5174,7 @@ export const translations = {
     'cardInspector.eyebrowTarget': 'NOMEIE O SEU SUSPEITO',
     'cardInspector.eyebrowGuess': 'ADIVINHE A CARTA',
     'cardInspector.eyebrowConfirm': 'REGISTE A ACUSAÇÃO',
+    'cardInspector.caseNotes': 'Notas do caso',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -5189,6 +5263,17 @@ export const translations = {
     'victory.victory': 'Vitória!',
     'victory.winner': 'Vencedor',
     'victory.nextRound': 'Ronda seguinte',
+    'victory.caseFileNo': 'FICHA Nº',
+    'victory.rematch': 'Revanche!',
+    'victory.voted': 'Votado',
+    'victory.rematchTally': '{votes}/{needed} querem revanche',
+    'victory.rematchHint': 'A maioria inicia a revanche',
+    'victory.rewardsPending': 'A contar as notas do caso…',
+    'victory.crewFirstGame': 'Primeira partida da noite!',
+    'victory.crewGameN': 'Partida {n} da noite!',
+    'victory.crewStreakWeeks': 'Sequência do grupo: {n} semanas',
+    'victory.achievementUnlocked': '{player} desbloqueou “{achievement}”!',
+    'victory.scrollMore': 'Desliza para ver mais',
 
     // Drawer titles (App.tsx)
     'drawer.chat': 'Chat',
@@ -5926,9 +6011,11 @@ export const translations = {
     'chat.justNow': '剛剛',
     'chat.minutesAgo': '{minutes} 分鐘前',
     'chat.hoursAgo': '{hours} 小時前',
+    'chat.messageCount': '{count} 則訊息',
 
     // Tutorial Carousel (HeartsGambit specific)
     'tutorial.howToPlay': '玩法說明',
+    'tutorial.fieldManual': '偵查手冊',
     'briefing.openFullBriefing': '完整簡報請按 ? 按鈕',
     'rules.button': '規則',
     'rules.modalTitle': '規則',
@@ -6105,6 +6192,9 @@ export const translations = {
     'game.waitingForPlayers': '等待玩家中',
     'game.waitingForOpponents': '等待對手中…',
     'game.startGame': '開始遊戲',
+    'game.personnelFile': '人事檔案',
+    'game.incidentReport': '事故報告',
+    'game.surveillance': '監控',
     'game.tokens': '{count} 枚代幣',
     'game.tokensLabel': '代幣',
     'game.yourTurn': '輪到你',
@@ -6173,6 +6263,7 @@ export const translations = {
     'cardInspector.eyebrowTarget': '指認你的嫌疑人',
     'cardInspector.eyebrowGuess': '喊出卡牌',
     'cardInspector.eyebrowConfirm': '提出指控',
+    'cardInspector.caseNotes': '案件筆記',
 
     // Evidence
     'evidence.chronology': '時序',
@@ -6261,6 +6352,17 @@ export const translations = {
     'victory.victory': '勝利！',
     'victory.winner': '優勝者',
     'victory.nextRound': '下一回合',
+    'victory.caseFileNo': '案件編號',
+    'victory.rematch': '再來一局！',
+    'victory.voted': '已投票',
+    'victory.rematchTally': '{votes}/{needed} 人想要再戰',
+    'victory.rematchHint': '過半數投票即可開始再戰',
+    'victory.rewardsPending': '正在清點案件筆記…',
+    'victory.crewFirstGame': '今晚的第一局！',
+    'victory.crewGameN': '今晚的第 {n} 局！',
+    'victory.crewStreakWeeks': '團隊連線：{n} 週',
+    'victory.achievementUnlocked': '{player} 解鎖了「{achievement}」！',
+    'victory.scrollMore': '滑動查看更多',
 
     // Drawer titles (App.tsx)
     'drawer.chat': '聊天',

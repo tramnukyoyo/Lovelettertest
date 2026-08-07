@@ -59,26 +59,63 @@
   border-radius: inherit;
   padding: clamp(20px, 3.6vw, 34px) clamp(16px, 3vw, 32px) clamp(30px, 3.6vw, 38px);
   scrollbar-width: thin;
-  scrollbar-color: rgba(var(--accent-color-rgb, 210, 178, 90), 0.45) transparent;
+  scrollbar-color: rgba(var(--accent-color-rgb, 210, 178, 90), 0.6) transparent;
 }
+/* While the vignette is lit, keep its 46px band over padding only — no line of
+   case file ever rests half-under the fade. */
+.ps-victory-panel.is-scrollable .ps-victory-scroll { padding-bottom: 52px; }
 
-/* Local scroll affordance (NOT the shared shell ScrollHint): a soft bottom
-   vignette, shown ONLY while the case file actually overflows. It lives inside
-   the scroller's bottom padding so it never covers resting content. */
+/* Local scroll affordance (NOT the shared shell ScrollHint): a bottom vignette
+   with a gold hairline and a chevron mark, shown ONLY while the case file
+   actually overflows. It lives inside the scroller's bottom padding so it never
+   covers resting content. The previous version was a 26px near-black gradient
+   on a near-black panel — invisible, so an overflowing panel read as broken. */
 .ps-victory-fade {
   position: absolute;
   left: 1px;
   right: 1px;
   bottom: 1px;
-  height: 26px;
+  height: 46px;
   z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 5px;
   opacity: 0;
   pointer-events: none;
   border-radius: 0 0 17px 17px;
-  background: linear-gradient(to top, rgba(22, 16, 20, 0.92), rgba(22, 16, 20, 0));
+  color: var(--royal-gold-light, #e7cc7a);
+  background:
+    linear-gradient(to top, rgba(18, 13, 17, 0.97) 34%, rgba(18, 13, 17, 0.72) 62%, rgba(18, 13, 17, 0));
   transition: opacity 0.2s ease;
 }
+/* Hairline so the cut edge reads as a fold in the case file, not a crop. */
+.ps-victory-fade::before {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 26px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-color-rgb, 210, 178, 90), 0.5), transparent);
+}
+.ps-victory-fade svg {
+  position: relative;
+  filter: drop-shadow(0 0 8px rgba(210, 178, 90, 0.55));
+  animation: psFadeBeckon 1.9s ease-in-out infinite;
+}
 .ps-victory-panel.is-scrollable .ps-victory-fade { opacity: 1; }
+
+/* A permanently visible gold scrollbar is the second half of the affordance —
+   the overlay default vanishes on a resting screenshot. */
+.ps-victory-scroll::-webkit-scrollbar { width: 9px; }
+.ps-victory-scroll::-webkit-scrollbar-track { background: transparent; }
+.ps-victory-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  background-color: rgba(var(--accent-color-rgb, 210, 178, 90), 0.5);
+}
 
 /* ----------------------------------------------------------------------------
    2 · SHARED TYPOGRAPHY — eyebrow → hero → hairline caption
@@ -218,14 +255,19 @@
   font-size: calc(var(--psv-card-w, 80px) * 0.082);
   padding: 1px 2px;
 }
+/* The role name carries the read at evidence scale; it inherits the width the
+   rule text used to waste. */
 [data-theme="primesuspect"] .ps-evidence-card .hg-dynamic-card .effect-tag {
-  font-size: calc(var(--psv-card-w, 80px) * 0.088);
-  margin-bottom: 1px;
+  font-size: calc(var(--psv-card-w, 80px) * 0.125);
+  line-height: 1.15;
+  margin-bottom: 0;
+  letter-spacing: 0.01em;
 }
-[data-theme="primesuspect"] .ps-evidence-card .hg-dynamic-card .card-description {
-  font-size: calc(var(--psv-card-w, 80px) * 0.1);
-  line-height: 1.12;
-  -webkit-line-clamp: 4;
+/* Rule text is unreadable at this scale AND clipped mid-word ("(discard",
+   "directly - if"). The beat lasts 5 seconds: rank numeral + role name only. */
+[data-theme="primesuspect"] .ps-evidence-card .hg-dynamic-card .card-description,
+.ps-evidence-card .hg-dynamic-card .card-description {
+  display: none;
 }
 
 /* ----------------------------------------------------------------------------
@@ -364,6 +406,19 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(var(--accent-color-rgb, 210, 178, 90), 0.45), transparent);
 }
+/* Label demoted, code at full strength: the pair must never read as mojibake. */
+.ps-dateline-label {
+  flex: 0 0 auto;
+  opacity: 0.6;
+  letter-spacing: 0.24em;
+}
+.ps-dateline-code {
+  flex: 0 0 auto;
+  opacity: 1;
+  color: var(--parchment, #f6f0e6);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+}
 
 .ps-headline {
   margin: 0.5rem 0 0.55rem;
@@ -402,9 +457,44 @@
   display: block;
 }
 
-/* Reserve the rewards strip so a late gb:postgame:summary can't shove the CTAs
-   down mid-read. */
-.ps-rewards-slot { min-height: 92px; }
+/* The rewards strip reserves height ONLY while gb:postgame:summary is still in
+   flight (.is-pending, dropped after ~4s or on arrival). An unconditional
+   reserve left a dead 92px band between the winner block and the primary CTA
+   whenever the summary never came inline. */
+.ps-rewards-slot { min-height: 0; }
+.ps-rewards-slot.is-pending {
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+}
+
+/* Pending = a dashed ghost of the ledger (playbook: empty states are ghosts of
+   the real element), never blank velvet. */
+.ps-rewards-ghost {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 100%;
+  padding: 4px 0;
+}
+.ps-rewards-ghost i {
+  display: block;
+  height: 13px;
+  border-radius: 4px;
+  border: 1px dashed rgba(var(--accent-color-rgb, 210, 178, 90), 0.28);
+  background: rgba(var(--accent-color-rgb, 210, 178, 90), 0.05);
+  animation: psGhostPulse 1.8s ease-in-out infinite;
+}
+.ps-rewards-ghost i:nth-of-type(2) { width: 82%; animation-delay: 0.2s; }
+.ps-rewards-ghost i:nth-of-type(3) { width: 64%; animation-delay: 0.4s; }
+
+.ps-rewards { margin: 12px 0 2px; font-size: 13px; }
+.ps-reward-unlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
 
 .ps-reward-line {
   display: flex;
@@ -412,12 +502,59 @@
   justify-content: center;
   gap: 6px;
   flex-wrap: wrap;
+  margin-bottom: 6px;
   font-weight: 700;
   color: var(--royal-gold-light, #e7cc7a);
 }
 .ps-reward-ico {
   flex: 0 0 auto;
   color: var(--royal-gold, #d2b25a);
+}
+
+/* ── The ledger: name left, figures right-aligned in fixed columns ────────── */
+.ps-ledger {
+  --psv-xp-ink: #6fb0e4;
+  --psv-lvl-ink: #7cffb2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 8.5rem;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.ps-ledger-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: baseline;
+  gap: 0 10px;
+  padding: 2px 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--parchment, #f6f0e6);
+}
+
+/* The case winner's line is the top of the ledger, not one of four equals. */
+.ps-ledger-row.is-winner {
+  font-size: 14.5px;
+  font-weight: 800;
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid rgba(var(--accent-color-rgb, 210, 178, 90), 0.22);
+  color: var(--royal-gold-light, #e7cc7a);
+}
+
+.ps-ledger-name { min-width: 0; }
+.ps-ledger-xp  { color: var(--psv-xp-ink); white-space: nowrap; text-align: right; }
+.ps-ledger-gp  { color: var(--royal-gold, #d2b25a); white-space: nowrap; text-align: right; min-width: 3.4em; }
+.ps-ledger-lvl {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  min-width: 3.6em;
+  white-space: nowrap;
+  color: var(--psv-lvl-ink);
 }
 
 /* ----------------------------------------------------------------------------
@@ -456,6 +593,14 @@
   font-size: 0.82rem;
 }
 
+/* Voted state of the primary CTA — a lucide check, never a bare ✓ glyph. */
+.ps-voted {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
 .ps-waiting-note {
   font-family: var(--font-typewriter, 'Special Elite', monospace);
   font-size: 12px;
@@ -481,37 +626,45 @@
 }
 
 /* ----------------------------------------------------------------------------
-   8 · PLATFORM XP TOAST CO-EXISTENCE
-   The platform toast is `position:fixed; top:100px; right:20px; z-index:10001`
-   and landed straight on top of the results modal at 375/768/1920. While a
-   results overlay is open we re-dock it to the bottom AND reserve the strip it
-   occupies, so it can never cover the case file at any width.
+   8 · SYSTEM TOAST CO-EXISTENCE
+   Two corrections over the previous attempt:
+
+   a) The old rules targeted `.xp-toast-container`, which no longer positions
+      itself (XpToast.css dropped its `position: fixed` on purpose). The
+      positioned ancestor is `#ps-toast-rail` (components/ui/toastRail.css),
+      docked under the header — so on a results screen the toast landed on the
+      PLAYERS rail and got sliced by the modal edge. Re-dock the RAIL, above
+      the scrim (10040) so a card can never be cut in half.
+
+   b) The old `:has(.xp-toast)` reservation stole 240px of panel height from
+      EVERY viewport — at 375 not one CTA rendered. Reserve nothing.
+
+   The XP card itself is suppressed while the case file is open: the panel's own
+   rewards ledger prints the identical +XP/+GP for every player, so the toast
+   was a duplicate that could only ever land ON the verdict. It returns the
+   moment the overlay closes.
    ------------------------------------------------------------------------- */
-body.ps-results-open .xp-toast-container {
+body.ps-results-open #ps-toast-rail {
   top: auto;
   bottom: max(14px, env(safe-area-inset-bottom, 0px));
-  right: max(14px, env(safe-area-inset-right, 0px));
-  left: auto;
-  transform: none;
-  width: min(340px, calc(100vw - 28px));
+  z-index: 10045;
 }
 
-@media (max-width: 1100px) {
-  body.ps-results-open .xp-toast-container {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: min(340px, calc(100vw - 28px));
-  }
-}
-
-body.ps-results-open:has(.xp-toast) .ps-victory-scrim {
-  padding-bottom: 240px;
-}
+body.ps-results-open .xp-toast-container { display: none; }
 
 /* Confetti is a Portal sibling of the modal (z 9990); pin it explicitly BELOW
    the case file so a physical prop never eclipses the verdict. */
 .ps-victory-confetti .gbj-confetti-container { z-index: 10035; }
+
+/* Sparse, low-alpha specks had no physical punch on the wide canvas. Gild each
+   piece instead of resizing it (size is set inline by the shared component). */
+@media (min-width: 1024px) {
+  .ps-victory-confetti .gbj-confetti-particle {
+    box-shadow:
+      0 0 0 2.5px rgba(var(--accent-color-rgb, 210, 178, 90), 0.26),
+      0 0 12px rgba(231, 204, 122, 0.4);
+  }
+}
 
 /* ----------------------------------------------------------------------------
    9 · WIDE — the front page earns the canvas (round-over stays a 5s stamp)
@@ -523,18 +676,35 @@ body.ps-results-open:has(.xp-toast) .ps-victory-scrim {
   .is-gameover .ps-winner-name { font-size: clamp(2.7rem, 3.8vw, 3.65rem); }
   .is-gameover .ps-dateline { font-size: 11px; }
 
+  /* Both columns stretch to one shared height so they bottom out together —
+     `align-self: center` on the verdict left ~110px of dead canvas under the
+     case-progress list. The crown/name block now owns a full-height column and
+     reads as the taller hero, centred inside it. */
   .is-gameover .ps-victory-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
     grid-template-areas: 'verdict dossier';
     gap: clamp(22px, 2.8vw, 40px);
-    align-items: start;
+    align-items: stretch;
   }
   .is-gameover .ps-verdict {
     grid-area: verdict;
-    align-self: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: stretch;
+    /* A hairline gutter between the verdict and the dossier — front-page rule. */
+    border-right: 1px solid rgba(var(--accent-color-rgb, 210, 178, 90), 0.16);
+    padding-right: clamp(16px, 2vw, 30px);
   }
-  .is-gameover .ps-dossier { grid-area: dossier; }
+  .is-gameover .ps-dossier {
+    grid-area: dossier;
+    display: flex;
+    flex-direction: column;
+  }
+  /* The ledger settles at the bottom of the dossier column so the two columns
+     end on the same line. */
+  .is-gameover .ps-dossier .ps-rewards-slot { margin-top: auto; }
   .is-gameover .ps-progress-list { margin-top: 10px; }
 }
 
@@ -544,7 +714,8 @@ body.ps-results-open:has(.xp-toast) .ps-victory-scrim {
   .is-gameover .ps-headline { font-size: clamp(1.2rem, 4.4vh, 1.7rem); }
   .is-gameover .ps-winner-name { font-size: clamp(1.4rem, 6vh, 2rem); }
   .ps-crown svg { width: 32px; }
-  .ps-rewards-slot { min-height: 0; }
+  .ps-rewards-slot.is-pending { min-height: 0; }
+  .is-gameover .ps-verdict { border-right: 0; padding-right: 0; }
 }
 
 /* ----------------------------------------------------------------------------
@@ -568,14 +739,27 @@ body.ps-results-open:has(.xp-toast) .ps-victory-scrim {
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
 }
+/* Opacity only — the mark sits on a non-interactive vignette. */
+@keyframes psFadeBeckon {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+@keyframes psGhostPulse {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.9; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .ps-evidence-card,
   .ps-evidence-card.is-winner::after,
   .ps-pip.is-new,
-  .ps-round-tick {
+  .ps-round-tick,
+  .ps-victory-fade svg,
+  .ps-rewards-ghost i {
     animation: none !important;
   }
+  .ps-victory-fade svg { opacity: 1; }
+  .ps-rewards-ghost i { opacity: 0.7; }
   .ps-evidence-card { opacity: 1; }
   .ps-evidence-card.is-out { opacity: 0.5; }
   .ps-evidence-card.is-winner::after { opacity: 1; transform: scale(1); }

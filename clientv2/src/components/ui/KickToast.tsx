@@ -17,6 +17,12 @@ import { UserMinus, X } from 'lucide-react';
 import { t } from '../../utils/translations';
 import { getToastLane } from './toastRail';
 
+/** t() returns the key itself on a miss, so `t(k) || fallback` NEVER fires. */
+function tr(key: string, fallback: string): string {
+  const value = t(key);
+  return value === key ? fallback : value;
+}
+
 interface KickToastProps {
   message: string | null;
   onClose: () => void;
@@ -71,8 +77,13 @@ const KickToast: React.FC<KickToastProps> = ({ message, onClose }) => {
       <span className="ps-toast__icon">
         <UserMinus size={20} strokeWidth={1.75} aria-hidden="true" />
       </span>
+      {/* Slot order across the whole family is eyebrow (category) → title
+          (headline) → text (payload). The headline used to sit in the eyebrow,
+          which is 0.66rem uppercase typewriter — so the one message that ends a
+          player's session read as small print next to an achievement unlock. */}
       <div className="ps-toast__body">
-        <span className="ps-toast__eyebrow">{t('kickToast.title')}</span>
+        <span className="ps-toast__eyebrow">{tr('toast.category.removed', 'Removed')}</span>
+        <span className="ps-toast__title">{t('kickToast.title')}</span>
         <span className="ps-toast__text">{message}</span>
       </div>
       <button

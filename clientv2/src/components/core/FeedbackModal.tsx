@@ -17,7 +17,7 @@ import { X, Bug, Lightbulb, MessageSquare, Send, Loader2, CheckCircle2, Hash } f
 import type { Lobby } from '../../types';
 import socketService from '../../services/socketService';
 import { loadSession } from '../../services/gameBuddiesSession';
-import { t } from '../../utils/translations';
+import { t, getCurrentLanguage } from '../../utils/translations';
 import { getTranslation } from '../../utils/gameTranslations';
 
 interface FeedbackModalProps {
@@ -29,6 +29,16 @@ interface FeedbackModalProps {
 type ReportType = 'bug' | 'idea' | 'other';
 const MAX_MESSAGE = 1000;
 const MIN_MESSAGE = 5;
+
+/**
+ * Eyebrow copy with an EN literal fallback: `getTranslation` returns the KEY
+ * itself on a miss, so a `|| fallback` never fires. Used until the new eyebrow
+ * key lands in all six locale tables (copy request filed).
+ */
+const eyebrowCopy = (key: string, fallback: string): string => {
+  const value = getTranslation(key, getCurrentLanguage());
+  return value === key ? fallback : value;
+};
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ lobby, onClose }) => {
   const [reportType, setReportType] = useState<ReportType>('bug');
@@ -102,7 +112,9 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ lobby, onClose }) => {
               and GameAuthModal, so the three modals are one panel family. */}
           <div className="settings-modal-header feedback-modal-header">
             <div className="settings-modal-title">
-              <span className="settings-modal-eyebrow">{getTranslation('game.caseFile')}</span>
+              {/* A bug report is an INCIDENT REPORT, not another CASE FILE —
+                  the eyebrow has to earn its place as hierarchy. */}
+              <span className="settings-modal-eyebrow">{eyebrowCopy('game.incidentReport', 'INCIDENT REPORT')}</span>
               <h2>{t('feedback.title')}</h2>
             </div>
             <button onClick={onClose} className="settings-modal-close" aria-label={t('common.close')}>

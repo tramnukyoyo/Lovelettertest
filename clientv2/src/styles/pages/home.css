@@ -366,18 +366,44 @@
   text-shadow: 0 0 10px rgba(231, 204, 122, 0.4);
 }
 
-/* Phones: stack brand over links so nothing can wrap onto a prop or clip at the
-   right edge, whatever the locale's word lengths are. */
+/* Phones: ONE wrapping row, not a column.
+   MEASURED (375x667): the column stack rendered this band 169px tall — the
+   brand on its own line plus THREE 44px link rows — which is what pushed the
+   legally mandated Impressum link (and the tip banner above it) clean off a
+   667px phone on a surface whose contract is "never scrolls". As a wrapping
+   row the same four items measure 343px of content in a 343px band, i.e. one
+   58px row, and the links keep their 44px touch height. `flex-wrap: wrap` is
+   the insurance the column stack was reaching for: a longer locale drops to a
+   second row instead of clipping at the right edge. */
 @media (max-width: 480px) {
   .home-page .legal-footer {
-    flex-direction: column;
-    gap: 0.15rem;
-    padding-top: 0.4rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    row-gap: 0.1rem;
+    padding-top: 0.25rem;
+    padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
     font-size: 0.68rem;
   }
 
+  /* The brand claims its own row so the three links always land TOGETHER on the
+     next one (measured: brand 131px + the German links 210px cannot share a
+     311px content box, so a plain wrap put one link up and two down — two 44px
+     rows plus the brand, 98px of band). Brand row + one link row = 62px. */
+  .home-page .legal-footer .legal-footer__brand {
+    flex-basis: 100%;
+    text-align: center;
+  }
+
   .home-page .legal-footer .legal-links { column-gap: 0.7rem; row-gap: 0.15rem; }
-  .home-page .legal-footer .legal-link { font-size: 0.68rem; }
+  .home-page .legal-footer .legal-link {
+    font-size: 0.68rem;
+    /* Still a comfortable tap target, 8px shorter than the 44px default — the
+       band has to hold brand + links inside a 667px phone's fold. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+  }
 }
 
 .home-stage-grid {
@@ -505,7 +531,7 @@
     .home-hero { align-items: flex-start; text-align: left; }
     .home-title { font-size: clamp(3rem, 5vw, 5.25rem); line-height: 0.96; }
     .home-tagline { margin-inline: 0; max-width: 30ch; }
-    .home-tagline::after { left: 0; transform: none; width: clamp(90px, 60%, 200px); }
+    .home-tagline::after { width: clamp(90px, 52%, 200px); }
     .home-gb-branding { justify-content: flex-start; }
     .home-card-col { align-items: stretch; max-width: none; }
     .home-tip-banner { grid-area: tip; justify-self: center; margin-top: 0.5rem; }
@@ -794,10 +820,17 @@
   pointer-events: none;
 }
 
-/* left-aligned in the wide split (the hero column flips to flex-start) */
+/* The rule stays CENTRED under the tagline at every width. It used to be
+   left-anchored (`left:0`) in the wide split on the assumption that the hero
+   column reads left-aligned there — measured at 1366 it does not: the noir
+   layer's `.home-tagline { margin: … auto … !important }` (prime-suspect-
+   unified.css) re-centres the whole hero stack, so wordmark, tagline, byline
+   and chip all sit on one centre axis (x=457 in a 259..656 column) while the
+   rule sat at x=359. A hairline that lines up with nothing reads as a stray
+   graphic; centring it puts it back on the hero's only axis. */
 @media (orientation: landscape) {
   @container (min-width: 820px) {
-    .home-tagline::after { left: 0; transform: none; width: clamp(90px, 60%, 200px); }
+    .home-tagline::after { width: clamp(90px, 52%, 200px); }
   }
 }
 
@@ -1049,6 +1082,21 @@
   text-align: center;
 }
 
+/* A hint is a hint, not a fourth form field. An orphan `.home-form-note` rule
+   in the noir layer (prime-suspect-unified.css, written for the retired
+   split-card home) paints it as a 12px-radius plate — padding 0.75rem/1rem,
+   hairline border, translucent fill — which gave one line of hint copy the
+   visual weight of the name input and made the three-field card read as four.
+   The longer selector strips the plate back to a bare typewriter line. */
+.home-page .home-form-note {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  opacity: 0.72;
+  margin-top: 0.1rem;
+}
+
 /* ====== BUTTONS ====== */
 
 .home-btn {
@@ -1176,6 +1224,150 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
   transform: none !important;
   cursor: not-allowed;
+}
+
+/* ── THE WAX SEAL: the ARMED create CTA ──────────────────────────────────────
+   The landing's identity is "parchment + royal gold + sealing wax", but the page
+   carried no red at all: the CTA was tobacco-brown on a tan card, i.e. the
+   LOWEST-contrast element inside its own panel and the weakest primary in the
+   fleet. Armed, it is now sealing wax with a gold rule and a gold label
+   (#e7cc7a on #6b171d ≈ 7.4:1); the resting/un-armed state deliberately keeps
+   the brown "sealed dossier" look above, so the two states now read as SEALED
+   vs. READY TO BREAK rather than as broken vs. slightly less broken.
+   The selector runs to five classes + `!important` purely to out-rank
+   `[data-theme="primesuspect"] .card.home-card .home-btn { background: …
+   !important }` in the shared noir layer, which is not this surface's file.
+   Brightness/opacity only on interaction — the target never moves. ─────────── */
+.home-page .home-card-col .card.home-card .home-btn.primary:not(:disabled) {
+  background: linear-gradient(180deg, #7e1e24 0%, #5a1218 100%) !important;
+  color: var(--royal-gold-light) !important;
+  border: 1px solid var(--royal-gold) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(231, 204, 122, 0.35),
+    inset 0 -1px 0 rgba(26, 6, 8, 0.55),
+    0 3px 0 rgba(38, 8, 10, 0.7),
+    0 6px 18px rgba(0, 0, 0, 0.45) !important;
+  text-shadow: 0 1px 2px rgba(24, 6, 8, 0.7);
+}
+
+.home-page .home-card-col .card.home-card .home-btn.primary:not(:disabled):hover {
+  background: linear-gradient(180deg, #8d2229 0%, #6a151c 100%) !important;
+  filter: brightness(1.06);
+}
+
+.home-page .home-card-col .card.home-card .home-btn.primary:not(:disabled):active {
+  filter: brightness(0.94);
+}
+
+/* The glyph on the CTA is a disc of sealing wax with a gold hairline ring and a
+   pressed inner impression — replacing the generic `+` icon. Inline CSS, so it
+   costs no asset and is not an emoji (owner directive 7). */
+.home-btn-seal {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  position: relative;
+  background: radial-gradient(circle at 38% 34%, #a8262c 0%, #8a1d23 48%, #6d151a 100%);
+  box-shadow:
+    0 0 0 1px rgba(231, 204, 122, 0.75),
+    inset 0 1px 1px rgba(255, 226, 190, 0.3),
+    inset 0 -1px 2px rgba(40, 6, 8, 0.65);
+}
+
+.home-btn-seal::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(231, 204, 122, 0.45);
+}
+
+/* MEASURED: the pixel theme squares every radius inside the card
+   (computed border-radius came back `0px`), which turned the wax disc's gold
+   hairline ring into a gold BOX around a red dot — it read as a checkbox, not a
+   seal. The disc keeps its round edge; nothing else in the card is affected. */
+.home-page .card.home-card .home-btn .home-btn-seal {
+  border-radius: 50% !important;
+}
+
+/* ── THE EVIDENCE STACK (middle act) ─────────────────────────────────────────
+   Three face-down, wax-sealed case files fanned under the form: the landing
+   sells a deduction CARD game and previously showed no card anywhere. Decor
+   only — aria-hidden in the DOM, pointer-events:none here, and laid out with
+   gaps WIDER than the rotated cards' overhang so the three never touch, let
+   alone overlap. Gated to viewports with real headroom: never on the phone
+   stack, never on 768px-tall desktops (both are already fold-critical).
+
+   MEASURED — two things this decor must never do, both caught at 768x1024:
+   (a) it must not cost the page a single pixel of LAYOUT height. In flow it
+       added 82px + a 14px margin to `.home-card-col`, which put the portrait
+       tablet 7px over its fold (documentElement 965 vs 958) — i.e. a decorative
+       flourish broke the homepage's never-scrolls contract. It is therefore
+       absolutely positioned under the card: it can no longer influence the
+       stack at any viewport.
+   (b) it must not move the CREATE CARD off its fleet pixel line
+       (400x346 @ (980,289) at 1912x990). In flow it grew the card column and
+       the grid's `align-items:center` re-centred the taller column, lifting the
+       card ~37px. Out of flow, the card sits exactly where wave 1 measured it.
+   Gate: wide LANDSCAPE desktops only, so no portrait/tablet/short frame ever
+   has to find room for it. ─────────────────────────────────────────────────── */
+.home-card-fan { display: none; }
+
+@media (orientation: landscape) and (min-width: 1100px) and (min-height: 860px) {
+  /* positioning context for the out-of-flow fan below */
+  .home-card-col { position: relative; }
+
+  .home-card-fan {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: clamp(0.85rem, 1.5vw, 1.15rem);
+    position: absolute;
+    top: calc(100% + clamp(0.5rem, 1.4dvh, 1rem));
+    left: 0;
+    right: 0;
+    height: clamp(72px, 8dvh, 94px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .home-card-fan i {
+    display: block;
+    width: clamp(46px, 4.4vw, 62px);
+    height: 100%;
+    border-radius: 3px;
+    position: relative;
+    border: 1px solid rgba(26, 18, 11, 0.8);
+    background:
+      repeating-linear-gradient(135deg, rgba(24, 16, 9, 0.12) 0 3px, transparent 3px 8px),
+      linear-gradient(170deg, #b8a582 0%, #96825f 58%, #6f5e42 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(246, 240, 230, 0.3),
+      0 7px 16px rgba(0, 0, 0, 0.5);
+    opacity: 0.92;
+  }
+
+  /* the wax seal holding each file shut */
+  .home-card-fan i::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 15px;
+    height: 15px;
+    margin: -7.5px 0 0 -7.5px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 34%, #a8262c 0%, #7d1a20 60%, #6d151a 100%);
+    box-shadow:
+      0 0 0 1px rgba(231, 204, 122, 0.5),
+      inset 0 -1px 2px rgba(40, 6, 8, 0.6);
+  }
+
+  .home-card-fan i:nth-child(1) { transform: rotate(-7deg) translateY(5px); }
+  .home-card-fan i:nth-child(2) { z-index: 1; opacity: 1; }
+  .home-card-fan i:nth-child(3) { transform: rotate(7deg) translateY(5px); }
 }
 
 /* ====== TIP BANNER ====== */
@@ -1335,6 +1527,16 @@
   .home-page .home-hero .home-gb-branding { display: flex !important; }
   .home-page .home-card .card-description { display: block !important; }
   .home-page .home-hero .home-mascot { width: clamp(88px, 12dvh, 124px); }
+
+  /* ── FOLD BUDGET (phones) ─────────────────────────────────────────────────
+     The hint under the CTA is a desktop affordance: on a phone the name field
+     is the row directly above the button and the un-armed state is legible
+     without it, whereas its row cost the 375x667 stack the tip banner and the
+     legal band. Same call the landscape-phone block already makes at :1493.
+     The grid gap is halved in the same breath — three gaps at up to 2rem was
+     the other half of the overflow. */
+  .home-page .home-form-note { display: none; }
+  .home-stage-grid { gap: clamp(0.5rem, 1.6dvh, 1rem); }
 }
 
 /* The header prints the game's name directly above the hero wordmark — on the
@@ -1345,6 +1547,13 @@
   .home-header-title { display: none; }
   .home-header-text { justify-content: center; }
   .home-header-branding { font-size: 0.68rem; }
+  /* …but "by" needs a subject. With the title dropped, the top-left lockup read
+     as a lone "by GameBuddies.io" hanging off the crest — a preposition with
+     nothing in front of it. Dropping the word turns the same three spans into a
+     standalone platform mark ("GameBuddies.io"), which is what the lockup
+     actually is at this width. Nothing else changes: the gold/lavender/cream
+     colour split and the crest stay exactly as they are. */
+  .home-header-by { display: none; }
 }
 
 /* Mid / portrait-tablet band — still a single stack (the split fires at
@@ -1362,7 +1571,10 @@
    hero + card + tip + footer clear the fold; the `.home-page` overflow-y is only
    a safety net for genuinely tiny devices. */
 @media (max-width: 480px) and (orientation: portrait) {
-  .home-page { gap: clamp(0.25rem, 0.7dvh, 0.55rem); }
+  .home-page {
+    gap: clamp(0.25rem, 0.7dvh, 0.55rem);
+    padding-top: 0.5rem;
+  }
 
   .home-stage-grid { gap: clamp(0.35rem, 1dvh, 0.7rem); }
   .home-hero-col { gap: clamp(0.2rem, 0.6dvh, 0.45rem); }
@@ -1371,16 +1583,22 @@
   /* The detective must out-rank the set dressing: at 60px (the stale override's
      pin) he was smaller than the moon behind him. The longer selector is what
      beats that pin; the clamp is the real value. */
-  .home-page .home-hero .home-mascot { width: clamp(68px, 11dvh, 92px); }
+  .home-page .home-hero .home-mascot { width: clamp(62px, 9.8dvh, 86px); }
   /* Keep the lamp beam short so it lights mascot + wordmark and fades to nothing
-     above the tagline — it can then never spill onto the card stacked below. */
+     above the tagline — it can then never spill onto the card stacked below.
+     MEASURED (375x667): the previous -9dvh start put the cone's mouth at y=2,
+     i.e. its brightest 46px sat BEHIND the opaque 48px header and what reached
+     the frame was the cone's washed-out tail — which is why the phone hero read
+     flat while every desktop got a visible beam. Anchored just under the header
+     band and narrowed, the cone now lands ON the detective. */
   .home-hero::after {
-    top: clamp(-70px, -9dvh, -44px);
+    top: clamp(-22px, -2.6dvh, -14px);
     height: clamp(170px, 24dvh, 230px);
+    width: clamp(165px, 46vw, 260px);
     filter: blur(6px);
   }
   .home-title { font-size: clamp(2rem, 10.2vw, 2.7rem); line-height: 1; }
-  .home-tagline { font-size: 0.86rem; line-height: 1.22; max-width: 30ch; padding-bottom: 0.35rem; }
+  .home-tagline { font-size: 0.82rem; line-height: 1.2; max-width: 30ch; padding-bottom: 0.3rem; }
   .home-tagline::after { width: clamp(60px, 30%, 120px); }
   /* The byline stays in the fixed header on a phone (the header keeps its crest
      + "by GameBuddies.io" while dropping the duplicated title) — printing it a
@@ -1396,19 +1614,80 @@
   /* The card carries the reclaimed rows (description + tagline above it + the
      form note below the CTA); its generous desktop gutters pay for them. */
   .home-stage .home-card-col .card.home-card {
-    padding: clamp(0.95rem, 2.4dvh, 1.5rem) clamp(0.9rem, 3dvh, 1.4rem);
+    padding: clamp(0.75rem, 2dvh, 1.2rem) clamp(0.9rem, 3dvh, 1.4rem);
   }
-  .home-card .card-description { font-size: 0.8rem; line-height: 1.3; margin-bottom: 0.4rem; }
-  .home-card .floating-label-input { padding: 1.15rem 0.8rem 0.6rem; font-size: 1rem; }
+  /* Longer selectors below are not decoration: the noir layer (loaded AFTER
+     index.css, so it wins every tie) still carries phone rules written for the
+     retired split-card home. MEASURED at 375x667 they inflated the checkbox row
+     to 59px, the description to 43px and the tip strip to 54px — together with
+     the column-stacked legal band (see LEGAL FOOTER above) that is the ~220px
+     of overflow that put the tip banner and the Impressum link below the fold.
+     Each value below is the same intent as the short rule it replaces, just
+     specific enough to actually land. */
+  .home-page .home-card .card-description {
+    font-size: 0.78rem !important;
+    line-height: 1.28 !important;
+    margin: 0 0 0.35rem !important;
+  }
+  .home-card .floating-label-input { padding: 1.05rem 0.8rem 0.5rem; font-size: 1rem; }
   .home-form { gap: clamp(0.28rem, 0.8dvh, 0.55rem); }
-  .home-form-note { font-size: 0.72rem; line-height: 1.2; }
-  .home-checkbox-label { padding: 0.1rem 0; }
-  .home-checkbox-text { font-size: 0.84rem; }
+  .home-page .card.home-card .home-checkbox-label {
+    padding: 2px 0 !important;
+    min-height: 0 !important;
+    gap: 0.5rem;
+  }
+  .home-page .card.home-card .home-checkbox-text {
+    font-size: 0.82rem !important;
+    line-height: 1.2 !important;
+  }
   .home-btn { min-height: 46px; font-size: 1rem; }
-  .home-tip-banner {
+  .home-page .home-tip-banner {
     font-size: 0.72rem;
-    line-height: 1.25;
-    padding: 0.18rem 0.5rem;
+    line-height: 1.18;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+/* ── THE PENDANT ON A PHONE ──────────────────────────────────────────────────
+   The fixture IS the candlelit premise, and portrait phones had none: the
+   `min-width: 481px` reveal gate hid the lamp on every phone, so the small
+   viewports got a beam with no visible source while every desktop got the
+   signature moment.
+
+   This is a HEIGHT gate, not the width gate the obvious fix would use, and the
+   measurements are why. The lamp hangs ABOVE the mascot, so the only room for it
+   is the band between the fixed 48px header and the hero's first row:
+     • 390x844 (the brief's iPhone-12 test bar) — header bottom 48, hero top 138:
+       a 90px band. A whole pendant fits with clearance at both ends.
+     • 375x667 — header bottom 48, hero top 62, and the mascot's idle bounce
+       already peaks 8px above that at y=54: a SIX pixel slot, with zero page
+       slack to push the hero down (documentElement measures 667/667 exactly).
+       Any fixture there paints behind the opaque header — precisely the
+       decapitated-lamp defect the short-landscape block below exists to prevent.
+       That frame keeps the source implied and gets the re-anchored, narrowed
+       cone above instead.
+   Everything here is absolutely positioned: it adds no layout height at any
+   frame and cannot move the fold. ────────────────────────────────────────── */
+@media (max-width: 480px) and (orientation: portrait) and (min-height: 800px) {
+  .home-lamp {
+    display: block;
+    /* dvh-scaled so the fixture keeps its clearance from the header as the free
+       space `.home-stage`'s auto margins hand the hero grows with the frame. */
+    top: clamp(-70px, -7.6dvh, -52px);
+    height: clamp(52px, 7.6dvh, 70px);
+    width: clamp(44px, 15vw, 60px);
+  }
+  .home-lamp::before { top: 0; height: clamp(16px, 2.4dvh, 22px); }
+  .home-lamp::after {
+    top: clamp(16px, 2.4dvh, 22px);
+    height: clamp(20px, 2.8dvh, 26px);
+    width: clamp(38px, 12.5vw, 52px);
+  }
+  /* cone re-anchored to the bulb's mouth so the light has one continuous source */
+  .home-hero::after {
+    top: clamp(-40px, -4.4dvh, -28px);
+    height: clamp(190px, 26dvh, 260px);
+    width: clamp(170px, 46vw, 270px);
   }
 }
 
@@ -1483,7 +1762,18 @@
      decor family degrades together. */
   .home-hero::before, .home-hero::after { display: none; }
   .home-card-col { align-items: stretch; max-width: none; }
-  .home-tip-banner { display: none; }
+  /* MEASURED (844x390): the short `.home-tip-banner { display:none }` this
+     replaces LOST — the noir layer (prime-suspect-unified.css, loaded after
+     index.css) re-declares the banner at equal specificity and wins the tie, so
+     the strip stayed in the DOM flow while this block's two-area template
+     ("hero card") had no `tip` area for it. Grid auto-placement then invented
+     named implicit lines: the computed columns came out `0px 348px 0px 408px`,
+     i.e. the HERO COLUMN COLLAPSED TO ZERO (mascot rendered at x=-22, off the
+     left edge) and the banner was parked beside the card, pushing the legal
+     footer to y=413 in a 390px frame — a hard scroll + clipping violation on a
+     gate viewport. The longer selector + !important is the same out-ranking
+     technique this sheet already uses against that layer. */
+  .home-page .home-tip-banner { display: none !important; }
   /* A ~390px-tall frame cannot hold the prose rows, and the `!important`
      restores in the max-width:767px band above (which a 720x390 phone also
      matches) would otherwise force them back in. Same force, opposite way. */

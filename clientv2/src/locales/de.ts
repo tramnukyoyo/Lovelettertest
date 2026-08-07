@@ -58,6 +58,7 @@ export const de: Translations = {
     yourName: 'Dein Name',
     roomCode: 'Raum-Code',
     enterName: 'Gib deinen Namen ein',
+    formNote: 'Trag deinen Namen ein, um die Akte zu öffnen',
     enterRoomCode: 'Gib den Raum-Code ein',
     create: 'Erstellen',
     join: 'Beitreten',
@@ -324,6 +325,18 @@ export const de: Translations = {
     close: 'Benachrichtigung schließen',
   },
 
+  // Toast eyebrow categories (kick / site notification / admin message)
+  toast: {
+    category: {
+      removed: 'Entfernt',
+      notice: 'Hinweis',
+      confirmed: 'Bestätigt',
+      warning: 'Warnung',
+      error: 'Fehler',
+      message: 'Nachricht',
+    },
+  },
+
   // Achievement toast
   achievementToast: {
     unlocked: 'Erfolg freigeschaltet',
@@ -391,6 +404,7 @@ export const de: Translations = {
     equipped: 'AUSGERÜSTET',
     premiumTitle: 'Premium-Exklusivartikel',
     cardBackPreviewCaption: 'wie deine Hand am Tisch aussieht',
+    confirmEyebrow: 'KAUFAUFTRAG',
   },
 
   // Streamer broadcast stage

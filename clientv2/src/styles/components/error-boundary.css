@@ -6,7 +6,7 @@
       client, so the declaration was invalid at computed-value time, was
       dropped, and the crash dialog fell back to `z-index: auto`. A fixed
       full-screen error screen then painted UNDER the filmstrip (100), the
-      mobile nav (1000), every toast (10001) and the freeze curtain. A crash
+      mobile nav (1000), every toast and the freeze curtain. A crash
       must be the last thing standing, so it now outranks the toast rail.
    2. `.error-boundary-btn.primary:hover` set `background: var(--gb-pink-light)`
       — also undefined here — so the background fell back to `transparent`
@@ -25,8 +25,9 @@
   align-items: center;
   justify-content: center;
   background: radial-gradient(ellipse at 50% 40%, rgba(28, 21, 27, 0.97) 0%, rgba(18, 13, 17, 0.99) 70%);
-  /* Above the toast rail (10001) and the accessibility skip link (10002). */
-  z-index: var(--z-error-boundary, 10003);
+  /* Last thing standing: above the toast rail (--z-toast 10045, see
+     components/ui/toastRail.css) and the results scrim (10040). */
+  z-index: var(--z-error-boundary, 10050);
   padding: var(--spacing-md);
   overflow: auto;
 }
@@ -88,6 +89,15 @@
     0 0 0 6px rgba(210, 178, 90, 0.07),
     inset 0 2px 6px rgba(0, 0, 0, 0.45);
   color: var(--royal-gold, #d2b25a);
+}
+
+/* `[data-theme="primesuspect"] * { border-radius: 0 !important }`
+   (styles/prime-suspect-unified.css:1377, and data-theme lives on <html>) flattened
+   every wax seal in this client into a square block. Three class levels beat that
+   universal rule's one, so this wins on specificity and not on import order — the
+   same trick the file's own .portal-overlay / .loading-screen exemptions use. */
+[data-theme="primesuspect"] .error-boundary .error-boundary-seal {
+  border-radius: 50% !important;
 }
 
 .error-boundary-eyebrow {
