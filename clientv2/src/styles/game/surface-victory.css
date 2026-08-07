@@ -899,6 +899,19 @@ body.ps-results-open .xp-toast-container { display: none; }
     padding-bottom: calc(var(--psv-card-w) * 0.08);
     pointer-events: none;
   }
+  /* The exhibit is `.ps-evidence-card.is-winner`: it scales 1.12× from its
+     BOTTOM edge (transform-origin 50% 100%) and lifts 6px, so its VISUAL top
+     overflows its LAYOUT box upward by 0.18×card-width + 6px. Transforms don't
+     reflow, so the flex `gap` above only clears the layout box — that upward
+     overflow reached into the FINAL EVIDENCE caption and cropped it to
+     "FI…CE" at 1024/1366/1920. `.is-winner`'s margin-inline reserves the
+     HORIZONTAL scale overhang; this reserves the matching VERTICAL one as a
+     top lane, so the caption keeps a clean row above the card. Structural, not
+     a z-index restack (stacking the label over the card would just re-create
+     the overlap look). The flex `gap` remains the visible breathing space. */
+  .is-gameover .ps-verdict-evidence .ps-evidence-card {
+    margin-top: calc(var(--psv-card-w) * 0.18 + 8px);
+  }
   .is-gameover .ps-verdict-sub {
     display: block;
     margin-top: clamp(12px, 1.4vw, 18px);
