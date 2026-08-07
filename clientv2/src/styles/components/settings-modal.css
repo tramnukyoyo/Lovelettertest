@@ -702,19 +702,30 @@
   box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.1) !important;
   transform: none !important;
 }
-[data-theme="primesuspect"] .settings-modal .settings-modal-tab.active,
-[data-theme="primesuspect"] .settings-modal .settings-lang-btn.active {
+[data-theme="primesuspect"] .settings-modal .settings-modal-tab.active {
   box-shadow: var(--ps-set-raise), 0 0 12px rgba(231, 204, 122, 0.35) !important;
+}
+/* The language pair sits INSIDE a row, side by side: the 4px hard raise made
+   the active pill hang 4px lower than its sibling, so ENGLISH and DEUTSCH read
+   as two different heights. An inset bevel gives the same "chosen" depth cue
+   without adding an outboard offset, so both pills keep one baseline. */
+[data-theme="primesuspect"] .settings-modal .settings-lang-btn.active {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -3px 0 rgba(167, 126, 34, 0.55),
+    0 0 12px rgba(231, 204, 122, 0.35) !important;
 }
 [data-theme="primesuspect"] .settings-modal .settings-modal-tab:hover:not(:disabled),
 [data-theme="primesuspect"] .settings-modal .settings-lang-btn:hover:not(:disabled) {
   transform: none !important;
   filter: brightness(1.12);
 }
-/* The tab strip is a filed divider, not a floating pair. */
+/* The tab strip is a filed divider, not a floating pair. The 6px bottom pad is
+   load-bearing: without it the active tab's 4px hard raise crossed the strip's
+   own 1px rule and landed in the content zone, so the divider read as broken. */
 [data-theme="primesuspect"] .settings-modal .settings-modal-tabs {
   gap: 0.4rem;
-  padding: 0.6rem 1rem 0;
+  padding: 0.6rem 1rem 6px;
   border-bottom: 1px solid rgba(74, 63, 53, 0.3);
 }
 [data-theme="primesuspect"] .settings-modal .settings-modal-tab.active::after { display: none; }
@@ -730,13 +741,17 @@
   padding: 0.85rem 1rem 1rem !important;
   gap: 0.7rem;
 }
+/* One value DARKER than the panel face with a tobacco keyline. The old white
+   wash made the panel, the tab band and both cards three near-identical cream
+   rectangles separated by hairlines — an unstyled form on manila. */
 [data-theme="primesuspect"] .settings-modal .settings-section {
   margin-bottom: 0 !important;
   padding: 0.7rem 0.8rem !important;
-  background: rgba(255, 255, 255, 0.24) !important;
+  background: rgba(74, 63, 53, 0.13) !important;
+  border: 1px solid rgba(74, 63, 53, 0.5) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    2px 2px 0 rgba(42, 36, 32, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    2px 2px 0 rgba(42, 36, 32, 0.16);
 }
 /* Icon + label LEFT, control RIGHT — the wash used to centre both, burning two
    dead columns per row. `.settings-row-header` is 100% wide, so audio rows
@@ -782,7 +797,10 @@
    printed as a grey bar straight across the middle of the Legal block. The
    chevron rides the right gutter so it can never park on a legal link. */
 [data-theme="primesuspect"] .settings-modal .settings-modal-content .gs-scroll-hint {
-  background: linear-gradient(transparent, #d6c9b7 72%);
+  /* Stop colour tracks the SECTION face above — it moved one value darker
+     (rgba(74,63,53,.13) over #c9b8a0 ≈ #b8a892), so the stop moves with it or
+     the fade prints as a grey bar across the Legal block again. */
+  background: linear-gradient(transparent, #b8a892 72%);
   justify-content: flex-end;
   padding-right: 8px;
 }
@@ -861,4 +879,127 @@
 [data-theme="primesuspect"] .device-settings-tabs .device-settings-tab {
   min-height: 44px;
   padding-block: 0.4rem;
+}
+
+/* The two LARGEST surfaces in the device modal were still Lightwall: a navy
+   16:9 slab with a rounded corner, and a Tailwind-red error pill. The error
+   state is the most-hit surface here (permission denied), so it gets the exact
+   `.auth-modal .auth-modal-error` recipe — crimson, square 2px border,
+   typewriter face — and the preview gets the velvet + gold-hairline face every
+   other dossier surface wears. (Base rules live unscoped in
+   prime-suspect-unified.css at 0,1,0; these carry 0,3,0.) */
+[data-theme="primesuspect"] .device-settings-modal .device-settings-error {
+  border: 2px solid var(--royal-crimson, #6a1623);
+  background: rgba(106, 22, 35, 0.14);
+  color: var(--royal-crimson-dark, #3d0c13);
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  border-radius: 0;
+}
+[data-theme="primesuspect"] .device-settings-modal .device-settings-preview {
+  background: var(--velvet-900, #1c0f14);
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  border-radius: var(--psb-radius, 7px);
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.55),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* ===========================================================================
+   PRIME SUSPECT — ROUND 4: one dossier family (width + anchor + depth).
+   =========================================================================== */
+
+/* ONE modal width both dossier backdrops consume. The settings panel was
+   480/420/560px depending on the breakpoint while the shop was 460px — two
+   widths for one family. */
+[data-theme="primesuspect"] {
+  --ps-modal-width: 560px;
+}
+/* (auth + feedback keep their own narrower form widths — a 400px sign-in form
+   stretched to 560px is a worse panel, not a more consistent one.) */
+[data-theme="primesuspect"] .settings-modal-backdrop .settings-modal:not(.auth-modal):not(.feedback-modal) {
+  max-width: min(var(--ps-modal-width, 560px), 100%);
+}
+
+/* Vertical anchor. The desktop rule was moved to `center` last round, but the
+   <=926px block still forced `flex-start`, so at 375x667 the 409px panel sat
+   glued to y=14 with 244px of dead scrim below it. Centre it there too and keep
+   `flex-start` only where the clearance is genuinely needed: landscape phones.
+   (Extra `.settings-modal-backdrop` step out-ranks the 0,3,0 media rule in
+   prime-suspect-unified.css, which is @imported after this file.) */
+@media (max-width: 926px) {
+  [data-theme="primesuspect"] .settings-modal-backdrop.settings-modal-backdrop:not([data-broadcast-mirror-portal]) {
+    align-items: center;
+  }
+}
+@media (max-height: 500px) {
+  [data-theme="primesuspect"] .settings-modal-backdrop.settings-modal-backdrop:not([data-broadcast-mirror-portal]) {
+    align-items: flex-start;
+  }
+}
+
+/* Touch targets. The device modal cleared 44px; the settings modal did not —
+   the language pills floored at 36px (32px under 375px, the exact tier where
+   fingers are used) and the legal links had no padding at all, leaving
+   IMPRESSUM / PRIVACY / TERMS as ~15px-tall hit areas. */
+[data-theme="primesuspect"] .settings-modal .settings-lang-btn {
+  min-height: 44px;
+}
+[data-theme="primesuspect"] .settings-modal .legal-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 4px;
+}
+@media (max-width: 767px) {
+  [data-theme="primesuspect"] .settings-modal .settings-lang-btn { min-height: 44px; }
+}
+
+/* Candlelight + grain on the panel FACE. The masthead carried the whole
+   identity and everything under it was flat manila; the game panels ground on a
+   warm radial from the top plus the parchment grain, so the modal family does
+   too. The grain URI is the one the theme layer already ships — it must be
+   restated because this is a `background` shorthand. */
+[data-theme="primesuspect"] .settings-modal-backdrop .settings-modal {
+  background:
+    radial-gradient(125% 62% at 50% -8%, rgba(255, 226, 162, 0.34), rgba(255, 226, 162, 0) 62%),
+    radial-gradient(95% 66% at 50% 116%, rgba(42, 36, 32, 0.24), rgba(42, 36, 32, 0) 60%),
+    url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.08"/%3E%3C/svg%3E'),
+    #c9b8a0 !important;
+}
+
+/* Wax seal closing the dossier — fills the empty band under the Legal card and
+   puts the identity's one signature mark inside the body instead of only on the
+   masthead. Purely decorative (aria-hidden in the TSX). */
+[data-theme="primesuspect"] .settings-modal .settings-modal-seal {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 2px;
+}
+[data-theme="primesuspect"] .settings-modal .settings-modal-seal::before,
+[data-theme="primesuspect"] .settings-modal .settings-modal-seal::after {
+  content: '';
+  flex: 1 1 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 63, 53, 0.42), transparent);
+}
+[data-theme="primesuspect"] .settings-modal .settings-modal-seal-wax {
+  flex: 0 0 auto;
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 52% 48% 51% 49% / 49% 52% 48% 51%;
+  background:
+    radial-gradient(circle at 34% 28%, #a3243a 0%, var(--royal-crimson, #6a1623) 58%, var(--royal-crimson-dark, #3d0c13) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 2px 4px rgba(42, 36, 32, 0.4);
+}
+[data-theme="primesuspect"] .settings-modal .settings-modal-seal-wax::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(231, 204, 122, 0.5);
+  border-radius: 50%;
 }

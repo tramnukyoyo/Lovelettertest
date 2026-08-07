@@ -57,6 +57,32 @@
   height: auto !important;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
+  /* One "more below" affordance for the whole family. Every panel here is a
+     long-form read that ends hard against a footer rail; without a fade the
+     cut line is indistinguishable from truncated copy. Same 28px ramp the Card
+     Inspector uses (prime-suspect-card-inspector.css §2). */
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+}
+
+/* The overview table's name column is `white-space: nowrap` inside a `1fr`
+   track (prime-suspect-unified.css:2618). At <=600px the row collapses to
+   `2rem 1fr 2.5rem 2fr`, so a long localized card name (DE/PT) sets the
+   column's min-content floor to its full width and squeezes — or overflows —
+   the effect column, which then scrolls the whole panel sideways. The name is
+   allowed to wrap inside the rules panel, and every cell may shrink. */
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel .rules-card-grid {
+  max-width: 100%;
+}
+
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel .rules-card-row > * {
+  min-width: 0;
+}
+
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel .rules-card-name {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 /* Long localized titles must wrap inside the header rail, not push the close

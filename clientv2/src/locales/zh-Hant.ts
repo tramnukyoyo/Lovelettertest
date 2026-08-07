@@ -317,6 +317,7 @@ export const zhHant: Translations = {
       warning: '警告',
       error: '錯誤',
       message: '訊息',
+      action: '案件記事',
     },
   },
 
@@ -385,6 +386,10 @@ export const zhHant: Translations = {
     premiumTitle: '高級會員專屬',
     cardBackPreviewCaption: '你的手牌在牌桌上呈現的樣子',
     confirmEyebrow: '採購單',
+    pcardRosterLabel: '記錄在案卷中',
+    pcardDockLabel: '顯示於停靠列',
+    catalogueLoading: '正在開啟證物櫃…',
+    catalogueError: '證物櫃無法開啟。請檢查你的連線後重新開啟此面板。',
   },
 
   // Streamer broadcast stage

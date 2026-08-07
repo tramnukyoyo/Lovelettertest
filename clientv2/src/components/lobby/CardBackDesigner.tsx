@@ -14,7 +14,7 @@
  * the buy.
  */
 import React, { useEffect, useState } from 'react';
-import { X, Crown, Lock, Coins, Check } from 'lucide-react';
+import { X, Crown, Lock, Coins, Check, LogIn } from 'lucide-react';
 import type { Player } from '../../types';
 import { t, getTranslations } from '../../utils/translations';
 import ScrollHint from '../../shell/ScrollHint';
@@ -26,6 +26,7 @@ import { usePlayerProfile } from '../../services/playerProfiles';
 import { cosmeticClass } from '../../utils/cosmetics';
 import { FRAME_THEMES, frameThemeClass } from '../../utils/frameThemes';
 import { Avatar } from '../core/Avatar';
+import GameAuthModal from '../core/GameAuthModal';
 import DynamicCard from '../hearts-gambit/DynamicCard';
 
 type Slot = 'frame' | 'flair';
@@ -81,6 +82,10 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
   };
 
   // Try-on + purchase confirmation.
+  /* The guest branch of the buy sheet used to offer exactly one button: CANCEL.
+     Signing in happens in-place (same modal the header/roster use) so the buy
+     can continue without leaving the room. */
+  const [authOpen, setAuthOpen] = useState(false);
   const [tryOn, setTryOn] = useState<{ slot: Slot; id: string } | null>(null);
   const [confirm, setConfirm] = useState<{ slot: Slot; id: string } | null>(null);
   const ownedNow = confirm ? unlocked(confirm.slot, confirm.id) : false;
@@ -122,6 +127,12 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
      document rather than a floating web dialog. Copy request pending — the
      literal is the EN fallback until the key lands in all 6 locales. */
   const confirmEyebrow = optionalCopy('designer.confirmEyebrow') || 'PURCHASE ORDER';
+  /* Micro-labels for the two identity samples — same reason: literals are the
+     EN fallback until the keys land in all 6 locales. */
+  const pcardRosterLabel = optionalCopy('designer.pcardRosterLabel') || 'in the case file';
+  const pcardDockLabel = optionalCopy('designer.pcardDockLabel') || 'on the dock';
+  const catalogueLoading = optionalCopy('designer.catalogueLoading') || 'Opening the evidence locker…';
+  const catalogueError = optionalCopy('designer.catalogueError') || 'The evidence locker would not open. Check your connection and reopen this panel.';
 
   const renderChips = (slot: Slot, current: string, tier: 'standard' | 'premium' | 'all' = 'all') => {
     const all: Array<{ id: string; name: string; premiumOnly?: boolean }> = [
@@ -248,23 +259,32 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
               roster row + dock chip render them; follows try-ons. */}
           <div className="psshop-pcard">
             <span className="psshop-pcard-caption">{t('designer.playerCardCaption')}</span>
+            {/* Two SAMPLES of one identity, not one sample twice: each carries
+                its own micro-label so the pair reads as a comparison of the
+                two places the frame + flair show up. */}
             <div className="psshop-pcard-row">
-              <div className="player-list-items">
-                <div className="player-list-item is-me">
-                  <div className="player-avatar-container">
-                    <span className={previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : undefined} style={previewFrameWrap ? { ['--frame-ring' as string]: '2px' } : undefined}>
-                      <Avatar src={me?.avatarUrl} className="player-avatar" />
-                    </span>
+              <div className="psshop-pcard-sample">
+                <span className="psshop-pcard-microlabel">{pcardRosterLabel}</span>
+                <div className="player-list-items">
+                  <div className="player-list-item is-me">
+                    <div className="player-avatar-container">
+                      <span className={previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : undefined} style={previewFrameWrap ? { ['--frame-ring' as string]: '2px' } : undefined}>
+                        <Avatar src={me?.avatarUrl} className="player-avatar" />
+                      </span>
+                    </div>
+                    <div className="player-info"><span className={`player-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span></div>
                   </div>
-                  <div className="player-info"><span className={`player-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span></div>
                 </div>
               </div>
-              <span className="gs-chip is-me" title={me?.name}>
-                <span className={`gs-chip-av ${previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : ''}`.trim()}>
-                  <Avatar src={me?.avatarUrl} />
+              <div className="psshop-pcard-sample">
+                <span className="psshop-pcard-microlabel">{pcardDockLabel}</span>
+                <span className="gs-chip is-me" title={me?.name}>
+                  <span className={`gs-chip-av ${previewFrameWrap ? `avatar-frame-wrap ${previewFrameWrap}` : ''}`.trim()}>
+                    <Avatar src={me?.avatarUrl} />
+                  </span>
+                  <span className={`gs-chip-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span>
                 </span>
-                <span className={`gs-chip-name ${previewFlairClass}`.trim()}>{me?.name ?? 'You'}</span>
-              </span>
+              </div>
             </div>
           </div>
 
@@ -277,8 +297,28 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
         </div>
 
         <div className="psshop-body">
-          {renderSlotSection('frame', frame, t('designer.framesTitle'), t('designer.framesHint'))}
-          {renderSlotSection('flair', flair, t('designer.flairsTitle'), t('designer.flairsHint'))}
+          {/* Loading + failure are DESIGNED here: with an empty catalogue the
+              shop otherwise collapses to a single "Classic" chip under a
+              heading — visually identical to "there is nothing to buy". */}
+          {platform.status === 'loading' || platform.status === 'idle' ? (
+            <div className="psshop-section">
+              <div className="psshop-section-title">
+                {t('designer.framesTitle')}
+                <span className="psshop-hint">{catalogueLoading}</span>
+              </div>
+              <div className="psshop-chips" aria-hidden="true">
+                {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="psshop-chip-skeleton" />)}
+              </div>
+            </div>
+          ) : (
+            <>
+              {platform.status === 'error' && (
+                <p className="psshop-error" role="alert">{catalogueError}</p>
+              )}
+              {renderSlotSection('frame', frame, t('designer.framesTitle'), t('designer.framesHint'))}
+              {renderSlotSection('flair', flair, t('designer.flairsTitle'), t('designer.flairsHint'))}
+            </>
+          )}
           <ScrollHint />
         </div>
 
@@ -311,6 +351,23 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
                 )}
                 <div className="psshop-confirm-actions">
                   <button type="button" className="psshop-cancel" onClick={() => { setConfirm(null); setTryOn(null); }} disabled={confirmBusy}>{t('playerList.cancel')}</button>
+                  {/* The money moment always offers a WAY FORWARD. Without these
+                      two, a signed-out player who taps a locked frame — and a
+                      free player who taps a Premium exclusive — got a sheet whose
+                      only button was CANCEL. */}
+                  {confirmPremiumOnly ? (
+                    <button
+                      type="button"
+                      className="psshop-buy"
+                      onClick={() => window.open('https://gamebuddies.io/premium', '_blank', 'noopener,noreferrer')}
+                    >
+                      <Crown size={12} aria-hidden="true" />{t('premiumUpsell.getPremium')}
+                    </button>
+                  ) : platform.status === 'guest' ? (
+                    <button type="button" className="psshop-buy" onClick={() => setAuthOpen(true)}>
+                      <LogIn size={12} aria-hidden="true" />{t('header.login')}
+                    </button>
+                  ) : null}
                   {platform.status !== 'guest' && !confirmPremiumOnly && (
                     <button type="button" className="psshop-buy" disabled={confirmBusy || !affordable} onClick={() => buyPlatformCosmetic(confirm.slot, confirm.id)}>
                       <Coins size={12} aria-hidden="true" />{confirmBusy ? t('designer.buying') : t('designer.buyFor', { gp: confirmPrice })}
@@ -321,6 +378,8 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
             </div>
           );
         })()}
+
+        {authOpen && <GameAuthModal onClose={() => setAuthOpen(false)} playerName={me?.name} />}
       </div>
     </div>
   );

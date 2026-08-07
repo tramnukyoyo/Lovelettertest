@@ -334,6 +334,7 @@ export const de: Translations = {
       warning: 'Warnung',
       error: 'Fehler',
       message: 'Nachricht',
+      action: 'Fallnotiz',
     },
   },
 
@@ -405,6 +406,10 @@ export const de: Translations = {
     premiumTitle: 'Premium-Exklusivartikel',
     cardBackPreviewCaption: 'wie deine Hand am Tisch aussieht',
     confirmEyebrow: 'KAUFAUFTRAG',
+    pcardRosterLabel: 'in der Akte',
+    pcardDockLabel: 'am Dock',
+    catalogueLoading: 'Beweismittelschrank wird geöffnet…',
+    catalogueError: 'Der Beweismittelschrank ließ sich nicht öffnen. Prüfe deine Verbindung und öffne dieses Panel erneut.',
   },
 
   // Streamer broadcast stage

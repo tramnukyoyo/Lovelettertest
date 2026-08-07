@@ -131,11 +131,15 @@ const CrewCard: React.FC<{ p: Player; index: number; isMe: boolean }> = ({ p, in
           <><Crown className="gs-crew__crown" aria-hidden="true" />{tShell('lobby.host')}</>
         ) : isMe ? tShell('lobby.you') : ' '}
       </span>
-      {/* Dossier footer — the lower third of a suspect file: two ruled
-          evidence lines and a typewriter status stamp. Pure decoration
+      {/* Dossier footer — the lower third of a suspect file: three ruled
+          statement lines and a typewriter status stamp. Pure decoration
           (aria-hidden, text set in CSS like the CASE FILE folder tab), so it
-          adds no translatable string and no layout for screen readers. */}
+          adds no translatable string and no layout for screen readers. The
+          third rule arrived with round 4: the seats now STRETCH to fill their
+          grid track, and the extra height belongs to the dossier body rather
+          than to a bigger sprite. */}
       <span className="gs-crew__file" aria-hidden="true">
+        <span className="gs-crew__file-rule" />
         <span className="gs-crew__file-rule" />
         <span className="gs-crew__file-rule" />
         <span className="gs-crew__stamp" />
@@ -398,6 +402,7 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                               <span className="gs-crew__file gs-crew__file--empty">
                                 <span className="gs-crew__file-rule" />
                                 <span className="gs-crew__file-rule" />
+                                <span className="gs-crew__file-rule" />
                                 <span className="gs-crew__stamp" />
                               </span>
                             </li>
@@ -458,16 +463,25 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                           branch made 375/768/1024 an information regression
                           against 1366/1920. Only the interactive settings fold
                           into the phone accordion. */}
-                      {isHost && (
-                        isMobile ? (
-                          <CollapsibleSection title={t('settings.title')}>
+                      {/* Round 4: the folder opens on the CASE, not on an
+                          account prompt. The host's controls used to render
+                          ABOVE the briefing, so the pane read ADD BOT ->
+                          "sign in to save settings" -> the case facts, and at
+                          1366 that pushed the last briefing line off the
+                          folder's bottom edge. They are a slot inside the
+                          briefing now, between the last line and the wax seal. */}
+                      <GuestBriefingPanel
+                        lobby={lobby}
+                        footerSlot={isHost ? (
+                          isMobile ? (
+                            <CollapsibleSection title={t('settings.title')}>
+                              <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
+                            </CollapsibleSection>
+                          ) : (
                             <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
-                          </CollapsibleSection>
-                        ) : (
-                          <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
-                        )
-                      )}
-                      <GuestBriefingPanel lobby={lobby} />
+                          )
+                        ) : undefined}
+                      />
                       {/* One-viewport directive (rule 7): the explainer NEVER
                           renders in-pane — desktop included. It stays mounted
                           (display:none) so the first-visit auto-open and the

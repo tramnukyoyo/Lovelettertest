@@ -147,6 +147,10 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
    *  shown in the hand band on wide stages. */
   const myFiled: CardType[] = me?.discarded || [];
   const otherPlayers = lobby.players.filter(p => p.id !== me?.id && !p.isSpectator);
+  /** Whose move it is + the round number — the two facts the wide-stage phase
+   *  headline stages (see .ps-phase-head, prime-suspect-ingame.css §19.3). */
+  const activeSeat = lobby.players.find(p => p.id === lobby.gameData?.currentTurn) || null;
+  const currentRound = lobby.gameData?.currentRound ?? 1;
   const allOpponentsProtected = otherPlayers.every(p => p.isEliminated || p.isImmune);
   const amEliminated = me?.isEliminated || false;
   const discardEvents: DiscardEvent[] | null = lobby.gameData?.discardPile?.length ? (lobby.gameData.discardPile as DiscardEvent[]) : null;
@@ -608,6 +612,26 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
         {/* MIDDLE SECTION: Deck Area */}
         <div className="ps-evidence-band p-2 flex-[26] min-h-0 flex relative shadow-inner">
 
+          {/* The turn drama, staged instead of reported: a typewriter eyebrow
+              ("ROUND 3") over a display-weight line naming whose move it is.
+              Lives in the band's dead left flank and is CSS-gated to 1440px+
+              stages (below that the flank is too narrow to hold display type
+              without wrapping into the evidence desk). Keyed on the active seat
+              so the fade+rise replays on every turn change. */}
+          {activeSeat && (
+            <div
+              key={`phase-${activeSeat.id}-${currentRound}`}
+              className="ps-phase-head"
+              aria-hidden="true"
+            >
+              <span className="ps-phase-eyebrow">{t('game.round')} {currentRound}</span>
+              <span className="ps-phase-line">
+                {isMyTurn ? t('game.yourTurn') : activeSeat.name}
+              </span>
+              <span className="ps-phase-rule" />
+            </div>
+          )}
+
           {/* Center Area: Deck & Discard - No Border */}
           <div className="flex-1 flex flex-row items-center justify-center gap-20 relative">
             <div className="ps-deck-evidence-row flex flex-row items-center justify-center gap-20">
@@ -869,8 +893,9 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 </div>
                 {myFiled.length === 0 ? (
                   <div className="ps-filed-empty">
-                    <span className="ps-filed-ghost" aria-hidden="true" />
-                    <span className="ps-filed-ghost" aria-hidden="true" />
+                    {/* a face-down card slot, NOT a ruled note slip — the case
+                        log next door already owns that language (§19.6) */}
+                    <span className="ps-filed-ghost ps-filed-ghost--card" aria-hidden="true" />
                     <span className="ps-filed-empty-text">{t('evidence.noEvidenceYet')}</span>
                   </div>
                 ) : (

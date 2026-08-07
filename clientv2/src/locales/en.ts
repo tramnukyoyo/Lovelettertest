@@ -340,6 +340,7 @@ export const en = {
       warning: 'Warning',
       error: 'Error',
       message: 'Message',
+      action: 'Case note',
     },
   },
 
@@ -408,6 +409,10 @@ export const en = {
     premiumTitle: 'Premium exclusives',
     cardBackPreviewCaption: 'how your hand looks to the table',
     confirmEyebrow: 'PURCHASE ORDER',
+    pcardRosterLabel: 'in the case file',
+    pcardDockLabel: 'on the dock',
+    catalogueLoading: 'Opening the evidence locker…',
+    catalogueError: 'The evidence locker would not open. Check your connection and reopen this panel.',
   },
 
   // Streamer broadcast stage

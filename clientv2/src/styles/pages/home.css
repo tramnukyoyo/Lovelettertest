@@ -500,6 +500,19 @@
     margin-top: clamp(0.25rem, 1cqi, 0.75rem);
   }
 
+  /* TWO AXES, NOT FOUR. Centred across both columns the strip sat in the GUTTER
+     between them (page centre x≈958 at 1912) — it belonged to neither column and
+     pulled the eye off the CTA axis, so the page resolved to four competing
+     centres (hero, card, banner, legal band). Riding the CARD column's axis
+     instead, hero and create-card each own exactly one vertical line.
+     Gated at 1000cqi, not at the split's 820: the strip is max-content wide
+     (≈495px EN, more in DE) and centring it on a 330px column inside an 820px
+     container would push its right edge past the stage. At 1000cqi the widest
+     locale still clears both stage edges. */
+  @container (min-width: 1000px) {
+    .home-tip-banner { grid-column: 2; }
+  }
+
   /* The hero column is a fixed box (above), not a shrink-to-content one, so the
      badge shares the wordmark's left edge instead of BlindSpot's `center` —
      centring it inside a box wider than its content would put the badge on a
@@ -1224,6 +1237,20 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
   transform: none !important;
   cursor: not-allowed;
+  position: relative;
+}
+
+/* The SEALED BAND. Flat brown alone reads "greyed out"; a band pressed inside
+   the face is what says "unbroken seal" — the same gold hairline the armed
+   state uses, run around the inside of the resting one. Decorative only
+   (pointer-events:none), so it can never intercept the CTA's own click. */
+.home-page .card.home-card .home-btn.primary:disabled::before,
+.home-page .card.home-card .home-btn.secondary:disabled::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(231, 204, 122, 0.28);
+  pointer-events: none;
 }
 
 /* ── THE WAX SEAL: the ARMED create CTA ──────────────────────────────────────
@@ -1262,10 +1289,12 @@
 /* The glyph on the CTA is a disc of sealing wax with a gold hairline ring and a
    pressed inner impression — replacing the generic `+` icon. Inline CSS, so it
    costs no asset and is not an emoji (owner directive 7). */
+/* 24px, not 18: at 18 the disc read as a record/LED dot rather than a blob of
+   sealing wax — the impression ring inside it needs diameter to be legible. */
 .home-btn-seal {
   display: block;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   border-radius: 50%;
   position: relative;
@@ -1315,7 +1344,15 @@
    has to find room for it. ─────────────────────────────────────────────────── */
 .home-card-fan { display: none; }
 
-@media (orientation: landscape) and (min-width: 1100px) and (min-height: 860px) {
+/* Gate relaxed: the `min-height: 860px` term shipped the middle act at exactly
+   ONE of five captured frames — 1366x768, the single most common desktop size,
+   plus 1024x768 got no card at all on a landing that sells a deduction CARD
+   game. The height term was written when the fan still sat IN FLOW; since it
+   became `position: absolute` (see above) it costs zero layout height and can
+   no longer touch the fold, so the reason for the term is gone. The box now
+   shrinks with the frame instead (dvh-scaled height + vw-scaled width), which
+   is what a 768px-tall desktop actually needs. */
+@media (orientation: landscape) and (min-width: 1100px) {
   /* positioning context for the out-of-flow fan below */
   .home-card-col { position: relative; }
 
@@ -1323,19 +1360,27 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: clamp(0.85rem, 1.5vw, 1.15rem);
+    /* NO gap — the overlap is dealt by the centre file's negative margins
+       below. At +1.15rem with ±7deg the three never touched and read as three
+       disconnected tiles; a hand of case files OVERLAPS, so the trio reads as
+       one fanned stack. (`gap` itself rejects negative lengths, hence the
+       margin.) */
+    gap: 0;
     position: absolute;
-    top: calc(100% + clamp(0.5rem, 1.4dvh, 1rem));
+    /* Tightened from 1.4dvh: at 1920x1080 the stack's lower edge landed on the
+       pixel rooftop band (~y812) and looked like it was sinking into the
+       skyline. Shorter drop + capped height clears the band. */
+    top: calc(100% + clamp(0.25rem, 0.6dvh, 0.5rem));
     left: 0;
     right: 0;
-    height: clamp(72px, 8dvh, 94px);
+    height: clamp(48px, 6.2dvh, 74px);
     pointer-events: none;
     z-index: 0;
   }
 
   .home-card-fan i {
     display: block;
-    width: clamp(46px, 4.4vw, 62px);
+    width: clamp(38px, 3.6vw, 62px);
     height: 100%;
     border-radius: 3px;
     position: relative;
@@ -1347,6 +1392,16 @@
       inset 0 1px 0 rgba(246, 240, 230, 0.3),
       0 7px 16px rgba(0, 0, 0, 0.5);
     opacity: 0.92;
+  }
+
+  /* the filed-folder tab across each face — the one line that turns a beige
+     rectangle into a dossier */
+  .home-card-fan i::before {
+    content: '';
+    position: absolute;
+    inset: 14% 12% auto;
+    height: 2px;
+    background: rgba(231, 204, 122, 0.35);
   }
 
   /* the wax seal holding each file shut */
@@ -1365,9 +1420,16 @@
       inset 0 -1px 2px rgba(40, 6, 8, 0.6);
   }
 
-  .home-card-fan i:nth-child(1) { transform: rotate(-7deg) translateY(5px); }
-  .home-card-fan i:nth-child(2) { z-index: 1; opacity: 1; }
-  .home-card-fan i:nth-child(3) { transform: rotate(7deg) translateY(5px); }
+  /* ±11deg + a drop on the outer two: a held fan, not three tiles in a row.
+     The centre file sits proud (z-index 1) so the overlap has a clear front. */
+  .home-card-fan i:nth-child(1) { transform: rotate(-11deg) translateY(9px); }
+  .home-card-fan i:nth-child(2) {
+    z-index: 1;
+    opacity: 1;
+    /* pulls the outer two under it — ~35% overlap, a held hand */
+    margin-inline: clamp(-1.6rem, -1.2vw, -1rem);
+  }
+  .home-card-fan i:nth-child(3) { transform: rotate(11deg) translateY(9px); }
 }
 
 /* ====== TIP BANNER ====== */
@@ -1536,24 +1598,48 @@
      The grid gap is halved in the same breath — three gaps at up to 2rem was
      the other half of the overflow. */
   .home-page .home-form-note { display: none; }
-  .home-stage-grid { gap: clamp(0.5rem, 1.6dvh, 1rem); }
+  .home-stage-grid { gap: clamp(0.4rem, 1.2dvh, 0.8rem); }
 }
 
-/* The header prints the game's name directly above the hero wordmark — on the
-   tightest viewport that is the same name twice inside 250px, and it is exactly
-   the room the restored tagline needs. Below 480px the header keeps the crest
-   and the platform byline and drops the duplicate title. */
+/* ── …AND BOUGHT BACK WHERE THE FOLD CAN AFFORD IT ────────────────────────────
+   "Sign the case file to unseal it" is the one line that explains the sealed
+   brown CTA, and a phone is exactly where the sealed CTA is least self-evident
+   — so it is restored at phone scale, paid for out of the grid gap tightened
+   above.
+   The min-height term is not caution, it is the measurement: at 375x667 the
+   documentElement measures 667/667 EXACTLY (see THE PENDANT ON A PHONE below)
+   — the page has zero slack, the portrait block's own tighter grid gap (:1579)
+   already out-ranks the reclaim above at that width, and the note's row costs
+   ~18px (its line plus a form gap). Restoring it there would trade a hint line
+   for a scrollbar, and the never-scrolls contract outranks the line. Every
+   phone with real headroom — the brief's 390x844 test bar, 393x852, 414x896 —
+   clears 700px and gets the copy. ─────────────────────────────────────────── */
+@media (max-width: 767px) and (min-height: 700px) {
+  .home-page .home-form-note {
+    display: block;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    margin-top: 0.15rem;
+  }
+}
+
+/* The header is the element that PERSISTS on screen, so on a phone it has to
+   name the GAME. Dropping the title (and, once it was gone, the orphaned "by")
+   left the sticky band reading "GameBuddies.io" — the platform, not Prime
+   Suspect — while the direct comparable keeps its "Bad Actor / by
+   GameBuddies.io" lockup at the same 375px width. The row is recovered by
+   SHRINKING rather than deleting: title 0.82rem/1.05 over branding 0.58rem is
+   the same total lockup height the single 0.68rem line plus its leading cost,
+   so the fold budget below is untouched. */
 @media (max-width: 480px) {
-  .home-header-title { display: none; }
+  .home-header-title {
+    display: block;
+    font-size: 0.82rem;
+    letter-spacing: 0.01em;
+    line-height: 1.05;
+  }
   .home-header-text { justify-content: center; }
-  .home-header-branding { font-size: 0.68rem; }
-  /* …but "by" needs a subject. With the title dropped, the top-left lockup read
-     as a lone "by GameBuddies.io" hanging off the crest — a preposition with
-     nothing in front of it. Dropping the word turns the same three spans into a
-     standalone platform mark ("GameBuddies.io"), which is what the lockup
-     actually is at this width. Nothing else changes: the gold/lavender/cream
-     colour split and the crest stay exactly as they are. */
-  .home-header-by { display: none; }
+  .home-header-branding { font-size: 0.58rem; }
 }
 
 /* Mid / portrait-tablet band — still a single stack (the split fires at
@@ -1600,9 +1686,9 @@
   .home-title { font-size: clamp(2rem, 10.2vw, 2.7rem); line-height: 1; }
   .home-tagline { font-size: 0.82rem; line-height: 1.2; max-width: 30ch; padding-bottom: 0.3rem; }
   .home-tagline::after { width: clamp(60px, 30%, 120px); }
-  /* The byline stays in the fixed header on a phone (the header keeps its crest
-     + "by GameBuddies.io" while dropping the duplicated title) — printing it a
-     second time here would cost the tagline its row. */
+  /* The byline stays in the fixed header on a phone (crest + title + "by
+     GameBuddies.io", see the max-width:480px block) — printing it a second
+     time here would cost the tagline its row. */
   .home-page .home-hero .home-gb-branding { display: none !important; }
   .home-mp-badge {
     font-size: 0.72rem;
@@ -1641,10 +1727,20 @@
     line-height: 1.2 !important;
   }
   .home-btn { min-height: 46px; font-size: 1rem; }
+  /* The strip wraps to two lines at this width. Centred as a flex ROW the bulb
+     shared line one and "together!" hung alone under the icon column, so the
+     block read ragged. The label now owns the whole remaining track and centres
+     BOTH of its lines as one unit, with the bulb parked at the top of it. */
   .home-page .home-tip-banner {
     font-size: 0.72rem;
     line-height: 1.18;
     padding: 0.2rem 0.5rem;
+    align-items: flex-start;
+    text-align: center;
+  }
+  .home-page .home-tip-banner > span {
+    min-width: 0;
+    flex: 1 1 auto;
   }
 }
 
@@ -1689,6 +1785,34 @@
     height: clamp(190px, 26dvh, 260px);
     width: clamp(170px, 46vw, 270px);
   }
+}
+
+/* ── THE IMPLIED SOURCE (375x667 and any portrait phone under 800px tall) ─────
+   The block above proves a whole pendant cannot fit here (a 6px slot between
+   the opaque header and the mascot's bounce peak), so this frame keeps the beam
+   but had no source at all: a light cone whose mouth is tucked behind the
+   header, lighting the detective from nothing.
+   The fixture is therefore implied OFF-FRAME — the same `.home-lamp` box,
+   stripped down to the hot slit its bulb spills across the header's lower edge,
+   so the cone reads as light leaking in from above rather than as fog.
+   Reusing `.home-lamp` (not a fresh `.home-hero::before`) is deliberate: that
+   pseudo-element already carries the hero's candle pool, and `.home-lamp` is
+   the element that MEANS "light source" — it is already aria-hidden, already
+   absolutely positioned (no layout height, cannot move the fold) and already
+   listed in the reduced-motion block below. ────────────────────────────────── */
+@media (max-width: 480px) and (orientation: portrait) and (max-height: 799px) {
+  .home-lamp {
+    display: block;
+    top: -2px;
+    height: 3px;
+    width: clamp(90px, 34vw, 150px);
+    background: linear-gradient(180deg, rgba(231, 204, 122, 0.55), transparent);
+    filter: blur(2px);
+    animation: none;
+  }
+  /* no cord, no shade — only the spill reads at this size */
+  .home-lamp::before,
+  .home-lamp::after { display: none; }
 }
 
 /* ── SHORT LANDSCAPE DESKTOP (1024x768, 1366x768, any wide 16:9 under ~860px)

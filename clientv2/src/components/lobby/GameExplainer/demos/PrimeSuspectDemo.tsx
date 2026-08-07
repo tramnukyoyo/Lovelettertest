@@ -342,6 +342,10 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
         ))}
         <g transform={`translate(3.2 3.2)`}>
           <rect x={-CARD_W / 2} y={-CARD_H / 2} width={CARD_W} height={CARD_H} rx={5} fill={CRIMSON} stroke={GOLD} strokeWidth={2} />
+          {/* Same candlelight grade as every other back in the demo. Round 3
+              warmed the four hand cards but not this one, so the deck was left
+              as the ONE steel-blue object on a parchment/gold table — the cold
+              hue had been isolated, not removed. */}
           <image
             href={cardBackImg}
             x={-CARD_W / 2 + 2}
@@ -349,6 +353,19 @@ export const PrimeSuspectDemo: React.FC<DemoProps> = ({ t: tClock }) => {
             width={CARD_W - 4}
             height={CARD_H - 4}
             preserveAspectRatio="xMidYMid slice"
+            style={{ filter: 'sepia(0.72) saturate(1.45) hue-rotate(-14deg) brightness(0.9) contrast(1.06)' }}
+          />
+          {/* Gold line-work inset — the same wax-seal idiom the hand cards use. */}
+          <rect
+            x={-CARD_W / 2 + 5}
+            y={-CARD_H / 2 + 5}
+            width={CARD_W - 10}
+            height={CARD_H - 10}
+            rx={3}
+            fill="none"
+            stroke={GOLD}
+            strokeWidth={0.8}
+            opacity={0.55}
           />
         </g>
         <text

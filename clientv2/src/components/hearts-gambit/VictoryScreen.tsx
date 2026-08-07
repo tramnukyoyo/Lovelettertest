@@ -293,6 +293,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   const isBroadcastMirror = viewMode === 'broadcast';
   const winnerId = lobby.gameData?.winner || lobby.gameData?.roundWinner;
   const winnerPlayer = lobby.players.find(p => p.id === winnerId);
+  const winnerHeld: CardType | undefined = winnerPlayer?.hand?.[0];
   const tokensToWin = getTokensToWin(lobby.players.length);
 
   // Prefer the system narration over whatever chat happened to land last.
@@ -345,7 +346,16 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   // keep a face-down back so the row always reads as a full spread.
   const tablePlayers = lobby.players.filter(p => !p.isSpectator && !p.isBigScreen);
   const evidenceCount = Math.max(tablePlayers.length, 1);
-  const evidenceCardW = `clamp(44px, ${Math.min(20, 80 / evidenceCount).toFixed(1)}vw, ${Math.min(104, Math.round(372 / (1 + 0.84 * (evidenceCount - 1))))}px)`;
+  // Two sizings for two panel widths: the fan overlaps its neighbours by only
+  // 0.03 card-widths per side now (it used to crop the next suspect's role name
+  // to "SPECTOR"), so the horizontal step is 0.94 cards, not 0.84 — and the
+  // ≥1440 panel is 34rem instead of 27.5rem. CSS picks; nothing is inline, so a
+  // media query can still switch between them.
+  const fanStep = (budget: number, cap: number) =>
+    Math.min(cap, Math.round(budget / (1 + 0.94 * (evidenceCount - 1))));
+  const evidenceVw = Math.min(20, 80 / evidenceCount).toFixed(1);
+  const evidenceCardW = `clamp(44px, ${evidenceVw}vw, ${fanStep(356, 96)}px)`;
+  const evidenceCardWWide = `clamp(44px, ${evidenceVw}vw, ${fanStep(470, 126)}px)`;
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -384,7 +394,10 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
               <div
                 className="ps-evidence-row"
                 aria-hidden="true"
-                style={{ ['--psv-card-w' as string]: evidenceCardW } as React.CSSProperties}
+                style={{
+                  ['--psv-card-w-base' as string]: evidenceCardW,
+                  ['--psv-card-w-wide' as string]: evidenceCardWWide,
+                } as React.CSSProperties}
               >
                 {tablePlayers.map((p, i) => {
                   const offset = i - (tablePlayers.length - 1) / 2;
@@ -455,12 +468,15 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             'var(--royal-gold-dark, #a77e22)',
           ]}
         />
+        {/* The wax-red burst has to REGISTER against a full field of gold: at
+            54 pieces in the old bright red it was simply invisible under the
+            rain. More pieces, one step darker. */}
         <Confetti
           mode="burst"
           origin={{ xPct: 50, yPct: 32 }}
-          count={wideStage ? 54 : 28}
+          count={wideStage ? 90 : 44}
           durationMs={1800}
-          colors={['#a72b3d', '#8a2233', 'var(--royal-gold-light, #e7cc7a)']}
+          colors={['#8a1f30', '#6d1826', 'var(--royal-gold-dark, #a77e22)']}
         />
       </div>
       <motion.div
@@ -511,6 +527,29 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                 <div className="ps-winner-name">
                   {winnerPlayer && <FlairName player={winnerPlayer} />}
                 </div>
+
+                {/* The exhibit: the card the case was won on, laid in with the
+                    same wax-sealed evidence treatment as the round-over fan.
+                    A conviction front page in a deduction game cannot be a
+                    crown and a name in an empty parchment field. */}
+                {winnerHeld != null && (
+                  <div className="ps-verdict-evidence">
+                    <div className="ps-eyebrow">{t('victory.finalEvidence')}</div>
+                    <div className="ps-evidence-card is-winner">
+                      <DynamicCard cardType={winnerHeld} showFace />
+                    </div>
+                  </div>
+                )}
+
+                {/* …and the closing line of the case under it. */}
+                {lobby.gameData?.currentRound != null ? (
+                  <div className="ps-verdict-sub">
+                    {t('victory.convictedOnRound').replace('{n}', String(lobby.gameData.currentRound))}
+                  </div>
+                ) : (
+                  narration.hero && <div className="ps-verdict-sub">{narration.hero}</div>
+                )}
+                {narration.caption && <div className="ps-verdict-note">{narration.caption}</div>}
               </motion.section>
 
               {/* Right: the dossier */}

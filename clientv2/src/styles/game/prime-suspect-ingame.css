@@ -3533,17 +3533,28 @@
 /* On a 1440px+ stage the whole game used to live in a ~500px column with two
    dead flanks. The left flank becomes a full-height lined notebook and the
    three rows are inset past it so the seats can fan across the freed width. */
-@container stage (min-width: 1440px) {
+/* ROUND 4: the tier used to start at a 1440px stage, i.e. a ~1760px viewport.
+   1366x768 — the commonest laptop — yields a ~1046px stage and therefore kept
+   the round-2 layout: a stunted 180x90 case-log in the corner and two dead
+   rectangles flanking one 90px hand card. The composition now starts at a
+   1000px stage; the notebook and the flanks scale down with it. */
+@container stage (min-width: 1000px) {
   [data-theme="primesuspect"] .hearts-gambit-game {
-    --ps-notebook-w: clamp(212px, 15cqi, 268px);
-    --ps-notebook-inset: calc(var(--ps-notebook-w) + 2rem);
+    --ps-notebook-w: clamp(178px, 15cqi, 268px);
+    --ps-notebook-inset: calc(var(--ps-notebook-w) + clamp(1rem, 1.4cqi, 2rem));
   }
   [data-theme="primesuspect"] .ps-caselog {
     top: 1rem;
-    bottom: 1rem;
+    /* the notebook ends where its content ends — a 940px column of blank ruled
+       paper under a 200px roster read as an unfinished panel (round-3 critique).
+       It still grows to the full column once the case log fills up. */
+    bottom: auto;
+    max-height: calc(100% - 2rem);
     left: 1rem;
     width: var(--ps-notebook-w);
-    max-height: none;
+    /* the tray's top rule is inset past the notebook (§19.1), so the notebook
+       must paint above the bands it lies on */
+    z-index: 22;
     transform: none;
   }
   [data-theme="primesuspect"] .ps-caselog-body {
@@ -3633,6 +3644,13 @@
    1280 -> 960. Measured EN labels + badges ask ~960px, and the German locale asks
    another ~15%, so the collapse has to start ABOVE the 1280 tier. 1366 -> 1046
    keeps its full labels (round-2 capture shows ~600px of slack there). */
+/* ROUND-4 CORRECTION: the round-3 version of this block could never fire.
+   §12.2 declares `.ps-btn.ps-btn--ghost.ps-btn--sm { padding: .5rem .95rem
+   !important; font-size: .82rem !important }` — an !important shorthand at
+   (0,4,0)/(0,4,1). Un-flagged longhands here lost every time, so 1024 kept its
+   full CARD LEGEND / RULES / HOW TO PLAY labels, the row grew and the token
+   count "0 / 4" was squeezed OUT of its own gold frame and onto the turn
+   badge. The collapse is now flagged AND out-specified (0,5,1). */
 @container stage (max-width: 980px) {
   [data-theme="primesuspect"] .ps-tray-toolbar {
     flex-wrap: nowrap;
@@ -3640,18 +3658,43 @@
     gap: 0.6rem;
   }
   [data-theme="primesuspect"] .ps-tray-toolbar .ps-tray-tools { flex: 0 0 auto; }
-  [data-theme="primesuspect"] .ps-tray-toolbar .ps-token-track { min-width: 0; }
-  [data-theme="primesuspect"] .ps-tray-toolbar .ps-btn--sm {
-    padding-inline: 0.5rem;
-    gap: 0;
+  /* the wax-seal track keeps its intrinsic width (the icon-only collapse frees
+     ~300px on a 705px stage) and clips as a last resort, so the "x / N" count
+     can never escape the pill again */
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-token-track {
+    flex: 0 0 auto;
+    min-width: 0;
+    overflow: hidden;
+    padding-inline-end: 0.55rem;
+  }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-token-track-count { flex: 0 0 auto; }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-token-seals { flex: 0 1 auto; overflow: hidden; }
+  /* YOUR TURN is two words: it must never wrap and make its chip taller than
+     every sibling in the row */
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-turn-badge {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-chip {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  [data-theme="primesuspect"] .ps-tray-toolbar .ps-btn--sm,
+  [data-theme="primesuspect"] .ps-tray-toolbar button.ps-btn.ps-btn--ghost.ps-btn--sm {
+    padding-inline: 0.5rem !important;
+    gap: 0 !important;
     /* collapses the label text node; the lucide icon carries a width/height
        attribute so it is unaffected. `title` keeps the hover/AT affordance. */
-    font-size: 0;
-    letter-spacing: 0;
+    font-size: 0 !important;
+    letter-spacing: 0 !important;
   }
   [data-theme="primesuspect"] .ps-tray-toolbar .ps-btn--sm > svg {
     width: 17px;
     height: 17px;
+    flex: 0 0 auto;
   }
   [data-theme="primesuspect"] .ps-hand-area {
     --ps-fit-hand-card: min(var(--hg-card-height, 208px), max(88px, calc(33.75cqb - 98px)));
@@ -3670,16 +3713,45 @@
 /* ---- 18.3 · CARD INSPECTOR — one authoritative rules text ----------------- */
 /* The inspector printed the effect twice (card face + footer brief) plus the name
    twice. The big card is the ARTWORK + RANK exhibit; the panel does the talking. */
-[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-description {
+/* ROUND 4: the name row went too — the panel header already reads "Lawyer" and
+   the exhibit repeated it under the art, so the card is now pure art + rank
+   badges. That also returns ~24% of the exhibit's height to the CASE NOTES,
+   which is the only rules text left and was being guillotined mid-sentence at
+   375x667. */
+[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-description,
+[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .effect-tag,
+[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-body {
   display: none !important;
 }
 [data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-art {
-  height: 76% !important;
+  height: 100% !important;
+  border-bottom: none !important;
 }
-[data-theme="primesuspect"] .hgi-panel .hg-inspector-card .card-body {
-  height: 24% !important;
-  justify-content: center !important;
-  padding-bottom: calc(var(--psc-pad) + var(--psc-badge) * 0.35) !important;
+
+/* The notes are the flexible member of the panel: the exhibit gives up height
+   before the rule text does. Short viewports cap it hard; the scroll layer
+   (.hgi-content) keeps its fade mask, so a long brief still reads as
+   "keep scrolling" rather than "broken copy". */
+@media (max-height: 780px) {
+  [data-theme="primesuspect"] .hgi-panel .hg-dynamic-card.hg-inspector-card {
+    --hg-card-width: min(210px, 52vw, 22dvh) !important;
+    --hg-card-height: calc(var(--hg-card-width) * 1.5) !important;
+    width: var(--hg-card-width) !important;
+    height: var(--hg-card-height) !important;
+  }
+}
+@media (max-height: 640px) {
+  [data-theme="primesuspect"] .hgi-panel .hg-dynamic-card.hg-inspector-card {
+    --hg-card-width: min(180px, 46vw, 20dvh) !important;
+  }
+}
+/* the brief never clips its own copy */
+[data-theme="primesuspect"] .hgi-panel .hgi-brief {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+[data-theme="primesuspect"] .hgi-panel .hgi-brief-text {
+  overflow-wrap: anywhere;
 }
 
 /* ---- 18.4 · SHORT + NARROW STAGES (the 1024x768 laptop) ------------------- */
@@ -3711,11 +3783,11 @@
    tint at the hand-tray seam — at 92% alpha that seam ran straight through the
    lined paper. An opaque parchment fill makes it read as a notebook lying ON the
    table instead of a window onto it. */
-@container stage (min-width: 1440px) {
+@container stage (min-width: 1000px) {
   [data-theme="primesuspect"] .ps-caselog {
     background:
       radial-gradient(680px at 25% 10%, rgba(246, 240, 230, 0.07), transparent 55%),
-      linear-gradient(180deg, rgba(48, 34, 43, 0.985), rgba(30, 21, 27, 0.995));
+      linear-gradient(180deg, rgb(48, 34, 43), rgb(30, 21, 27));
     backdrop-filter: none;
   }
 }
@@ -3733,7 +3805,7 @@
 [data-theme="primesuspect"] .ps-roster,
 [data-theme="primesuspect"] .ps-tray-flank { display: none; }
 
-@container stage (min-width: 1440px) {
+@container stage (min-width: 1000px) {
 
   /* ·· the notebook head — dossier roster ·································· */
   [data-theme="primesuspect"] .ps-roster {
@@ -3861,48 +3933,14 @@
     color: rgba(238, 150, 160, 0.92);
   }
 
-  /* ·· the hand band — FILED | held evidence | utility ····················· */
+  /* ·· the hand band — a real composition, shared by both wide tiers ········ */
+  /* the notebook owns the far-left flank (17.7); the columns start past it */
   [data-theme="primesuspect"] .ps-hand-tray {
     display: grid;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr) minmax(0, 0.85fr);
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: 'filed hand tools';
     align-items: stretch;
     column-gap: clamp(1rem, 2.5cqi, 2.75rem);
-    /* the notebook owns the far-left flank (17.7); the columns start past it */
-    padding: 1rem clamp(1rem, 4cqi, 5rem) 1rem var(--ps-notebook-inset);
-  }
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
-    grid-area: tools;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: center;
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-    margin-bottom: 0;
-    min-width: 0;
-  }
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-tray-tools {
-    margin-left: 0;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    gap: 0.4rem;
-  }
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-btn--sm {
-    justify-content: flex-start;
-    width: 100%;
-  }
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-token-track,
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-turn-badge {
-    align-self: stretch;
-    justify-content: center;
-  }
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area {
-    grid-area: hand;
-    /* the held evidence is the hero of the band it owns */
-    --hg-card-height: clamp(200px, 27cqb, 300px);
-    --ps-fit-hand-card: min(var(--hg-card-height), max(120px, calc(33.75cqb - 84px)));
+    padding-left: var(--ps-notebook-inset);
+    padding-right: clamp(1rem, 4cqi, 5rem);
   }
   [data-theme="primesuspect"] .ps-tray-flank {
     display: flex;
@@ -3913,12 +3951,73 @@
     grid-area: filed;
     align-items: stretch;
   }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area { grid-area: hand; }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
+    grid-area: tools;
+    margin-bottom: 0;
+    min-width: 0;
+  }
 
-  /* the notebook occupies the far left, so the band's own left inset only has to
-     clear it for the columns, not for the (grid-placed) content */
+  /* -- MID tier (1000–1439px stage; the 1366x768 laptop) --------------------
+     Two columns under a full-width toolbar row. The band is only ~215px tall
+     here, so the wide tier's stacked utility column (2 chips + 3 buttons ≈
+     200px) could not fit — the toolbar stays a row and the FILED record takes
+     the left half, which is exactly the ~470px void the round-3 critique
+     measured. Vertical budget: 215 − 16 padding − 38 toolbar − 8 gap − 8 pb
+     = 145px ≥ the base card token (33.75cqb − 78px ≈ 143px), so nothing
+     clips and the held card keeps its current size. */
   [data-theme="primesuspect"] .ps-hand-tray {
-    padding-left: var(--ps-notebook-inset);
-    padding-right: clamp(1rem, 4cqi, 5rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      'tools tools'
+      'filed hand';
+    row-gap: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  [data-theme="primesuspect"] .ps-tray-flank--filed .ps-filed { max-width: 360px; }
+
+  /* -- WIDE tier (1440px+ stage) -------------------------------------------
+     Three columns — FILED BY YOU | the held evidence (the hero of the band it
+     owns) | the utility column. */
+  @container stage (min-width: 1440px) {
+    [data-theme="primesuspect"] .ps-hand-tray {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr) minmax(0, 0.85fr);
+      grid-template-rows: minmax(0, 1fr);
+      grid-template-areas: 'filed hand tools';
+      row-gap: 0;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      flex-wrap: nowrap;
+      gap: 0.5rem;
+    }
+    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-tray-tools {
+      margin-left: 0;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      gap: 0.4rem;
+    }
+    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-btn--sm {
+      justify-content: flex-start;
+      width: 100%;
+    }
+    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-token-track,
+    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-turn-badge {
+      align-self: stretch;
+      justify-content: center;
+    }
+    [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area {
+      /* the held evidence is the hero of the band it owns */
+      --hg-card-height: clamp(200px, 27cqb, 300px);
+      --ps-fit-hand-card: min(var(--hg-card-height), max(120px, calc(33.75cqb - 84px)));
+    }
   }
 }
 
@@ -4093,5 +4192,239 @@
   [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
     max-width: 300px;
     justify-self: end;
+  }
+}
+
+/* ============================================================================
+   19 · ROUND-4 DESKTOP TABLE PASS
+   ----------------------------------------------------------------------------
+     19.1 the tray's top rule starts where the notebook ends
+     19.2 the notebook's empty state at content height
+     19.3 the turn drama gets a stage voice (display headline)
+     19.4 the backdrop moon never touches the rail seam
+     19.5 a card face never prints text outside its own frame
+     19.6 FILED BY YOU reads as a card slot, not a second notebook
+     19.7 a 1024-wide desktop keeps its header (the JS/CSS boundary mismatch)
+   ============================================================================ */
+
+/* ---- 19.1 · THE BAND SEAM STOPS AT THE NOTEBOOK --------------------------- */
+/* On wide stages the notebook is absolutely positioned ACROSS all three bands,
+   so the hand tray's own `border-top` + `box-shadow` (17.6) ran the full stage
+   width and left a dangling gold hairline in the 16px gutter to the LEFT of the
+   notebook — a rule that starts in mid-air and disappears again. The tray no
+   longer draws its own top edge there; a ::before draws it starting where the
+   notebook ends, and `.ps-tray-rule` (the live "your turn" filament) is inset
+   the same way. */
+@container stage (min-width: 1000px) {
+  /* the soft upward drop-shadow stays on the tray (it is diffuse, and the
+     opaque notebook sits on top of it); only the CRISP gold edge moves */
+  [data-theme="primesuspect"] .ps-hand-tray { border-top: none; }
+  [data-theme="primesuspect"] .ps-hand-tray::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--ps-notebook-inset);
+    right: 0;
+    height: 1px;
+    background: rgba(210, 178, 90, 0.34);
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* the "it is your move" band keeps its warm inner glow and its drop shadow;
+     the 2px gold ring is replaced by a gold TOP RULE that starts past the
+     notebook, so no part of the turn signal crosses the case notes */
+  [data-theme="primesuspect"] .ps-hand-tray--active {
+    box-shadow:
+      inset 0 0 40px rgba(231, 204, 122, 0.13),
+      0 -10px 30px rgba(0, 0, 0, 0.5);
+  }
+  [data-theme="primesuspect"] .ps-hand-tray--active::before {
+    height: 2px;
+    background: var(--royal-gold);
+    box-shadow: 0 0 14px rgba(231, 204, 122, 0.4);
+  }
+  [data-theme="primesuspect"] .ps-tray-rule {
+    left: var(--ps-notebook-inset);
+    width: auto;
+    right: 0;
+  }
+}
+
+/* ---- 19.2 · THE NOTEBOOK ENDS WHERE ITS CONTENT ENDS ---------------------- */
+/* §17.7 now sets `bottom:auto; max-height:calc(100% - 2rem)`, so the panel is
+   content-sized. The ghost slip therefore needs an absolute height (a % of an
+   auto-height parent resolves to auto) and sits at the TOP of the body rather
+   than floating in the middle of a 700px void. */
+@container stage (min-width: 1000px) {
+  [data-theme="primesuspect"] .ps-caselog-body { flex: 0 1 auto; }
+  [data-theme="primesuspect"] .ps-caselog-empty {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    padding-top: 0.2rem;
+  }
+  [data-theme="primesuspect"] .ps-caselog-empty::before {
+    height: 58px;
+    flex: 0 0 auto;
+  }
+}
+
+/* ---- 19.3 · THE TURN DRAMA GETS A STAGE VOICE ---------------------------- */
+/* The table's largest type was a ~14px pile header, so every beat of the
+   deduction — whose move it is, which round we are in — was *reported* by a
+   12px chip instead of staged. The evidence band's left flank is dead space at
+   1440px+ stages (the desk is centred and ~440px wide); it now carries a
+   Special Elite eyebrow over a Cinzel display line in royal gold.
+   Hidden below that tier: the flank is only ~160px wide at a 1046px stage and
+   a display line would wrap into the desk. */
+[data-theme="primesuspect"] .ps-phase-head { display: none; }
+
+@container stage (min-width: 1440px) {
+  [data-theme="primesuspect"] .ps-phase-head {
+    display: block;
+    position: absolute;
+    left: var(--ps-notebook-inset);
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(180px, calc(50cqi - var(--ps-notebook-w, 240px) - 270px), 360px);
+    text-align: left;
+    pointer-events: none;
+    z-index: 2;
+  }
+  [data-theme="primesuspect"] .ps-phase-eyebrow {
+    display: block;
+    font-family: var(--font-mono, 'Special Elite', monospace);
+    font-size: 0.64rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--parchment-dark);
+    margin-bottom: 0.3rem;
+  }
+  [data-theme="primesuspect"] .ps-phase-line {
+    display: block;
+    font-family: var(--font-title, 'Cinzel', serif);
+    font-weight: 900;
+    font-size: clamp(1.5rem, 3.1cqi, 2.75rem);
+    line-height: 1.02;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--royal-gold-light);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65), 0 0 26px rgba(231, 204, 122, 0.2);
+    overflow-wrap: anywhere;
+  }
+  [data-theme="primesuspect"] .ps-phase-rule {
+    display: block;
+    width: 3.2rem;
+    height: 2px;
+    margin-top: 0.55rem;
+    background: linear-gradient(90deg, var(--royal-gold), rgba(210, 178, 90, 0));
+  }
+  /* the beat lands as a fade+rise, replayed on every turn change (React keys
+     the node on the active seat, so the animation restarts) */
+  [data-theme="primesuspect"] .ps-phase-head {
+    animation: psPhaseIn 0.32s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  }
+}
+@keyframes psPhaseIn {
+  from { opacity: 0; transform: translateY(calc(-50% + 10px)); }
+  to   { opacity: 1; transform: translateY(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .ps-phase-head { animation: none; }
+}
+
+/* ---- 19.4 · THE MOON CLEARS THE RAIL SEAM -------------------------------- */
+/* `.gb-moon` sits at `right: 12vw` of the FIXED, full-viewport backdrop, so on
+   any desktop the opaque 320px rail sliced it into a half-disc with a hard
+   vertical cut at the stage border — a render bug, not a horizon. Pull it
+   inboard of the widest rail so the whole disc always lands on the table. */
+@media (min-width: 1024px) {
+  [data-theme="primesuspect"] .gb-backdrop .gb-moon {
+    right: clamp(360px, 24vw, 520px);
+  }
+  [data-theme="primesuspect"] .gb-backdrop .gb-moonglow {
+    right: clamp(300px, 20vw, 460px);
+  }
+}
+
+/* ---- 19.5 · A CARD FACE NEVER PRINTS OUTSIDE ITS FRAME ------------------- */
+/* The mobile hand card clamps its description with `-webkit-line-clamp`, which
+   only draws the ellipsis — the lines PAST the clamp are hidden by
+   `overflow:hidden`, and as a flex item with `flex:1` the box was being sized
+   by the flex layout instead of by the clamp. Result at 375 and 768: a fourth
+   and fifth line rendered and were guillotined mid-glyph by the card's own
+   bottom edge ("…FOR ONE ROUND" cut in half). An explicit em-based max-height
+   is layout-independent, so the copy can only ever end on a whole line. */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  /* the clamp draws the ellipsis; the max-height is what actually STOPS the
+     box, so the two must always agree on the line count */
+  -webkit-line-clamp: 3 !important;
+  line-clamp: 3 !important;
+  flex: 0 1 auto !important;
+  line-height: 1.2 !important;
+  max-height: 3.6em !important;
+  overflow: hidden !important;
+}
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
+  overflow: hidden !important;
+}
+/* short phones: two lines is all the ~40px body can hold honestly */
+@media (max-height: 700px) {
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    max-height: 2.4em !important;
+  }
+}
+
+/* ---- 19.6 · FILED BY YOU IS A CARD SLOT, NOT A SECOND NOTEBOOK ----------- */
+/* At 1920 the notebook's CASE LOG (0) and the tray's EVIDENCE (0) both opened
+   with the same dashed ruled slip in near-identical parchment chrome — two
+   empty boxes saying nothing in two places. The tray's empty state is now a
+   face-down card silhouette (dashed 2:3 back + wax-seal dot), so it reads as
+   "a card goes here" instead of "a second log". */
+[data-theme="primesuspect"] .ps-filed-ghost--card {
+  height: auto;
+  width: clamp(34px, 26%, 52px);
+  aspect-ratio: 2 / 3;
+  align-self: center;
+  border-radius: 5px;
+  border: 1px dashed rgba(210, 178, 90, 0.34);
+  background:
+    linear-gradient(180deg, rgba(246, 240, 230, 0.05), rgba(0, 0, 0, 0.2)),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0 5px,
+      rgba(210, 178, 90, 0.07) 5px 10px);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+  position: relative;
+}
+/* the wax-seal dot at the centre of the face-down back */
+[data-theme="primesuspect"] .ps-filed-ghost--card::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(210, 178, 90, 0.34);
+}
+
+/* ---- 19.7 · A 1024-WIDE DESKTOP KEEPS ITS HEADER ------------------------- */
+/* `hooks/useIsMobile` flips at `width < 1024` (desktop table + rail at exactly
+   1024), but prime-suspect-unified.css hides the game header at
+   `@media (max-width: 1024px)`. At exactly 1024px the two disagreed: the
+   desktop stage rendered with NO header and NO mobile menu, i.e. no room code,
+   no settings, and no way out of the room. Re-assert the header on the desktop
+   side of the same boundary. */
+@media (min-width: 1024px) {
+  [data-theme="primesuspect"] .app-root.in-room .game-header {
+    display: block !important;
+  }
+  [data-theme="primesuspect"] .app-root.in-room {
+    padding-top: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
   }
 }

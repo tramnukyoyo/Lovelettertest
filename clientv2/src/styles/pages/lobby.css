@@ -1719,8 +1719,11 @@
     min-height: 100%;
     height: auto;
     /* Trailing room for the sticky START bar to land in, so the invite band
-       can be scrolled fully clear of it (shell.css does this below 1024). */
-    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+       can be scrolled fully clear of it (shell.css does this below 1024).
+       Round 4: 88px was the bar's own height with nothing to spare, so at max
+       scroll the last line ("Share the link so your friends can join!") still
+       ended flush against the bar's gold edge. */
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
   }
 
   .lobby-page .gs-lobby-panes {
@@ -2117,4 +2120,283 @@
      status strip travels WITH the seats instead of floating in ~150px of
      velvet halfway to the invite band. */
   .lobby-page .gs-crew > :last-child { margin-bottom: auto; }
+}
+
+/* ============================================================================
+   ROUND 4 — CRITIC PASS (6/10)
+   Blockers first (the sticky-bar guillotine at 1024 / 768 / 375 and the
+   height-starved briefing folder at 1366), then the surface work: the seats
+   become the hero of the board again, the seat photo gets mounted, and the
+   two remaining gold slabs are quieted.
+   ============================================================================ */
+
+/* ---------- 1 + 7 · A STICKY BAR MUST NEVER GUILLOTINE A LINE ------------- */
+/* Confirmed at 1024 ("Share the link so your friends can join!" sliced through
+   its x-height by the bar's 1px gold edge) and at 768 (ADD BOT cut in half).
+   Trailing padding alone only fixes the END of the scroll — mid-scroll a hard
+   lit edge will always cut whatever is behind it. A receding scrim above the
+   bar makes the passing row DISSOLVE into the folder instead, which is also
+   the affordance that says "there is more below".
+   Scoped to <=1024.98 so the desktop board (where the bar is not sticky) is
+   untouched; the sticky bar is already a positioned element, so it is the
+   scrim's containing block. */
+@media (max-width: 1024.98px) {
+  .lobby-page .gs-lobby-scene .gs-scene-actions { position: sticky; }
+
+  .lobby-page .gs-lobby-scene .gs-scene-actions::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 34px;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      var(--velvet-panel, var(--bg-secondary, #15131f)) 0 22%,
+      rgba(21, 19, 31, 0.72) 60%,
+      rgba(21, 19, 31, 0) 100%
+    );
+  }
+}
+
+/* Phones: shell.css reserves 88px with `!important`, which is the bar's own
+   height and nothing more — ADD BOT and the invite subtext still ended flush
+   against it at max scroll. pages/lobby.css loads AFTER shell.css, so equal
+   specificity + !important wins. */
+@media (max-width: 1023.98px) {
+  .lobby-page .gs-lobby-scene:has(.gs-scene-actions) {
+    padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* ---------- 2 · THE BRIEFING FOLDER STOPS EATING ITS LAST LINE ------------ */
+/* At 1366 the folder is height-starved (`height: 100%` inside the two-column
+   grid, content ~40px taller), so "FULL BRIEFING IN THE ? BUTTON" rendered as
+   a row of disconnected dashes on the pane's bottom border and the chevron
+   straddled that border — half inside the folder, half outside.
+   Two moves: the scroller fades out over its last 26px (a passing line
+   dissolves rather than being sliced) and keeps 26px of real clearance so the
+   line can always be scrolled fully clear; and the folder's chevrons are
+   pinned INSIDE the border, in the corner, where no content lives. */
+@media (min-width: 1025px) {
+  .lobby-page .gs-lobby-col--brief .gs-pane-scroll {
+    padding-bottom: 26px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+  }
+
+  .lobby-page .gs-pane.lobby-waiting-card.gs-lobby-col--brief > .gs-scroll-hint {
+    left: auto;
+    right: 10px;
+    bottom: 7px;
+    transform: none;
+  }
+
+  .lobby-page .gs-pane.lobby-waiting-card.gs-lobby-col--brief > .gs-scroll-hint.gs-scroll-hint-up {
+    top: 7px;
+    bottom: auto;
+  }
+}
+
+/* ---------- 10 · THE FOLDER OPENS ON THE CASE, NOT ON AN ACCOUNT PROMPT --- */
+/* HostSettings is filed BELOW the case facts now (LobbyPage passes it to
+   GuestBriefingPanel's footerSlot), so the reading order is
+   facts -> pull-quote -> turn steps -> ADD BOT -> saved settings -> wax seal.
+   The tab follows the content: both modes read CASE BRIEFING. */
+[data-theme="primesuspect"] .lobby-page .gs-pane.lobby-settings-pane::after {
+  content: 'CASE BRIEFING';
+}
+
+.lobby-page .lobby-settings-pane .ps-brief-controls {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1cqb, 12px);
+  width: 100%;
+  margin-top: clamp(8px, 1.4cqb, 18px);
+  padding-top: clamp(8px, 1.4cqb, 18px);
+  border-top: 1px dashed rgba(210, 178, 90, 0.28);
+}
+
+/* The saved-settings upsell is a footnote, not a second card: it used to be a
+   bordered box with its own heading directly under the primary ADD BOT, and it
+   is ~40px of that box that pushed the briefing's last line off the folder at
+   1366. */
+.lobby-page .ps-brief-controls .gb-presets {
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.lobby-page .ps-brief-controls .gb-presets-title {
+  margin: 0;
+  font-family: var(--font-typewriter);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--parchment-dark);
+  opacity: 0.8;
+}
+
+.lobby-page .ps-brief-controls .gb-presets-locked {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--parchment-dark);
+  opacity: 0.72;
+}
+
+/* ---------- 5 · THE SUSPECT FILES ARE THE HERO OF THE BOARD --------------- */
+/* The seats were width-bound (`aspect-ratio: 3/4` + `max-height: 420px`) inside
+   a ~570px track, so 1920/1366 carried a ~113px dead band under the PLAYERS
+   rule and another ~125px above the invite divider — the hero of the surface
+   was the smallest thing on it. The seats fill their track now, and the extra
+   height goes to the DOSSIER BODY (three ruled statement lines spread down the
+   file), not to a bigger sprite. */
+@media (min-width: 1025px) {
+  .lobby-page .gs-crew__grid {
+    flex: 1 1 auto;
+    min-height: min-content;
+    margin-top: 0;
+    align-content: stretch;
+  }
+
+  .lobby-page .gs-crew__card {
+    align-self: stretch;
+    height: 100%;
+    aspect-ratio: auto;
+    min-height: min(300px, 100%);
+    max-height: min(560px, 100%);
+    justify-content: flex-start;
+  }
+
+  /* The photo keeps a fixed shoulder under the file number instead of floating
+     on an auto margin that grew with the card. */
+  .lobby-page .gs-crew__av { margin-top: clamp(6px, 1.4cqb, 18px); }
+
+  /* The ruled statement area absorbs the rest of the file. */
+  .lobby-page .gs-crew__file {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: clamp(6px, 1.2cqb, 14px);
+    padding-top: clamp(8px, 1.4cqb, 16px);
+    padding-bottom: 2px;
+    justify-content: space-around;
+    gap: 0;
+  }
+}
+
+.lobby-page .gs-crew__file-rule:nth-child(2) { width: min(66%, 152px); }
+.lobby-page .gs-crew__file-rule:nth-child(3) { width: min(46%, 104px); }
+
+/* ---------- 9 · THE SEAT PHOTO IS MOUNTED, NOT PUNCHED THROUGH ------------ */
+/* The theme resets every radius globally (`[data-theme="primesuspect"] *`), so
+   the tile is square BY DESIGN — but it rendered as the only pure-black shape
+   on a warm velvet card, because the avatar raster carries a baked black
+   ground. Rather than fight the square, it becomes a case photo mounted on
+   parchment: a lit paper margin around the print, a pressed inner edge and a
+   light sepia grade, so the photo sits IN the candlelight instead of on top of
+   it. The mount rides on a pseudo-element — a box-shadow here would
+   out-specify (and erase) an equipped avatar frame's ring from cosmetics.css. */
+.lobby-page .gs-crew__av {
+  position: relative;
+  padding: clamp(3px, 0.6cqb, 7px);
+  background:
+    linear-gradient(160deg, rgba(232, 220, 192, 0.17), rgba(210, 178, 90, 0.05));
+}
+
+.lobby-page .gs-crew__av::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    inset 0 0 14px rgba(0, 0, 0, 0.4);
+}
+
+.lobby-page .gs-crew__av img {
+  filter: sepia(0.18) contrast(1.04);
+}
+
+/* The empty sleeve stays a sleeve — no photo, no mount. */
+.lobby-page .gs-crew__av--empty {
+  padding: 0;
+  background: transparent;
+}
+
+.lobby-page .gs-crew__av--empty::after { display: none; }
+
+/* ---------- 8 · THE RAIL'S FRAME CONTROL (deliberately NOT patched here) --- */
+/* The saturated gold FRAME slab in the YOU card is the same cascade trap as the
+   settings accordion — cardstyles.css ships the toggle transparent and
+   prime-suspect-unified.css's `button:not(.secondary):not(.danger)` (0,2,1)
+   loads later and repaints it. The rail is the CHROME owner's surface and the
+   fix already landed there this round
+   (chat.css `.player-list-item .lr-cardstyle-picker .lr-cardstyle-toggle`,
+   0-3-0, a quiet 10%-gold chip). A second scoped override from the lobby would
+   only fight it, so this file deliberately declares nothing for
+   `.lr-cardstyle-*`. Do not add one here without moving ownership. */
+
+/* ---------- ONE PRIMARY IN THE INVITE ROW -------------------------------- */
+/* The same `button:not(.secondary):not(.danger)` baseline painted QR CODE and
+   YOUR CARD BACK as solid royal-gold slabs flanking COPY INVITE LINK — two
+   secondary actions shouting louder than the one that actually matters. They
+   become gold-on-velvet outlines; COPY keeps the filled treatment. */
+.lobby-page .gs-crew-invite .solo-invite-actions > button.solo-invite-btn-qr,
+.lobby-page .gs-crew-invite .solo-invite-actions > button.solo-invite-btn-share,
+.lobby-page .gs-crew-invite .solo-invite-actions > button.ps-designer-btn {
+  background: rgba(210, 178, 90, 0.09);
+  border: 1px solid rgba(210, 178, 90, 0.42);
+  box-shadow: none;
+  color: var(--royal-gold-light, #f0dc9a);
+}
+
+.lobby-page .gs-crew-invite .solo-invite-actions > button.solo-invite-btn-qr:hover,
+.lobby-page .gs-crew-invite .solo-invite-actions > button.solo-invite-btn-share:hover,
+.lobby-page .gs-crew-invite .solo-invite-actions > button.ps-designer-btn:hover {
+  transform: none;
+  filter: brightness(1.15);
+  background: rgba(210, 178, 90, 0.16);
+}
+
+.lobby-page .gs-crew-invite .solo-invite-actions > button::before,
+.lobby-page .gs-crew-invite .solo-invite-actions > button:hover::before {
+  display: none;
+}
+
+/* ---------- 6 · THE PHONE FOLD STOPS ENDING ON AN EMPTY BAND -------------- */
+/* The mascot is dropped for the whole narrow regime, not only at exactly 1024
+   (shell.css already hides `.lobby-mascot` below 1024 — this covers the 1024
+   band with the same call, so no partial sprite can ever sit next to the
+   invite heading). The seat files are tightened so more of the invite band
+   clears the fold on a 375x667 phone instead of starting exactly under the
+   sticky bar. */
+@media (max-width: 1024px) {
+  .lobby-page .gs-crew-invite .lobby-mascot { display: none; }
+}
+
+@media (max-width: 767px) {
+  .lobby-page .gs-crew__card {
+    gap: 3px;
+    padding: 7px 6px 8px;
+  }
+
+  .lobby-page .gs-crew__grid { gap: 8px; }
+
+  .lobby-page .gs-crew-invite {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  /* On phones the dissolve IS the affordance — shell.css removes the pane
+     ScrollHint for the whole one-page-scroll regime — so it has to be
+     unmistakable rather than a hairline. */
+  .lobby-page .gs-lobby-scene .gs-scene-actions::before { height: 44px; }
 }

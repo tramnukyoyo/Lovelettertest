@@ -60,9 +60,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Was 1.1rem. The seal is a mark, not the message — tightening the gap lets
-     the eyebrow/title pair carry the card. */
-  gap: 0.85rem;
+  /* Was a 1.1rem literal, then a 0.85rem literal that ReconnectOverlay never
+     copied. The rhythm of the two outage beats is now declared ONCE in
+     components/ui/toastRail.css:root and consumed by both cards. */
+  gap: var(--ps-outage-gap, 0.85rem);
   text-align: center;
   padding: 2rem 1.75rem 1.75rem;
   max-width: 420px;
@@ -90,13 +91,15 @@
 
 /* Wax-seal disc — replaces the ⏸ emoji glyph (owner directive: no emoji).
    Was 78px, which made the least meaningful element the biggest thing on the
-   card: roughly the top third of a 420px file was one mark. */
+   card: roughly the top third of a 420px file was one mark. The size is the
+   SHARED outage token (toastRail.css:root) so the mark cannot jump between this
+   card and ReconnectOverlay's. */
 .freeze-seal {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: var(--ps-outage-seal, 64px);
+  height: var(--ps-outage-seal, 64px);
   flex-shrink: 0;
   border-radius: 50%;
   background: radial-gradient(circle at 38% 32%,
@@ -222,9 +225,28 @@
   width: 100%;
 }
 
-/* ── variant="lobby": a marked-offline banner, not a curtain ──────────────── */
+/* ── BANNER MODE ──────────────────────────────────────────────────────────────
+   Two situations get the slim marked-offline strip instead of the full curtain:
 
-.freeze-overlay--banner {
+   1. variant="lobby"  — the lobby stays browsable while clearly marked offline.
+
+   2. THE RESULTS BEAT — `body.ps-results-open`. This was a BLOCKER: the curtain
+      sits at --z-outage (10000) while .ps-victory-scrim is 10040 with a
+      rgba(12,7,6,0.62) wash + blur(3px) (styles/game/surface-victory.css:22-34).
+      A socket death on the results screen therefore put a full-screen curtain
+      UNDERNEATH a translucent blurred wash: "INVESTIGATION INTERRUPTED" and its
+      body copy smeared as a legible ghost straight across the winner column and
+      the reward ledger at 1920 and across the progress rows at 375, while the
+      REMATCH! button stayed clickable on a dead socket.
+
+      Two full-screen curtains can never coexist. So on the results beat the
+      interruption becomes the marked TOP STRIP above the case file (10042 —
+      above the scrim, still below --z-toast 10045 and the crash screen 10050),
+      the case file stays the hero, and nothing bleeds through anything.
+   ------------------------------------------------------------------------- */
+
+.freeze-overlay--banner,
+body.ps-results-open .freeze-overlay {
   top: calc(var(--header-height, 66px) + env(safe-area-inset-top, 0px));
   bottom: auto;
   display: block;
@@ -240,13 +262,43 @@
   cursor: auto;
 }
 
+/* The game header is already buried under the results scrim, so the strip does
+   not have to clear it — it sits on the very top edge, which also keeps the
+   space it borrows from the case file to a minimum. */
+body.ps-results-open .freeze-overlay {
+  top: env(safe-area-inset-top, 0px);
+  z-index: var(--z-outage-over-results, 10042);
+}
+
 @media (max-width: 767px) {
   .freeze-overlay--banner {
     top: calc(var(--header-height-mobile, 48px) + env(safe-area-inset-top, 0px));
   }
 }
 
-.freeze-overlay--banner .freeze-card {
+/* …and the case file gives the strip its row back rather than sharing it — the
+   owner directive is no overlap at ANY viewport, and at 375 the results panel
+   fills the screen top to bottom. Same reserve pattern the toast rail already
+   uses on this scrim (components/ui/toastRail.css). The two heights are the
+   strip WITHOUT and WITH the 20s manual-escape button. */
+body.ps-results-open:has(.freeze-overlay) .ps-victory-scrim {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 100px);
+}
+body.ps-results-open:has(.freeze-overlay .freeze-escape) .ps-victory-scrim {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 150px);
+}
+
+/* A dead line must never present a live CTA: REMATCH! and the secondary actions
+   emit on a socket that is gone, so they read as disabled for as long as the
+   interruption is up. */
+body.ps-results-open:has(.freeze-overlay) .ps-victory-btn--primary,
+body.ps-results-open:has(.freeze-overlay) .ps-cta-secondary {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.freeze-overlay--banner .freeze-card,
+body.ps-results-open .freeze-overlay .freeze-card {
   pointer-events: auto;
   flex-direction: row;
   align-items: center;
@@ -260,25 +312,34 @@
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
 }
 
-.freeze-overlay--banner .freeze-card__text::before { display: none; }
+.freeze-overlay--banner .freeze-card__text::before,
+body.ps-results-open .freeze-overlay .freeze-card__text::before { display: none; }
 
-.freeze-overlay--banner .freeze-seal {
+.freeze-overlay--banner .freeze-seal,
+body.ps-results-open .freeze-overlay .freeze-seal {
   width: 38px;
   height: 38px;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 
-.freeze-overlay--banner .freeze-card__text { gap: 0.25rem; }
-.freeze-overlay--banner .freeze-title { font-size: 1rem; }
-.freeze-overlay--banner .freeze-body { display: none; }
-.freeze-overlay--banner .freeze-escape { margin-top: 0.5rem; width: auto; }
+.freeze-overlay--banner .freeze-card__text,
+body.ps-results-open .freeze-overlay .freeze-card__text { gap: 0.25rem; }
+
+.freeze-overlay--banner .freeze-title,
+body.ps-results-open .freeze-overlay .freeze-title { font-size: 1rem; }
+
+.freeze-overlay--banner .freeze-body,
+body.ps-results-open .freeze-overlay .freeze-body { display: none; }
+
+.freeze-overlay--banner .freeze-escape,
+body.ps-results-open .freeze-overlay .freeze-escape { margin-top: 0.5rem; width: auto; }
 
 /* ── Narrow phones ────────────────────────────────────────────────────────── */
 
 @media (max-width: 400px) {
   .freeze-overlay { padding: 16px; }
-  .freeze-card { padding: 1.5rem 1.15rem 1.35rem; gap: 0.75rem; }
-  .freeze-seal { width: 56px; height: 56px; }
+  .freeze-card { padding: 1.5rem 1.15rem 1.35rem; gap: var(--ps-outage-gap-sm, 0.75rem); }
+  .freeze-seal { width: var(--ps-outage-seal-sm, 56px); height: var(--ps-outage-seal-sm, 56px); }
   .freeze-status { font-size: 0.68rem; letter-spacing: 0.08em; }
 }
 
@@ -286,7 +347,7 @@
 @media (orientation: landscape) and (max-height: 500px) {
   .freeze-card { flex-direction: row; align-items: center; text-align: left; padding: 1.1rem 1.25rem; gap: 1rem; max-width: 560px; }
   .freeze-card__text::before { display: none; }
-  .freeze-seal { width: 50px; height: 50px; }
+  .freeze-seal { width: var(--ps-outage-seal-land, 50px); height: var(--ps-outage-seal-land, 50px); }
   .freeze-title { font-size: 1.1rem; }
   .freeze-body { font-size: 0.8rem; }
   .freeze-escape { margin-top: 0.5rem; }

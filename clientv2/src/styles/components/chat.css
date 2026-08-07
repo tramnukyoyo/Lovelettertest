@@ -1104,3 +1104,75 @@
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .mobile-drawer .player-list-items { padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom)); }
 }
+
+/* ============================================================================
+   ROUND 4 — THE FRAME PICKER IS A LABEL, NOT A SIREN.
+
+   `.lr-cardstyle-toggle` is a <button>, and the Heart's-Gambit baseline
+   `button:not(.secondary):not(.danger)` (prime-suspect-unified.css §BUTTONS,
+   specificity 0-2-1, @imported after this file) repaints every unclassed
+   button with `background: var(--accent-color); color: white`. That turned the
+   quiet inline "FRAME · None ▸" row inside the player's own roster card into a
+   full-bleed royal-gold slab with white pixel type on gold — bleeding to the
+   crimson card border, and the loudest element in the whole rail at 1920,
+   louder than the HOST badge. Bad Actor's equivalent control is a hairline
+   label sitting on the panel ground.
+
+   Scoped under `.player-list-item` so it only reaches the ROSTER ROW rendering
+   (rail + mobile drawer); the identity designer and the style shop keep their
+   own treatment. Three classes (0-3-0) is the smallest hammer that beats the
+   baseline without !important. Interaction is background-alpha only — no
+   transform on a clickable (hard rule 8).
+   ============================================================================ */
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-toggle {
+  width: auto;
+  margin-inline: 0.35rem;
+  padding: 3px 7px;
+  background: rgba(210, 178, 90, 0.1);
+  border: 1px solid rgba(210, 178, 90, 0.22);
+  border-radius: 4px;
+  box-shadow: none;
+  color: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.72rem;
+  overflow: visible;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+/* The baseline's white radial sheen has no business on a hairline row. */
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-toggle::before {
+  display: none;
+}
+
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-toggle:hover,
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-toggle:focus-visible {
+  background: rgba(210, 178, 90, 0.17);
+  border-color: rgba(210, 178, 90, 0.44);
+}
+
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-toggle:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
+}
+
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-label {
+  color: var(--royal-gold-light, #e7cc7a);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  opacity: 0.82;
+}
+
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-current {
+  color: var(--parchment, #f6f0e6);
+}
+
+/* The chevron is the affordance — give it a real 16px hit box. */
+.player-list-item .lr-cardstyle-picker .lr-cardstyle-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  min-height: 16px;
+  color: var(--royal-gold, #d2b25a);
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { PanInfo } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Play, Check, RotateCcw, ArrowLeft, User } from 'lucide-react';
@@ -66,6 +66,8 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
   const t = (key: string) => getTranslation(key as any, language);
   const reduceMotion = useReducedMotion();
 
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   // Track which card is selected (pending confirmation)
@@ -95,6 +97,15 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
       resetState();
     }
   }, [isOpen, initialIndex, resetState]);
+
+  // Land the caret somewhere on open. Card Legend / Rules / How-to-Play all
+  // focus their close button — the inspector is the one panel that opens
+  // mid-turn, so without this a keyboard or screen-reader user is dropped
+  // behind the scrim with nothing focused.
+  useEffect(() => {
+    if (!isOpen) return;
+    closeButtonRef.current?.focus();
+  }, [isOpen]);
 
   const handleSelectCard = useCallback((index: number) => {
     setSelectedIndex(index);
@@ -256,27 +267,41 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
   };
 
   const currentCard = cards[currentIndex];
+  // An empty locker is a STATE, not a reason to render nothing: with `isOpen`
+  // true and no exhibits the dialog used to mount an invisible node, so the tap
+  // that opened it looked like a dead control. The shell stays, the exhibit
+  // slot becomes a sealed sleeve.
+  const isEmpty = !currentCard;
 
-  if (!currentCard) return null;
-
-  const currentCardName = getTranslatedCardName(currentCard.card, language);
+  const currentCardName = currentCard ? getTranslatedCardName(currentCard.card, language) : '';
   // The card FACE already prints the short description — the reason to open a
   // dossier is the long-form rule text (same source as the Rules modal).
-  const longRule = t(`rules.detail.${currentCard.card}`);
-  const briefText = longRule && longRule !== `rules.detail.${currentCard.card}`
-    ? longRule
-    : getTranslatedCardDescription(currentCard.card, language);
+  const longRule = currentCard ? t(`rules.detail.${currentCard.card}`) : '';
+  const briefText = !currentCard
+    ? ''
+    : longRule && longRule !== `rules.detail.${currentCard.card}`
+      ? longRule
+      : getTranslatedCardDescription(currentCard.card, language);
   // `label` is set to the card name by every caller — only show it if it adds
   // something the title does not already say.
-  const showLabel = !!currentCard.label && currentCard.label !== currentCardName;
+  const showLabel = !!currentCard?.label && currentCard.label !== currentCardName;
+
+  // Provenance is the LOCKER POSITION, and it must never be mistaken for the
+  // card's own value — the exhibit prints that twice on its face. Callers hand
+  // over a `#4 - Vera` string; it is re-read here and re-labelled so the digit
+  // is unambiguously the index of the exhibit, matching the eyebrow.
+  const rawMeta = currentCard?.meta?.trim() || '';
+  const metaMatch = /^#(\d+)\s*[-–—]\s*(.+)$/.exec(rawMeta);
+  const exhibitTag = metaMatch ? t('cardInspector.exhibitN').replace('{number}', metaMatch[1]) : '';
+  const provenanceText = metaMatch ? metaMatch[2] : rawMeta;
 
   // ONE position readout. When the dot pager renders (2–10 exhibits) it is the
   // single source of position — it already carries `aria-current` plus a
   // per-dot "Go to card N" label — so the eyebrow stays pure provenance and can
   // never contradict the pill. Above 10 cards there is no pager, so the eyebrow
   // takes the counter back rather than leaving the reader without one.
-  const hasPager = cards.length > 1 && cards.length <= 10;
-  const eyebrow = cards.length > 1 && !hasPager
+  const hasPager = !isEmpty && cards.length > 1 && cards.length <= 10;
+  const eyebrow = !isEmpty && cards.length > 1 && !hasPager
     ? `${title} · ${currentIndex + 1}/${cards.length}`
     : title;
 
@@ -308,9 +333,12 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
             <div className="settings-modal-header hgi-header">
               <div className="settings-modal-title">
                 <div className="settings-modal-eyebrow hgi-eyebrow">{eyebrow}</div>
-                <h2 id="hg-inspector-title">{currentCardName}</h2>
+                <h2 id="hg-inspector-title">
+                  {isEmpty ? t('evidence.noEvidenceYet') : currentCardName}
+                </h2>
               </div>
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={onClose}
                 className="settings-modal-close hgi-close"
@@ -322,6 +350,30 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
 
             {/* Exhibit + case notes */}
             <div className="settings-modal-content hgi-content">
+              {isEmpty ? (
+                /* Sealed sleeve — a dashed ghost of the exhibit that is not
+                   there yet, so the locker reads as empty rather than broken. */
+                <div className="hgi-empty">
+                  <div className="hgi-empty-sleeve" aria-hidden="true">
+                    <svg viewBox="0 0 72 100" role="presentation" focusable="false">
+                      <rect
+                        className="hgi-empty-sleeve-edge"
+                        x="1.5" y="1.5" width="69" height="97" rx="7"
+                      />
+                      <path className="hgi-empty-sleeve-flap" d="M8 12 L36 40 L64 12" />
+                      <circle className="hgi-empty-sleeve-seal" cx="36" cy="62" r="11" />
+                      <path className="hgi-empty-sleeve-mark" d="M31 62 L36 67 L42 56" />
+                    </svg>
+                  </div>
+                  <div className="hgi-empty-eyebrow">{title}</div>
+                  {(() => {
+                    const emptyHint = t('cardInspector.emptyHint');
+                    const showEmptyHint = emptyHint !== 'cardInspector.emptyHint';
+                    return showEmptyHint ? <p className="hgi-empty-line">{emptyHint}</p> : null;
+                  })()}
+                </div>
+              ) : (
+              <>
               <div className="hgi-stage">
                 {cards.length > 1 && (
                   <button
@@ -373,8 +425,16 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
               </div>
 
               <div className="hgi-info">
-                {currentCard.meta && (
-                  <div className="hgi-provenance">{currentCard.meta}</div>
+                {!!provenanceText && (
+                  <div className="hgi-provenance">
+                    {!!exhibitTag && (
+                      <>
+                        <span className="hgi-exhibit-tag">{exhibitTag}</span>
+                        <span className="hgi-provenance-sep" aria-hidden="true">·</span>
+                      </>
+                    )}
+                    <span className="hgi-provenance-name">{provenanceText}</span>
+                  </div>
                 )}
                 {showLabel && (
                   <div className="hgi-label">{currentCard.label}</div>
@@ -386,10 +446,12 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                   <p className="hgi-brief-text">{briefText}</p>
                 </div>
               </div>
+              </>
+              )}
             </div>
 
             {/* Hairline footer: pagination · hint · the one primary action */}
-            {(cards.length > 1 || (currentCard.source === 'hand' && currentCard.handIndex !== undefined)) && (
+            {!isEmpty && (cards.length > 1 || (currentCard.source === 'hand' && currentCard.handIndex !== undefined)) && (
               <div className="settings-modal-footer hgi-footer">
                 {hasPager && (
                   <div className="hgi-dots">

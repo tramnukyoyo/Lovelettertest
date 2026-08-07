@@ -151,20 +151,40 @@
 
 .gs-scroll-hint.is-visible { opacity: 1; }
 
-/* Amber pixel tab — has to read instantly as "more below" */
+/* THE CANDLE TAB — has to read instantly as "more below".
+   Round 4: this shipped as `background: var(--primary); color: var(--bg-darker)`,
+   which is fleet-correct everywhere EXCEPT here — in Prime Suspect `--primary`
+   is royal crimson (#6a1623) and `--bg-darker` is velvet-darker (#120d11), i.e.
+   an almost-black glyph on an almost-black tab sitting on an almost-black
+   scrim. The one affordance that tells the player content continues was
+   invisible at every viewport. Velvet face + gold hairline + gold glyph is the
+   same language as the rail's case-folder tabs and the mobile chrome tab, so
+   every "there is more here" control in the game now looks like one family. */
 .gs-scroll-hint-chevron {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
-  height: 20px;
-  background: var(--primary);
-  color: var(--bg-darker);
+  min-width: 36px;
+  height: 22px;
+  padding: 0 6px;
+  background: linear-gradient(180deg,
+    var(--velvet-raise, #34262f),
+    var(--velvet-panel, #2c2029));
+  border: 1px solid rgba(210, 178, 90, 0.45);
+  border-radius: 4px;
+  color: var(--royal-gold-light, #e7cc7a);
   font-size: 15px;
   font-weight: 700;
   line-height: 1;
-  box-shadow: 2px 2px 0 var(--px-border-dark);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(231, 204, 122, 0.14);
   animation: gsScrollHintBob 1.1s steps(2) infinite;
+}
+
+.gs-scroll-hint-chevron:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
 }
 
 @keyframes gsScrollHintBob {
@@ -220,3 +240,38 @@
 
 /* An invisible hint tab must never eat clicks (fleet parity with BlindSpot). */
 .gs-scroll-hint:not(.is-visible) .gs-scroll-hint-chevron { pointer-events: none; }
+
+/* ----- STAGE-LEVEL HINT (GameShell mounts one after {children}) ------------
+   ROUND 4. On phones/tablets the LOBBY scrolls as one column inside
+   `.gs-stage-inner` (shell.css ≤1023.98) — but nothing told the player that.
+   At 375 the invite band (room-code tiles, Copy link, QR, card back) started
+   exactly at the fold, so the room's primary share affordance looked absent.
+   Per-pane hints can't help: on mobile the panes are `flex:none` and never
+   scroll, so their hints never arm — the SCROLLER is `.gs-stage-inner`.
+   GameShell renders `<ScrollHint watch="prev" />` as the next sibling of
+   `.gs-stage-inner`, so the same wave-1 contract applies unchanged: clickable
+   tab, pages ±0.7 × clientHeight, `pointer-events:none` while invisible. On
+   desktop the stage never scrolls, so `canDown` stays false and the hint stays
+   out of the way at zero cost. */
+.gs-stage > .gs-scroll-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: 46px;
+  margin: 0;
+  padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+  align-items: flex-end;
+  background: linear-gradient(transparent, rgba(18, 13, 17, 0.78) 80%);
+  z-index: 6;
+}
+
+/* The ▴ partner belongs to the out-of-scroller lobby cards; at stage level it
+   would land on the mobile chrome tab at the top edge. One control, no pile-up. */
+.gs-stage > .gs-scroll-hint.gs-scroll-hint-up { display: none; }
+
+.gs-stage > .gs-scroll-hint .gs-scroll-hint-chevron {
+  min-width: 46px;
+  height: 26px;
+}

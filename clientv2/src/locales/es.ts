@@ -241,6 +241,7 @@ export const es: Translations = {
       warning: 'Advertencia',
       error: 'Error',
       message: 'Mensaje',
+      action: 'Nota del caso',
     },
   },
 
@@ -312,6 +313,10 @@ export const es: Translations = {
     premiumTitle: 'Exclusivos Premium',
     cardBackPreviewCaption: 'cómo se ve tu mano en la mesa',
     confirmEyebrow: 'ORDEN DE COMPRA',
+    pcardRosterLabel: 'en el expediente',
+    pcardDockLabel: 'en el muelle',
+    catalogueLoading: 'Abriendo el depósito de pruebas…',
+    catalogueError: 'El depósito de pruebas no se pudo abrir. Comprueba tu conexión y vuelve a abrir este panel.',
   },
 
   // Streamer broadcast stage

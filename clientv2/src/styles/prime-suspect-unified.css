@@ -5286,6 +5286,146 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   border-radius: 8px;
 }
 
+/* ----------------------------------------------------------------------------
+   MOBILE TABLE — pieces that used to be raw Tailwind on the TSX
+   ------------------------------------------------------------------------- */
+
+/* "TAP TO DRAW": a ribbon ON the case-file card's lower edge. It used to be
+   `absolute -bottom-[8%]`, i.e. deliberately OUTSIDE the card — it straddled the
+   evidence band's bottom gold border, erased it across its own width, and at 375
+   was ~1.7x wider than the 78px card it labelled. Anchored inside the card's own
+   box it can never cut a border, and it scales with --hg-card-width (inherited
+   from button.hg-mobile-deck-card). */
+[data-theme="primesuspect"] .hg-mobile-draw-hint {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+[data-theme="primesuspect"] .hg-mobile-draw-hint__pill {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2px 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--royal-gold-light), var(--royal-gold));
+  border: 1px solid rgba(120, 90, 30, 0.55);
+  color: var(--velvet-dark);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: clamp(7px, calc(var(--hg-card-width, 78px) * 0.105), 11px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* Empty evidence locker = a dashed ghost of the real card. It used to be a bare
+   `text-xs` word floating beside a 110-165px CASE FILE card, so the two columns
+   of the evidence band did not share a baseline. 100%/100% because the parent
+   button already carries the card's exact footprint. */
+[data-theme="primesuspect"] .hg-mobile-evidence-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 4px;
+  border: 1px dashed rgba(210, 178, 90, 0.32);
+  border-radius: clamp(6px, calc(var(--hg-card-width, 78px) * 0.075), 12px);
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(210, 178, 90, 0.05) 0 5px,
+      rgba(210, 178, 90, 0) 5px 11px),
+    rgba(26, 19, 25, 0.38);
+  color: var(--parchment-dark);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: clamp(8px, calc(var(--hg-card-width, 78px) * 0.125), 12px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* The "must play the Accomplice" ribbon — the last raw-Tailwind pill on the
+   board (`bg-[var(--royal-crimson)] text-white ... animate-pulse`). It now wears
+   the gold hairline every other crimson slab has, and its pulse is
+   brightness-only + reduced-motion guarded. */
+[data-theme="primesuspect"] .ps-alert-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  color: var(--royal-gold-light);
+  box-shadow:
+    inset 0 1px 0 rgba(231, 204, 122, 0.24),
+    0 4px 12px rgba(0, 0, 0, 0.45);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="primesuspect"] .ps-alert-ribbon {
+    animation: psAlertRibbonPulse 1.9s ease-in-out infinite;
+  }
+}
+
+@keyframes psAlertRibbonPulse {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.2); }
+}
+
+/* The mobile table still carries a few Tailwind `animate-pulse` attention cues
+   (turn chip, draw-ready deck). There is no global reduced-motion guard for that
+   utility in this client — add one for the mobile board. */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="primesuspect"] .hg-mobile-layout .animate-pulse {
+    animation: none !important;
+  }
+}
+
+/* Modal scrim for the three mobile drama beats (TARGET_SELECT, guess, confirm).
+   They all wore `bg-black/90`, which surface-victory.css already documents as
+   the defect it fixed for itself: a flat near-black wash erases the noir
+   scenery, the moon and the candle glow at exactly the moment the accusation is
+   being staged. Same recipe as the victory scrim. */
+[data-theme="primesuspect"] .ps-modal-scrim {
+  background:
+    radial-gradient(60% 45% at 50% 38%, rgba(210, 178, 90, 0.16), transparent 70%),
+    rgba(12, 7, 6, 0.62);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+/* Inside a noir modal the commit buttons share one narrow row — drop the docked
+   bar's min-widths so two 44px targets can never overflow the panel. */
+[data-theme="primesuspect"] .hg-noir-modal .hg-mobile-commit-btn.ps-btn--ghost,
+[data-theme="primesuspect"] .hg-noir-modal .hg-mobile-commit-btn.ps-btn--primary {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.5rem 0.4rem;
+  font-size: 0.72rem;
+  gap: 5px;
+}
+
 /* Mobile/Tablet background-attachment fix for performance */
 @media (max-width: 1024px) {
   [data-theme="primesuspect"] body,
@@ -5695,16 +5835,43 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     letter-spacing: 0.12em;
   }
 
+  /* The outer 104px ceiling starved tall phones: at 390x844 the band is ~265px
+     and --ps-m-deck-card-max resolves to ~149px, yet the card stayed 78px wide,
+     leaving ~110px of dead night around it. --ps-m-deck-card-max is derived from
+     the band height, so it can never overflow — the ceiling was the only thing
+     limiting it. */
   [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-deck-card,
   [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-evidence-card,
   [data-theme="primesuspect"] button.hg-mobile-deck-card,
   [data-theme="primesuspect"] button.hg-mobile-discard-card,
   [data-theme="primesuspect"] .hg-mobile-discard-card {
-    --hg-card-width: clamp(56px, min(20vw, var(--ps-m-deck-card-max)), 104px);
+    --hg-card-width: clamp(56px, min(26vw, var(--ps-m-deck-card-max)), 140px);
     --hg-card-height: calc(var(--hg-card-width) * 1.5);
     width: var(--hg-card-width) !important;
     height: var(--hg-card-height) !important;
     transform: none !important;
+  }
+
+  /* The deck BACK inherited `border: ... solid white` from the .hg-dynamic-card
+     base (prime-suspect-ingame.css only re-skins :not(.hg-card-back)), so on a
+     parchment/gold board the CASE FILE frame was the single brightest object in
+     the frame. Gold hairline instead, to match the face cards beside it. */
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-dynamic-card.hg-card-back {
+    border-color: rgba(210, 178, 90, 0.55);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
+  }
+
+  /* The backdrop moon (.gb-backdrop is mounted at App root, so the band's custom
+     properties do not reach it) used to sit at top:4vh — its top half rendered
+     crisp above the roster band and its bottom half as a blurred smear inside
+     it, a half-sprite straddling a panel edge. Re-anchor the whole disc into the
+     evidence band's night sky so it is lit uniformly. The clamp mirrors
+     --ps-m-suspects-h; the tablet block below re-states it for its own value. */
+  [data-theme="primesuspect"] .gb-backdrop .gb-moon {
+    top: calc(54px + env(safe-area-inset-top, 0px) + clamp(138px, 22svh, 178px) + 14px);
+    right: 6vw;
+    width: clamp(52px, 16vmin, 88px);
+    height: clamp(52px, 16vmin, 88px);
   }
 
   /* --- band 3: the Case Log as a bottom sheet, not a 60px edge gutter ----- */
@@ -5750,20 +5917,41 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     font-size: 11px !important;
     line-height: 1.2 !important;
   }
+  /* The hand card needs a body that can actually hold its dossier sentence.
+     prime-suspect-ingame.css §17.3 exempts .hg-mobile-hand-card from the 57/43
+     split, so the card was still on the 62/38 base — a ~52px body at 768 and a
+     ~36px one at 375. Give the copy 46% of the card. */
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-art {
+    height: 54% !important;
+  }
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
+    height: 46% !important;
+  }
+
   /* NOTE: every declaration here needs !important. prime-suspect-ingame.css
      §17.3 sets `-webkit-line-clamp: 6` on `[data-theme] .hg-dynamic-card:not(
      .hg-card-back) .card-description` at the SAME specificity and is @imported
      later, so without !important the clamp lost and the copy was guillotined
-     mid-glyph by `overflow:hidden` — a half-height row of letters, no ellipsis.
-     3 lines is what the ~52px body of a 132x198 hand card can actually hold. */
+     mid-glyph by `overflow:hidden`.
+     THE CLAMP ALONE IS NOT ENOUGH: .card-description also inherits `flex: 1`
+     from the base rule, so inside the fixed-height .card-body the box was
+     stretched TALLER than its clamped line count — legacy -webkit-box painted an
+     ellipsis at the clamp line but `overflow:hidden` had nothing to clip, so
+     lines 4-5 kept rendering past the card's gold border ('ROUND' guillotined
+     mid-glyph at 768); at 375 the body was SHORTER than 3 lines so line 3 was
+     sliced across the letter waists instead. `flex: 0 1 auto` + an explicit
+     max-height ties the box to the line count in BOTH directions, and the type
+     scales with the card instead of a hard 10px that only suited 132px. */
   [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
     display: -webkit-box !important;
     -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 3 !important;
-    line-clamp: 3 !important;
+    -webkit-line-clamp: 4 !important;
+    line-clamp: 4 !important;
     overflow: hidden !important;
     text-overflow: ellipsis;
-    font-size: 10px !important;
+    flex: 0 1 auto !important;
+    max-height: calc(4 * 1.2em) !important;
+    font-size: clamp(8px, calc(var(--hg-card-width) * 0.082), 11px) !important;
     line-height: 1.2 !important;
   }
   [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .hold-badge {
@@ -5827,6 +6015,14 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 
   [data-theme="primesuspect"] .hg-mobile-deck-label {
     font-size: clamp(13px, 1.9vw, 16px);
+  }
+
+  /* the roster is taller here, so the moon's band anchor has to follow it —
+     mirrors this block's --ps-m-suspects-h clamp (see the phone block above) */
+  [data-theme="primesuspect"] .gb-backdrop .gb-moon {
+    top: calc(54px + env(safe-area-inset-top, 0px) + clamp(178px, 22svh, 230px) + 16px);
+    width: clamp(72px, 16vmin, 110px);
+    height: clamp(72px, 16vmin, 110px);
   }
 }
 
@@ -17335,10 +17531,21 @@ button svg.lucide,
   cursor: not-allowed;
 }
 
+/* wax-red, not neon: #ff4757 was the one off-palette hue left in the P&P flow.
+   Rendered as the playbook's tinted error bar so the crimson can carry the
+   danger signal while parchment carries the legibility. */
 .pp-error {
-  color: #ff4757;
-  font-size: 0.75rem;
+  display: block;
   margin: 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(210, 178, 90, 0.24);
+  border-left: 3px solid var(--royal-crimson-light);
+  border-radius: var(--radius-sm, 6px);
+  background: rgba(167, 43, 61, 0.18);
+  color: var(--parchment);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.75rem;
+  line-height: 1.3;
 }
 
 .pp-player-count {
@@ -17380,16 +17587,22 @@ button svg.lucide,
   justify-content: center;
   width: 22px;
   height: 22px;
-  border: none;
+  border: 1px solid rgba(210, 178, 90, 0.26);
   border-radius: 50%;
-  background: rgba(255, 71, 87, 0.15);
-  color: #ff4757;
+  background: rgba(167, 43, 61, 0.18);
+  color: var(--royal-gold-light);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, filter 0.2s;
 }
 
 .pp-remove-btn:hover {
-  background: rgba(255, 71, 87, 0.3);
+  background: rgba(167, 43, 61, 0.34);
+  filter: brightness(1.1);
+}
+
+.pp-remove-btn:focus-visible {
+  outline: 2px solid var(--royal-gold-light);
+  outline-offset: 2px;
 }
 
 /* ----- Bot Controls ----- */
@@ -17495,25 +17708,31 @@ button svg.lucide,
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid rgba(255, 71, 87, 0.3);
+  border: 1px solid rgba(210, 178, 90, 0.28);
   border-radius: var(--radius-md);
-  background: rgba(255, 71, 87, 0.15);
-  color: #ff4757 !important;
+  background: rgba(167, 43, 61, 0.18);
+  color: var(--royal-gold-light) !important;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.2s, border-color 0.2s, filter 0.2s;
   margin-left: auto;
 }
 
 .bot-remove-btn svg {
   width: 14px;
   height: 14px;
-  stroke: #ff4757;
+  stroke: var(--royal-gold-light);
   flex-shrink: 0;
 }
 
 .bot-remove-btn:hover {
-  background: rgba(255, 71, 87, 0.35);
-  border-color: rgba(255, 71, 87, 0.6);
+  background: rgba(167, 43, 61, 0.34);
+  border-color: rgba(210, 178, 90, 0.5);
+  filter: brightness(1.1);
+}
+
+.bot-remove-btn:focus-visible {
+  outline: 2px solid var(--royal-gold-light);
+  outline-offset: 2px;
 }
 
 /* ----- Pass & Play Screen (in-game overlay) ----- */
@@ -17675,11 +17894,13 @@ button svg.lucide,
   z-index: 200;
 }
 
+/* velvet/parchment, not the generic platform panel tokens */
 .pp-default-reveal {
   padding: 16px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--panel-border);
+  background: linear-gradient(180deg, rgba(52, 38, 47, 0.72), rgba(36, 27, 34, 0.6));
+  border: 1px solid rgba(210, 178, 90, 0.26);
   border-radius: var(--radius-lg);
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.12);
   text-align: left;
 }
 
@@ -17687,8 +17908,10 @@ button svg.lucide,
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
+  font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.82rem;
-  color: var(--text-primary);
+  line-height: 1.4;
+  color: var(--parchment);
 }
 
 /* Progress Dots */
@@ -17776,7 +17999,13 @@ button svg.lucide,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(12, 9, 12, 0.88);
+  /* same candlelit scrim as the in-game drama modals (.ps-modal-scrim) — a flat
+     near-black wash erased the noir table behind the hand-off card */
+  background:
+    radial-gradient(60% 45% at 50% 38%, rgba(210, 178, 90, 0.16), transparent 70%),
+    rgba(12, 7, 6, 0.7);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
   animation: pp-fade-in 0.25s ease;
   padding: 24px;
 }

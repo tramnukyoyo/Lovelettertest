@@ -14,6 +14,18 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const BOTTOM_THRESHOLD_PX = 12;
 
+/**
+ * A hint may only arm on an element the browser will actually scroll.
+ * `scrollHeight > clientHeight` is true for plain `overflow: visible` boxes
+ * too — GameShell now mounts a stage-level hint whose scroller is only a
+ * scroller below the rail breakpoint, and without this test the ▾ would paint
+ * on desktop as a control whose click does nothing.
+ */
+const isScrollable = (el: HTMLElement) => {
+  const oy = getComputedStyle(el).overflowY;
+  return oy === 'auto' || oy === 'scroll' || oy === 'overlay';
+};
+
 const ScrollHint: React.FC<{ watch?: 'parent' | 'prev' }> = ({ watch = 'parent' }) => {
   const ref = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLElement | null>(null);
@@ -42,8 +54,10 @@ const ScrollHint: React.FC<{ watch?: 'parent' | 'prev' }> = ({ watch = 'parent' 
     if (!el) return;
 
     const update = () => {
-      setCanDown(el.scrollHeight - el.clientHeight - el.scrollTop > BOTTOM_THRESHOLD_PX);
-      setCanUp(el.scrollTop > BOTTOM_THRESHOLD_PX);
+      const scrollable = isScrollable(el);
+      setCanDown(scrollable
+        && el.scrollHeight - el.clientHeight - el.scrollTop > BOTTOM_THRESHOLD_PX);
+      setCanUp(scrollable && el.scrollTop > BOTTOM_THRESHOLD_PX);
     };
 
     update();

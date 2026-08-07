@@ -291,6 +291,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               </div>
             </div>
 
+            {/* The dossier closes with a wax seal — the identity's signature
+                mark inside the BODY, not only on the masthead. Decorative. */}
+            <div className="settings-modal-seal" aria-hidden="true">
+              <span className="settings-modal-seal-wax" />
+            </div>
+
             {/* "More below" affordance — mobile drops the tab bar, so all three
                 sections stack into one scroller and will overflow at 667–844px. */}
             <ScrollHint />

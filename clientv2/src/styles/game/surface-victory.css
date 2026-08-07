@@ -49,6 +49,24 @@
   overflow: visible;
 }
 
+/* The inherited `.hg-panel` ground ends at `rgba(36,27,34,0.62)` — 38%
+   transparent at the BOTTOM of the panel, which is exactly where the case
+   ledger sits, so the stage's game-log lines read straight through the
+   parchment at 375. The shared panel is not ours to change; paint an opaque
+   base UNDER its gradient for this surface only. Specificity (0,3,0) so it
+   beats `[data-theme] .hg-panel` (0,2,0) whatever the import order is. */
+[data-theme="primesuspect"] .ps-victory-panel.hg-panel,
+.ps-victory-panel.ps-victory-panel.hg-panel {
+  background-color: #2a1f27;
+}
+
+/* When the case file overflows, the affordance band gets its OWN strip of
+   panel padding. Scroller padding cannot do this job: padding only clears the
+   band when the reader is scrolled to the very bottom, so at rest the chevron
+   landed on live button faces (768 CHALLENGE FRIENDS, 1024/1366 the NEW GAME
+   row). Outside the scroller, no control can ever reach it. */
+.ps-victory-panel.is-scrollable { padding-bottom: 46px; }
+
 /* The scroller lives INSIDE the panel so the panel keeps its glow while long
    CTA stacks scroll in place instead of pushing the page past the fold. */
 .ps-victory-scroll {
@@ -61,9 +79,12 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(var(--accent-color-rgb, 210, 178, 90), 0.6) transparent;
 }
-/* While the vignette is lit, keep its 46px band over padding only — no line of
-   case file ever rests half-under the fade. */
-.ps-victory-panel.is-scrollable .ps-victory-scroll { padding-bottom: 52px; }
+/* A little extra breathing room under the last control before the band. */
+.ps-victory-panel.is-scrollable .ps-victory-scroll {
+  padding-bottom: 34px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
 
 /* Local scroll affordance (NOT the shared shell ScrollHint): a bottom vignette
    with a gold hairline and a chevron mark, shown ONLY while the case file
@@ -85,8 +106,10 @@
   pointer-events: none;
   border-radius: 0 0 17px 17px;
   color: var(--royal-gold-light, #e7cc7a);
+  /* It no longer has to MASK anything (the band owns a strip of panel padding
+     of its own), so it is a soft fold shadow rather than a black bar. */
   background:
-    linear-gradient(to top, rgba(18, 13, 17, 0.97) 34%, rgba(18, 13, 17, 0.72) 62%, rgba(18, 13, 17, 0));
+    linear-gradient(to top, rgba(20, 14, 19, 0.62), rgba(20, 14, 19, 0.28) 62%, rgba(20, 14, 19, 0));
   transition: opacity 0.2s ease;
 }
 /* Hairline so the cut edge reads as a fold in the case file, not a crop. */
@@ -178,6 +201,10 @@
    --psv-card-w / --psv-count / --psv-rot / --psv-lift come from the TSX.
    ------------------------------------------------------------------------- */
 .ps-evidence-row {
+  /* The TSX hands over two sizings — one for the 27.5rem panel, one for the
+     34rem panel the beat gets at ≥1440 — and the row picks. Nothing sets
+     --psv-card-w inline, so a media query can still switch it. */
+  --psv-card-w: var(--psv-card-w-base, 80px);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -190,7 +217,10 @@
 .ps-evidence-card {
   position: relative;
   flex: 0 0 auto;
-  margin-inline: calc(var(--psv-card-w, 80px) * -0.08);
+  /* Was -0.08 per side: the 1.12× winner card then cropped its neighbour's role
+     name to "SPECTOR" — one of four revealed hands unreadable inside a 5s
+     auto-advance. The fan still overlaps, just never over the type. */
+  margin-inline: calc(var(--psv-card-w, 80px) * -0.03);
   transform: rotate(var(--psv-rot, 0deg)) translateY(var(--psv-lift, 0px));
   transform-origin: 50% 100%;
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
@@ -203,17 +233,21 @@
   filter: grayscale(0.55) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
 }
 
+/* The enlarged winner earns its own clearance instead of eating its
+   neighbours': +0.03 out, against the row's -0.03 in. */
 .ps-evidence-card.is-winner {
   z-index: 3;
+  margin-inline: calc(var(--psv-card-w, 80px) * 0.03);
   transform: rotate(var(--psv-rot, 0deg)) translateY(calc(var(--psv-lift, 0px) - 6px)) scale(1.12);
 }
 
-/* Wax seal stamped onto the winning card. */
+/* Wax seal STAMPED ON the evidence — it used to hang off the corner and land
+   on the neighbouring card. */
 .ps-evidence-card.is-winner::after {
   content: '';
   position: absolute;
-  right: calc(var(--psv-card-w, 80px) * -0.07);
-  bottom: calc(var(--psv-card-w, 80px) * -0.07);
+  right: calc(var(--psv-card-w, 80px) * 0.02);
+  bottom: calc(var(--psv-card-w, 80px) * 0.02);
   width: calc(var(--psv-card-w, 80px) * 0.4);
   height: calc(var(--psv-card-w, 80px) * 0.4);
   border-radius: 50%;
@@ -320,14 +354,19 @@
   flex: 0 0 auto;
 }
 
+/* An even integer box + an INSET ring: a 1px `border` on an 11px circle landed
+   on a half pixel at fractional layout widths, so empty seals in the same
+   column rendered alternately warm-gold and cold-grey. An inset shadow is
+   painted inside the box and never rounds against the border box. */
 .ps-pip {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   flex: 0 0 auto;
   box-sizing: border-box;
   border-radius: 50%;
-  border: 1px dashed rgba(var(--accent-color-rgb, 210, 178, 90), 0.4);
+  border: 0;
   background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-color-rgb, 210, 178, 90), 0.32);
 }
 
 .ps-pip.is-filled {
@@ -340,12 +379,27 @@
     0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* The one pip that carries the round's payoff sits on the winner's gold band,
+   where a wax seal ringed in gold dissolved into the fill. A dark hard edge
+   plus a red bloom survive the highlight. */
+.ps-progress-row.is-winner .ps-pip.is-filled {
+  box-shadow:
+    0 0 0 1px rgba(20, 10, 12, 0.75),
+    0 0 0 2px rgba(231, 204, 122, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.24),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(167, 43, 61, 0.7);
+}
+
+/* Stamp-in reads as a pop, not as an appearance: the seal is never fully
+   invisible, so a screenshot taken inside the first frames still shows four
+   seals on the winner's row and not three. */
 .ps-pip.is-new {
-  animation: psPipStamp 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) 0.4s both;
+  animation: psPipStamp 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) 0.22s both;
 }
 
 @media (max-width: 380px) {
-  .ps-pip { width: 9px; height: 9px; }
+  .ps-pip { width: 8px; height: 8px; }
   .ps-pips { gap: 3px; }
 }
 
@@ -463,30 +517,38 @@
    whenever the summary never came inline. */
 .ps-rewards-slot { min-height: 0; }
 .ps-rewards-slot.is-pending {
-  min-height: 92px;
+  min-height: 68px;
   display: flex;
   align-items: center;
 }
 
-/* Pending = a dashed ghost of the ledger (playbook: empty states are ghosts of
-   the real element), never blank velvet. */
+/* Pending = a ghost of the ledger (playbook: empty states are ghosts of the
+   real element), never blank velvet. Solid low-alpha bars with a travelling
+   highlight, NOT dashed outlines: three broken dashed rectangles between the
+   ledger and the primary CTA read as a rendering failure, not as loading. */
 .ps-rewards-ghost {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 8px;
   width: 100%;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 .ps-rewards-ghost i {
   display: block;
-  height: 13px;
+  height: 12px;
   border-radius: 4px;
-  border: 1px dashed rgba(var(--accent-color-rgb, 210, 178, 90), 0.28);
-  background: rgba(var(--accent-color-rgb, 210, 178, 90), 0.05);
-  animation: psGhostPulse 1.8s ease-in-out infinite;
+  border: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(var(--accent-color-rgb, 210, 178, 90), 0.05),
+      rgba(var(--accent-color-rgb, 210, 178, 90), 0.14),
+      rgba(var(--accent-color-rgb, 210, 178, 90), 0.05)
+    ) 0 0 / 220% 100%;
+  animation: psGhostSweep 1.4s linear infinite;
 }
-.ps-rewards-ghost i:nth-of-type(2) { width: 82%; animation-delay: 0.2s; }
-.ps-rewards-ghost i:nth-of-type(3) { width: 64%; animation-delay: 0.4s; }
+.ps-rewards-ghost i:nth-of-type(2) { width: 82%; animation-delay: 0.18s; }
+.ps-rewards-ghost i:nth-of-type(3) { width: 64%; animation-delay: 0.36s; }
 
 .ps-rewards { margin: 12px 0 2px; font-size: 13px; }
 .ps-reward-unlocks {
@@ -636,8 +698,14 @@
       PLAYERS rail and got sliced by the modal edge. Re-dock the RAIL, above
       the scrim (10040) so a card can never be cut in half.
 
-   b) The old `:has(.xp-toast)` reservation stole 240px of panel height from
-      EVERY viewport — at 375 not one CTA rendered. Reserve nothing.
+   b) A full-width bottom band has to RESERVE the rows it occupies, and that
+      reservation (`min(34vh, 240px)`, formerly toastRail.css) fired for the
+      whole beat — `:has()` matches the XP toast even though it is
+      `display: none` here — so it capped the case file at every width: 375
+      rendered zero CTAs, 1024/1366 lost half the stack, and the panel sat
+      ~240px off-centre. The rail now docks into the bottom-RIGHT CORNER for
+      the beat. A corner dock reserves nothing, so the panel gets the whole
+      fold back (+244px at 1366 — the entire four-button stack).
 
    The XP card itself is suppressed while the case file is open: the panel's own
    rewards ledger prints the identical +XP/+GP for every player, so the toast
@@ -647,7 +715,16 @@
 body.ps-results-open #ps-toast-rail {
   top: auto;
   bottom: max(14px, env(safe-area-inset-bottom, 0px));
-  z-index: 10045;
+  left: auto;
+  right: clamp(12px, 3vw, 28px);
+  width: min(23rem, 88vw);
+  padding: 0;
+  align-items: flex-end;
+  z-index: var(--z-toast, 10045);
+}
+body.ps-results-open #ps-toast-rail .ps-toast-rail__lane {
+  width: 100%;
+  align-self: stretch;
 }
 
 body.ps-results-open .xp-toast-container { display: none; }
@@ -656,13 +733,14 @@ body.ps-results-open .xp-toast-container { display: none; }
    the case file so a physical prop never eclipses the verdict. */
 .ps-victory-confetti .gbj-confetti-container { z-index: 10035; }
 
-/* Sparse, low-alpha specks had no physical punch on the wide canvas. Gild each
-   piece instead of resizing it (size is set inline by the shared component). */
+/* Gild each piece instead of resizing it (size is set inline by the shared
+   component) — but a 2.5px spread ring plus a 12px blur turned every piece
+   into a soft round glow, so the whole viewport read as dust motes / lens
+   bokeh and the wax-red burst vanished into the gold field. Crisp rectangles
+   with a tight candle bloom: confetti, not atmosphere. */
 @media (min-width: 1024px) {
   .ps-victory-confetti .gbj-confetti-particle {
-    box-shadow:
-      0 0 0 2.5px rgba(var(--accent-color-rgb, 210, 178, 90), 0.26),
-      0 0 12px rgba(231, 204, 122, 0.4);
+    box-shadow: 0 0 5px rgba(231, 204, 122, 0.3);
   }
 }
 
@@ -706,6 +784,94 @@ body.ps-results-open .xp-toast-container { display: none; }
      end on the same line. */
   .is-gameover .ps-dossier .ps-rewards-slot { margin-top: auto; }
   .is-gameover .ps-progress-list { margin-top: 10px; }
+
+  /* On the 48rem front page the four secondary actions are a 2×2 block under
+     the single primary, not a 4-high ladder: it is the same hierarchy in 56px
+     less vertical, which is what puts CHALLENGE FRIENDS and TRY ANOTHER GAME
+     back above the fold at 1024/1366 instead of behind a scroll. */
+  .is-gameover .ps-cta-secondary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .is-gameover .ps-cta-pair,
+  .is-gameover .ps-waiting-note { grid-column: 1 / -1; }
+  /* A lone survivor in the second row spans it rather than sitting half-width
+     next to a hole (direct-play rooms have no TRY ANOTHER GAME). */
+  .is-gameover .ps-cta-secondary > :last-child:nth-child(2) { grid-column: 1 / -1; }
+
+  /* THE CONVICTION HAS A SUBJECT. The verdict column was a crown, a word and a
+     name floating in a ~350×380 parchment field — in a deduction game the one
+     thing missing was the deduction. The winner's final held card is laid in
+     as the exhibit (same evidence treatment as round-over, wax seal and all),
+     with the closing line of the case under it. */
+  .is-gameover .ps-verdict-evidence {
+    --psv-card-w: clamp(64px, 5.6vw, 88px);
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(12px, 1.4vw, 20px);
+    padding-bottom: calc(var(--psv-card-w) * 0.08);
+    pointer-events: none;
+  }
+  .is-gameover .ps-verdict-sub {
+    display: block;
+    margin-top: clamp(12px, 1.4vw, 18px);
+    font-family: var(--font-title, 'Cinzel', serif);
+    font-size: clamp(0.95rem, 1.05vw, 1.15rem);
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--royal-gold, #d2b25a);
+    text-wrap: balance;
+  }
+  .is-gameover .ps-verdict-note {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--font-typewriter, 'Special Elite', monospace);
+    font-size: 11px;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
+    color: var(--parchment-dark, #d9cfbe);
+    opacity: 0.62;
+  }
+}
+
+/* Below the two-column front page the verdict is already a tight stack under a
+   full-width headline; the exhibit would only push the CTA stack off the fold
+   on the smallest screens, where the CTAs are the scarce thing. */
+.ps-verdict-evidence,
+.ps-verdict-sub,
+.ps-verdict-note { display: none; }
+
+/* ----------------------------------------------------------------------------
+   9b · THE ROUND-OVER STAMP EARNS THE WIDE CANVAS
+   A 440px box on a 1920 canvas read timid for a 5-second beat that has to land
+   instantly — and the evidence fan, the best idea on the surface, was
+   postage-stamp sized. The panel and the fan grow together.
+   ------------------------------------------------------------------------- */
+@media (min-width: 1440px) {
+  .ps-victory-panel.is-roundover { max-width: 34rem; }
+  .is-roundover .ps-evidence-row { --psv-card-w: var(--psv-card-w-wide, 104px); }
+  .is-roundover .ps-winner-name { font-size: clamp(2.3rem, 2.4vw, 2.9rem); }
+  .is-roundover .ps-hero-line { font-size: clamp(1.15rem, 1.15vw, 1.35rem); }
+}
+
+/* ----------------------------------------------------------------------------
+   9c · SMALL PHONES — the CTA stack is the scarce resource
+   At 375 the front page has to give the reader the primary action without a
+   scroll, so the masthead and the verdict block are compressed rather than the
+   buttons.
+   ------------------------------------------------------------------------- */
+@media (max-width: 430px) {
+  .is-gameover .ps-headline { font-size: clamp(1.4rem, 5.8vw, 1.95rem); margin: 0.4rem 0 0.45rem; }
+  .ps-crown svg { width: 34px; }
+  .ps-crown { margin-bottom: 0.2rem; }
+  .is-gameover .ps-victory-grid { margin-top: 12px; }
+  .is-gameover .ps-winner-name { font-size: clamp(1.75rem, 8vw, 2.3rem); }
+  .ps-progress-row { padding: 5px 8px; }
+  .ps-progress-head { margin-top: 12px; }
+  .is-gameover .ps-cta-block { margin-top: 12px; }
+  .ps-victory-scroll { padding-left: 14px; padding-right: 14px; }
 }
 
 /* Landscape phones: never let the front page grow taller than the fold. */
@@ -731,7 +897,7 @@ body.ps-results-open .xp-toast-container { display: none; }
   100% { opacity: 1; transform: scale(1); }
 }
 @keyframes psPipStamp {
-  0%   { opacity: 0; transform: scale(1.6); }
+  0%   { opacity: 0.45; transform: scale(1.6); }
   55%  { opacity: 1; }
   100% { opacity: 1; transform: scale(1); }
 }
@@ -744,9 +910,9 @@ body.ps-results-open .xp-toast-container { display: none; }
   0%, 100% { opacity: 0.55; }
   50%      { opacity: 1; }
 }
-@keyframes psGhostPulse {
-  0%, 100% { opacity: 0.45; }
-  50%      { opacity: 0.9; }
+@keyframes psGhostSweep {
+  from { background-position: 120% 0; }
+  to   { background-position: -120% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -759,7 +925,8 @@ body.ps-results-open .xp-toast-container { display: none; }
     animation: none !important;
   }
   .ps-victory-fade svg { opacity: 1; }
-  .ps-rewards-ghost i { opacity: 0.7; }
+  .ps-rewards-ghost i { background-position: 50% 0; opacity: 0.85; }
+  .ps-pip.is-new { opacity: 1; transform: none; }
   .ps-evidence-card { opacity: 1; }
   .ps-evidence-card.is-out { opacity: 0.5; }
   .ps-evidence-card.is-winner::after { opacity: 1; transform: scale(1); }

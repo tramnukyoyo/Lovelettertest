@@ -729,6 +729,7 @@ export const translations = {
     'evidence.inspector': 'Evidence Inspector',
     'evidence.chronologyTitle': 'Evidence - Chronology',
     'evidence.playerEvidence': 'Evidence - {playerName}',
+    'evidence.playerDiscard': "{name}'s discard",
     'evidence.noEvidence': 'No evidence',
     'evidence.noEvidenceYet': 'No evidence yet',
     'evidence.noEvidenceLogged': 'No evidence logged yet.',
@@ -793,6 +794,8 @@ export const translations = {
 
     // Card Inspector
     'cardInspector.closeInspector': 'Close inspector',
+    'cardInspector.exhibitN': 'EXHIBIT {number}',
+    'cardInspector.emptyHint': 'Nothing has been filed in this locker yet.',
     'cardInspector.previousCard': 'Previous card',
     'cardInspector.nextCard': 'Next card',
     'cardInspector.selected': 'Selected',
@@ -901,6 +904,8 @@ export const translations = {
     // Victory / Round End
     'victory.victory': 'Victory!',
     'victory.winner': 'Winner',
+    'victory.finalEvidence': 'FINAL EVIDENCE',
+    'victory.convictedOnRound': 'Convicted on round {n}',
     'victory.nextRound': 'Next Round',
     'victory.caseFileNo': 'CASE FILE No.',
     'victory.rematch': 'Rematch!',
@@ -1819,6 +1824,7 @@ export const translations = {
     'evidence.inspector': 'Beweismittelprüfer',
     'evidence.chronologyTitle': 'Beweismittel - Chronologie',
     'evidence.playerEvidence': 'Beweismittel - {playerName}',
+    'evidence.playerDiscard': 'Ablage von {name}',
     'evidence.noEvidence': 'Keine Beweismittel',
     'evidence.noEvidenceYet': 'Noch keine Beweismittel',
     'evidence.noEvidenceLogged': 'Noch keine Beweismittel erfasst.',
@@ -1883,6 +1889,8 @@ export const translations = {
 
     // Card Inspector
     'cardInspector.closeInspector': 'Inspektor schließen',
+    'cardInspector.exhibitN': 'BEWEISSTÜCK {number}',
+    'cardInspector.emptyHint': 'In diesem Fach wurde noch nichts abgelegt.',
     'cardInspector.previousCard': 'Vorherige Karte',
     'cardInspector.nextCard': 'Nächste Karte',
     'cardInspector.selected': 'Ausgewählt',
@@ -1991,6 +1999,8 @@ export const translations = {
     // Victory / Round End
     'victory.victory': 'Sieg!',
     'victory.winner': 'Gewinner',
+    'victory.finalEvidence': 'FINALES BEWEISSTÜCK',
+    'victory.convictedOnRound': 'Überführt in Runde {n}',
     'victory.nextRound': 'Nächste Runde',
     'victory.caseFileNo': 'AKTENZEICHEN',
     'victory.rematch': 'Revanche!',
@@ -2908,6 +2918,7 @@ export const translations = {
     'evidence.inspector': 'Inspector de evidencia',
     'evidence.chronologyTitle': 'Evidencia - Cronologia',
     'evidence.playerEvidence': 'Evidencia - {playerName}',
+    'evidence.playerDiscard': 'Descarte de {name}',
     'evidence.noEvidence': 'Sin evidencia',
     'evidence.noEvidenceYet': 'Aun no hay evidencia',
     'evidence.noEvidenceLogged': 'Aun no se ha registrado evidencia.',
@@ -2972,6 +2983,8 @@ export const translations = {
 
     // Card Inspector
     'cardInspector.closeInspector': 'Cerrar inspector',
+    'cardInspector.exhibitN': 'PRUEBA {number}',
+    'cardInspector.emptyHint': 'Aún no se ha archivado nada en este casillero.',
     'cardInspector.previousCard': 'Carta anterior',
     'cardInspector.nextCard': 'Siguiente carta',
     'cardInspector.selected': 'Seleccionada',
@@ -3080,6 +3093,8 @@ export const translations = {
     // Victory / Round End
     'victory.victory': 'Victoria!',
     'victory.winner': 'Ganador',
+    'victory.finalEvidence': 'PRUEBA FINAL',
+    'victory.convictedOnRound': 'Condenado en la ronda {n}',
     'victory.nextRound': 'Siguiente ronda',
     'victory.caseFileNo': 'EXPEDIENTE N.°',
     'victory.rematch': 'Revancha!',
@@ -3999,6 +4014,7 @@ export const translations = {
     'evidence.inspector': 'Inspetor de evidências',
     'evidence.chronologyTitle': 'Evidências - Cronologia',
     'evidence.playerEvidence': 'Evidências - {playerName}',
+    'evidence.playerDiscard': 'Descarte de {name}',
     'evidence.noEvidence': 'Sem evidências',
     'evidence.noEvidenceYet': 'Nenhuma evidência ainda',
     'evidence.noEvidenceLogged': 'Nenhuma evidência registrada ainda.',
@@ -4063,6 +4079,8 @@ export const translations = {
 
     // Card Inspector
     'cardInspector.closeInspector': 'Fechar inspetor',
+    'cardInspector.exhibitN': 'PROVA {number}',
+    'cardInspector.emptyHint': 'Ainda não há nada arquivado neste armário.',
     'cardInspector.previousCard': 'Carta anterior',
     'cardInspector.nextCard': 'Próxima carta',
     'cardInspector.selected': 'Selecionada',
@@ -4171,6 +4189,8 @@ export const translations = {
     // Victory / Round End
     'victory.victory': 'Vitória!',
     'victory.winner': 'Vencedor',
+    'victory.finalEvidence': 'PROVA FINAL',
+    'victory.convictedOnRound': 'Condenado na rodada {n}',
     'victory.nextRound': 'Próxima rodada',
     'victory.caseFileNo': 'FICHA Nº',
     'victory.rematch': 'Revanche!',
@@ -5090,6 +5110,7 @@ export const translations = {
     'evidence.inspector': 'Inspetor de provas',
     'evidence.chronologyTitle': 'Provas - Cronologia',
     'evidence.playerEvidence': 'Provas - {playerName}',
+    'evidence.playerDiscard': 'Descarte de {name}',
     'evidence.noEvidence': 'Sem provas',
     'evidence.noEvidenceYet': 'Ainda não há provas',
     'evidence.noEvidenceLogged': 'Ainda não foram registadas provas.',
@@ -5154,6 +5175,8 @@ export const translations = {
 
     // Card Inspector
     'cardInspector.closeInspector': 'Fechar inspetor',
+    'cardInspector.exhibitN': 'PROVA {number}',
+    'cardInspector.emptyHint': 'Ainda não foi arquivado nada neste cacifo.',
     'cardInspector.previousCard': 'Carta anterior',
     'cardInspector.nextCard': 'Carta seguinte',
     'cardInspector.selected': 'Selecionada',
@@ -5262,6 +5285,8 @@ export const translations = {
     // Victory / Round End
     'victory.victory': 'Vitória!',
     'victory.winner': 'Vencedor',
+    'victory.finalEvidence': 'PROVA FINAL',
+    'victory.convictedOnRound': 'Condenado na ronda {n}',
     'victory.nextRound': 'Ronda seguinte',
     'victory.caseFileNo': 'FICHA Nº',
     'victory.rematch': 'Revanche!',
@@ -6179,6 +6204,7 @@ export const translations = {
     'evidence.inspector': '證據檢視器',
     'evidence.chronologyTitle': '證據 — 時序',
     'evidence.playerEvidence': '證據 — {playerName}',
+    'evidence.playerDiscard': '{name} 的棄牌',
     'evidence.noEvidence': '沒有證據',
     'evidence.noEvidenceYet': '尚無證據',
     'evidence.noEvidenceLogged': '尚未記錄任何證據。',
@@ -6243,6 +6269,8 @@ export const translations = {
 
     // Card Inspector
     'cardInspector.closeInspector': '關閉檢視器',
+    'cardInspector.exhibitN': '證物 {number}',
+    'cardInspector.emptyHint': '這個置物櫃目前還沒有任何存檔。',
     'cardInspector.previousCard': '上一張牌',
     'cardInspector.nextCard': '下一張牌',
     'cardInspector.selected': '已選取',
@@ -6351,6 +6379,8 @@ export const translations = {
     // Victory / Round End
     'victory.victory': '勝利！',
     'victory.winner': '優勝者',
+    'victory.finalEvidence': '最終物證',
+    'victory.convictedOnRound': '於第 {n} 回合定罪',
     'victory.nextRound': '下一回合',
     'victory.caseFileNo': '案件編號',
     'victory.rematch': '再來一局！',

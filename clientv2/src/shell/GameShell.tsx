@@ -14,6 +14,7 @@ import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useShellOverflowGuard } from './useShellOverflowGuard';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
 import { useIsMobile } from '../hooks/useIsMobile';
+import ScrollHint from './ScrollHint';
 import { t } from '../utils/translations';
 
 const RAIL_COLLAPSED_KEY = 'gs_rail_collapsed';
@@ -108,6 +109,13 @@ const GameShell: React.FC<GameShellProps> = ({
 
       <main className="gs-stage" ref={stageRef}>
         {children}
+        {/* Stage-level scroll affordance. Both pages render exactly one
+            `.gs-stage-inner` wrapper as GameShell's child, so `watch="prev"`
+            resolves to it via previousElementSibling — which is precisely the
+            element that becomes the scroller on phones/tablets (shell.css
+            ≤1023.98 lobby flow). Desktop stages never overflow, so the hint
+            stays invisible AND pointer-events:none. Styles: stage.css. */}
+        <ScrollHint watch="prev" />
       </main>
 
       {/* Fleet standard: the edge arrow tab (.gs-rail-collapse-btn) is the ONLY

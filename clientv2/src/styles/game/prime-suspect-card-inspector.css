@@ -45,10 +45,14 @@
   justify-content: center;
   padding: clamp(0.75rem, 3vw, 1.5rem);
   padding-top: calc(var(--app-header-height, 66px) + env(safe-area-inset-top, 0px) + 2.25rem);
+  /* The washes are sized to the VIEWPORT, not to a desktop guess. The old
+     fixed 900–1200px radii put every falloff stop hundreds of px off-screen on
+     a 390px phone, so the whole candle pool collapsed to the flat base black
+     and the ground read as a generic dark settings sheet. */
   background:
-    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
-    radial-gradient(900px at 25% 14%, rgba(210, 178, 90, 0.1), transparent 60%),
-    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.88), transparent 58%),
+    radial-gradient(clamp(420px, 130vw, 1100px) at 50% 14%, rgba(246, 240, 230, 0.09), transparent 58%),
+    radial-gradient(clamp(360px, 110vw, 900px) at 25% 12%, rgba(210, 178, 90, 0.13), transparent 62%),
+    radial-gradient(clamp(520px, 150vw, 1200px) at 50% 108%, rgba(0, 0, 0, 0.9), transparent 60%),
     rgba(0, 0, 0, 0.86);
   pointer-events: auto;
 }
@@ -83,6 +87,19 @@
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
+}
+
+/* Give the candle a SOURCE. The panel's own frame is the only thing carrying
+   the identity once the backdrop wash is off-screen, so the header rail gets a
+   1px gold hairline along its top edge and a short warm falloff under it —
+   light entering the dossier from above rather than a flat velvet slab.
+   Anchored on `.settings-modal-panel.hgi-panel` (0,4,0) so it outranks §14.2's
+   `background: transparent !important` in prime-suspect-ingame.css (0,3,0). */
+[data-theme="primesuspect"] .settings-modal-panel.hgi-panel .hgi-header {
+  position: relative;
+  background-image:
+    linear-gradient(180deg, rgba(231, 204, 122, 0.13), rgba(231, 204, 122, 0) 84%) !important;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.42);
 }
 
 [data-theme="primesuspect"] .hgi-panel .settings-modal-title {
@@ -146,11 +163,25 @@
      and this box is the scroll clipper, so a smaller inset shaves the wax
      stamp and its shadow on every phone. */
   padding: 24px var(--hgi-m) var(--hgi-l) !important;
+  /* "More below" affordance: the case-notes slip is long-form rule text and it
+     used to end hard against the content edge with the footer rail right under
+     it — indistinguishable from truncated/broken copy. The last 28px of the
+     scroll layer now fade out, so an unfinished sentence always reads as
+     "keep scrolling". The same mask is on the three sibling panels
+     (prime-suspect-modal-family.css) so the family signals it identically. */
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 28px), transparent 100%);
 }
 
 [data-theme="primesuspect"] .hgi-stage {
   position: relative;
   display: flex;
+  /* The stage row is nav + card + nav. It must never wrap (a chevron dropping
+     under the exhibit) and must never force the scroll layer into horizontal
+     overflow — the card itself is the flexible member, clamped in §7. */
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   justify-content: center;
   gap: var(--hgi-s);
@@ -252,11 +283,108 @@
 }
 
 [data-theme="primesuspect"] .hgi-provenance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.45em;
   font-family: var(--font-mono, 'Special Elite', monospace);
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(210, 178, 90, 0.82);
+}
+
+/* The locker index, explicitly labelled and boxed like an evidence tag — a
+   bare "#4" sat directly under a card that prints its value twice and read as
+   the card's number. */
+[data-theme="primesuspect"] .hgi-exhibit-tag {
+  padding: 2px 7px;
+  border: 1px solid rgba(210, 178, 90, 0.42);
+  border-radius: 4px;
+  background: rgba(210, 178, 90, 0.09);
+  color: var(--royal-gold-light);
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+}
+
+[data-theme="primesuspect"] .hgi-provenance-sep {
+  color: rgba(210, 178, 90, 0.45);
+}
+
+[data-theme="primesuspect"] .hgi-provenance-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* --- 4b · Empty locker — a sealed sleeve, never a blank panel ------------- */
+
+[data-theme="primesuspect"] .hgi-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 4px 6px;
+  text-align: center;
+}
+
+[data-theme="primesuspect"] .hgi-empty-sleeve {
+  width: clamp(78px, 26vw, 104px);
+  aspect-ratio: 72 / 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+}
+
+[data-theme="primesuspect"] .hgi-empty-sleeve svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+}
+
+[data-theme="primesuspect"] .hgi-empty-sleeve-edge {
+  fill: rgba(246, 240, 230, 0.035);
+  stroke: rgba(210, 178, 90, 0.42);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+}
+
+[data-theme="primesuspect"] .hgi-empty-sleeve-flap {
+  stroke: rgba(210, 178, 90, 0.36);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-theme="primesuspect"] .hgi-empty-sleeve-seal {
+  fill: rgba(122, 30, 44, 0.55);
+  stroke: rgba(231, 204, 122, 0.5);
+  stroke-width: 1.5;
+}
+
+[data-theme="primesuspect"] .hgi-empty-sleeve-mark {
+  stroke: rgba(246, 240, 230, 0.55);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-theme="primesuspect"] .hgi-empty-eyebrow {
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(210, 178, 90, 0.78);
+}
+
+[data-theme="primesuspect"] .hgi-empty-line {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--font-body, 'Libre Franklin', sans-serif);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: rgba(246, 240, 230, 0.72);
 }
 
 [data-theme="primesuspect"] .hgi-label {
@@ -435,10 +563,12 @@
   justify-content: center;
   padding: clamp(0.6rem, 3vw, 1.25rem);
   padding-bottom: calc(clamp(0.6rem, 3vw, 1.25rem) + env(safe-area-inset-bottom, 0px));
+  /* Same viewport-sized candle pool as the backdrop — the sub-scenes must not
+     drop back to a flat black once the phone is narrower than the old radii. */
   background:
-    radial-gradient(1100px at 50% 18%, rgba(246, 240, 230, 0.06), transparent 55%),
-    radial-gradient(900px at 25% 14%, rgba(210, 178, 90, 0.1), transparent 60%),
-    radial-gradient(1200px at 50% 110%, rgba(0, 0, 0, 0.78), transparent 58%),
+    radial-gradient(clamp(420px, 130vw, 1100px) at 50% 14%, rgba(246, 240, 230, 0.09), transparent 58%),
+    radial-gradient(clamp(360px, 110vw, 900px) at 25% 12%, rgba(210, 178, 90, 0.13), transparent 62%),
+    radial-gradient(clamp(520px, 150vw, 1200px) at 50% 108%, rgba(0, 0, 0, 0.82), transparent 60%),
     rgba(0, 0, 0, 0.8);
 }
 
@@ -668,11 +798,42 @@
 
 /* --- 7 · Narrow phones + landscape -------------------------------------- */
 
+/* The exhibit was a FIXED 210×315 at every portrait viewport
+   (prime-suspect-unified.css:4683). Two consequences on a phone:
+   · the card ate the panel and pushed the case-notes slip past the fold;
+   · the stage row (44 + gap + 210 + gap + 44 = 314px) had 6px of slack at
+     360px and OVERFLOWED at 320px, which turned the scroll layer's
+     `overflow-y:auto` into a sideways-scrolling exhibit.
+   It is now clamped against both axes, with the height derived from the width
+   so the 2:3 card proportion is preserved rather than squashed. Anchored on
+   `.hgi-panel` (0,4,0) so it beats the unified rule (0,3,0) without
+   `!important`, and scoped to portrait phones so the existing landscape block
+   still owns `@media (max-height: 500px)`. */
+@media (max-width: 480px) {
+  [data-theme="primesuspect"] .hgi-panel .hg-dynamic-card.hg-inspector-card {
+    --hg-card-width: min(210px, 52vw, 25dvh);
+    --hg-card-height: calc(var(--hg-card-width) * 1.5);
+  }
+
+  /* The face's fixed 32px value badge is oversized once the card is ~150px. */
+  [data-theme="primesuspect"] .hgi-panel .hg-dynamic-card.hg-inspector-card .card-value {
+    font-size: clamp(18px, calc(var(--hg-card-width) * 0.155), 32px);
+  }
+}
+
 @media (max-width: 420px) {
   [data-theme="primesuspect"] .hg-inspector-modal {
     --hgi-s: 8px;
     --hgi-m: 12px;
     --hgi-l: 16px;
+  }
+}
+
+/* Below 360px the two 44px chevrons plus their gaps are the binding constraint
+   — the gap gives up its last 2px before the exhibit does. */
+@media (max-width: 360px) {
+  [data-theme="primesuspect"] .hg-inspector-modal {
+    --hgi-s: 6px;
   }
 }
 

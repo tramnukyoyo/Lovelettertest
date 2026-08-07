@@ -343,6 +343,7 @@ export const ptBR: Translations = {
       warning: 'Atenção',
       error: 'Erro',
       message: 'Mensagem',
+      action: 'Nota do caso',
     },
   },
 
@@ -414,6 +415,10 @@ export const ptBR: Translations = {
     premiumTitle: 'Exclusivos Premium',
     cardBackPreviewCaption: 'como sua mão aparece para a mesa',
     confirmEyebrow: 'ORDEM DE COMPRA',
+    pcardRosterLabel: 'no arquivo do caso',
+    pcardDockLabel: 'na doca',
+    catalogueLoading: 'Abrindo o cofre de evidências…',
+    catalogueError: 'Não foi possível abrir o cofre de evidências. Verifique sua conexão e reabra este painel.',
   },
 
   // Streamer broadcast stage

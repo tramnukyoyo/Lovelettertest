@@ -23,6 +23,16 @@ import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations
 
 interface GuestBriefingPanelProps {
   lobby: Lobby;
+  /**
+   * Host-only controls, filed UNDER the case facts.
+   *
+   * The folder used to open on ADD BOT and a "sign in to save your settings"
+   * upsell, with the case itself pushed to the bottom (and, at 1366, off the
+   * bottom). The briefing is the folder's subject, so it renders first and the
+   * host's controls are a slot between the last briefing line and the wax
+   * seal — the folder still CLOSES on its own designed edge.
+   */
+  footerSlot?: React.ReactNode;
 }
 
 /**
@@ -36,7 +46,7 @@ function tokensToWin(playerCount: number): number {
   return 4;
 }
 
-const GuestBriefingPanel: React.FC<GuestBriefingPanelProps> = ({ lobby }) => {
+const GuestBriefingPanel: React.FC<GuestBriefingPanelProps> = ({ lobby, footerSlot }) => {
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
 
@@ -68,6 +78,9 @@ const GuestBriefingPanel: React.FC<GuestBriefingPanelProps> = ({ lobby }) => {
         <li>{t('briefing.step3')}</li>
       </ol>
       <p className="ps-brief-more">{t('briefing.openFullBriefing')}</p>
+
+      {/* Host controls, filed under the case facts (see footerSlot). */}
+      {footerSlot && <div className="ps-brief-controls">{footerSlot}</div>}
 
       {/* The folder CLOSES instead of trailing off into empty velvet: two ruled
           evidence lines and a wax CASE OPEN seal, the same dossier idiom the

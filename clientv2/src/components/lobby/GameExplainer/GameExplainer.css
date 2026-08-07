@@ -469,3 +469,29 @@
     padding: 10px 26px;
   }
 }
+
+/* ============================================================================
+   ROUND 4 — NO CONTROL SITS ON THE FOLDER'S FRAME
+   At 375 the X plate cleared the modal's gold border by ~6px and carried a
+   focus ring of the SAME gold at the SAME weight (the dialog focuses its close
+   button on open), so plate and frame read as one welded shape in the corner.
+   The button moves fully inside, loses 4px, and its focus ring hugs it instead
+   of reaching for the border.
+   ============================================================================ */
+@media (max-width: 640px) {
+  .game-explainer-overlay .game-explainer-modal { padding-top: 52px; }
+
+  .game-explainer-overlay .game-explainer-modal button.game-explainer-close {
+    top: 15px;
+    right: 15px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .game-explainer-overlay .game-explainer-modal button.game-explainer-close:focus-visible {
+    outline-width: 2px;
+    outline-offset: 0;
+  }
+}

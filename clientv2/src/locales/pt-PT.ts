@@ -343,6 +343,7 @@ export const ptPT: Translations = {
       warning: 'Atenção',
       error: 'Erro',
       message: 'Mensagem',
+      action: 'Nota do processo',
     },
   },
 
@@ -414,6 +415,10 @@ export const ptPT: Translations = {
     premiumTitle: 'Exclusivos Premium',
     cardBackPreviewCaption: 'como a tua mão aparece à mesa',
     confirmEyebrow: 'ORDEM DE COMPRA',
+    pcardRosterLabel: 'no processo',
+    pcardDockLabel: 'na doca',
+    catalogueLoading: 'A abrir o cofre de provas…',
+    catalogueError: 'Não foi possível abrir o cofre de provas. Verifica a tua ligação e reabre este painel.',
   },
 
   // Streamer broadcast stage

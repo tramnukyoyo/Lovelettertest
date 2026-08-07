@@ -425,3 +425,34 @@
   text-align: left;
 }
 .game-header-account-menu-item:hover { background: var(--bg-card-hover, rgba(255, 255, 255, 0.08)); }
+
+/* ---------------------------------------------------------------------------
+   PRIME SUSPECT — the logged-in header menu joins the auth kit.
+   This was the one auth-kit surface with no theme rule: `--panel-bg` resolves
+   to rgba(36,27,34,0.66) here, so the logout dropdown was TRANSLUCENT (the
+   lobby bled through the items), had no keyline, and set its items in the
+   display face instead of the typewriter meta voice the rest of the family
+   uses. Solid velvet face + gold hairline + 44px rows.
+   ------------------------------------------------------------------------- */
+[data-theme="primesuspect"] .game-header-account-menu {
+  background: var(--velvet-900, #1c0f14);
+  border: 1px solid rgba(210, 178, 90, 0.55);
+  border-radius: var(--psb-radius, 7px);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+[data-theme="primesuspect"] .game-header-account-menu .game-header-account-menu-item {
+  min-height: 44px;
+  font-family: var(--hg-font-meta, 'Special Elite', monospace);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--parchment, #f6f0e6);
+}
+[data-theme="primesuspect"] .game-header-account-menu .game-header-account-menu-item:hover {
+  background: rgba(210, 178, 90, 0.14);
+  color: var(--royal-gold-light, #e7cc7a);
+}
+[data-theme="primesuspect"] .game-header-account-menu .game-header-account-menu-item:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: -2px;
+}

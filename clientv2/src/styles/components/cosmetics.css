@@ -785,3 +785,28 @@
 .psshop-backdrop .psshop-body > .psshop-section:has(+ .gs-scroll-hint) {
   padding-bottom: 4.25rem;
 }
+
+/* ============ ROUND 4 — THE SCRIM HAS TO ACTUALLY CLOSE ================== */
+/* The 64px band above only reached 78% opacity where the last chip row was
+ * being cut, so the Phoenix / Aurora Ring row still ended on a hard horizontal
+ * slice through its avatars — a fade that stops short reads as clipping, not
+ * as "more below". The band is taller and fully opaque across its lower half,
+ * so the last visible row DISSOLVES into the panel floor; the chip row before
+ * it gets matching clearance so nothing purchasable ever rests at max scroll
+ * under either the scrim or the chevron gutter. */
+.psshop-backdrop .psshop-body .gs-scroll-hint {
+  height: 84px;
+  margin-top: -84px;
+  background: linear-gradient(
+    to top,
+    var(--velvet-900, #1c0f14) 0 46%,
+    rgba(28, 15, 20, 0.92) 68%,
+    rgba(28, 15, 20, 0.55) 84%,
+    rgba(28, 15, 20, 0) 100%
+  );
+}
+
+.psshop-backdrop .psshop-body > .psshop-section:last-child,
+.psshop-backdrop .psshop-body > .psshop-section:has(+ .gs-scroll-hint) {
+  padding-bottom: 5.5rem;
+}

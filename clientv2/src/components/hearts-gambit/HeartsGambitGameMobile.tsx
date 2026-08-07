@@ -621,7 +621,9 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                   className="hg-mobile-evidence-card"
                 />
               ) : (
-                <span className="text-xs text-[var(--parchment-dark)]">{t('game.empty')}</span>
+                // Empty locker = a dashed ghost of the real card (same footprint
+                // as the CASE FILE stack beside it), never a bare floating word.
+                <span className="hg-mobile-evidence-empty">{t('game.empty')}</span>
               )}
 
               {/* Count badge */}
@@ -676,9 +678,12 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               ))}
 
               {/* Draw indicator */}
+              {/* Ribbon ON the card's lower edge — it used to hang outside the
+                  card (-bottom-8%) and cut both the card's and the evidence
+                  band's gold border. Geometry lives in .hg-mobile-draw-hint. */}
               {waitingToDraw && (
-                <div className="absolute -bottom-[8%] left-1/2 -translate-x-1/2 z-20">
-                  <span className="bg-[var(--royal-gold)] text-[var(--velvet-dark)] px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap">
+                <div className="hg-mobile-draw-hint">
+                  <span className="hg-mobile-draw-hint__pill">
                     {t('mobile.tapToDraw')}
                   </span>
                 </div>
@@ -794,7 +799,10 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       {/* Must Play Accomplice floating indicator */}
       {showAccompliceAlert && (
         <div className="hg-mobile-alert-rail pointer-events-none">
-          <span className="bg-[var(--royal-crimson)] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
+          {/* wax-red slab with the gold hairline every other crimson element
+              wears; the pulse is brightness-only and reduced-motion guarded
+              (see .ps-alert-ribbon in prime-suspect-unified.css) */}
+          <span className="ps-alert-ribbon">
             {t('game.mustPlayAccomplice')} (7)
           </span>
         </div>
@@ -866,7 +874,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-[150] flex items-center justify-center p-4"
+            className="ps-modal-scrim fixed inset-0 z-[150] flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -939,7 +947,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-[150] flex items-center justify-center p-4"
+            className="ps-modal-scrim fixed inset-0 z-[150] flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -974,8 +982,8 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 onClick={handleBack}
                 className="hg-modal-btn hg-noir-cancel-btn w-full flex items-center justify-center gap-2"
               >
-                <ArrowLeft size={16} />
-                Back
+                <ArrowLeft size={16} aria-hidden="true" />
+                {t('cardInspector.back')}
               </button>
             </motion.div>
           </motion.div>
@@ -989,13 +997,13 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-[150] flex items-center justify-center p-4"
+            className="ps-modal-scrim fixed inset-0 z-[150] flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className={`hg-noir-modal p-3 w-[min(220px,85vw)] ${isSpectator ? 'pointer-events-none' : ''}`}
+              className={`hg-noir-modal p-3 w-[min(268px,88vw)] ${isSpectator ? 'pointer-events-none' : ''}`}
             >
               {/* Card preview with noir glow - show guessed card for Inspector */}
               <div className="flex justify-center mb-2">
@@ -1040,21 +1048,25 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 )}
               </div>
 
-              {/* Action buttons - compact noir styled */}
-              <div className="flex gap-1.5">
+              {/* Action buttons — the FINAL commit of a whole turn, so it wears
+                  the same .ps-btn family as the docked commit bar. It used to be
+                  a raw Tailwind `bg-green-700` cluster with hardcoded English
+                  "Cancel"/"Play" labels (English in all 6 locales). */}
+              <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={handleBack}
-                  className="hg-modal-btn hg-noir-cancel-btn flex-1 flex items-center justify-center text-[10px] py-1.5"
+                  className="ps-btn ps-btn--ghost hg-mobile-commit-btn flex-1"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
+                  type="button"
                   onClick={handleFinalPlay}
-                  className="hg-modal-btn flex-1 py-1.5 bg-green-700 hover:bg-green-600 text-white font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-1"
-                  style={{ fontFamily: 'var(--font-typewriter)', borderRadius: '4px' }}
+                  className="ps-btn ps-btn--primary hg-mobile-commit-btn flex-1"
                 >
-                  <Play size={12} />
-                  Play
+                  <Play size={14} aria-hidden="true" />
+                  {t('cardInspector.playCard')}
                 </button>
               </div>
             </motion.div>
@@ -1062,14 +1074,17 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
         )}
       </AnimatePresence>
 
-      {/* Card preview - shows on hover/long-press OR when card is selected */}
+      {/* Card preview - shows on hover/long-press OR when card is selected.
+          -translate-x-1/2 is load-bearing: without it the wrapper's LEFT edge
+          sat at 50% + 144px (ml-36), pushing the preview ~57px past the right
+          edge of a 375 viewport on every long-press and every SELECTED state. */}
       <AnimatePresence>
         {(previewCard !== null || (playStep === 'SELECTED' && selectedCard !== null)) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed left-1/2 top-1/3 -translate-y-1/2 ml-36 z-50 pointer-events-none"
+            className="fixed left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
           >
             <DynamicCard
               cardType={previewCard ?? selectedCard!}

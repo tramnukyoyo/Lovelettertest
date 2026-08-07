@@ -25,17 +25,45 @@
    The ladder, top of screen down:
      1010  shell chrome toggle
      9999  settings / explainer modals
-    10000  freeze + reconnect curtains  (FreezeOverlay.css:30, ReconnectOverlay.css:23)
-    10035  results confetti             (surface-victory.css:514)
+    10000  freeze + reconnect curtains  (FreezeOverlay.css, ReconnectOverlay.css)
+    10035  results confetti             (surface-victory.css:657)
     10040  results scrim                (surface-victory.css:25)
+    10042  the interruption strip while the results own the screen
     10045  TOASTS  ← this rung
-    10050  crash screen                 (styles/components/error-boundary.css:29)
+    10050  crash screen                 (styles/components/error-boundary.css:30)
 
    Was 10001, i.e. UNDER the results scrim: XP, GP, level-up and achievement
    toasts all fire the instant the case is solved, so the reward moment of the
-   whole game was being shown through a 62%-black blurred wash. */
+   whole game was being shown through a 62%-black blurred wash.
+
+   EVERY rung is now DECLARED here, not just drawn in this comment. Until now
+   only --z-toast existed as a property: --z-outage and --z-error-boundary were
+   consumed through `var()` FALLBACKS in two other files and the results scrim
+   was a bare literal, so a single typo'd fallback could silently reorder the
+   outage and crash rungs with no compile error. */
 :root {
+  --z-outage: 10000;
+  --z-results-scrim: 10040;
+  /* Docked above the results scrim: see FreezeOverlay.css — when the line dies
+     on the results beat the curtain becomes a top strip rather than a second
+     full-screen wash trapped under the first. */
+  --z-outage-over-results: 10042;
   --z-toast: 10045;
+  --z-error-boundary: 10050;
+
+  /* ── The shared outage rhythm ───────────────────────────────────────────────
+     FreezeOverlay and ReconnectOverlay are two beats of ONE story ("the line
+     died" → "the case reopened") and a player commonly sees them back to back.
+     Retuning one and not the other made the wax-seal mark jump 12px and the
+     card re-space between two screens that are meant to be the same card. The
+     rhythm is declared once here (the file that already owns the shared
+     system-state tokens) and consumed by both. */
+  --ps-outage-seal: 64px;
+  --ps-outage-seal-sm: 56px;      /* ≤400px */
+  --ps-outage-seal-land: 50px;    /* landscape phone */
+  --ps-outage-gap: 0.85rem;
+  --ps-outage-gap-sm: 0.75rem;
+
   --ps-toast-band-top: calc(var(--header-height, 66px) + env(safe-area-inset-top, 0px) + 12px);
 }
 
@@ -77,6 +105,58 @@
   /* Was `z-[100001]` — above the crash screen, i.e. off the ladder entirely. */
   z-index: var(--z-toast, 10045) !important;
   padding: 12px 14px 12px 18px !important;
+}
+
+/* …and it takes the family's TYPOGRAPHY and icon plate too. It is the toast
+   players see most often, and it was the one member still rendering a bare
+   `text-sm font-medium` sentence row next to a 20px lucide glyph while the five
+   rail members carry a typewriter eyebrow + Cinzel title. The eyebrow tier needs
+   a DOM node this file cannot add (reported to the surface owner); everything
+   that CSS can carry is carried here so the family reads as one at a glance.
+   Four class levels beat Tailwind's single-class utilities without !important. */
+.hg-panel.hg-candlelight.fixed.top-4 > span {
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  color: var(--parchment, #f6f0e6);
+  overflow-wrap: anywhere;
+}
+
+/* The bare glyph becomes the family's 40px accent plate. `currentColor` is the
+   tone colour the component already puts on the icon, so the plate tints itself
+   danger/reward without this file naming a single hex. */
+.hg-panel.hg-candlelight.fixed.top-4 > svg {
+  box-sizing: content-box;
+  width: 20px;
+  height: 20px;
+  padding: 10px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm, 6px);
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* The close control had no focus-visible ring at all — the only toast in the
+   game a keyboard player could not see themselves reach. */
+.hg-panel.hg-candlelight.fixed.top-4 > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--parchment-dark, #d9cfbe);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.hg-panel.hg-candlelight.fixed.top-4 > button:hover {
+  color: var(--parchment, #f6f0e6);
+  background: rgba(210, 178, 90, 0.12);
+}
+.hg-panel.hg-candlelight.fixed.top-4 > button:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
 }
 
 /* Reserve the row it occupies so a system toast can never land on top of it. */
@@ -291,14 +371,23 @@ body.ps-results-open #ps-toast-rail {
   padding-top: 0;
 }
 
-body.ps-results-open #ps-toast-rail .ps-toast-rail__lane { align-self: center; }
-
-body.ps-results-open:has(#ps-toast-rail .ps-toast) .ps-victory-scrim {
-  /* Capped as a fraction of the viewport so a landscape phone still gets a
-     readable case file; the env() term restores the safe-area inset that
-     .ps-victory-scrim's own padding-bottom carries. */
-  padding-bottom: calc(min(34vh, 240px) + env(safe-area-inset-bottom, 0px));
+/* `:has()` takes the specificity of its most specific argument, so the row
+   reserve above computes to (1,4,1) and outranks the (1,1,1) rule directly
+   above it REGARDLESS of source order. With an action toast up during the
+   results beat the bottom-docked rail therefore kept reserving 58px and grew
+   upward over the case file. Cancelled here at matching weight. */
+body.ps-results-open:has(.hg-panel.hg-candlelight.fixed.top-4) #ps-toast-rail {
+  padding-top: 0;
 }
+
+/* The centred full-width lane + the `min(34vh, 240px)` scrim reservation that
+   used to close this section are GONE. `:has()` matches hidden elements, and
+   the XP toast is `display: none` for the whole results beat — so the reserve
+   fired permanently and capped the case file (375 lost every CTA, 1024/1366
+   lost half the CTA stack, and the panel sat 240px off-centre). The rail now
+   docks into the bottom-RIGHT corner for the beat, which needs no reservation
+   at all; that geometry lives with the surface that opens it, in
+   `styles/game/surface-victory.css` §8. */
 
 @media (max-width: 400px) {
   .ps-toast { gap: 10px; padding: 10px 12px 10px 16px; }
@@ -309,5 +398,6 @@ body.ps-results-open:has(#ps-toast-rail .ps-toast) .ps-victory-scrim {
 @media (prefers-reduced-motion: reduce) {
   .ps-toast,
   .ps-toast.is-exiting { animation: none; }
-  .ps-toast__action { transition: none; }
+  .ps-toast__action,
+  .hg-panel.hg-candlelight.fixed.top-4 > button { transition: none; }
 }

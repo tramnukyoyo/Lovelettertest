@@ -66,8 +66,10 @@ const ReconnectOverlay: React.FC<ReconnectOverlayProps> = ({
       aria-labelledby="reconnect-title"
     >
       <div className="reconnect-card">
+        {/* 30, not 38: the same glyph-to-seal ratio FreezeOverlay's Pause uses
+            on the same shared 64px disc (--ps-outage-seal). */}
         <span className="reconnect-seal" aria-hidden="true">
-          <RotateCcw size={38} strokeWidth={1.5} />
+          <RotateCcw size={30} strokeWidth={1.5} />
         </span>
 
         <div className="reconnect-card__text">

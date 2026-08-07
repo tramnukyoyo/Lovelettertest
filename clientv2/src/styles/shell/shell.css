@@ -74,6 +74,12 @@
    open for keyboard users and while header dropdowns are in use. Where
    display-mode isn't supported, the header simply stays — graceful. */
 @media (display-mode: fullscreen) {
+  /* Where the grab handle sits: centred on the STAGE, not on the shell — with
+     the 320px rail open, a shell-centred handle drifts 160px right of the
+     content it belongs to and lands near the rail edge (round 4). */
+  .gs-shell { --gs-hud-handle-x: calc((100% - var(--gs-rail-w)) / 2); }
+  .gs-shell.gs-rail-collapsed { --gs-hud-handle-x: 50%; }
+
   .gs-hud-wrap {
     position: absolute;
     top: 0;
@@ -81,7 +87,7 @@
     right: 0;
     z-index: 7;
     overflow: visible;
-    transform: translateY(calc(-100% + 8px));
+    transform: translateY(calc(-100% + 12px));
     transition: transform 0.25s var(--ease-out-expo);
   }
 
@@ -90,44 +96,50 @@
     transform: translateY(0);
   }
 
-  /* Peek strip: the visible 8px edge doubles as the reveal affordance.
-     Round 3 — in this theme `--primary-rgb` is royal crimson, so a 0.35-alpha
-     crimson strip on the candlelit stage was invisible: in fullscreen captures
-     the header simply read as ABSENT, with no hint that hovering the top edge
-     brings back the room code / leave control. Gold hairline + a centred grab
-     handle, matching the .gs-chrome-toggle folder-tab language. */
+  /* Peek strip: the visible 12px edge doubles as the reveal affordance.
+     Round 3 painted this gold — and it still measured as ABSENT at 1024 in the
+     round-3 captures. Root cause (round 4): `.game-header` carries
+     `position: relative; z-index: var(--z-mobile-nav)` (= 1000, header.css),
+     so the header's own opaque panel face paints ABOVE these z-auto pseudo
+     elements and buries the last 12px of the strip — the very rows that peek
+     out. Both pseudos now sit above it in the hud-wrap's own stacking context
+     (the wrap's `z-index: 7` keeps 1001 local, it can never escape the shell).
+     `min-height` guards the strip against any future height clamp. */
   .gs-hud-wrap::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 8px;
+    height: 12px;
+    min-height: 10px;
     background:
       linear-gradient(180deg,
-        rgba(231, 204, 122, 0.55),
-        rgba(210, 178, 90, 0.28));
-    border-bottom: 2px solid var(--px-border-dark);
+        rgba(231, 204, 122, 0.62),
+        rgba(210, 178, 90, 0.3));
+    border-bottom: 1px solid rgba(210, 178, 90, 0.85);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
     transition: opacity 0.2s;
     pointer-events: none;
+    z-index: 1001;
   }
 
-  /* the grab handle — three hairline ridges, centred, aria-free decoration */
+  /* the grab handle — three hairline ridges, centred on the STAGE, aria-free */
   .gs-hud-wrap::before {
     content: '';
     position: absolute;
-    left: 50%;
-    bottom: 1px;
+    left: var(--gs-hud-handle-x, 50%);
+    bottom: 2px;
     width: 46px;
-    height: 4px;
+    height: 5px;
     transform: translateX(-50%);
     background: repeating-linear-gradient(90deg,
       var(--velvet-darker, #120d11) 0 6px,
       transparent 6px 10px);
-    opacity: 0.85;
+    opacity: 0.9;
     transition: opacity 0.2s;
     pointer-events: none;
-    z-index: 1;
+    z-index: 1002;
   }
 
   .gs-hud-wrap:hover::after,
@@ -136,6 +148,14 @@
   .gs-hud-wrap:focus-within::before {
     opacity: 0;
   }
+}
+
+/* Below the rail breakpoint the rail column is 0px wide, so the stage IS the
+   shell — the handle goes back to dead centre. (Written as a second top-level
+   query instead of a nested one: PostCSS ships nested @media fine, but the
+   flat form is what the rest of this file uses.) */
+@media (display-mode: fullscreen) and (max-width: 1023.98px) {
+  .gs-shell { --gs-hud-handle-x: 50%; }
 }
 
 /* ----- STAGE -------------------------------------------------------------- */
@@ -503,27 +523,32 @@
   /* Drop the decorative mascot on phones to save vertical space. */
   .lobby-mascot { display: none !important; }
 
-  /* ROUND 3 — the sticky START bar sliced the invite band in half.
-     `.gs-scene-actions` is the LAST child of `.gs-lobby-scene`, so `bottom: 0`
-     pins it to the scrollport for the whole scroll INCLUDING the very end: at
-     max scroll the room-code tiles and the "share the link" line still sat
-     under it, cut through the middle, and the most important element in the
-     lobby was unreadable. Reserving trailing space inside the sticky element's
-     containing block gives the bar somewhere of its own to land, so every real
-     row can be scrolled fully clear of it. Guests get no SceneActions (START is
-     host-only), so `:has()` keeps the reserve off screens with no bar. */
-  .gs-lobby-scene:has(.gs-scene-actions) {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
-  }
+  /* INVITE-FIRST (round 4). Fleet reference — BlindSpot's lobby at 375 opens
+     with the share block: room code, Copy Invite Link, QR. Prime Suspect kept
+     the desktop order (seats, then invite at the foot of the crew pane), which
+     put the one thing a host opens the lobby to do at the very bottom of a
+     two-screen column. `.gs-crew-invite` is a direct flex child of
+     `.gs-crew-scroll`, so one `order` flips it without touching the DOM — and
+     desktop (≥1024) is untouched, where the band belongs under the seats. */
+  .gs-lobby-scene .gs-crew-scroll .gs-crew-invite { order: -1; }
 
-  /* Full-width Start, pinned to the bottom of the scroll so it's always reachable.
-     Opaque ground + a gold hairline on top: while mid-scroll the bar DOES pass
-     over content, and a hard lit edge reads as "a bar in front of the page"
-     instead of "the page has been sliced". */
+  /* ROUND 4 — the sticky START bar is GONE on mobile.
+     Round 2 made it sticky so START was always reachable; round 3 added an
+     88px trailing reserve so content could be scrolled clear of it. Both
+     treated the symptom. An opaque bar pinned to the scrollport bottom covers
+     whatever is at the fold AT REST, and at 375 that was the entire invite
+     block: below the "INVITE YOUR FRIENDS" heading the room-code tiles, Copy
+     Invite Link, QR and card-back buttons were 100% hidden behind it on first
+     paint, with nothing on screen saying they existed. Owner directive 1 (no
+     element may cover another, ever) has no sticky exemption.
+     The lobby now flows as one honest column — crew, invite band, START —
+     and the stage-level ScrollHint (GameShell + stage.css) is what tells the
+     player the column continues. START keeps its lit ground so it still reads
+     as the scene's one primary, it just no longer floats over the room. */
   .gs-lobby-scene .gs-scene-actions {
-    position: sticky;
-    bottom: 0;
-    z-index: 3;
+    position: static;
+    z-index: auto;
+    margin-top: clamp(0.75rem, 3cqb, 1.25rem);
     background:
       linear-gradient(180deg,
         var(--velvet-panel, var(--bg-secondary, #15131f)),
@@ -533,8 +558,48 @@
     padding-top: 0.6rem;
     padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
   }
+  /* Only the safe-area is reserved now; the 88px sticky-bar lane is obsolete
+     and was reading as a strip of dead velvet under the CTA. */
+  .gs-lobby-scene:has(.gs-scene-actions) {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
   .lobby-start-section { width: 100%; }
   .lobby-start-btn { width: 100%; }
+}
+
+/* ----- ...AND IT HAS TO STAY UN-STUCK ------------------------------------
+   `pages/lobby.css` re-declares the sticky bar in three later blocks
+   (`@media (min-width:1024px) and (max-width:1024.98px)` ~1707-1745,
+   `@media (max-width:1024.98px)` ~2133-2172 incl. a 118px `!important`
+   reserve, and the ≤767 scrim bump ~2431). It loads after this file, so the
+   round-4 un-stick above is silently reverted by them.
+   Sticky CTAs are a SHARED SHELL MECHANIC — per the brief they live with the
+   chrome owner and are never re-patched per surface — and an opaque bar
+   pinned to the fold is an occlusion under owner directive 1. So the three
+   declarations are asserted here at `.app-layout.lobby-page` (0-4-0) +
+   `!important`, which is the smallest thing that outranks the later blocks.
+   FOLLOW-UP for the lobby owner: delete those three blocks so the cascade
+   stops carrying two opposite intentions. Range is ≤1024.98 (not 1023.98):
+   exactly-1024 runs the same single-column scrolling lobby. */
+@media (max-width: 1024.98px) {
+  .app-layout.lobby-page .gs-lobby-scene .gs-scene-actions {
+    position: static !important;
+    bottom: auto !important;
+    z-index: auto !important;
+  }
+
+  /* The receding scrim only made sense above a floating bar; with the bar in
+     flow its `bottom: 100%` would resolve against the stage instead. */
+  .app-layout.lobby-page .gs-lobby-scene .gs-scene-actions::before {
+    display: none !important;
+  }
+
+  /* No sticky bar → no landing lane. 118px of dead velvet under the CTA was
+     the last thing in the column. */
+  .app-layout.lobby-page .gs-lobby-scene,
+  .app-layout.lobby-page .gs-lobby-scene:has(.gs-scene-actions) {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }
 
 
@@ -576,17 +641,35 @@
           below the last suspect is "empty case paper", not a hole
        4. a warm crimson floor + the inner gold hairline that frames the page
      The seal is background-only (attachment: scroll on a scroller = pinned to
-     the visible padding box), so it never moves under the roster rows. */
+     the visible padding box), so it never moves under the roster rows.
+
+     ROUND 4 — the seal is now PRESSED WAX, not an outline. Round 3 drew the
+     rim at r=32–34px while the fill stopped at r=27px, so a 5px moat of bare
+     velvet sat between them: at every desktop width the mark read as a stray
+     hairline circle floating in the lower rail, i.e. an unfinished element.
+     Rim and body are contiguous now, with an off-centre candle highlight and a
+     debossed inner ring — four cheap radials that read as one object. */
   background:
     radial-gradient(120% 55% at 50% 0%,
       rgba(245, 226, 168, 0.11) 0%, rgba(245, 226, 168, 0) 62%),
     repeating-linear-gradient(180deg,
       transparent 0 27px,
       rgba(210, 178, 90, 0.085) 27px 28px),
+    /* candle catches the upper-left shoulder of the wax */
+    radial-gradient(circle at 44% calc(100% - 102px),
+      var(--rail-seal-gloss, transparent) 0 8px,
+      transparent 22px),
+    /* debossed inner ring — the die-stamp bite */
     radial-gradient(circle at 50% calc(100% - 92px),
-      transparent 0 32px,
-      var(--rail-seal-ring, transparent) 32px 34px,
-      transparent 34px),
+      transparent 0 16px,
+      var(--rail-seal-inner, transparent) 16px 18px,
+      transparent 19px),
+    /* rim, contiguous with the body */
+    radial-gradient(circle at 50% calc(100% - 92px),
+      transparent 0 27px,
+      var(--rail-seal-ring, transparent) 27px 30px,
+      transparent 31px),
+    /* wax body */
     radial-gradient(circle at 50% calc(100% - 92px),
       var(--rail-seal-fill, transparent) 0 27px,
       transparent 28px),
@@ -604,8 +687,36 @@
    its empty state with its own fingerprint seal, and two watermarks stacked in
    one 320px column read as noise. */
 .gs-rail .sidebar-tabs-container .sidebar-content:has(.player-list) {
-  --rail-seal-ring: rgba(231, 204, 122, 0.13);
-  --rail-seal-fill: rgba(106, 22, 35, 0.3);
+  --rail-seal-ring: rgba(231, 204, 122, 0.16);
+  --rail-seal-fill: rgba(106, 22, 35, 0.34);
+  --rail-seal-inner: rgba(0, 0, 0, 0.22);
+  --rail-seal-gloss: rgba(255, 232, 190, 0.09);
+}
+
+/* ----- THE COLLAPSE TAB NEEDS A LANE ---------------------------------------
+   ROUND 4 blocker. `.gs-rail-collapse-btn` is absolutely centred against the
+   SHELL's right edge — which is also the rail's right edge — and owner check
+   (b) requires it stay exactly there: one control, vertically centred. Prime
+   Suspect's roster rows are the only rows in the fleet that carry their own
+   right-edge buttons (make-host + kick), so at 1024 and 1366 the tab landed ON
+   TOP of the second gold button of whichever suspect happened to cross the
+   rail's vertical centre — VERA in the round-3 captures, ~60% of the button
+   covered. Bad Actor's rows have no such buttons, which is why the shared rule
+   never bit before.
+   The fix reserves a fixed lane on the row's own right padding instead of
+   moving the tab: the row background still runs the full width of the sheet,
+   so it reads as a slightly deeper right margin rather than a gap, and every
+   action button clears the tab at every viewport and every roster length.
+   The chat log gets the same lane — a message bubble crossing the centre had
+   exactly the same collision. */
+.gs-rail { --gs-rail-tab-lane: 36px; }
+
+.gs-rail .sidebar-content .player-list-items .player-list-item {
+  padding-right: var(--gs-rail-tab-lane);
+}
+
+.gs-rail .sidebar-content .chat-window .chat-messages {
+  padding-right: var(--gs-rail-tab-lane);
 }
 
 .gs-rail .sidebar-tabs-container .sidebar-content::-webkit-scrollbar { width: 0; }
@@ -642,41 +753,48 @@
 }
 
 /* ============================================================================
-   MOBILE CHROME TOGGLE — a gold case-file tab, not a stray amber chip.
-   Echoes the lobby card's CASE FILE tab (rounded BOTTOM corners, velvet glyph
-   on gold) and sits off dead-centre so it never lands on the backdrop moon.
+   MOBILE CHROME TOGGLE — the drawer pull of the case folder.
+
+   ROUND 4. Round 3 shipped this as a solid gold slab parked at `left: 32%`
+   (to dodge the backdrop moon). In the phone captures it was the ONLY piece
+   of chrome on screen while immersive, and it measured as a flat ~50x44
+   mustard rectangle hanging off the top edge, well left of centre — it read as
+   a rendering artifact, not as the control that brings the header and dock
+   back. Two changes: it is centred (the moon lives top-RIGHT at every phone
+   width, so 50% is clear of it), and it wears the same candle face as every
+   other "there is more here" tab in the game — velvet ground, gold hairline,
+   gold glyph, gold grip ridges. Quiet, but unmistakably a pull tab.
    ============================================================================ */
 .gs-chrome-toggle {
-  left: 32%;
-  min-width: 58px;
-  min-height: 30px;
+  left: 50%;
+  min-width: 64px;
+  min-height: 36px;   /* keeps the A1 touch-target floor above */
   height: auto;
-  padding: 0.25rem 0.9rem 0.3rem;
-  border: 1px solid rgba(61, 12, 19, 0.55);
+  padding: 0.3rem 1rem 0.35rem;
+  border: 1px solid rgba(210, 178, 90, 0.5);
   border-top: none;
-  border-radius: 0 0 9px 9px;
+  border-radius: 0 0 10px 10px;
   background:
     linear-gradient(180deg,
-      var(--royal-gold-light, #e7cc7a) 0%,
-      var(--royal-gold, #d2b25a) 100%);
-  color: var(--velvet-darker, #1a0f16);
+      var(--velvet-raise, #34262f) 0%,
+      var(--velvet-panel, #2c2029) 100%);
+  color: var(--royal-gold-light, #e7cc7a);
   box-shadow:
-    0 3px 0 rgba(0, 0, 0, 0.42),
-    0 8px 18px rgba(0, 0, 0, 0.45),
-    inset 0 -1px 0 rgba(61, 12, 19, 0.28);
-  transition: filter 0.18s ease;
+    0 4px 14px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0 rgba(231, 204, 122, 0.16);
+  transition: filter 0.18s ease, border-color 0.18s ease;
 }
 
-/* Two hairline "file ridges" — the folder-tab tell, cheap and aria-hidden. */
+/* Two gold grip ridges — the "pull me" tell, cheap and aria-hidden. */
 .gs-chrome-toggle::before {
   content: '';
   position: absolute;
-  left: 10px;
-  right: 10px;
-  top: 4px;
+  left: 12px;
+  right: 12px;
+  top: 5px;
   height: 3px;
-  border-top: 1px solid rgba(61, 12, 19, 0.22);
-  border-bottom: 1px solid rgba(61, 12, 19, 0.16);
+  border-top: 1px solid rgba(210, 178, 90, 0.42);
+  border-bottom: 1px solid rgba(210, 178, 90, 0.24);
   pointer-events: none;
 }
 
@@ -684,9 +802,10 @@
 .gs-chrome-toggle:focus-visible {
   background:
     linear-gradient(180deg,
-      var(--royal-gold-light, #e7cc7a) 0%,
-      var(--royal-gold, #d2b25a) 100%);
-  filter: brightness(1.08);
+      var(--velvet-raise, #34262f) 0%,
+      var(--velvet-panel, #2c2029) 100%);
+  border-color: var(--royal-gold, #d2b25a);
+  filter: brightness(1.18);
 }
 
 .gs-chrome-toggle:focus-visible {
@@ -695,9 +814,9 @@
 }
 
 .gs-chrome-toggle .gs-chrome-toggle-icon {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1;
-  text-shadow: 0 1px 0 rgba(231, 204, 122, 0.5);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {
