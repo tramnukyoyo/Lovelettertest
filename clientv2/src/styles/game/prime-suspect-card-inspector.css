@@ -15,6 +15,14 @@
    for the old absolutely-positioned layout and must not reach the new one.
    Capture-contract classes kept: .hg-inspector-modal .hg-guess-card-modal
    .hg-inspector-card .hg-confirmation-card .hg-panel .hg-candlelight
+
+   ⚠ RADIUS TRAP (same one documented in the error-boundary + lobby files):
+   `[data-theme="primesuspect"] * { border-radius: 0 !important }`
+   (prime-suspect-unified.css:1377) beats EVERY plain `border-radius` declared
+   here, whatever the specificity. A radius that is part of the design — the
+   pill pager, the exhibit tag, the wax seal, the round avatars — must carry
+   `!important` or it ships square. Pseudo-elements (`::before`/`::after`) are
+   NOT matched by `*`, so those keep their radius without the flag.
    ============================================================================ */
 
 [data-theme="primesuspect"] .hg-inspector-modal {
@@ -63,6 +71,17 @@
     /* Flush to the top edge: the old 0.5rem left a sliver of the table's gold
        chrome half-cut by the viewport, reading as a render artifact. */
     padding-top: env(safe-area-inset-top, 0px);
+    /* Top-anchored, the panel left ~90px of bare backdrop at 375x667 and the
+       table's own card copy stayed LEGIBLE through it — the exact thing §0 says
+       an exhibit view must not allow. The panel is `max-height: 100%`, so
+       centring it inside the padded box cannot clip it; the base wash is
+       deepened for the strip that remains. */
+    align-items: center;
+    background:
+      radial-gradient(clamp(420px, 130vw, 1100px) at 50% 14%, rgba(246, 240, 230, 0.09), transparent 58%),
+      radial-gradient(clamp(360px, 110vw, 900px) at 25% 12%, rgba(210, 178, 90, 0.13), transparent 62%),
+      radial-gradient(clamp(520px, 150vw, 1200px) at 50% 108%, rgba(0, 0, 0, 0.9), transparent 60%),
+      rgba(0, 0, 0, 0.93);
   }
 }
 
@@ -162,7 +181,11 @@
   /* 24px of head-room: `.hgi-selected-stamp` hangs 14px above the card frame
      and this box is the scroll clipper, so a smaller inset shaves the wax
      stamp and its shadow on every phone. */
-  padding: 24px var(--hgi-m) var(--hgi-l) !important;
+  /* The 28px ramp below is ADDED to the bottom padding rather than gated: a
+     static mask that is deeper than the padding (var(--hgi-l) is 16px at
+     <=420px) fades the LAST LINE of the case notes at scroll end instead of
+     fading empty padding, i.e. it truncates exactly when the reader is done. */
+  padding: 24px var(--hgi-m) calc(var(--hgi-l) + 28px) !important;
   /* "More below" affordance: the case-notes slip is long-form rule text and it
      used to end hard against the content edge with the footer rail right under
      it — indistinguishable from truncated/broken copy. The last 28px of the
@@ -191,7 +214,7 @@
 [data-theme="primesuspect"] .hgi-card-frame {
   position: relative;
   flex: 0 0 auto;
-  border-radius: 14px;
+  border-radius: 14px !important;
 }
 
 [data-theme="primesuspect"] .hgi-card-frame.is-selected::before {
@@ -222,7 +245,7 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: 999px !important;
   background: linear-gradient(180deg, var(--royal-crimson-light), var(--royal-crimson));
   border: 1px solid rgba(231, 204, 122, 0.75);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22);
@@ -301,7 +324,7 @@
 [data-theme="primesuspect"] .hgi-exhibit-tag {
   padding: 2px 7px;
   border: 1px solid rgba(210, 178, 90, 0.42);
-  border-radius: 4px;
+  border-radius: 4px !important;
   background: rgba(210, 178, 90, 0.09);
   color: var(--royal-gold-light);
   letter-spacing: 0.2em;
@@ -368,14 +391,6 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-[data-theme="primesuspect"] .hgi-empty-eyebrow {
-  font-family: var(--font-mono, 'Special Elite', monospace);
-  font-size: 0.66rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(210, 178, 90, 0.78);
 }
 
 [data-theme="primesuspect"] .hgi-empty-line {
@@ -499,7 +514,7 @@
   display: block;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: 50% !important;
   background: rgba(246, 240, 230, 0.3);
   transition: width 0.18s ease, background-color 0.18s ease;
 }
@@ -510,7 +525,7 @@
 
 [data-theme="primesuspect"] .hgi-dot.is-active .hgi-dot-pill {
   width: 20px;
-  border-radius: 99px;
+  border-radius: 99px !important;
   background: var(--royal-gold);
   box-shadow: 0 0 10px rgba(231, 204, 122, 0.45);
 }
@@ -602,14 +617,20 @@
   flex: 1 1 0;
 }
 
-/* Suspect tiles — evidence sleeves, not generic pickers. */
+/* Suspect tiles — evidence sleeves, not generic pickers. Wrapping flex, not a
+   2-col grid, for the same reason the guess rack below is: the most common
+   seating (4 players = 3 opponents) leaves the last tile alone in the left
+   column with a visible hole beside it, at the single most dramatic moment in
+   the game. Wrapped rows centre under the row above instead. */
 [data-theme="primesuspect"] .hgi-suspects {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
 }
 
 [data-theme="primesuspect"] .hgi-suspect {
+  flex: 0 1 calc(50% - 5px);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -660,7 +681,7 @@
 [data-theme="primesuspect"] .hgi-suspect-avatar {
   width: 54px;
   height: 54px;
-  border-radius: 50%;
+  border-radius: 50% !important;
   padding: 2px;
   background: linear-gradient(150deg, var(--royal-gold), var(--royal-crimson));
   overflow: hidden;
@@ -670,14 +691,14 @@
 [data-theme="primesuspect"] .hgi-suspect-avatar > * {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 50% !important;
   object-fit: cover;
 }
 
 [data-theme="primesuspect"] .hgi-suspect-self {
   width: 54px;
   height: 54px;
-  border-radius: 50%;
+  border-radius: 50% !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -708,7 +729,7 @@
   right: -9px;
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: 50% !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -821,6 +842,28 @@
   }
 }
 
+/* 481–1023px had NO exhibit sizing at all: the inspector is mounted only in
+   HeartsGambitGameMobile and `useIsMobile` stays true up to 1024, so above the
+   clamp band the fixed `--hg-card-width: 210px` (prime-suspect-unified.css:4683)
+   took over inside a 560px panel — a 322px stage row in a 528px content box,
+   i.e. ~100px of empty velvet each side and an exhibit filling 40% of its own
+   dossier. The card grows and the panel comes in to meet it. */
+@media (min-width: 481px) {
+  [data-theme="primesuspect"] .hgi-panel .hg-dynamic-card.hg-inspector-card {
+    --hg-card-width: min(280px, 34dvh);
+    --hg-card-height: calc(var(--hg-card-width) * 1.5);
+  }
+
+  /* 444, not 430: the stage row is 44 + 12 + 280 + 12 + 44 = 392px and the
+     content box loses 2×16px padding plus up to 15px of classic scrollbar when
+     a long localized rule text makes the layer scroll. 444 keeps the row inside
+     the box in BOTH cases (397px / 412px available) — one pixel less and the
+     exhibit scrolls sideways instead of filling its frame. */
+  [data-theme="primesuspect"] .settings-modal-panel.hgi-panel {
+    width: min(444px, 100%);
+  }
+}
+
 @media (max-width: 420px) {
   [data-theme="primesuspect"] .hg-inspector-modal {
     --hgi-s: 8px;
@@ -858,6 +901,23 @@
   [data-theme="primesuspect"] .settings-modal-panel.hgi-panel {
     width: min(720px, 100%);
   }
+}
+
+/* --- 7b · Focus ring ------------------------------------------------------
+   The family's focus-visible rule (prime-suspect-ingame.css §12.6, ~2268-2292)
+   lists `.settings-modal-close` and `.ps-btn` — which is why the close button
+   and the action row show a ring — but none of the inspector's own controls.
+   `.hgi-dot` additionally zeroes `box-shadow: none !important` above, so
+   tabbing the pager, the suspect tiles and the guess rack showed NOTHING; the
+   guess rack is pure imagery with no text label, so keyboard focus there was
+   undiscoverable. Same declaration as §12.6, owned here so the shared file
+   stays untouched. */
+[data-theme="primesuspect"] .hgi-nav:focus-visible,
+[data-theme="primesuspect"] .hgi-dot:focus-visible,
+[data-theme="primesuspect"] .hgi-suspect:focus-visible,
+[data-theme="primesuspect"] .hgi-guess:focus-visible {
+  outline: 2px solid var(--royal-gold-light) !important;
+  outline-offset: 2px;
 }
 
 /* --- 8 · Reduced motion -------------------------------------------------- */

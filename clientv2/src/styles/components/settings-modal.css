@@ -617,10 +617,10 @@
     min-height: 32px;
   }
 
+  /* No 28px floor here: <=374px is the tier where the control is hit with a
+     THUMB. Size stays at the 44px dossier floor; only the type shrinks. */
   .settings-toggle,
   .toggle-switch {
-    min-width: 40px;
-    min-height: 28px;
     font-size: 0.625rem;
   }
 
@@ -913,6 +913,17 @@
    widths for one family. */
 [data-theme="primesuspect"] {
   --ps-modal-width: 560px;
+  /* ONE dossier panel FACE for the whole modal family (settings / auth /
+     feedback / device). It used to be written out only in the
+     `.settings-modal-backdrop .settings-modal` rule below, so the device modal —
+     styled in prime-suspect-unified.css — kept a flat `#c9b8a0` + grain with no
+     candlelight at all: open camera settings straight after Settings and the
+     family visibly broke. Both consumers now read this token. */
+  --ps-modal-face:
+    radial-gradient(125% 62% at 50% -8%, rgba(255, 226, 162, 0.34), rgba(255, 226, 162, 0) 62%),
+    radial-gradient(95% 66% at 50% 116%, rgba(42, 36, 32, 0.24), rgba(42, 36, 32, 0) 60%),
+    url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.08"/%3E%3C/svg%3E'),
+    #c9b8a0;
 }
 /* (auth + feedback keep their own narrower form widths — a 400px sign-in form
    stretched to 560px is a worse panel, not a more consistent one.) */
@@ -954,17 +965,40 @@
   [data-theme="primesuspect"] .settings-modal .settings-lang-btn { min-height: 44px; }
 }
 
+/* …and the AUDIO tab, which the round-3 pass missed because it was never
+   captured: the on/off toggles floored at 32px (28px under 375px — the exact
+   tier where fingers are used) and both slider thumbs were 20x20 on a 10px
+   track. `!important` is required on the slider box: the theme layer
+   (prime-suspect-unified.css, @imported after this file) pins `height: 10px
+   !important`, which no amount of specificity beats. The visible track keeps
+   its 10px skin from that same layer — only the INPUT grows, so the hit band is
+   44px while the dossier look is unchanged. */
+[data-theme="primesuspect"] .settings-modal .settings-toggle {
+  min-height: 44px;
+  min-width: 60px;
+}
+[data-theme="primesuspect"] .settings-modal .settings-slider {
+  height: 44px !important;
+  background: transparent !important;
+}
+[data-theme="primesuspect"] .settings-modal .settings-slider::-webkit-slider-thumb {
+  width: 26px !important;
+  height: 26px !important;
+  /* Chrome aligns the thumb to the TRACK's top edge, not its centre. */
+  margin-top: -8px !important;
+}
+[data-theme="primesuspect"] .settings-modal .settings-slider::-moz-range-thumb {
+  width: 26px !important;
+  height: 26px !important;
+}
+
 /* Candlelight + grain on the panel FACE. The masthead carried the whole
    identity and everything under it was flat manila; the game panels ground on a
    warm radial from the top plus the parchment grain, so the modal family does
-   too. The grain URI is the one the theme layer already ships — it must be
-   restated because this is a `background` shorthand. */
+   too. Recipe lives in `--ps-modal-face` above — the device modal consumes the
+   same token from prime-suspect-unified.css. */
 [data-theme="primesuspect"] .settings-modal-backdrop .settings-modal {
-  background:
-    radial-gradient(125% 62% at 50% -8%, rgba(255, 226, 162, 0.34), rgba(255, 226, 162, 0) 62%),
-    radial-gradient(95% 66% at 50% 116%, rgba(42, 36, 32, 0.24), rgba(42, 36, 32, 0) 60%),
-    url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.08"/%3E%3C/svg%3E'),
-    #c9b8a0 !important;
+  background: var(--ps-modal-face) !important;
 }
 
 /* Wax seal closing the dossier — fills the empty band under the Legal card and
@@ -977,18 +1011,27 @@
   gap: 10px;
   padding: 0 2px;
 }
+/* The rules have to MEET the wax at full strength. At 0.42 with a taper on BOTH
+   ends they peaked at #C1B19C over the #C9B8A0 panel (ΔL ≈ 3%) — they did not
+   render as rules at all, which left the seal reading as a stray crimson dot
+   floating under the Legal card. Each rule now tapers away from the seal only. */
 [data-theme="primesuspect"] .settings-modal .settings-modal-seal::before,
 [data-theme="primesuspect"] .settings-modal .settings-modal-seal::after {
   content: '';
   flex: 1 1 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74, 63, 53, 0.42), transparent);
+}
+[data-theme="primesuspect"] .settings-modal .settings-modal-seal::before {
+  background: linear-gradient(90deg, transparent, rgba(74, 63, 53, 0.72) 65%);
+}
+[data-theme="primesuspect"] .settings-modal .settings-modal-seal::after {
+  background: linear-gradient(270deg, transparent, rgba(74, 63, 53, 0.72) 65%);
 }
 [data-theme="primesuspect"] .settings-modal .settings-modal-seal-wax {
   flex: 0 0 auto;
   position: relative;
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   border-radius: 52% 48% 51% 49% / 49% 52% 48% 51%;
   background:
     radial-gradient(circle at 34% 28%, #a3243a 0%, var(--royal-crimson, #6a1623) 58%, var(--royal-crimson-dark, #3d0c13) 100%);
@@ -996,10 +1039,23 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 2px 4px rgba(42, 36, 32, 0.4);
 }
+/* A real IMPRESSION, not a bare ring: two crossed gold bars struck inside the
+   ring so the seal reads as a signature mark rather than as a mis-styled round
+   button in an otherwise square-cornered family. (Gradient bars, not an emoji —
+   standing directive.) */
 [data-theme="primesuspect"] .settings-modal .settings-modal-seal-wax::after {
   content: '';
   position: absolute;
-  inset: 6px;
+  inset: 7px;
   border: 1px solid rgba(231, 204, 122, 0.5);
   border-radius: 50%;
+  background:
+    linear-gradient(45deg,
+      transparent calc(50% - 0.75px),
+      rgba(231, 204, 122, 0.82) calc(50% - 0.75px) calc(50% + 0.75px),
+      transparent calc(50% + 0.75px)),
+    linear-gradient(-45deg,
+      transparent calc(50% - 0.75px),
+      rgba(231, 204, 122, 0.82) calc(50% - 0.75px) calc(50% + 0.75px),
+      transparent calc(50% + 0.75px));
 }

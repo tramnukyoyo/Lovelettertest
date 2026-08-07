@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Shield, Crown, Skull, Bot, ChevronRight } from 'lucide-react';
 import type { CardType, Player } from '../../types';
 import DynamicCard from './DynamicCard';
-import { CARD_BACK_IMAGE } from './cardDatabase';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 import { Avatar } from '../core/Avatar';
 import { FlairName } from '../core/ProfileIdentity';
@@ -193,13 +192,16 @@ const MobileOpponentStrip: React.FC<MobileOpponentStripProps> = ({
                             />
                           </div>
                         ) : (
-                          <div className={`hg-mobile-opponent-card rounded-lg overflow-hidden shadow-lg ${frameThemeClass(getPlayerProfile(player.id)?.cosmetics.frameId)}`.trim()}>
-                            <img
-                              src={CARD_BACK_IMAGE}
-                              alt="Hidden card"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
+                          /* ONE card language on the table: the suspects' hidden
+                             hands are the same DynamicCard back as the CASE FILE
+                             deck stack (gold hairline + candle drop), not a raw
+                             <img> in a borderless slate box. */
+                          <DynamicCard
+                            cardType={0 as CardType}
+                            showFace={false}
+                            ownerFrameClass={frameThemeClass(getPlayerProfile(player.id)?.cosmetics.frameId)}
+                            className="hg-mobile-opponent-card"
+                          />
                         )}
                       </div>
                     );

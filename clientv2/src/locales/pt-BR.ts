@@ -344,6 +344,8 @@ export const ptBR: Translations = {
       error: 'Erro',
       message: 'Mensagem',
       action: 'Nota do caso',
+      blocked: 'Bloqueado',
+      done: 'Concluído',
     },
   },
 
@@ -629,6 +631,7 @@ export const ptBR: Translations = {
     frozenTitle: 'INVESTIGAÇÃO INTERROMPIDA',
     frozenBody: 'O arquivo fica lacrado até a linha voltar. Nada do que você anotou se perde.',
     frozenOverline: 'Caso em espera',
+    frozenCtaHold: 'As ações voltam assim que a linha retornar.',
     attempt: 'Tentativa {n}',
     retrying: 'Restabelecendo a linha',
     restoredOverline: 'Caso reaberto',

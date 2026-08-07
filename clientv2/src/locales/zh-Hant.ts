@@ -318,6 +318,8 @@ export const zhHant: Translations = {
       error: '錯誤',
       message: '訊息',
       action: '案件記事',
+      blocked: '已封鎖',
+      done: '完成',
     },
   },
 
@@ -536,6 +538,7 @@ export const zhHant: Translations = {
     frozenTitle: '調查中斷',
     frozenBody: '線路恢復之前，案卷將暫時封存。你記錄的一切都不會遺失。',
     frozenOverline: '案件暫停',
+    frozenCtaHold: '線路恢復後即可繼續操作。',
     attempt: '第 {n} 次嘗試',
     retrying: '正在恢復連線',
     restoredOverline: '案件重啟',

@@ -495,3 +495,101 @@
     outline-offset: 0;
   }
 }
+
+/* ============================================================================
+   ROUND 5 — THE BRIEFING GETS A FORWARD DOOR, AND DISMISS STOPS SHOUTING
+   a) The close plate was the brightest object in a modal whose whole job is to
+      be READ: a near-white glyph in a lit box out-ranked the gold heading, the
+      evidence plate and the pull-quote, so the eye landed on "dismiss" first.
+      It joins the gold system at low intensity and only lights up on intent —
+      hover turns it wax-red, which is the one place in this theme that means
+      "this ends something".
+   b) Five pips, a SKIP and nothing that said ADVANCE. The row is now a real
+      nav: quiet SKIP · pips · gold NEXT, with the two controls balanced at
+      opposite ends of the dot row.
+   ============================================================================ */
+.game-explainer-overlay .game-explainer-modal button.game-explainer-close {
+  color: rgba(210, 178, 90, 0.72);
+  background: rgba(20, 14, 22, 0.7);
+  border: 1px solid rgba(210, 178, 90, 0.5);
+}
+
+.game-explainer-overlay .game-explainer-modal button.game-explainer-close:hover {
+  color: var(--royal-gold-light, #f0dc9a);
+  background: rgba(150, 32, 42, 0.45);
+  border-color: var(--royal-gold, #d2b25a);
+}
+
+/* One row, three zones. `space-between` alone would let a missing pip strip
+   collapse NEXT into the middle — the spacer keeps the geometry stable. */
+.game-explainer-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(10px, 2.4vw, 20px);
+}
+
+.game-explainer-nav .game-explainer-pips {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.game-explainer-nav-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* NEXT is the row's one primary: gold-bordered, lit ground, same 40px height
+   and typewriter voice as SKIP so they read as a matched pair. */
+.game-explainer-overlay .game-explainer-modal button.game-explainer-next {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 22px;
+  border: 1px solid var(--royal-gold, #d2b25a);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(231, 204, 122, 0.22), rgba(210, 178, 90, 0.10));
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.35);
+  color: var(--royal-gold-light, #f0dc9a);
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+
+.game-explainer-overlay .game-explainer-modal button.game-explainer-next:hover {
+  /* rule 8: brightness only — never move a clickable under the pointer. */
+  transform: none;
+  filter: brightness(1.15);
+  background: linear-gradient(180deg, rgba(231, 204, 122, 0.32), rgba(210, 178, 90, 0.16));
+}
+
+.game-explainer-next:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #f0dc9a);
+  outline-offset: 2px;
+}
+
+/* SKIP is the quiet half of the pair: it loses its border so only NEXT reads
+   as a lit control. */
+.game-explainer-overlay .game-explainer-modal button.game-explainer-skip {
+  flex: 0 0 auto;
+  border-color: rgba(210, 178, 90, 0.24);
+  background: transparent;
+  color: rgba(205, 191, 164, 0.78);
+}
+
+@media (max-width: 640px) {
+  .game-explainer-nav { gap: 8px; }
+
+  .game-explainer-overlay .game-explainer-modal button.game-explainer-skip,
+  .game-explainer-overlay .game-explainer-modal button.game-explainer-next {
+    padding: 10px 18px;
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-explainer-next { transition: none; }
+}

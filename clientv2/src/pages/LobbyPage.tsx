@@ -131,14 +131,18 @@ const CrewCard: React.FC<{ p: Player; index: number; isMe: boolean }> = ({ p, in
           <><Crown className="gs-crew__crown" aria-hidden="true" />{tShell('lobby.host')}</>
         ) : isMe ? tShell('lobby.you') : ' '}
       </span>
-      {/* Dossier footer — the lower third of a suspect file: three ruled
-          statement lines and a typewriter status stamp. Pure decoration
-          (aria-hidden, text set in CSS like the CASE FILE folder tab), so it
-          adds no translatable string and no layout for screen readers. The
-          third rule arrived with round 4: the seats now STRETCH to fill their
-          grid track, and the extra height belongs to the dossier body rather
-          than to a bigger sprite. */}
+      {/* Dossier footer — the lower half of a suspect file: ruled statement
+          lines and a typewriter status stamp. Pure decoration (aria-hidden,
+          text set in CSS like the CASE FILE folder tab), so it adds no
+          translatable string and no layout for screen readers. Round 5 takes
+          it to FIVE rules: at 1920 a 250x530 seat left ~220px under the name,
+          and three faint dotted hairlines read as compression noise rather
+          than as a written statement. Five ruled lines spread across the
+          space, with the stamp pinned to the foot, make the file's lower half
+          a designed surface instead of a void. */}
       <span className="gs-crew__file" aria-hidden="true">
+        <span className="gs-crew__file-rule" />
+        <span className="gs-crew__file-rule" />
         <span className="gs-crew__file-rule" />
         <span className="gs-crew__file-rule" />
         <span className="gs-crew__file-rule" />
@@ -403,6 +407,8 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                                 <span className="gs-crew__file-rule" />
                                 <span className="gs-crew__file-rule" />
                                 <span className="gs-crew__file-rule" />
+                                <span className="gs-crew__file-rule" />
+                                <span className="gs-crew__file-rule" />
                                 <span className="gs-crew__stamp" />
                               </span>
                             </li>
@@ -474,7 +480,17 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                         lobby={lobby}
                         footerSlot={isHost ? (
                           isMobile ? (
-                            <CollapsibleSection title={t('settings.title')}>
+                            /* Round 5: on a PHONE the folder opens collapsed.
+                               The primary CTA (START) is the last thing in a
+                               ~2.5-viewport column at 375, and the settings
+                               accordion is the only block between the briefing
+                               and it that nobody has to read to start a game.
+                               Tablets (768–1023) keep it open — START is
+                               already inside ~1.3 viewports there. */
+                            <CollapsibleSection
+                              title={t('settings.title')}
+                              defaultOpen={typeof window === 'undefined' ? true : window.innerWidth > 767}
+                            >
                               <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
                             </CollapsibleSection>
                           ) : (

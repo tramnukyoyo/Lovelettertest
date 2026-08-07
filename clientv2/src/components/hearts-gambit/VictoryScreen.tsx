@@ -136,7 +136,9 @@ const RewardsSlot: React.FC<{ winnerName?: string }> = ({ winnerName }) => {
         <PostGameRewards winnerName={winnerName} />
       ) : pending ? (
         <div className="ps-rewards-ghost">
-          <span className="sr-only">{t('victory.rewardsPending')}</span>
+          {/* Three unlabelled bars read as a render glitch in a still; the
+              caption names the wait so the ghost reads as loading. */}
+          <div className="ps-eyebrow ps-rewards-ghost-label">{t('victory.rewardsPending')}</div>
           <i aria-hidden="true" /><i aria-hidden="true" /><i aria-hidden="true" />
         </div>
       ) : null}
@@ -346,16 +348,22 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   // keep a face-down back so the row always reads as a full spread.
   const tablePlayers = lobby.players.filter(p => !p.isSpectator && !p.isBigScreen);
   const evidenceCount = Math.max(tablePlayers.length, 1);
-  // Two sizings for two panel widths: the fan overlaps its neighbours by only
-  // 0.03 card-widths per side now (it used to crop the next suspect's role name
-  // to "SPECTOR"), so the horizontal step is 0.94 cards, not 0.84 — and the
-  // ≥1440 panel is 34rem instead of 27.5rem. CSS picks; nothing is inline, so a
-  // media query can still switch between them.
+  // Two sizings for two panel widths (the ≥1440 panel is 38rem, the rest
+  // 27.5rem). The fan NO LONGER overlaps: any negative margin plus the winner's
+  // 1.12× scale landed on a neighbour's role name / rank badge, and a 5s
+  // auto-advance cannot afford an unreadable hand. Layout budget is therefore
+  // one full card per suspect (step 1.0) plus the winner's 2 × 0.07 clearance;
+  // the fan's rotation costs another ~0.17w of bounding width on top, which the
+  // budgets below already discount (the scroller's overflow-x would otherwise
+  // turn a 2px overrun into a horizontal scrollbar).
+  // CSS picks; nothing is inline, so a media query can still switch between them.
   const fanStep = (budget: number, cap: number) =>
-    Math.min(cap, Math.round(budget / (1 + 0.94 * (evidenceCount - 1))));
-  const evidenceVw = Math.min(20, 80 / evidenceCount).toFixed(1);
+    Math.min(cap, Math.floor(budget / (evidenceCount + 0.14)));
+  const evidenceVw = Math.min(24, 76 / evidenceCount).toFixed(1);
   const evidenceCardW = `clamp(44px, ${evidenceVw}vw, ${fanStep(356, 96)}px)`;
-  const evidenceCardWWide = `clamp(44px, ${evidenceVw}vw, ${fanStep(470, 126)}px)`;
+  // ≥1440 the panel is 38rem (was 34): removing the overlap costs card width,
+  // and this beat has 5 seconds to land — so the canvas pays for it instead.
+  const evidenceCardWWide = `clamp(44px, ${evidenceVw}vw, ${fanStep(515, 132)}px)`;
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -374,7 +382,12 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
         {p.id === winnerId && <Crown size={14} style={{ flexShrink: 0 }} aria-hidden="true" />}
         <FlairName player={p} className="ps-truncate" />
       </span>
-      <TokenPips tokens={p.tokens} total={tokensToWin} stampLast={stampWinner && p.id === winnerId} />
+      {/* Same grammar as the front page: pips AND the x/y counter, so the 5s
+          beat teaches the read the game-over dossier uses. */}
+      <span className="ps-progress-tally">
+        <TokenPips tokens={p.tokens} total={tokensToWin} stampLast={stampWinner && p.id === winnerId} />
+        <span className="ps-progress-count">{p.tokens}/{tokensToWin}</span>
+      </span>
     </div>
   );
 
@@ -573,9 +586,9 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                         {p.id === winnerId && <Crown size={14} style={{ flexShrink: 0 }} aria-hidden="true" />}
                         <FlairName player={p} className="ps-truncate" />
                       </span>
-                      <span className="inline-flex items-center gap-2">
+                      <span className="ps-progress-tally">
                         <TokenPips tokens={p.tokens} total={tokensToWin} />
-                        <span className="font-mono text-xs opacity-70 whitespace-nowrap">
+                        <span className="ps-progress-count">
                           <ScoreCountUp value={p.tokens} from={0} />/{tokensToWin}
                         </span>
                       </span>

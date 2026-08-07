@@ -95,7 +95,11 @@
   position: absolute;
   left: 1px;
   right: 1px;
-  bottom: 1px;
+  /* Exactly the 46px lane carved by `.is-scrollable`'s panel padding-bottom —
+     the band is OUTSIDE the scroller, so no control can ever reach it and the
+     chevron can never land on a button face. Do not give it height without
+     carving the matching lane. */
+  bottom: 0;
   height: 46px;
   z-index: 1;
   display: flex;
@@ -209,18 +213,27 @@
   justify-content: center;
   align-items: flex-end;
   margin-top: clamp(12px, 2.6vw, 18px);
-  padding-top: calc(var(--psv-card-w, 80px) * 0.14);
+  /* Clearance for the winner's scale(1.12) + 6px lift, which grow out of the
+     row's own box: 0.09w from the scale, then the lift on top. At 375 a flat
+     0.14w was 2.6px short and the enlarged card touched the ROUND OVER label. */
+  padding-top: calc(var(--psv-card-w, 80px) * 0.1 + 8px);
   padding-bottom: calc(var(--psv-card-w, 80px) * 0.16);
   pointer-events: none;
 }
 
 .ps-evidence-card {
   position: relative;
+  /* flex, not block: a block wrapper around the card ran a text baseline gap
+     taller than the card face, so the seal's `bottom` resolved BELOW the card
+     and only a crescent survived. */
+  display: flex;
   flex: 0 0 auto;
-  /* Was -0.08 per side: the 1.12× winner card then cropped its neighbour's role
-     name to "SPECTOR" — one of four revealed hands unreadable inside a 5s
-     auto-advance. The fan still overlaps, just never over the type. */
-  margin-inline: calc(var(--psv-card-w, 80px) * -0.03);
+  /* ZERO. Any negative inset here is spent twice: the 1.12× winner grows
+     0.06w per side on top of it, so -0.03 landed exactly on the neighbour's
+     name band ("NSPECTOR", a clipped rank badge, a cut "BLACKMAILER"). The fan
+     now reads as a laid-out spread — rotation and lift carry the fan, not
+     overlap. */
+  margin-inline: 0;
   transform: rotate(var(--psv-rot, 0deg)) translateY(var(--psv-lift, 0px));
   transform-origin: 50% 100%;
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
@@ -233,23 +246,31 @@
   filter: grayscale(0.55) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
 }
 
-/* The enlarged winner earns its own clearance instead of eating its
-   neighbours': +0.03 out, against the row's -0.03 in. */
+/* The enlarged winner buys its OWN clearance: scale(1.12) overhangs 0.06w per
+   side, so 0.07w of margin leaves a hairline of daylight instead of a crop. */
 .ps-evidence-card.is-winner {
   z-index: 3;
-  margin-inline: calc(var(--psv-card-w, 80px) * 0.03);
+  margin-inline: calc(var(--psv-card-w, 80px) * 0.07);
   transform: rotate(var(--psv-rot, 0deg)) translateY(calc(var(--psv-lift, 0px) - 6px)) scale(1.12);
 }
 
-/* Wax seal STAMPED ON the evidence — it used to hang off the corner and land
-   on the neighbouring card. */
+/* Wax seal STAMPED ON the evidence, top-right — opposite the rank badge, over
+   the art plate's dead corner, which is the only region of the card face that
+   carries no type at any viewport.
+
+   Two earlier bugs, both fixed here: the seal used to hang off the card corner
+   onto the neighbour, and then (bottom-right, inside the card) it was painted
+   UNDER `.card-body` (z-index 6) and the corner badge (z-index 12) — the
+   wrapper's ::after sits at z 0 in the same stacking context — so all that
+   survived was a ~4px crescent on the frame. It now outranks the card chrome. */
 .ps-evidence-card.is-winner::after {
   content: '';
   position: absolute;
-  right: calc(var(--psv-card-w, 80px) * 0.02);
-  bottom: calc(var(--psv-card-w, 80px) * 0.02);
-  width: calc(var(--psv-card-w, 80px) * 0.4);
-  height: calc(var(--psv-card-w, 80px) * 0.4);
+  z-index: 13;
+  right: calc(var(--psv-card-w, 80px) * 0.055);
+  top: calc(var(--psv-card-w, 80px) * 0.06);
+  width: calc(var(--psv-card-w, 80px) * 0.3);
+  height: calc(var(--psv-card-w, 80px) * 0.3);
   border-radius: 50%;
   background: radial-gradient(circle at 34% 30%, #a72b3d, #6a1623 62%, #46101a);
   box-shadow:
@@ -290,12 +311,20 @@
   padding: 1px 2px;
 }
 /* The role name carries the read at evidence scale; it inherits the width the
-   rule text used to waste. */
+   rule text used to waste. 0.125 was over budget for the longest role
+   ("BLACKMAILER" measured ~1.01 card-widths in Cinzel 800 uppercase), so the
+   longest name in the deck ran into its own card edge and got cropped. 0.105
+   plus a hard containment keeps every role inside its own exhibit. */
+[data-theme="primesuspect"] .ps-evidence-card .hg-dynamic-card {
+  overflow: hidden;
+}
 [data-theme="primesuspect"] .ps-evidence-card .hg-dynamic-card .effect-tag {
-  font-size: calc(var(--psv-card-w, 80px) * 0.125);
+  font-size: calc(var(--psv-card-w, 80px) * 0.105);
   line-height: 1.15;
   margin-bottom: 0;
   letter-spacing: 0.01em;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 /* Rule text is unreadable at this scale AND clipped mid-word ("(discard",
    "directly - if"). The beat lasts 5 seconds: rank numeral + role name only. */
@@ -328,9 +357,31 @@
   min-width: 0;
   padding: 7px 10px;
   border-radius: 8px;
+  /* The suspect names were the ONLY system-sans type on a Cinzel + Special
+     Elite case file — and they sat in the same row as typewriter-set counters. */
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
   font-size: 13px;
+  letter-spacing: 0.02em;
   color: var(--parchment-dark, #d9cfbe);
 }
+
+/* Pips + the x/y counter travel together on BOTH beats. */
+.ps-progress-tally {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.ps-progress-count {
+  font-family: var(--font-typewriter, 'Special Elite', monospace);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  opacity: 0.72;
+}
+.ps-progress-row.is-winner .ps-progress-count { opacity: 1; }
 
 .ps-progress-row.is-winner {
   color: var(--royal-gold-light, #e7cc7a);
@@ -533,6 +584,11 @@
   width: 100%;
   padding: 2px 0;
 }
+/* At 0.05 -> 0.14 gold over velvet the bars resolved to flat NEUTRAL GREY in a
+   still, directly above the REMATCH CTA: a 4s window in the hero shot where the
+   victory panel looked like it had failed to load. Lifted to 0.10 -> 0.26 and
+   given a gold inset hairline so they read as ruled parchment lines waiting to
+   be written on, not as three grey slabs. */
 .ps-rewards-ghost i {
   display: block;
   height: 12px;
@@ -541,14 +597,23 @@
   background:
     linear-gradient(
       90deg,
-      rgba(var(--accent-color-rgb, 210, 178, 90), 0.05),
-      rgba(var(--accent-color-rgb, 210, 178, 90), 0.14),
-      rgba(var(--accent-color-rgb, 210, 178, 90), 0.05)
+      rgba(var(--accent-color-rgb, 210, 178, 90), 0.10),
+      rgba(var(--accent-color-rgb, 210, 178, 90), 0.26),
+      rgba(var(--accent-color-rgb, 210, 178, 90), 0.10)
     ) 0 0 / 220% 100%;
+  box-shadow: inset 0 0 0 1px rgba(210, 178, 90, 0.18);
   animation: psGhostSweep 1.4s linear infinite;
 }
 .ps-rewards-ghost i:nth-of-type(2) { width: 82%; animation-delay: 0.18s; }
 .ps-rewards-ghost i:nth-of-type(3) { width: 64%; animation-delay: 0.36s; }
+/* Unlabelled bars read as a rendering failure in a still. Dimmed caption, so it
+   names the wait without competing with the ledger it is standing in for. */
+.ps-rewards-ghost-label {
+  margin-bottom: 2px;
+  letter-spacing: 0.18em;
+  opacity: 0.5;
+  text-align: left;
+}
 
 .ps-rewards { margin: 12px 0 2px; font-size: 13px; }
 .ps-reward-unlocks {
@@ -643,9 +708,25 @@
   flex-direction: column;
   gap: 10px;
 }
+/* One rhythm, one breakpoint. Below 460 every action is a full-width row;
+   from 460 up the secondary tier is a 2×2 block — the pair splitting into a
+   row while CHALLENGE FRIENDS and TRY ANOTHER GAME stayed full width gave the
+   768 stack THREE different row widths in one column. */
 @media (min-width: 460px) {
   .ps-cta-pair { flex-direction: row; }
   .ps-cta-pair > * { flex: 1 1 0; min-width: 0; }
+
+  .is-gameover .ps-cta-secondary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .is-gameover .ps-cta-pair,
+  .is-gameover .ps-waiting-note { grid-column: 1 / -1; }
+  /* A lone survivor in the second row spans it rather than sitting half-width
+     next to a hole (direct-play rooms have no TRY ANOTHER GAME). */
+  .is-gameover .ps-cta-secondary > :last-child:nth-child(2) { grid-column: 1 / -1; }
 }
 
 .ps-cta-secondary .ps-btn {
@@ -781,36 +862,40 @@ body.ps-results-open .xp-toast-container { display: none; }
     flex-direction: column;
   }
   /* The ledger settles at the bottom of the dossier column so the two columns
-     end on the same line. */
-  .is-gameover .ps-dossier .ps-rewards-slot { margin-top: auto; }
+     end on the same line — but ONLY when there IS a ledger. Pushing an EMPTY
+     slot down stretched the hole open instead: ~200px of blank parchment under
+     "Nero 0/4" at 1366/1920, the largest dead region on the front page, right
+     where a newspaper carries its subhead. Empty (or still waiting) → the
+     dossier centres its content in the column instead. */
+  .is-gameover .ps-dossier:has(.ps-rewards) .ps-rewards-slot { margin-top: auto; }
+  .is-gameover .ps-dossier:has(.ps-rewards-slot.is-pending) .ps-rewards-slot {
+    margin-top: clamp(12px, 1.4vw, 18px);
+  }
+  .is-gameover .ps-dossier:not(:has(.ps-rewards)) { justify-content: center; }
   .is-gameover .ps-progress-list { margin-top: 10px; }
 
-  /* On the 48rem front page the four secondary actions are a 2×2 block under
-     the single primary, not a 4-high ladder: it is the same hierarchy in 56px
-     less vertical, which is what puts CHALLENGE FRIENDS and TRY ANOTHER GAME
-     back above the fold at 1024/1366 instead of behind a scroll. */
-  .is-gameover .ps-cta-secondary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    align-items: stretch;
-  }
-  .is-gameover .ps-cta-pair,
-  .is-gameover .ps-waiting-note { grid-column: 1 / -1; }
-  /* A lone survivor in the second row spans it rather than sitting half-width
-     next to a hole (direct-play rooms have no TRY ANOTHER GAME). */
-  .is-gameover .ps-cta-secondary > :last-child:nth-child(2) { grid-column: 1 / -1; }
+  /* (The 2×2 secondary block now starts at 460px — see §7 — so the front page
+     and the phone stack share one rhythm instead of three row widths.) */
 
   /* THE CONVICTION HAS A SUBJECT. The verdict column was a crown, a word and a
      name floating in a ~350×380 parchment field — in a deduction game the one
      thing missing was the deduction. The winner's final held card is laid in
      as the exhibit (same evidence treatment as round-over, wax seal and all),
      with the closing line of the case under it. */
+  /* COLUMN, not row: as a row the eyebrow and the exhibit were siblings, and
+     the 1.12× card's margin overhang covered the label's last letter — the
+     money screen read "FINAL EVIDENC" at 1024/1366/1920. The label stacks
+     ABOVE its exhibit, which is also what a caption does on a front page. */
   .is-gameover .ps-verdict-evidence {
-    --psv-card-w: clamp(64px, 5.6vw, 88px);
+    /* Slightly smaller than the old row sizing so stacking the caption above
+       the exhibit costs the 1366 fold nothing. */
+    --psv-card-w: clamp(60px, 4.6vw, 100px);
     display: flex;
-    justify-content: center;
-    margin-top: clamp(12px, 1.4vw, 20px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(6px, 0.6vw, 10px);
+    margin-top: clamp(8px, 1vw, 14px);
     padding-bottom: calc(var(--psv-card-w) * 0.08);
     pointer-events: none;
   }
@@ -850,7 +935,7 @@ body.ps-results-open .xp-toast-container { display: none; }
    postage-stamp sized. The panel and the fan grow together.
    ------------------------------------------------------------------------- */
 @media (min-width: 1440px) {
-  .ps-victory-panel.is-roundover { max-width: 34rem; }
+  .ps-victory-panel.is-roundover { max-width: 38rem; }
   .is-roundover .ps-evidence-row { --psv-card-w: var(--psv-card-w-wide, 104px); }
   .is-roundover .ps-winner-name { font-size: clamp(2.3rem, 2.4vw, 2.9rem); }
   .is-roundover .ps-hero-line { font-size: clamp(1.15rem, 1.15vw, 1.35rem); }

@@ -1718,32 +1718,16 @@
     flex: none;
     min-height: 100%;
     height: auto;
-    /* Trailing room for the sticky START bar to land in, so the invite band
-       can be scrolled fully clear of it (shell.css does this below 1024).
-       Round 4: 88px was the bar's own height with nothing to spare, so at max
-       scroll the last line ("Share the link so your friends can join!") still
-       ended flush against the bar's gold edge. */
-    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
   }
+
+  /* ROUND 5 · the sticky START bar and its 120px landing lane are DELETED
+     here. shell.css (the chrome owner) un-sticks the bar for the whole
+     ≤1024.98 regime with `!important` and left a FOLLOW-UP asking this file to
+     stop declaring the opposite intention. Nothing below re-declares it. */
 
   .lobby-page .gs-lobby-panes {
     grid-template-columns: minmax(0, 1fr);
     align-content: start;
-  }
-
-  .lobby-page .gs-lobby-scene .gs-scene-actions {
-    position: sticky;
-    bottom: 0;
-    z-index: 3;
-    background: linear-gradient(
-      180deg,
-      var(--velvet-panel, var(--bg-secondary, #15131f)),
-      var(--velvet-darker, var(--bg-darker, #0f0b12))
-    );
-    border-top: 1px solid rgba(210, 178, 90, 0.42);
-    box-shadow: 0 -12px 20px -8px rgba(0, 0, 0, 0.6);
-    padding-top: 0.6rem;
-    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
   }
 
   .lobby-page .lobby-start-section,
@@ -2130,45 +2114,16 @@
    two remaining gold slabs are quieted.
    ============================================================================ */
 
-/* ---------- 1 + 7 · A STICKY BAR MUST NEVER GUILLOTINE A LINE ------------- */
-/* Confirmed at 1024 ("Share the link so your friends can join!" sliced through
-   its x-height by the bar's 1px gold edge) and at 768 (ADD BOT cut in half).
-   Trailing padding alone only fixes the END of the scroll — mid-scroll a hard
-   lit edge will always cut whatever is behind it. A receding scrim above the
-   bar makes the passing row DISSOLVE into the folder instead, which is also
-   the affordance that says "there is more below".
-   Scoped to <=1024.98 so the desktop board (where the bar is not sticky) is
-   untouched; the sticky bar is already a positioned element, so it is the
-   scrim's containing block. */
-@media (max-width: 1024.98px) {
-  .lobby-page .gs-lobby-scene .gs-scene-actions { position: sticky; }
-
-  .lobby-page .gs-lobby-scene .gs-scene-actions::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 100%;
-    height: 34px;
-    pointer-events: none;
-    background: linear-gradient(
-      to top,
-      var(--velvet-panel, var(--bg-secondary, #15131f)) 0 22%,
-      rgba(21, 19, 31, 0.72) 60%,
-      rgba(21, 19, 31, 0) 100%
-    );
-  }
-}
-
-/* Phones: shell.css reserves 88px with `!important`, which is the bar's own
-   height and nothing more — ADD BOT and the invite subtext still ended flush
-   against it at max scroll. pages/lobby.css loads AFTER shell.css, so equal
-   specificity + !important wins. */
-@media (max-width: 1023.98px) {
-  .lobby-page .gs-lobby-scene:has(.gs-scene-actions) {
-    padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-}
+/* ---------- 1 + 7 · THE STICKY-BAR BLOCKS ARE GONE (round 5) -------------- */
+/* Round 2 made the START bar sticky below 1024, round 3 gave it a 118px
+   landing lane and round 4 a receding scrim above it. Round 4's chrome owner
+   then removed the sticky bar entirely (shell.css: an opaque bar pinned to the
+   fold covers content AT REST, which owner directive 1 has no exemption for)
+   and asserted `position: static !important` over all three of this file's
+   blocks — so every declaration here was dead code that still described the
+   opposite intention. Deleted, per the FOLLOW-UP note in shell.css:576-608.
+   Sticky CTAs are a SHARED SHELL MECHANIC: they live with the chrome owner and
+   are never re-patched from a surface file. */
 
 /* ---------- 2 · THE BRIEFING FOLDER STOPS EATING ITS LAST LINE ------------ */
 /* At 1366 the folder is height-starved (`height: 100%` inside the two-column
@@ -2394,9 +2349,306 @@
     margin-top: 10px;
     padding-top: 10px;
   }
+  /* (round 5: the 44px scrim bump went with the sticky bar — see above.) */
+}
 
-  /* On phones the dissolve IS the affordance — shell.css removes the pane
-     ScrollHint for the whole one-page-scroll regime — so it has to be
-     unmistakable rather than a hairline. */
-  .lobby-page .gs-lobby-scene .gs-scene-actions::before { height: 44px; }
+/* ============================================================================
+   ROUND 5 — CRITIC PASS (6.5/10)
+   One blocker (a scenery sprite rendering INSIDE the case file at 375/768),
+   then the surface work: the suspect files stop being 55% void, the briefing
+   folder gets stamped closed, the route to the full briefing becomes findable,
+   the tablet fold puts the crew back in the hero seat, the guest's "what now?"
+   becomes a designed object, and the board stops drifting off its own baseline.
+   ============================================================================ */
+
+/* ---------- 1 · NO SCENERY SPRITE MAY RENDER INSIDE THE CASE FILE --------- */
+/* BLOCKER. At 375 a blurry tan lump sat at x290-360 / y210-290, hard against
+   the room code's last tile; at 768 it covered the right half of YOUR CARD
+   BACK — an interactive control occluded by decor.
+   Root cause (round 3 chased the wrong sprite): shell.css flattens the lobby
+   panes with `background: none !important` below 1024, and the MOBILE IN-GAME
+   sheet re-anchors the fixed backdrop moon into the table's roster band
+   (prime-suspect-unified.css:5870 / :6022, `[data-theme] .gb-backdrop .gb-moon`,
+   0-3-0). That rule is not scoped to the game root, so it also fires on the
+   LOBBY — and it puts the moon at ~28vh, straight through the fill-less
+   invite column.
+   Two independent guards, because either alone is one cascade edit away from
+   breaking again:
+   (a) the folders get a real velvet fill back, so nothing behind the stage can
+       ever paint inside them; and
+   (b) the moon is re-anchored to the horizon for the lobby only — a low warm
+       key light behind the streetlamp instead of a lump in the content column.
+   Scope for (b) is `html[data-theme]:has(.lobby-page)` (0-4-1): it out-ranks
+   the in-game rule without editing that file and cannot reach home or table. */
+@media (max-width: 1023.98px) {
+  .app-layout.lobby-page .gs-pane.lobby-waiting-card {
+    /* The desktop folder's own velvet, taken to effectively opaque — a 6%
+       window is all a bright sprite needs to read as a smudge. */
+    background: linear-gradient(180deg, rgba(48, 35, 44, 0.97), rgba(30, 22, 28, 0.98)) !important;
+    border-radius: var(--radius-md);
+    /* shell.css zeroes the inline padding; with a fill the copy would run into
+       the column edge. Small inset, so the flattened stack keeps its width. */
+    padding-inline: clamp(10px, 2.6vw, 16px) !important;
+    /* shell.css ends the flattened section at `padding-bottom: 0`; with a fill
+       that would run the last line into the folder's own edge. */
+    padding-bottom: clamp(10px, 2.6vw, 16px) !important;
+  }
+}
+
+@media (max-width: 1024.98px) {
+  html[data-theme="primesuspect"]:has(.lobby-page) .gb-backdrop .gb-moon {
+    top: auto;
+    bottom: 9vh;
+    right: auto;
+    left: 4vw;
+    opacity: 0.55;
+  }
+
+  html[data-theme="primesuspect"]:has(.lobby-page) .gb-backdrop .gb-moonglow {
+    top: auto;
+    bottom: -10vh;
+    right: auto;
+    left: -10vw;
+  }
+}
+
+/* ---------- 9 · THE BOARD STOPS DRIFTING OFF ITS OWN BASELINE ------------- */
+/* Name baselines climbed FALCO 437 / MILO 435 / NERO 433 / VERA 431 and the
+   status stamps 698/694/692/690 — a monotonic ~2px per card. That is not
+   scatter (scatter alternates): it is the folder's decorative
+   `rotate(-0.4deg)` (prime-suspect-unified.css:1861-1862) shearing every row
+   inside a ~1100px pane, which also softens every glyph on the board.
+   The pinned-file conceit is already carried by things that do not shear text:
+   the push-pin, the dog-eared corner and the ruled dossier body. So the tilt
+   goes and the grid lands true. (0,5,0) beats the theme's (0,4,0). */
+.lobby-page .gs-lobby-panes .gs-pane.lobby-waiting-card.gs-lobby-col {
+  transform: none;
+}
+
+/* ---------- 2 · THE SUSPECT FILE GETS A BODY ----------------------------- */
+/* At 1920 each seat was 250x530 with the mugshot ending at y=415 and the name
+   at y=437 — everything from 470 to 690 was bare velvet crossed by three
+   dotted hairlines faint enough to read as compression noise, with STATEMENT
+   PENDING adrift at the foot. The hero element of the surface was 55% void.
+   Three moves: the identity block deliberately owns the top (bigger mugshot on
+   a fixed shoulder), the statement area becomes a real ruled sheet (five lines
+   at a readable weight, spread over the full height), and the status stamp is
+   pinned to the foot behind a hairline — which also lands all four seats'
+   status lines on one baseline. */
+@media (min-width: 1025px) {
+  .lobby-page .gs-crew__av {
+    /* was clamp(40px, min(15cqb/rows, 58%), 168px) — ~130px in a 250px card.
+       The middle term keeps multi-row boards from overflowing their track. */
+    width: clamp(48px, min(62%, calc(24cqb / var(--gs-rows, 1))), 190px);
+    margin-top: clamp(8px, 2cqb, 22px);
+  }
+
+  .lobby-page .gs-crew__file {
+    justify-content: space-between;
+    gap: 0;
+    margin-top: clamp(8px, 1.6cqb, 18px);
+    padding-top: clamp(10px, 1.8cqb, 20px);
+    padding-bottom: 0;
+  }
+
+  /* A ruled statement sheet, not three dashes: solid hairlines at a weight
+     that survives a screenshot, in staggered widths so the block still reads
+     as handwriting that stops short rather than as table borders. */
+  .lobby-page .gs-crew__file-rule {
+    border-top: 1px solid rgba(210, 178, 90, 0.20);
+  }
+
+  .lobby-page .gs-crew__file-rule:nth-child(1) { width: min(88%, 200px); }
+  .lobby-page .gs-crew__file-rule:nth-child(2) { width: min(72%, 164px); }
+  .lobby-page .gs-crew__file-rule:nth-child(3) { width: min(84%, 190px); }
+  .lobby-page .gs-crew__file-rule:nth-child(4) { width: min(60%, 138px); }
+  .lobby-page .gs-crew__file-rule:nth-child(5) { width: min(44%, 100px); }
+
+  .lobby-page .gs-crew__stamp {
+    width: 100%;
+    margin-top: clamp(8px, 1.4cqb, 14px);
+    padding-top: clamp(6px, 1cqb, 10px);
+    border-top: 1px solid rgba(210, 178, 90, 0.26);
+    font-size: clamp(0.5rem, 1.05cqb, 0.66rem);
+    opacity: 0.85;
+  }
+
+  /* The empty sleeve keeps its dashed voice — an unfiled seat has no ruled
+     statement in it, only the outline of where one would go. */
+  .lobby-page .gs-crew__card--empty .gs-crew__file-rule {
+    border-top-style: dashed;
+    border-top-color: rgba(210, 178, 90, 0.14);
+  }
+
+  .lobby-page .gs-crew__card--empty .gs-crew__stamp {
+    border-top-color: rgba(210, 178, 90, 0.16);
+  }
+}
+
+/* ---------- 3 · THE BRIEFING FOLDER IS STAMPED CLOSED -------------------- */
+/* Below SAVED SETTINGS the folder ran ~128px in which the only objects were an
+   orphan dotted rule and a 90x22 crimson pill reading CASE OPEN — which looks
+   like a disabled button, not a wax seal, and left the two columns ending
+   190px apart. The closing row becomes what it was always describing: one
+   hairline running out to a real stamp, pressed askew into the corner of the
+   sheet. A stamp is the single image that sells "case file"; a centred pill in
+   a void reads as an unfinished form. In FLOW, not absolute — an absolutely
+   placed corner stamp on a content-height folder would sit on the last line at
+   some viewport, and owner directive 1 has no exemption. */
+@media (min-width: 1025px) {
+  .lobby-page .ps-brief-close {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: clamp(10px, 1.4cqi, 18px);
+    margin-top: clamp(14px, 2.4cqb, 28px);
+    padding-top: 0;
+    /* A 96px square at -9deg reaches ~7px past its own box on every side, and
+       `.gs-pane-scroll` is `overflow-x: hidden` — without this inset the
+       stamp's corner would be sliced by the scroller. */
+    padding-right: 10px;
+    padding-bottom: 8px;
+  }
+
+  .lobby-page .ps-brief-close-rule {
+    flex: 1 1 auto;
+    width: auto;
+    border-top: 1px dashed rgba(210, 178, 90, 0.26);
+  }
+
+  /* one rule is a hairline; two were filler */
+  .lobby-page .ps-brief-close-rule:nth-child(2) { display: none; }
+
+  .lobby-page .ps-brief-seal {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: clamp(74px, 9cqi, 96px);
+    height: clamp(74px, 9cqi, 96px);
+    margin: 0;
+    padding: 0;
+    border: 2px solid rgba(150, 32, 42, 0.75);
+    border-radius: 0;
+    background:
+      radial-gradient(circle at 34% 28%, rgba(190, 58, 62, 0.24), rgba(110, 18, 26, 0.14) 70%, transparent);
+    box-shadow: none;
+    color: var(--royal-gold, #d2b25a);
+    font-size: clamp(0.5rem, 0.72cqi, 0.6rem);
+    letter-spacing: 0.12em;
+    line-height: 1.35;
+    text-align: center;
+    opacity: 0.85;
+    transform: rotate(-9deg);
+  }
+
+  /* A square stamp wants the words on two lines. */
+  .lobby-page .ps-brief-seal::after {
+    content: 'CASE\A OPEN';
+    white-space: pre;
+  }
+}
+
+/* ---------- 4 · THE ROUTE TO THE FULL BRIEFING IS FINDABLE --------------- */
+/* The one navigational instruction on the surface was also the lowest-contrast
+   text on it. It now leads with the same circled "?" the header button wears
+   (an inline SVG — owner rule 7, never an emoji), sits on the bright gold and
+   carries a weight, so the sentence points at an object the eye can find. */
+.lobby-page .ps-brief-more {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: clamp(4px, 0.8cqb, 10px);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--royal-gold-light, #e7cc7a);
+  opacity: 1;
+}
+
+.lobby-page .ps-brief-more__chip {
+  flex: 0 0 auto;
+  color: var(--royal-gold, #d2b25a);
+}
+
+/* ---------- 6 · TABLET: THE CREW IS THE HERO, NOT THE SHARE WIDGET ------- */
+/* At 768 the seats were 168x125 with 55px mugshots under a 265px invite slab;
+   at 1024, 148x125 with 50px mugshots. The fleet-standard hero was the
+   smallest, faintest block on the screen. The files grow, the invite chrome
+   tightens, and the tablet fold reads like the 1920 board instead of a
+   link-sharing utility. */
+@media (min-width: 768px) and (max-width: 1024.98px) {
+  .lobby-page .gs-crew__card {
+    min-height: 214px;
+    gap: 7px;
+    padding: 10px 8px 12px;
+    justify-content: flex-start;
+  }
+
+  .lobby-page .gs-crew__av {
+    width: 96px;
+    margin-top: 6px;
+  }
+
+  .lobby-page .gs-crew__name { font-size: 1rem; }
+  .lobby-page .gs-crew__tag { font-size: 0.62rem; }
+
+  .lobby-page .gs-crew-invite .solo-invite-panel {
+    padding: var(--spacing-md);
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-title { margin-bottom: 8px; }
+  .lobby-page .gs-crew-invite .solo-invite-code-tiles { margin-bottom: 10px; }
+
+  .lobby-page .gs-crew-invite .solo-invite-actions {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .lobby-page .gs-crew-invite .solo-invite-actions .solo-invite-btn,
+  .lobby-page .gs-crew-invite .solo-invite-actions .ps-designer-btn {
+    min-height: 44px;
+  }
+}
+
+/* ---------- 7 · PHONE: THE SEATS COST LESS OF THE COLUMN ----------------- */
+/* START is the last thing in the phone column (the chrome owner removed the
+   sticky bar this round — see the deletion above), so everything above it is
+   distance to the primary action. Two explicit seat columns keep four suspects
+   to two rows instead of letting `auto-fit` open a third at some width. */
+@media (max-width: 767px) {
+  .lobby-page .gs-crew__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- 8 · THE GUEST GETS AN OBJECT, NOT A WHISPER ------------------ */
+/* The host's answer to "what now?" is a 620x60 oxblood slab; the guest's was
+   11px of muted caps floating in a 60px band. Same lane, same weight class: a
+   dashed evidence tag that breathes, so a glance reads it. */
+.lobby-page .gs-crew .lobby-waiting-host {
+  align-self: center;
+  width: auto;
+  max-width: 100%;
+  margin-top: clamp(6px, 1.2cqb, 14px);
+  padding: 0.55rem 1.4rem;
+  border: 1px dashed rgba(210, 178, 90, 0.5);
+  border-radius: 0;
+  background: rgba(20, 14, 22, 0.55);
+  font-family: var(--font-typewriter);
+  font-size: clamp(0.66rem, 1.35cqb, 0.86rem);
+  letter-spacing: 0.16em;
+  color: var(--royal-gold-light, #e7cc7a);
+  opacity: 1;
+  animation: psWaitPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes psWaitPulse {
+  50% {
+    opacity: 0.62;
+    border-color: rgba(210, 178, 90, 0.28);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lobby-page .gs-crew .lobby-waiting-host { animation: none; }
 }

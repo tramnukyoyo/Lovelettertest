@@ -115,7 +115,8 @@ const AchievementToastHost: React.FC = () => {
               onClick={() => closeToast(toast.toastId)}
               aria-label={t('kickToast.close')}
             >
-              <X size={14} aria-hidden="true" />
+              {/* 16, like every other .ps-toast__close in the 28px control. */}
+              <X size={16} aria-hidden="true" />
             </button>
           </div>
         );

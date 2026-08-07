@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { MutableRefObject } from 'react';
 
 const prefersReducedMotion = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -17,8 +18,18 @@ const prefersReducedMotion = (): boolean => {
  *
  * @param durationMs full loop length
  * @param paused     when true, freezes t at the current value
+ * @param seekRef    optional write-only channel: set `.current` to a
+ *                   normalized position in [0,1) and the clock jumps there on
+ *                   the next frame, then clears it back to null. A ref (not a
+ *                   prop) so a seek never re-runs the rAF effect — restarting
+ *                   the loop mid-demo dropped a frame and re-armed the
+ *                   auto-close detector.
  */
-export function useExplainerClock(durationMs: number, paused: boolean = false): number {
+export function useExplainerClock(
+  durationMs: number,
+  paused: boolean = false,
+  seekRef?: MutableRefObject<number | null>,
+): number {
   const [t, setT] = useState(0);
   const tRef = useRef(0);
 
@@ -34,6 +45,11 @@ export function useExplainerClock(durationMs: number, paused: boolean = false): 
     let startMs = performance.now() - tRef.current * durationMs;
 
     const tick = (now: number) => {
+      if (seekRef && seekRef.current != null) {
+        tRef.current = seekRef.current;
+        seekRef.current = null;
+        startMs = now - tRef.current * durationMs;
+      }
       const elapsed = (now - startMs) % durationMs;
       const newT = elapsed / durationMs;
       tRef.current = newT;

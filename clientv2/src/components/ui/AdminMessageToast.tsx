@@ -47,7 +47,8 @@ const AdminMessageToast: React.FC = () => {
   return createPortal(
     <div className="ps-toast ps-toast--info gb-admsg" role="status" aria-live="polite">
       <span className="ps-toast__icon">
-        <Mail size={18} strokeWidth={1.75} aria-hidden="true" />
+        {/* 20, like Kick / Site / Achievement: the plate is 40px for all four. */}
+        <Mail size={20} strokeWidth={1.75} aria-hidden="true" />
       </span>
       {/* Spans, not <p>: a button's content model is phrasing content only.
           Slots follow the family order eyebrow (category) → title (who) → text

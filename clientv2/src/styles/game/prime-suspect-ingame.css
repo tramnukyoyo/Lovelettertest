@@ -3542,6 +3542,11 @@
   [data-theme="primesuspect"] .hearts-gambit-game {
     --ps-notebook-w: clamp(178px, 15cqi, 268px);
     --ps-notebook-inset: calc(var(--ps-notebook-w) + clamp(1rem, 1.4cqi, 2rem));
+    /* ROUND 5 — ONE flank measure for BOTH wide bands (§20.1/§20.2), so the
+       evidence band and the hand tray are the same three-column composition
+       and the deck / held card sit on one optical axis. */
+    --ps-flank-w: clamp(170px, 17cqi, 290px);
+    --ps-flank-gap: clamp(1rem, 2.5cqi, 2.75rem);
   }
   [data-theme="primesuspect"] .ps-caselog {
     top: 1rem;
@@ -3934,89 +3939,110 @@
   }
 
   /* ·· the hand band — a real composition, shared by both wide tiers ········ */
-  /* the notebook owns the far-left flank (17.7); the columns start past it */
+  /* the notebook owns the far-left flank (17.7); the columns start past it.
+     ROUND 5: the tray is now the SAME three-column template as the evidence
+     band above it (§20.1) — your standing | your hand | your tools — so the
+     deck and the held card share one optical axis and the band is a
+     composition instead of three islands. FILED BY YOU moved up into the
+     evidence band's right flank (§20.1). */
   [data-theme="primesuspect"] .ps-hand-tray {
     display: grid;
+    grid-template-columns:
+      minmax(0, var(--ps-flank-w))
+      minmax(0, 1fr)
+      minmax(0, var(--ps-flank-w));
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'chips hand tools';
     align-items: stretch;
-    column-gap: clamp(1rem, 2.5cqi, 2.75rem);
+    column-gap: var(--ps-flank-gap);
+    row-gap: 0;
     padding-left: var(--ps-notebook-inset);
     padding-right: clamp(1rem, 4cqi, 5rem);
+    /* the 1366 tray band is only ~190px tall, so the padding scales with it */
+    padding-top: clamp(0.5rem, 1.4cqb, 1rem);
+    padding-bottom: clamp(0.5rem, 1.4cqb, 1rem);
   }
   [data-theme="primesuspect"] .ps-tray-flank {
     display: flex;
     min-width: 0;
     min-height: 0;
   }
-  [data-theme="primesuspect"] .ps-tray-flank--filed {
-    grid-area: filed;
-    align-items: stretch;
+  /* the held card now owns the WHOLE band height (the toolbar row is gone), so
+     the old ~80px toolbar reserve would have left a fresh void above it: the
+     reserve drops to the hand's own padding and the card centres in its cell */
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area {
+    grid-area: hand;
+    align-items: center;
+    --ps-fit-hand-card: min(var(--hg-card-height, 208px), max(90px, calc(33.75cqb - 46px)));
   }
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area { grid-area: hand; }
+  /* the toolbar stops being a row and becomes a pass-through, so its two
+     groups can be seated in the two flanks */
   [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
-    grid-area: tools;
-    margin-bottom: 0;
+    display: contents;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-chips {
+    grid-area: chips;
+    position: relative;
+    z-index: 1;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0.5rem;
     min-width: 0;
   }
-
-  /* -- MID tier (1000–1439px stage; the 1366x768 laptop) --------------------
-     Two columns under a full-width toolbar row. The band is only ~215px tall
-     here, so the wide tier's stacked utility column (2 chips + 3 buttons ≈
-     200px) could not fit — the toolbar stays a row and the FILED record takes
-     the left half, which is exactly the ~470px void the round-3 critique
-     measured. Vertical budget: 215 − 16 padding − 38 toolbar − 8 gap − 8 pb
-     = 145px ≥ the base card token (33.75cqb − 78px ≈ 143px), so nothing
-     clips and the held card keeps its current size. */
-  [data-theme="primesuspect"] .ps-hand-tray {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas:
-      'tools tools'
-      'filed hand';
-    row-gap: 0.5rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-chips .ps-token-track,
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-chips .ps-chip {
+    justify-content: center;
+    text-align: center;
   }
-  [data-theme="primesuspect"] .ps-tray-flank--filed .ps-filed { max-width: 360px; }
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-tools {
+    grid-area: tools;
+    position: relative;
+    z-index: 1;
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    gap: 0.4rem;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-tools .ps-btn--sm {
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    /* a German label must ellipsize inside its column, never widen it */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* §20.3 · the turn drama is spoken ONCE. The display headline (§19.3) is
+     live from this tier up, so the tray's "• YOUR TURN" pill printed the same
+     two words a second time 300px lower. The pill collapses to its live dot —
+     a quiet indicator beside the token track, not a second announcement. The
+     label text stays in the DOM (font-size:0, so screen readers and the
+     `title` still carry it, and the element keeps a real box). */
+  [data-theme="primesuspect"] .ps-hand-tray .ps-turn-badge {
+    align-self: center;
+    flex: 0 0 auto;
+    font-size: 0;
+    letter-spacing: 0;
+    gap: 0;
+    padding: 0.36rem;
+    border-radius: 999px;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray .ps-turn-badge::before {
+    width: 8px;
+    height: 8px;
+  }
 
   /* -- WIDE tier (1440px+ stage) -------------------------------------------
-     Three columns — FILED BY YOU | the held evidence (the hero of the band it
-     owns) | the utility column. */
+     Same three columns; the held evidence just becomes the hero of the band. */
   @container stage (min-width: 1440px) {
-    [data-theme="primesuspect"] .ps-hand-tray {
-      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr) minmax(0, 0.85fr);
-      grid-template-rows: minmax(0, 1fr);
-      grid-template-areas: 'filed hand tools';
-      row-gap: 0;
-      padding-top: 1rem;
-      padding-bottom: 1rem;
-    }
-    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
-      flex-wrap: nowrap;
-      gap: 0.5rem;
-    }
-    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-tray-tools {
-      margin-left: 0;
-      flex-direction: column;
-      align-items: stretch;
-      width: 100%;
-      gap: 0.4rem;
-    }
-    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-btn--sm {
-      justify-content: flex-start;
-      width: 100%;
-    }
-    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-token-track,
-    [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar .ps-turn-badge {
-      align-self: stretch;
-      justify-content: center;
-    }
     [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area {
       /* the held evidence is the hero of the band it owns */
       --hg-card-height: clamp(200px, 27cqb, 300px);
-      --ps-fit-hand-card: min(var(--hg-card-height), max(120px, calc(33.75cqb - 84px)));
+      --ps-fit-hand-card: min(var(--hg-card-height), max(120px, calc(33.75cqb - 46px)));
     }
   }
 }
@@ -4179,19 +4205,18 @@
   }
 }
 
-/* ---- 18.8 · FILED BY YOU — the flank never out-shouts the hand ------------- */
-/* The filed column is a supporting record, not a second focal point: cap its
-   width so the held card keeps the optical centre of the band. */
-@container stage (min-width: 1440px) {
+/* ---- 18.8 · FILED BY YOU — the flank never out-shouts the centre ---------- */
+/* The filed record is a supporting exhibit, not a second focal point: it fills
+   its flank but never grows past it. (Round 5: the flank measure now lives in
+   --ps-flank-w, so the old hard 300px caps are gone.) */
+@container stage (min-width: 1000px) {
   [data-theme="primesuspect"] .ps-tray-flank--filed {
-    justify-content: flex-start;
+    justify-content: stretch;
+    align-items: center;
   }
   [data-theme="primesuspect"] .ps-tray-flank--filed .ps-filed {
-    max-width: 300px;
-  }
-  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar {
-    max-width: 300px;
-    justify-self: end;
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 
@@ -4271,21 +4296,22 @@
 /* ---- 19.3 · THE TURN DRAMA GETS A STAGE VOICE ---------------------------- */
 /* The table's largest type was a ~14px pile header, so every beat of the
    deduction — whose move it is, which round we are in — was *reported* by a
-   12px chip instead of staged. The evidence band's left flank is dead space at
-   1440px+ stages (the desk is centred and ~440px wide); it now carries a
+   12px chip instead of staged. The evidence band's left flank now carries a
    Special Elite eyebrow over a Cinzel display line in royal gold.
-   Hidden below that tier: the flank is only ~160px wide at a 1046px stage and
-   a display line would wrap into the desk. */
+   ROUND 5: the beat used to be gated at a 1440px STAGE, i.e. a ~1760px
+   viewport -- so at 1366 and 1024 the drama degraded back to a 12px pill on
+   the two commonest laptop widths. It is now live from the same 1000px stage
+   that CREATES the flank it lives in (a 1366x768 laptop is a 1046px stage),
+   and it is a real grid column of the band instead of an absolutely
+   positioned overlay (§20.1), so it can never land on the desk. */
 [data-theme="primesuspect"] .ps-phase-head { display: none; }
 
-@container stage (min-width: 1440px) {
+@container stage (min-width: 1000px) {
   [data-theme="primesuspect"] .ps-phase-head {
     display: block;
-    position: absolute;
-    left: var(--ps-notebook-inset);
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(180px, calc(50cqi - var(--ps-notebook-w, 240px) - 270px), 360px);
+    grid-area: lead;
+    align-self: center;
+    min-width: 0;
     text-align: left;
     pointer-events: none;
     z-index: 2;
@@ -4303,7 +4329,7 @@
     display: block;
     font-family: var(--font-title, 'Cinzel', serif);
     font-weight: 900;
-    font-size: clamp(1.5rem, 3.1cqi, 2.75rem);
+    font-size: clamp(1.15rem, 2.6cqi, 2.75rem);
     line-height: 1.02;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -4324,9 +4350,11 @@
     animation: psPhaseIn 0.32s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
   }
 }
+/* the headline is a normal grid item now, so the fade+rise is a plain 10px
+   lift instead of a -50% centring transform */
 @keyframes psPhaseIn {
-  from { opacity: 0; transform: translateY(calc(-50% + 10px)); }
-  to   { opacity: 1; transform: translateY(-50%); }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   [data-theme="primesuspect"] .ps-phase-head { animation: none; }
@@ -4346,35 +4374,150 @@
   }
 }
 
-/* ---- 19.5 · A CARD FACE NEVER PRINTS OUTSIDE ITS FRAME ------------------- */
-/* The mobile hand card clamps its description with `-webkit-line-clamp`, which
-   only draws the ellipsis — the lines PAST the clamp are hidden by
-   `overflow:hidden`, and as a flex item with `flex:1` the box was being sized
-   by the flex layout instead of by the clamp. Result at 375 and 768: a fourth
-   and fifth line rendered and were guillotined mid-glyph by the card's own
-   bottom edge ("…FOR ONE ROUND" cut in half). An explicit em-based max-height
-   is layout-independent, so the copy can only ever end on a whole line. */
-[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical !important;
-  /* the clamp draws the ellipsis; the max-height is what actually STOPS the
-     box, so the two must always agree on the line count */
-  -webkit-line-clamp: 3 !important;
-  line-clamp: 3 !important;
-  flex: 0 1 auto !important;
-  line-height: 1.2 !important;
-  max-height: 3.6em !important;
-  overflow: hidden !important;
-}
+/* ---- 19.5 · THE HAND CARD'S TEXT BOX IS MEASURED, NOT GUESSED ------------ */
+/* History: -webkit-line-clamp 6 then 4 then 3, then a max-height:700px two-line
+   override. Every one of them was a VIEWPORT guess about a CARD box, so each
+   fixed one device and broke another — the last fired on every 667-tall phone
+   and truncated "PROTECTION FROM..." while 45% of the body sat empty under the
+   ellipsis.
+   The box is the authority now. .card-body becomes a size container (its height
+   is a fixed percentage of a fixed-height card, so it is always definite) and
+   the type is derived from that container in BOTH axes (see the @container
+   block below: 14.5cqh height budget, 10cqi width guard, 12px ceiling). The
+   type shrinks to the real box instead of the copy being cut, so the 4-line
+   clamp is a DESIGNED overflow guard for an unusually long future localisation
+   rather than the state every card renders in, and the full exhibit stays one
+   tap away (long-press = .hg-mobile-preview-card, or the card inspector).
+   The art/body split stays on the 62/38 base: at 375 the copy needs ~43px of a
+   ~50px content box, so 62/38 plus justify-content:center leaves a few px of
+   breathing room per side where the round-3 54/46 left ~14px of dead velvet. */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
   overflow: hidden !important;
+  container-type: size;
+  container-name: psbody;
+  justify-content: center !important;
 }
-/* short phones: two lines is all the ~40px body can hold honestly */
-@media (max-height: 700px) {
+
+/* ROOT CAUSE of the four failed clamps, measured in-browser: the hand card is
+   rendered INSIDE the .hg-mobile-hand-slot <button>, and the global element
+   rule `button { font-size:.95rem; text-transform:uppercase; letter-spacing:
+   .15em }` inherits straight into the card face. The dossier sentence was being
+   set in FORCED CAPS at 0.15em tracking - measured at 375x667, "PROTECTION
+   FROM" needed 112.6px of an 81.3px column, i.e. ~30% of every line was spent
+   on a button's letter-spacing. No line-clamp can fix that; a clamp only
+   decides where to cut. A card is not a button label. (The name band keeps its
+   own uppercase + 0.02em from the .effect-tag rule, so the engraved look is
+   unchanged.) Same reset in the landscape thumbnail, where it buys the role
+   name its full width back. */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card {
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* landscape phone: the card is a 56x84 thumbnail. Rule copy at 7px there is
+   noise, not information - the card carries rank + role name, and the footer
+   band rendered by HeartsGambitGameMobile (.hg-mobile-hand-hint) points at the
+   full exhibit. */
+[data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
+  display: none !important;
+}
+
+@media (orientation: portrait) {
   [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
-    max-height: 2.4em !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    /* the clamp draws the ellipsis; the max-height is what actually STOPS the
+       box, so the two must always agree on the line count */
+    -webkit-line-clamp: 4 !important;
+    line-clamp: 4 !important;
+    flex: 0 1 auto !important;
+    line-height: 1.2 !important;
+    max-height: 4.8em !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+  }
+}
+
+@container psbody (min-width: 1px) {
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
+    font-size: min(11.5cqi, 26cqh, 15px) !important;
+    line-height: 1.05 !important;
+    margin-bottom: 2px !important;
+  }
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
+    /* Four lines is the box's real capacity once the name band (~30% of the
+       body) is paid for, so 14.5cqh is the size at which 4 lines + the name
+       exactly fill the container. 10cqi is the width guard (never wider type
+       than the column can wrap), 12px the absolute ceiling.
+       MEASURED, both viewports, all 8 English + all 6 German descriptions:
+         375x667 -> card 98x146, body 54, type 7.26px, 2-4 lines, 0 truncated,
+                    slack 0.5-9.2px, nothing spills the frame
+         768x1024 -> card 132x198, body 74.5, type 10.22px, 2-4 lines,
+                    0 truncated, slack 2.3-14.5px
+       The 4-line ellipsis is now a genuine overflow guard for an unusually long
+       future localisation, not the state every card renders in. */
+    font-size: min(10cqi, 14.5cqh, 12px) !important;
+    line-height: 1.2 !important;
+  }
+}
+/* engines without container queries keep a card-width-derived approximation of
+   the same two sizes rather than dropping to the 2.2vw base */
+@supports not (container-type: size) {
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
+    font-size: clamp(8px, calc(var(--hg-card-width, 97px) * 0.108), 15px) !important;
+  }
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
+    font-size: clamp(6.5px, calc(var(--hg-card-width, 97px) * 0.074), 12px) !important;
+  }
+}
+
+/* ---- 19.5b - A LANDSCAPE HAND CARD STILL SAYS WHERE THE RULES ARE -------- */
+/* The recommended orientation was the least-designed one: with the rule copy
+   hidden the card was a name and nothing else, and the old emoji tap-hint
+   pseudo-element had been deleted (correctly - emoji are never UI chrome here)
+   without a replacement. This is a REAL element in the hand slot, so it can be
+   a designed dossier footer instead of generated content. */
+.hg-mobile-hand-hint { display: none; }
+[data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-hand-slot {
+  position: relative;
+}
+@media (orientation: landscape) {
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-hand-hint {
+    display: block;
+    position: absolute;
+    /* inset by the card's own frame so the band sits INSIDE the gold hairline */
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    z-index: 2;
+    padding: 2px 3px;
+    border-top: 1px solid rgba(210, 178, 90, 0.42);
+    border-radius: 0 0 var(--hg-card-radius, 8px) var(--hg-card-radius, 8px);
+    background: linear-gradient(180deg, rgba(26, 19, 25, 0.55), rgba(18, 13, 17, 0.88));
+    font-family: var(--font-mono, 'Special Elite', monospace);
+    font-size: 7px;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--parchment-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+  }
+  /* the band is RESERVED, never an overlay: the body gives back its own height
+     so nothing the card prints can land underneath it */
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
+    padding-bottom: 13px !important;
+  }
+  /* with the copy hidden and the footer reserved, the body's remaining height
+     is ~16px — the portrait height term (26cqh) would size the ROLE NAME at
+     4.2px there, which is smaller than the 5px it replaced. In landscape the
+     name is the only thing in the box, so width is the only honest constraint;
+     measured at 812x375 this lands ~6.9px in a 56px card. */
+  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
+    font-size: max(6.5px, min(14cqi, 11px)) !important;
   }
 }
 
@@ -4426,5 +4569,293 @@
   }
   [data-theme="primesuspect"] .app-root.in-room {
     padding-top: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* ============================================================================
+   20 · ROUND-5 DESKTOP TABLE PASS
+   ----------------------------------------------------------------------------
+     20.1 the evidence band is a three-column composition (the 1920 right void)
+     20.2 the hand tray mirrors it (the 1366 bottom-right hole)
+     20.3 YOUR TURN is spoken once  ..............  (lives with §20.2, above)
+     20.4 a 1024 desktop prints the whole product name
+     20.5 the candle that justifies the spotlight
+     20.6 CLASSIFIED reads as a stamp, not a smudge
+     20.9 the 1024 tray gets the same columns (20.7/20.8 = the mobile pass)
+   Loads last, so it wins the cascade. Token-driven, scoped to [data-theme],
+   reduced-motion guarded.
+   ============================================================================ */
+
+/* ---- 20.1 · THE EVIDENCE BAND IS A COMPOSITION --------------------------- */
+/* At 1920 the band's content stopped at x≈1120 while the stage ran to 1600 —
+   a ~480x320 empty rectangle to the right of the deck, the largest dead zone
+   on the surface. The phase headline balanced the LEFT void; nothing balanced
+   the right. The band is now an explicit three-column grid,
+       [ whose move it is ] [ the piles ] [ your filed evidence ]
+   using the SAME --ps-flank-w measure as the hand tray below it, so the desk
+   and the held card sit on one optical axis and both bands read as one layout.
+   FILED BY YOU moved up here from the tray (it is evidence — it belongs beside
+   the evidence pile), which is what actually fills the hole. */
+@container stage (min-width: 1000px) {
+  [data-theme="primesuspect"] .ps-evidence-band {
+    display: grid;
+    /* the piles keep a hard floor: on a 1000px stage the desk blotter bleeds
+       48px past the pile row, so the flanks give way before the centre does */
+    grid-template-columns:
+      minmax(0, var(--ps-flank-w))
+      minmax(min(400px, 100%), 1fr)
+      minmax(0, var(--ps-flank-w));
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'lead centre trail';
+    align-items: center;
+    column-gap: var(--ps-flank-gap);
+  }
+  [data-theme="primesuspect"] .ps-band-centre {
+    grid-area: centre;
+    min-width: 0;
+    min-height: 0;
+  }
+  [data-theme="primesuspect"] .ps-evidence-band > .ps-tray-flank--filed {
+    grid-area: trail;
+    /* the record fills its flank, and a long list scrolls inside it rather
+       than growing the band (.ps-filed-list is already overflow-y:auto) */
+    max-height: 100%;
+    min-height: 0;
+    /* the desk blotter is a decorative -3rem bleed inside the centre column;
+       both flanks paint above it so no edge can ever cross a panel */
+    position: relative;
+    z-index: 2;
+  }
+  [data-theme="primesuspect"] .ps-evidence-band > .ps-phase-head {
+    position: relative;
+  }
+}
+
+/* ---- 20.4 · A 1024 DESKTOP PRINTS THE WHOLE PRODUCT NAME ----------------- */
+/* At the smallest desktop width the wordmark ellipsized to "Prime…", i.e. the
+   game was effectively unnamed on the one screen where the header is its only
+   identity (1366 fits "Prime Suspect" comfortably). The subline and the
+   "Room:" label are already dropped at this tier by the shell header sheet, so
+   the width has to come from the one chip that says the least: the phase badge
+   reads "CASE OPEN" while the case is visibly open on the table below it.
+   Trade the badge for the product name, and take the wordmark down a step. */
+@media (min-width: 1024px) and (max-width: 1100px) {
+  [data-theme="primesuspect"] .game-header .game-header-phase-badge {
+    display: none !important;
+  }
+  [data-theme="primesuspect"] .game-header .game-header-logo-text {
+    font-size: 0.95rem;
+    letter-spacing: 0;
+  }
+}
+
+/* ---- 20.5 · THE CANDLE THAT JUSTIFIES THE SPOTLIGHT ---------------------- */
+/* The top two-thirds of the table used the same cold blue-grey pixel alley as
+   the Bad Actor sibling, so "candlelit case file" was only delivered below the
+   gold rule — and the active-seat spotlight had no light SOURCE on screen. A
+   warm wash anchored on the deck (where the candle would stand) lights the
+   whole table without touching the backdrop art. Decoration only: it paints
+   under every band (all three are positioned and come later in tree order). */
+[data-theme="primesuspect"] .ps-table::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 44% at 50% 46%, rgba(255, 186, 92, 0.13), transparent 70%),
+    radial-gradient(120% 80% at 50% 46%, transparent 55%, rgba(10, 6, 12, 0.2) 100%);
+}
+
+/* ---- 20.6 · CLASSIFIED READS AS A STAMP, NOT A SMUDGE -------------------- */
+/* The rubber stamp on the case-file deck was #a8344a at 0.92 opacity over a
+   dark-navy card back — dark red on dark blue, which resolves to a smudge at
+   1920 and to pure noise at the 1024 card scale. Raise it to the same lit
+   oxblood the eliminated-file stamp already uses, put a light inner edge under
+   it, and open the tracking so the word survives at small sizes. */
+[data-theme="primesuspect"] .hg-deck-card .hg-decor-stamp {
+  color: rgb(240, 158, 170);
+  border-color: rgba(214, 92, 114, 0.95);
+  background: rgba(84, 16, 27, 0.5);
+  letter-spacing: 0.2em;
+  /* the tracking is applied to the last glyph too, so pull it back to keep the
+     word optically centred in its plate */
+  text-indent: 0.2em;
+  opacity: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 205, 212, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+/* ---- 20.7 · THE EMPTY CASE LOG IS A GHOST OF THE REAL LOG ---------------- */
+/* At 768 the mobile notes panel is 184px tall and held ONE 11px italic line
+   pinned to the top-left corner - ~160px of blank velvet under it. The empty
+   evidence locker already got its designed ghost (.hg-mobile-evidence-empty);
+   this is the same recipe for the case log: dashed parchment rule-lines at the
+   log's own rhythm, ragged like a half-written page, with the label centred on
+   them. Playbook rule: empty states are ghosts of the real element. */
+[data-theme="primesuspect"] .hg-mobile-notes-empty {
+  position: relative;
+  height: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 6px 2px 8px;
+}
+[data-theme="primesuspect"] .hg-mobile-notes-empty i {
+  display: block;
+  width: 100%;
+  height: 0;
+  border-bottom: 1px dashed rgba(210, 178, 90, 0.28);
+}
+[data-theme="primesuspect"] .hg-mobile-notes-empty i:nth-of-type(2) { width: 86%; }
+[data-theme="primesuspect"] .hg-mobile-notes-empty i:nth-of-type(3) { width: 62%; }
+[data-theme="primesuspect"] .hg-mobile-notes-empty__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 92%;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(26, 19, 25, 0.74);
+  font-family: var(--font-mono, 'Special Elite', monospace);
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--parchment-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- 20.8 · ELIMINATION IS A WAX-SEALED VERDICT, NOT A PLATFORM TOAST ---- */
+/* The mobile elimination banner painted its skull and its headline in
+   var(--danger-500) = #ff6b6b (styles/base/variables.css, imported LAST in
+   prime-suspect.css so it beats the unified value): a generic UI salmon on the
+   single most dramatic beat in the game, sitting next to a crimson panel. The
+   slab itself was an ad-hoc inline linear-gradient in the TSX. It is a
+   candlelit crimson panel now, with the engraved-gold headline the round-over
+   uses. */
+[data-theme="primesuspect"] .ps-elim-banner {
+  border: 1px solid rgba(210, 178, 90, 0.5);
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(210, 178, 90, 0.14), transparent 62%),
+    linear-gradient(135deg, rgba(74, 18, 28, 0.95), rgba(38, 12, 18, 0.95));
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(231, 204, 122, 0.22),
+    0 0 26px rgba(168, 52, 74, 0.28);
+}
+[data-theme="primesuspect"] .ps-elim-banner__title {
+  font-family: var(--font-title, 'Cinzel', serif);
+  font-weight: 900;
+  color: var(--royal-gold-light);
+  letter-spacing: 0.16em;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.75),
+    0 0 18px rgba(231, 204, 122, 0.28);
+}
+[data-theme="primesuspect"] .ps-elim-banner__icon {
+  color: var(--royal-crimson-light);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+}
+
+/* ---- 20.9 · THE 1024 TRAY GETS THE SAME COLUMNS -------------------------- */
+/* (numbered 20.9 because the parallel mobile pass claimed 20.7/20.8 in the same
+   round; it belongs last in the file either way — it is the narrow-stage
+   sibling of §20.2 and must out-order the §18.1 collapse it re-opens.) */
+/* At a 1024 viewport the stage is only ~704px, so the notebook tier (§17.7)
+   does not fire and the tray fell back to "toolbar row on top, one card in the
+   middle": the CASE LOG floated at x=8..180 with ~75px of unexplained gap above
+   it and nothing aligned to its top edge, while x=400..700 was a ~300x180 hole
+   right of the held card. The tray now runs the same three columns as the wide
+   stages — your standing | your hand | your tools — and the standing column is
+   exactly the case log's width and left edge, so the log reads as the bottom of
+   that column instead of a stray corner panel. */
+@container stage (min-width: 640px) and (max-width: 999px) and (min-height: 520px) {
+  [data-theme="primesuspect"] .hearts-gambit-game {
+    --ps-log-w: clamp(168px, 26cqi, 220px);
+  }
+  /* the log and the standing column share one measure and one left edge
+     (0.75rem = the tray's own p-3 padding). The height cap is what GUARANTEES
+     no overlap: the standing column's worst case (token track + turn pill +
+     one state chip + padding) is ~7rem off the top of the tray band, and the
+     band is 33.75cqb, so the log can never grow into it. */
+  [data-theme="primesuspect"] .ps-caselog {
+    left: 0.75rem;
+    bottom: 0.75rem;
+    width: var(--ps-log-w);
+    min-height: 0;
+    max-height: min(15cqb, calc(33.75cqb - 7rem));
+  }
+
+  [data-theme="primesuspect"] .ps-hand-tray {
+    display: grid;
+    grid-template-columns: var(--ps-log-w) minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'chips hand tools';
+    align-items: stretch;
+    column-gap: 1rem;
+    row-gap: 0;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-tray-toolbar { display: contents; }
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-chips {
+    grid-area: chips;
+    position: relative;
+    z-index: 1;
+    align-self: start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-chips .ps-token-track,
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-chips .ps-turn-badge,
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-chips .ps-chip {
+    justify-content: center;
+    text-align: center;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-tools {
+    grid-area: tools;
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    min-width: 0;
+    max-width: 42cqi;
+  }
+  [data-theme="primesuspect"] .ps-hand-tray > .ps-hand-area {
+    grid-area: hand;
+    align-items: center;
+    --ps-fit-hand-card: min(var(--hg-card-height, 208px), max(88px, calc(33.75cqb - 46px)));
+  }
+
+  /* §18.1 collapsed these three to icon-only because they shared ONE ROW with
+     the chips and wrapped onto the hand card. In a stacked column the
+     constraint is width, not row length, so the labels come back — an
+     icon-only 40px column would have left the same hole it was meant to fill.
+     Out-specifies §18.1's `!important` pair (0,6,1) vs (0,5,1). */
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-tools .ps-btn--sm,
+  [data-theme="primesuspect"] .ps-hand-tray .ps-tray-tools button.ps-btn.ps-btn--ghost.ps-btn--sm {
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    font-size: 0.76rem !important;
+    letter-spacing: 0.04em !important;
+    gap: 0.4rem !important;
+    padding: 0.45rem 0.6rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

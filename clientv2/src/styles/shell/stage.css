@@ -259,11 +259,22 @@
   right: 0;
   bottom: 0;
   width: auto;
-  height: 46px;
+  height: 52px;
   margin: 0;
   padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
   align-items: flex-end;
-  background: linear-gradient(transparent, rgba(18, 13, 17, 0.78) 80%);
+  /* ROUND 5. At 0.78 the strip was too weak to read as a fold: mid-scroll the
+     tab looked like it had COLLIDED with whatever card happened to cross the
+     bottom edge (the #01/#02 dossier row at 375) instead of like content
+     receding under a fade. Three stops — clear, half, near-opaque — so the last
+     8px under the tab are effectively solid velvet and the pill always sits on
+     its own ground. The scene's matching 52px bottom lane (shell.css) means
+     nothing ever COMES TO REST here either. */
+  background: linear-gradient(
+    to bottom,
+    rgba(18, 13, 17, 0) 0%,
+    rgba(18, 13, 17, 0.55) 45%,
+    rgba(18, 13, 17, 0.95) 100%);
   z-index: 6;
 }
 

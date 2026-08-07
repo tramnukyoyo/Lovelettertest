@@ -328,12 +328,39 @@
 
 .gs-chip-status.done { color: var(--gb-truth); }
 
+/* ROUND 5 — the waiting marker is three pips, not an ellipsis (PresenceDock.tsx).
+   As a literal '…' directly after the token count it measured as "Falco 0 …" at
+   1024/1366/1920 — the fleet-wide read was "this name got truncated", not "this
+   suspect has not acted yet". Round pips in candle gold, staggered rather than
+   blinking as one block, so the chip has a heartbeat instead of a defect. */
 .gs-chip-status.waiting {
-  color: var(--text-secondary);
-  animation: gsChipBlink 1.2s steps(2) infinite;
+  width: 18px;
+  color: var(--royal-gold, #d2b25a);
+  animation: none;
 }
 
-@keyframes gsChipBlink { 50% { opacity: 0.25; } }
+.gs-chip-wait {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.gs-chip-wait i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.35;
+  animation: gsChipWait 1.35s ease-in-out infinite;
+}
+
+.gs-chip-wait i:nth-child(2) { animation-delay: 0.18s; }
+.gs-chip-wait i:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes gsChipWait {
+  0%, 100% { opacity: 0.28; }
+  40% { opacity: 1; }
+}
 
 .gs-chip-host {
   color: var(--primary);
@@ -373,6 +400,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gs-chip-status.waiting { animation: none; }
+  .gs-chip-wait i { animation: none; opacity: 0.7; }
 }
 
 /* ----- Mobile immersive mode (GameShell adds .gs-immersive on phones, in-game) --
@@ -594,11 +622,15 @@
     display: none !important;
   }
 
-  /* No sticky bar → no landing lane. 118px of dead velvet under the CTA was
-     the last thing in the column. */
+  /* No sticky bar → no 118px landing lane. But the stage-level ScrollHint
+     (GameShell, `.gs-stage > .gs-scroll-hint`, 46px tall + its scrim) IS pinned
+     to the stage's bottom edge on this breakpoint, and round 4 left it nothing
+     to land in: at 375 the chevron tab came to rest directly on the #01/#02
+     dossier cards. 52px reserves exactly the strip, so the column always ENDS
+     in empty velvet and no element ever finishes underneath the tab. */
   .app-layout.lobby-page .gs-lobby-scene,
   .app-layout.lobby-page .gs-lobby-scene:has(.gs-scene-actions) {
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -655,6 +687,18 @@
     repeating-linear-gradient(180deg,
       transparent 0 27px,
       rgba(210, 178, 90, 0.085) 27px 28px),
+    /* ROUND 5 — THE FOOT RULE. The seal used to float untethered in 300–560px
+       of empty velvet below the last suspect and read as a compression smudge.
+       A double gold hairline across the sheet, 56px above the seal, terminates
+       the roster: everything above it is the record, the stamp below it closes
+       the file. Two weights (0.30 / 0.16) so it can never be mistaken for one
+       more 28px typewriter ruling. */
+    linear-gradient(180deg,
+      transparent calc(100% - 152px),
+      var(--rail-seal-rule, transparent) calc(100% - 152px) calc(100% - 151px),
+      transparent calc(100% - 151px) calc(100% - 148px),
+      var(--rail-seal-rule-2, transparent) calc(100% - 148px) calc(100% - 147px),
+      transparent calc(100% - 147px)),
     /* candle catches the upper-left shoulder of the wax */
     radial-gradient(circle at 44% calc(100% - 102px),
       var(--rail-seal-gloss, transparent) 0 8px,
@@ -686,11 +730,17 @@
 /* The wax seal only belongs to the SUSPECTS sheet — the CHAT tab already ends
    its empty state with its own fingerprint seal, and two watermarks stacked in
    one 320px column read as noise. */
+/* ROUND 5 — the round-4 alphas (ring .16 / fill .34 / gloss .09) sat below the
+   noise floor of the velvet ground: at 1024/1366/1920 the mark measured as a
+   ~60px dark maroon disc with no readable rim, i.e. a JPEG artifact rather than
+   pressed wax. Raised to a real emboss and paired with the foot rule above. */
 .gs-rail .sidebar-tabs-container .sidebar-content:has(.player-list) {
-  --rail-seal-ring: rgba(231, 204, 122, 0.16);
-  --rail-seal-fill: rgba(106, 22, 35, 0.34);
-  --rail-seal-inner: rgba(0, 0, 0, 0.22);
-  --rail-seal-gloss: rgba(255, 232, 190, 0.09);
+  --rail-seal-ring: rgba(231, 204, 122, 0.34);
+  --rail-seal-fill: rgba(106, 22, 35, 0.55);
+  --rail-seal-inner: rgba(0, 0, 0, 0.34);
+  --rail-seal-gloss: rgba(255, 232, 190, 0.16);
+  --rail-seal-rule: rgba(210, 178, 90, 0.3);
+  --rail-seal-rule-2: rgba(210, 178, 90, 0.16);
 }
 
 /* ----- THE COLLAPSE TAB NEEDS A LANE ---------------------------------------
@@ -821,4 +871,60 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gs-chrome-toggle { transition: none; }
+}
+
+/* ============================================================================
+   ROUND 5 — THE CANDLE FACE HAS TO WIN THE CASCADE (blocker regression)
+
+   Round 4's restyle above was INERT. `.gs-chrome-toggle` is 0-1-0; GameShell
+   renders a real `<button>`, and `prime-suspect.css` @imports
+   `prime-suspect-unified.css` AFTER `styles/index.css`, so
+   `button:not(.secondary):not(.danger)` (unified 8475, 0-2-1) out-specified
+   every declaration and repainted the tab
+   `background: var(--accent-color); color: #fff; border: none; box-shadow: none`
+   — the flat mustard slab measured at the top of play-375/768 and the reason
+   the velvet ground, gold hairline, grip ridges and drop shadow were all gone.
+   ScrollHint.tsx:35-40 documents the same trap for the chevron (which is why it
+   stayed a <span>); the toggle never got the equivalent protection.
+
+   `!important` rather than an out-specificity hack: this file loads BEFORE the
+   prime-suspect layer, so even a 0-3-1 selector here would lose the tie-break
+   to a later `!important` in unified. Property-for-property, nothing wider. */
+button.gs-chrome-toggle {
+  background:
+    linear-gradient(180deg,
+      var(--velvet-raise, #34262f) 0%,
+      var(--velvet-panel, #2c2029) 100%) !important;
+  color: var(--royal-gold-light, #e7cc7a) !important;
+  border: 1px solid rgba(210, 178, 90, 0.5) !important;
+  border-top: none !important;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0 rgba(231, 204, 122, 0.16) !important;
+}
+
+button.gs-chrome-toggle:hover,
+button.gs-chrome-toggle:focus-visible {
+  background:
+    linear-gradient(180deg,
+      var(--velvet-raise, #34262f) 0%,
+      var(--velvet-panel, #2c2029) 100%) !important;
+  border-color: var(--royal-gold, #d2b25a) !important;
+  /* unified's primary-button baseline also animates translateY/scale on
+     hover+active; the owner rule forbids moving a clickable, so the tab keeps
+     brightness only. */
+  transform: translateX(-50%) !important;
+  filter: brightness(1.18);
+}
+
+button.gs-chrome-toggle:active {
+  transform: translateX(-50%) !important;
+}
+
+/* `button::before` (unified 8460) is a white radial sheen that fades in at 0.35
+   on hover. It shares the pseudo-element with the two gold grip ridges above,
+   so the sheen has to be killed by hand or the ridges wash out mid-hover. */
+button.gs-chrome-toggle::before {
+  background: none !important;
+  opacity: 1 !important;
 }

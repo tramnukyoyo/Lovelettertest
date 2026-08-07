@@ -940,3 +940,66 @@
     animation: none;
   }
 }
+
+/* ============================================================================
+   ROUND 5 — THE HAMBURGER IS NOT A PRIMARY BUTTON (lobby-375 blocker)
+
+   Same trap as `.gs-chrome-toggle`: `.mobile-game-menu-btn` is 0-1-0, the
+   trigger is a real `<button>`, and `prime-suspect-unified.css` (imported after
+   `styles/index.css`) paints `button:not(.secondary):not(.danger)` with
+   `background: var(--accent-color); color: #fff; border: none`. At 375 that
+   produced a solid amber slab sitting beside two correctly-styled outlined
+   ghost buttons (sound, share) — three controls in one bar reading as two
+   different products.
+
+   Velvet ground + gold hairline, matching the mute/share pair and the case
+   folder tabs. Amber survives only as the PRESSED state, where a momentary
+   accent flash is the point. `!important` for the same reason as the chrome
+   toggle: this file loads before the prime-suspect layer, so specificity alone
+   cannot win the tie-break against a later declaration.
+   ============================================================================ */
+button.mobile-game-menu-btn {
+  background:
+    linear-gradient(180deg,
+      var(--velvet-raise, #34262f) 0%,
+      var(--velvet-panel, #2c2029) 100%) !important;
+  border: 1px solid rgba(210, 178, 90, 0.45) !important;
+  color: var(--royal-gold-light, #e7cc7a) !important;
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.16) !important;
+  /* Owner rule: clickables animate brightness/opacity only. The legacy
+     `:active { transform: scale(0.95) }` above moved the tap target under the
+     thumb; unified's primary baseline added a translateY on hover. */
+  transform: none !important;
+  transition: filter 0.18s ease, border-color 0.18s ease !important;
+}
+
+button.mobile-game-menu-btn:hover,
+button.mobile-game-menu-btn:focus-visible {
+  background:
+    linear-gradient(180deg,
+      var(--velvet-raise, #34262f) 0%,
+      var(--velvet-panel, #2c2029) 100%) !important;
+  border-color: var(--royal-gold, #d2b25a) !important;
+  filter: brightness(1.16);
+}
+
+button.mobile-game-menu-btn:active {
+  background:
+    linear-gradient(180deg,
+      var(--velvet-raise, #34262f) 0%,
+      var(--velvet-panel, #2c2029) 100%) !important;
+  border-color: var(--royal-gold-light, #e7cc7a) !important;
+  filter: brightness(0.9);
+}
+
+button.mobile-game-menu-btn:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
+}
+
+/* unified's `button::before` white radial sheen would wash the gold hairline
+   on hover — the velvet face has its own inset highlight instead. */
+button.mobile-game-menu-btn::before {
+  background: none !important;
+  opacity: 0 !important;
+}

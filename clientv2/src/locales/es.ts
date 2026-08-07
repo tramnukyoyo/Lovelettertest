@@ -242,6 +242,8 @@ export const es: Translations = {
       error: 'Error',
       message: 'Mensaje',
       action: 'Nota del caso',
+      blocked: 'Bloqueado',
+      done: 'Hecho',
     },
   },
 
@@ -619,6 +621,7 @@ export const es: Translations = {
     frozenTitle: 'INVESTIGACIÓN INTERRUMPIDA',
     frozenBody: 'El expediente queda sellado hasta que vuelva la línea. No se pierde nada de lo que anotaste.',
     frozenOverline: 'Caso en pausa',
+    frozenCtaHold: 'Las acciones se reanudan en cuanto vuelva la línea.',
     attempt: 'Intento {n}',
     retrying: 'Restableciendo la línea',
     restoredOverline: 'Caso reabierto',

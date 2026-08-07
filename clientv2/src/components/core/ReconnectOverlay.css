@@ -75,8 +75,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--ps-outage-seal, 64px);
-  height: var(--ps-outage-seal, 64px);
+  width: var(--ps-sys-seal, 64px);
+  height: var(--ps-sys-seal, 64px);
   flex-shrink: 0;
   border-radius: 50%;
   background: radial-gradient(circle at 38% 32%,
@@ -242,14 +242,14 @@
 @media (max-width: 400px) {
   .reconnect-overlay { padding: 16px; }
   .reconnect-card { padding: 1.5rem 1.15rem 1.35rem; gap: var(--ps-outage-gap-sm, 0.75rem); }
-  .reconnect-seal { width: var(--ps-outage-seal-sm, 56px); height: var(--ps-outage-seal-sm, 56px); }
+  .reconnect-seal { width: var(--ps-sys-seal-sm, 56px); height: var(--ps-sys-seal-sm, 56px); }
   .reconnect-players { flex-direction: column; gap: 0.45rem; }
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
   .reconnect-card { flex-direction: row; align-items: center; text-align: left; padding: 1.1rem 1.25rem; gap: 1rem; max-width: 620px; }
   .reconnect-card__text::before { display: none; }
-  .reconnect-seal { width: var(--ps-outage-seal-land, 50px); height: var(--ps-outage-seal-land, 50px); }
+  .reconnect-seal { width: var(--ps-sys-seal-land, 50px); height: var(--ps-sys-seal-land, 50px); }
   .reconnect-title { font-size: 1.1rem; }
 }
 

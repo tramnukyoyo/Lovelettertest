@@ -513,6 +513,30 @@
     .home-tip-banner { grid-column: 2; }
   }
 
+  /* …AND THE RULE ABOVE LOST. MEASURED (r4): strip centre 682 vs card centre 906
+     at 1366, 959.5 vs 1183 at 1920 — `grid-column: 2` is in the bundle but
+     `prime-suspect-unified.css:16791` re-declares the element after index.css
+     with `margin: var(--spacing-md) auto 0`, and AUTO INLINE MARGINS OVERRIDE
+     `justify-self` for a grid item, so the strip stayed on page centre and the
+     page still resolved to four competing axes. The longer selector out-ranks
+     that sheet and zeroes the inline margins (the block margin-top is left to
+     it on purpose).
+     Gated at 1280cqi, not the 1000 above, and that is a measurement not
+     caution: `.home-stage` caps at max-width 1280, so the container only
+     REACHES 1280 once the viewport is ~1328+ — i.e. only once the frame is
+     wider than the stage. Below that the stage spans nearly the whole viewport,
+     the card axis sits close to the right edge, and centring a max-content strip
+     (~495px EN, ~620px DE) on it would hang the German label past the frame.
+     At 1366/1920 the card axis leaves 460px+/737px+ of clearance, so every
+     locale fits. ─────────────────────────────────────────────────────────── */
+  @container (min-width: 1280px) {
+    .home-page .home-tip-banner {
+      grid-column: 2;
+      margin-inline: 0;
+      justify-self: center;
+    }
+  }
+
   /* The hero column is a fixed box (above), not a shrink-to-content one, so the
      badge shares the wordmark's left edge instead of BlindSpot's `center` —
      centring it inside a box wider than its content would put the badge on a
@@ -1371,6 +1395,12 @@
        pixel rooftop band (~y812) and looked like it was sinking into the
        skyline. Shorter drop + capped height clears the band. */
     top: calc(100% + clamp(0.25rem, 0.6dvh, 0.5rem));
+    /* MEASURED (1366x768): the stack's top edge sat 4px under the card's bottom
+       border — at that distance a tucked hand reads as a collision. The extra
+       drop is capped at 10px on purpose: at 1920x1080 the stack's lower edge is
+       already ~8px off the pixel rooftop band, and a dvh-scaled drop would sink
+       it back into the skyline (the reason the `top` clamp was tightened). */
+    margin-top: clamp(8px, 1dvh, 10px);
     left: 0;
     right: 0;
     height: clamp(48px, 6.2dvh, 74px);
@@ -1425,7 +1455,12 @@
   .home-card-fan i:nth-child(1) { transform: rotate(-11deg) translateY(9px); }
   .home-card-fan i:nth-child(2) {
     z-index: 1;
-    opacity: 1;
+    /* Axis-aligned and brighter than its neighbours, the centre file read as a
+       dropdown/tooltip pointer hanging off the dossier instead of the front
+       card of a held hand. A small counter-rotation plus the SAME fill as its
+       siblings (the `opacity: 1` that used to sit here is gone) puts it back in
+       the hand; the lift is what keeps it proud of the two behind it. */
+    transform: rotate(-2deg) translateY(-4px);
     /* pulls the outer two under it — ~35% overlap, a held hand */
     margin-inline: clamp(-1.6rem, -1.2vw, -1rem);
   }
@@ -1455,6 +1490,24 @@
 }
 
 .home-tip-banner svg { flex-shrink: 0; opacity: 0.85; color: var(--gb-gold); }
+
+/* ── THE STRIP IS A PLATE, NOT A GHOST ────────────────────────────────────────
+   MEASURED: the rule above never painted. `prime-suspect-unified.css:16791`
+   re-declares `.home-tip-banner` at EQUAL specificity and loads after
+   index.css, so the shipped strip was that sheet's ~5%-white translucent slab
+   with a 12px radius — the scenery read straight through it (the streetlamp
+   post ran through the word "multiplayer" at 1024, the strip's own edges sliced
+   the trash can at 375/1366) and it was the only cool-white surface in an
+   otherwise gold/parchment system. Same out-ranking technique this sheet
+   already uses against that layer at :1889. ────────────────────────────────── */
+.home-page .home-tip-banner {
+  background: linear-gradient(180deg, rgba(30, 21, 17, 0.94), rgba(19, 13, 11, 0.94));
+  border: 1px solid rgba(231, 204, 122, 0.30);
+  border-radius: 0;
+  box-shadow:
+    2px 2px 0 var(--px-border-dark),
+    0 8px 20px rgba(0, 0, 0, 0.45);
+}
 
 /* ====== GAMEBUDDIES BANNER ====== */
 
@@ -1927,6 +1980,92 @@
   .home-title { font-size: clamp(1.95rem, 12.4vw, 2.5rem); }
   .home-btn { font-size: 1rem; }
   .home-page .legal-footer { padding-inline: var(--spacing-sm); }
+}
+
+/* ── THE CLOSING LINE, BOUGHT ON A 667px PHONE ───────────────────────────────
+   "Sign the case file to unseal it" is the one line that explains why the CTA
+   looks SEALED rather than broken, and the phone — where the sealed plaque is
+   least self-evident — was the single frame still losing it (the reveal above
+   is gated at min-height:700, so 375x667 ended with ~13px of dead card gutter
+   under the plaque and no explanation).
+   The gate's arithmetic is the reason it was gated, so the row is FUNDED here
+   rather than simply switched on — at 375x667 the documentElement measured
+   667/667 exactly, i.e. zero slack, and the never-scrolls contract outranks the
+   line. Budget at 375x667 (16px root, 1dvh = 6.67px):
+     spend  note line 0.64rem x 1.05 = 10.8, plus its margin 1.6      = +12.4
+            form gaps 2 x 5.34 -> 3 x 4.0 (the note adds a child)     =  +1.3
+     save   card block gutters 13.3 -> 8.0, twice                     = -10.7
+            CTA 46 -> 44px (still a full 44px touch target)           =  -2.0
+            grid rows 6.67 -> 5.0, twice                              =  -3.3
+   Net -2.3px, so the fold gains slack instead of spending it. Portrait-gated so
+   the 720x390 landscape phone (which also matches max-width:767) keeps its
+   `display:none` from the landscape block above. ─────────────────────────── */
+@media (max-width: 767px) and (max-height: 699px) and (orientation: portrait) {
+  .home-page .home-form-note {
+    display: block;
+    font-size: 0.64rem;
+    line-height: 1.05;
+    margin-top: 0.1rem;
+  }
+
+  /* …paid for, line by line (see the budget above). */
+  .home-stage .home-card-col .card.home-card { padding-block: 0.5rem; }
+  .home-form { gap: 0.25rem; }
+  .home-btn { min-height: 44px; }
+  .home-stage-grid { gap: clamp(0.3rem, 0.75dvh, 0.55rem); }
+}
+
+/* ── THE MOON IS SKY, NOT A FOURTH FOCAL POINT (homepage only) ────────────────
+   MEASURED (r4): at 768x1024 the disc sat at x 605-723 / y 292-408, directly
+   under the C and T of SUSPECT (title y 275-350) — a cream disc behind gold
+   glyphs with only the drop-shadow separating them. At 375x667 the same disc
+   butted the "2-4 players | SOCIAL DEDUCTION" badge. At 1024x768 it floated at
+   x 565-660 in the gutter above the case-file card, competing with the card as
+   a focal point.
+   ROOT CAUSE — and it is not `components/decor.css`, which is where it looks
+   like it lives: three IN-GAME anchors leak onto the landing.
+     • prime-suspect-unified.css:5870 (max-width:1024, portrait) and :6022
+       (600-1023.98, min-height:880, portrait) anchor the disc BELOW the mobile
+       suspects band — `top: calc(54px + safe-area + clamp(...) + 14px)`, which
+       resolves to 215px at 375x667 and 295px at 768x1024, i.e. exactly the
+       landing's title/badge band.
+     • game/prime-suspect-ingame.css:4341 pulls it inboard of the in-game 320px
+       rail (`right: clamp(360px, 24vw, 520px)`) — the landing has no rail, so
+       at 1024 that lands it over the card instead of clearing anything.
+   Those three sheets are not this surface's to edit, so the landing re-anchors
+   the disc into its own top-right sky here. `:has()` scopes it to the homepage
+   exactly (the backdrop is mounted at `.app-root`, a SIBLING branch of
+   `.home-page`) and carries the specificity to out-rank all three. The 1330px
+   ceiling is deliberate: at 1366/1920 the disc already reads as sky and is left
+   untouched. The halo follows the disc so the landing never shows a detached
+   glow. Decor only — no layout, no motion added. ──────────────────────────── */
+@media (orientation: portrait) {
+  .app-root:has(.home-page) .gb-backdrop .gb-moon {
+    top: 9%;
+    right: 3%;
+    width: clamp(48px, 14vmin, 76px);
+    height: clamp(48px, 14vmin, 76px);
+  }
+  .app-root:has(.home-page) .gb-backdrop .gb-moonglow {
+    top: -10%;
+    right: -14%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1329px) and (min-height: 600px) and (orientation: landscape) {
+  .app-root:has(.home-page) .gb-backdrop .gb-moon {
+    top: 10%;
+    right: 3%;
+    /* Trimmed from 13vmin so the disc clears the fixed header above it (11px at
+       1024x768) AND the case-file card below it (24px) instead of splitting the
+       difference. */
+    width: clamp(64px, 11vmin, 96px);
+    height: clamp(64px, 11vmin, 96px);
+  }
+  .app-root:has(.home-page) .gb-backdrop .gb-moonglow {
+    top: -8%;
+    right: -12%;
+  }
 }
 
 /* Reduced motion — every entrance/ambient animation added by this sheet. */

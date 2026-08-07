@@ -44,8 +44,19 @@ const DockChip: React.FC<{ p: DockPlayer }> = ({ p }) => {
       {p.isHost && <span className="gs-chip-host">👑</span>}
       {typeof p.score === 'number' && <span className="gs-chip-score">{p.score}</span>}
       {p.status && (
-        <span className={`gs-chip-status ${p.status}`}>
-          {p.status === 'done' ? '✓' : '…'}
+        <span className={`gs-chip-status ${p.status}`} aria-hidden="true">
+          {p.status === 'done' ? (
+            '✓'
+          ) : (
+            /* ROUND 5: this used to be a literal '…'. Sitting immediately after
+               the token count it read as "Falco 0 …", i.e. a truncation bug
+               rather than a live status — the critic caught it at every desktop
+               width. Three discrete pips can't be mistaken for an ellipsis and
+               carry the waiting pulse better (shell.css .gs-chip-wait). */
+            <span className="gs-chip-wait">
+              <i /><i /><i />
+            </span>
+          )}
         </span>
       )}
     </span>

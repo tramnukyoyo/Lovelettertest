@@ -65,6 +65,28 @@
   mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 28px), transparent 100%);
 }
 
+/* The ramp is static, so it must land on PADDING, never on the last line of
+   copy. Both panels' bottom padding was shallower than 28px worth of fade
+   (`.tutorial-content` 0.9rem = 14.4px, prime-suspect-ingame.css:2764;
+   `.rules-content` 1.5rem = 24px, prime-suspect-unified.css:2493 — enough to
+   clip descenders), so at scroll end the reader's final line sat inside the
+   fade. Adding the ramp to the padding keeps the fade a hint. */
+[data-theme="primesuspect"] .settings-modal-panel.tutorial-panel .tutorial-content {
+  padding-bottom: calc(0.9rem + 28px) !important;
+}
+
+[data-theme="primesuspect"] .settings-modal-panel.rules-panel .rules-content {
+  padding-bottom: calc(1.5rem + 28px) !important;
+}
+
+/* Same defect, fourth panel: `.card-legend-content` declares no padding of its
+   own, so it runs on `.settings-modal-content`'s `var(--spacing-md)` — also
+   shallower than the ramp, and the last legend card ends on a description
+   paragraph. */
+[data-theme="primesuspect"] .settings-modal-panel.card-legend-panel .card-legend-content {
+  padding-bottom: calc(var(--spacing-md, 1rem) + 28px) !important;
+}
+
 /* The overview table's name column is `white-space: nowrap` inside a `1fr`
    track (prime-suspect-unified.css:2618). At <=600px the row collapses to
    `2rem 1fr 2.5rem 2fr`, so a long localized card name (DE/PT) sets the
@@ -152,11 +174,15 @@
   transform: none !important;
 }
 
+/* ⚠ RADIUS TRAP: `[data-theme="primesuspect"] * { border-radius: 0 !important }`
+   (prime-suspect-unified.css:1377) beats any unflagged radius, so the pager
+   shipped as grey SQUARES with a square gold bar. A radius that IS the design
+   carries `!important` here. */
 [data-theme="primesuspect"] .tutorial-navigation .tutorial-dot-pill {
   display: block;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: 50% !important;
   background: rgba(246, 240, 230, 0.3);
   transition: width 0.18s ease, background-color 0.18s ease;
 }
@@ -167,9 +193,17 @@
 
 [data-theme="primesuspect"] .tutorial-navigation .tutorial-dot.active .tutorial-dot-pill {
   width: 20px;
-  border-radius: 99px;
+  border-radius: 99px !important;
   background: var(--royal-gold);
   box-shadow: 0 0 10px rgba(231, 204, 122, 0.45);
+}
+
+/* The family focus-visible rule (prime-suspect-ingame.css §12.6, ~2268-2292)
+   never listed the pager, and the dot zeroes its own box-shadow above, so
+   tabbing it showed nothing. Same declaration, owned here. */
+[data-theme="primesuspect"] .tutorial-navigation .tutorial-dot:focus-visible {
+  outline: 2px solid var(--royal-gold-light) !important;
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

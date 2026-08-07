@@ -160,26 +160,12 @@
      heading un-faded and half-cut. The clearance lives on the last section. */
   padding: 12px 1rem 0;
 }
-/* Last catalogue block clears the fade band + the chevron gutter, so nothing
-   purchasable ever ends underneath the affordance.
-   (`:last-child` = no hint mounted; `:has()` = the section before the hint —
-   `:last-of-type` cannot be used, the hint is a <div> too.) */
-.psshop-body > .psshop-section:last-child,
-.psshop-body > .psshop-section:has(+ .gs-scroll-hint) {
-  padding-bottom: 3rem;
-}
-/* Retint the fleet scroll affordance for the velvet body. The stop colour must
-   be the PANEL face (velvet-900, set in cosmetics.css) — velvet-panel is two
-   steps lighter and printed as a grey-mauve smear across the last chip row.
-   The chevron rides the scrollbar gutter on the right instead of sitting on a
-   purchasable chip (the tab is pointer-events:auto by fleet contract). */
-.psshop-body .gs-scroll-hint {
-  height: 56px;
-  margin-top: -56px;
-  justify-content: flex-end;
-  padding-right: 12px;
-  background: linear-gradient(transparent, var(--velvet-900, #1c0f14) 72%);
-}
+/* SINGLE OWNER NOTICE — the shop's scroll-fade band, its chevron placement and
+   the last-section clearance live in `styles/components/cosmetics.css`
+   (`.psshop-backdrop .psshop-body …`, override block at the end of that file).
+   Duplicates used to sit here; cosmetics.css loads FIRST but is one class
+   deeper, so it won every declaration and edits made here silently did nothing.
+   Tune the scrim there, not here. */
 .psshop-body::-webkit-scrollbar { width: 8px; }
 .psshop-body::-webkit-scrollbar-thumb {
   background: rgba(210, 178, 90, 0.55);
@@ -245,7 +231,14 @@
    chip. `space-between` pushed them to opposite ends under one shared caption,
    with a ~130px hole between them, so it read as a duplication bug. Packed left
    with a labelled micro-caption each, they read as a comparison. */
-.psshop-pcard-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: flex-start; gap: 16px; }
+/* …but packed left they occupied only 42% of the fixed stage row, so the other
+   58% read as an unexplained void. The pair is now collapsed to its own width
+   and centred in the row — no void, no reopened hole between the samples. */
+.psshop-pcard-row {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: flex-start; gap: 16px;
+  max-width: fit-content;
+  margin-inline: auto;
+}
 .psshop-pcard-sample { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
 .psshop-pcard-microlabel {
   font-family: var(--hg-font-meta, 'Special Elite', monospace);
@@ -277,7 +270,18 @@
 .psshop-section { display: flex; flex-direction: column; gap: 8px; }
 /* Section headers are dossier tabs, not web-app labels: typewriter meta voice
    with the hint demoted to its own line. */
+/* Sticky so a CATEGORY HEADING can never be the thing the bottom scrim
+   dissolves: the fade is sized to protect the last CHIP ROW, and "NAME FLAIR"
+   plus its hint sat inside that band at the default desktop height — the second
+   catalogue was announced by a half-dissolved title over an unreadable
+   subtitle. The seat colour is velvet-900 (the PANEL face), NOT velvet-panel:
+   velvet-panel is two steps lighter and prints as a grey-mauve smear here. */
 .psshop-section-title {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--velvet-900, #1c0f14);
+  padding-top: 6px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -322,18 +326,28 @@
 /* Evidence tags filed in a rack: label-derived widths gave rows of 2/3/2/3/1
    with 100–300px holes, and the double-wide "EQUIPPED" chip broke row 1. One
    column rhythm for the standard AND the premium block. */
+/* THREE columns could not hold a NAME: 560px panel − 8px border − 32px body
+   padding − 46px gutter = 474px, so minmax(150px) still fitted 3 chips of
+   ~152px, leaving ~38px (≈4 characters) of label box once the swatch, glyph and
+   price pill were paid for — 11 of 17 frames read as "Bron…", "Obs…", "Auro…",
+   and the EQUIPPED chip lost its name entirely. A 212px floor yields exactly
+   TWO columns (2×212+8 = 432 ≤ 474 < 3×212+16) at ~233px each, ~119px of label. */
 .psshop-chips {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
   gap: 8px;
 }
 .psshop-chip {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  /* The name outranks the token: with a 7ch floor on the label (below) a long
+     name pushes the price / EQUIPPED pill onto a SECOND line instead of
+     squeezing the label to an ellipsis. min-height absorbs that line. */
+  flex-wrap: wrap;
   min-width: 0;
   gap: 6px;
-  min-height: 44px;
+  min-height: 52px;
   padding: 6px 13px;
   border-radius: var(--psb-radius, 7px);
   cursor: pointer;
@@ -354,7 +368,9 @@
 .psshop-chip-label {
   display: inline-block;
   flex: 1 1 auto;
-  min-width: 0;
+  /* NOT `min-width: 0`: that let the flexbox collapse the name to zero width
+     next to .psshop-chip-state, which is how the EQUIPPED chip shipped nameless. */
+  min-width: 7ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

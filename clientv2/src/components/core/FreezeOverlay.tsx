@@ -120,8 +120,14 @@ const FreezeOverlay: React.FC<FreezeOverlayProps> = ({ variant = 'full' }) => {
       }}
     >
       <div className="freeze-card">
+        {/* The glyph is sized in CSS, NOT here. Banner mode is switched on by
+            TWO things — this `variant` prop AND `body.ps-results-open` — but
+            only the prop was visible to JS, so on the results beat a 30px Pause
+            shipped inside the 38px disc the CSS had already shrunk: ~4px of wax
+            ring versus 9px in the lobby banner. The file that owns the disc now
+            owns the mark inside it. */}
         <span className="freeze-seal" aria-hidden="true">
-          <Pause size={isBanner ? 20 : 30} strokeWidth={1.5} />
+          <Pause size={30} strokeWidth={1.5} />
         </span>
 
         <div className="freeze-card__text">
@@ -147,6 +153,15 @@ const FreezeOverlay: React.FC<FreezeOverlayProps> = ({ variant = 'full' }) => {
               {attempt > 0 && <span className="freeze-status__count"> · {attempt}</span>}
             </span>
             <span className="freeze-status__time">{formatElapsed(elapsedMs)}</span>
+            {/* Banner mode hides `freeze-body` for height, which deleted the
+                one line that explains why REMATCH! and the secondary CTAs just
+                turned to stone underneath the strip (FreezeOverlay.css dims
+                them on a dead socket). The hold note puts the reason back on
+                the strip itself; the full curtain still carries `freeze-body`
+                and hides this. */}
+            <span className="freeze-status__note">
+              {tr('reconnect.frozenCtaHold', 'Actions resume when the line is back')}
+            </span>
           </p>
 
           {showEscape && (

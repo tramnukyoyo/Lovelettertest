@@ -432,8 +432,11 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
       data-hearts-gambit-root={isBroadcastMirror ? undefined : 'true'}
     >
 
-      {/* Main Game Container - Dark Table Surface */}
-      <div className="w-full h-full rounded-none overflow-hidden shadow-2xl flex flex-col flex-1 min-h-0 relative">
+      {/* Main Game Container - Dark Table Surface.
+          `.ps-table` is the hook for the candle wash that lights the whole
+          table from the deck outward (prime-suspect-ingame.css §20.5) — the
+          light source the active-seat spotlight has always implied. */}
+      <div className="ps-table w-full h-full rounded-none overflow-hidden shadow-2xl flex flex-col flex-1 min-h-0 relative">
 
         {/* Large card preview pinned top-right of the stage (desktop hover) */}
         {!isBroadcastMirror && <CardHoverPreview />}
@@ -632,8 +635,11 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
             </div>
           )}
 
-          {/* Center Area: Deck & Discard - No Border */}
-          <div className="flex-1 flex flex-row items-center justify-center gap-20 relative">
+          {/* Center Area: Deck & Discard - No Border.
+              `.ps-band-centre` is the middle column of the evidence band's
+              three-column composition (headline · piles · your filed evidence)
+              on wide stages — see prime-suspect-ingame.css §20.1. */}
+          <div className="ps-band-centre flex-1 flex flex-row items-center justify-center gap-20 relative">
             <div className="ps-deck-evidence-row flex flex-row items-center justify-center gap-20">
               {/* The desk the two piles sit ON — torn-parchment top edge, velvet
                   blotter, gold hairline. Decoration only; hugs the pile row. */}
@@ -813,6 +819,42 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 PLAYING / ENDED, so no waiting overlay is needed here. */}
           </div>
 
+          {/* FILED BY YOU — the cards this player has already played. It lives in
+              the evidence band's RIGHT flank (wide stages only, CSS-gated): your
+              own filed evidence belongs beside the table's evidence pile, and it
+              is what fills the ~480px void that used to sit right of the deck at
+              1920. Below a 1000px stage the flank does not exist and this is
+              display:none. */}
+          <aside className="ps-tray-flank ps-tray-flank--filed">
+            <div className="ps-filed">
+              <div className="ps-filed-head">
+                <span className="ps-filed-title">{t('evidence.title')}</span>
+                <span className="ps-filed-count">{myFiled.length}</span>
+              </div>
+              {myFiled.length === 0 ? (
+                <div className="ps-filed-empty">
+                  {/* a face-down card slot, NOT a ruled note slip — the case
+                      log next door already owns that language (§19.6) */}
+                  <span className="ps-filed-ghost ps-filed-ghost--card" aria-hidden="true" />
+                  <span className="ps-filed-empty-text">{t('evidence.noEvidenceYet')}</span>
+                </div>
+              ) : (
+                <ul className="ps-filed-list">
+                  {myFiled.slice(-6).map((filedCard, i) => (
+                    <li key={`filed-${i}-${filedCard}`} className="ps-filed-item">
+                      <CardHoverZone card={filedCard} className="ps-filed-chip">
+                        <span className="ps-filed-chip-value">{filedCard}</span>
+                        <span className="ps-filed-chip-name">
+                          {getTranslatedCardName(filedCard as any, language)}
+                        </span>
+                      </CardHoverZone>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </aside>
+
         </div>
 
         {/* BOTTOM SECTION: Player Area */}
@@ -824,6 +866,10 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
             <div className={`ps-tray-rule ${isMyTurn ? 'is-live' : ''}`} aria-hidden="true"></div>
 
             <div className="ps-tray-toolbar flex items-center gap-3 mb-3 z-10 relative">
+              {/* Your standing (tokens + state) — one group, so the wide-stage
+                  grid can seat it in the tray's LEFT column opposite the tools
+                  (prime-suspect-ingame.css §20.2). */}
+              <div className="ps-tray-chips flex flex-wrap items-center gap-3 min-w-0">
               <motion.span
                 className={`ps-token-track${tokensIncreased ? ' is-pulse' : ''}`}
                 animate={tokensIncreased ? { opacity: [1, 0.55, 1] } : {}}
@@ -838,7 +884,14 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 </span>
                 <span className="ps-token-track-count">{me?.tokens || 0} / {tokensToWin}</span>
               </motion.span>
-              {isMyTurn && <span className="ps-turn-badge">{t('game.yourTurn')}</span>}
+              {/* On wide stages the phase headline already announces the turn in
+                  display type, so this pill collapses to its live dot (§20.3) —
+                  title + the still-present label keep it legible to hover and AT. */}
+              {isMyTurn && (
+                <span className="ps-turn-badge" title={t('game.yourTurn')}>
+                  {t('game.yourTurn')}
+                </span>
+              )}
               {mustPlayAccomplice && !waitingToDraw && (
                 <span className="ps-chip ps-chip--warn">
                   {t('game.mustPlayAccomplice')}
@@ -849,6 +902,7 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                   <Skull size={14} /> {t('game.eliminated')}
                 </span>
               )}
+              </div>
 
               {/* Card Legend, Rules & How to Play Buttons */}
               <div className="ps-tray-tools ml-auto flex items-center gap-2">
@@ -881,39 +935,6 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
                 </button>
               </div>
             </div>
-
-            {/* FILED BY YOU — the cards this player has already played, stacked as
-                index tabs. Wide stages only (CSS-gated); it turns the left half of
-                the hand band from empty velvet into the player's own case record. */}
-            <aside className="ps-tray-flank ps-tray-flank--filed">
-              <div className="ps-filed">
-                <div className="ps-filed-head">
-                  <span className="ps-filed-title">{t('evidence.title')}</span>
-                  <span className="ps-filed-count">{myFiled.length}</span>
-                </div>
-                {myFiled.length === 0 ? (
-                  <div className="ps-filed-empty">
-                    {/* a face-down card slot, NOT a ruled note slip — the case
-                        log next door already owns that language (§19.6) */}
-                    <span className="ps-filed-ghost ps-filed-ghost--card" aria-hidden="true" />
-                    <span className="ps-filed-empty-text">{t('evidence.noEvidenceYet')}</span>
-                  </div>
-                ) : (
-                  <ul className="ps-filed-list">
-                    {myFiled.slice(-6).map((filedCard, i) => (
-                      <li key={`filed-${i}-${filedCard}`} className="ps-filed-item">
-                        <CardHoverZone card={filedCard} className="ps-filed-chip">
-                          <span className="ps-filed-chip-value">{filedCard}</span>
-                          <span className="ps-filed-chip-name">
-                            {getTranslatedCardName(filedCard as any, language)}
-                          </span>
-                        </CardHoverZone>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </aside>
 
             <div className="ps-hand-area w-full flex justify-center items-end flex-1 min-h-0 pb-2 gap-4">
                {/* My Hand */}
@@ -1157,8 +1178,11 @@ const HeartsGambitGameDesktop: React.FC<HeartsGambitGameProps> = ({
             transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           >
             <div className="flex items-center gap-3 mb-2">
-              <Skull className="w-8 h-8 text-[var(--danger-500)] flex-shrink-0 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
-              <h3 className="text-lg font-black text-[var(--danger-500)] uppercase tracking-widest">
+              {/* parity with the mobile banner: --danger-500 resolves to the
+                  platform salmon #ff6b6b (base/variables.css wins the cascade),
+                  a generic UI colour on the game's biggest drama beat */}
+              <Skull className="ps-elim-banner__icon w-8 h-8 flex-shrink-0" />
+              <h3 className="ps-elim-banner__title text-lg uppercase">
                 {t('game.eliminated')}
               </h3>
             </div>

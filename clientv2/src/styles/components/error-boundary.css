@@ -71,13 +71,16 @@
 }
 
 /* Wax-seal mark — same disc as the outage screens, so a crash reads as part of
-   the same case-file world instead of a different product. */
+   the same case-file world instead of a different product. It SAID that and was
+   not: 76/64/52 hardcoded here against the outage pair's shared 64/56/50, so a
+   player who froze and then crashed watched the seal jump 12px. Three cards,
+   one scale — the token (components/ui/toastRail.css :root) is the scale. */
 .error-boundary-seal {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 76px;
-  height: 76px;
+  width: var(--ps-sys-seal, 64px);
+  height: var(--ps-sys-seal, 64px);
   flex-shrink: 0;
   margin-bottom: var(--spacing-xs);
   border-radius: 50%;
@@ -237,7 +240,7 @@
 
   .error-boundary-content { padding: var(--spacing-lg); }
 
-  .error-boundary-seal { width: 64px; height: 64px; }
+  .error-boundary-seal { width: var(--ps-sys-seal-sm, 56px); height: var(--ps-sys-seal-sm, 56px); }
 
   .error-boundary-title { font-size: 1.4rem; }
 
@@ -259,7 +262,7 @@
     padding: var(--spacing-md);
   }
 
-  .error-boundary-seal { width: 52px; height: 52px; margin-bottom: 0; }
+  .error-boundary-seal { width: var(--ps-sys-seal-land, 50px); height: var(--ps-sys-seal-land, 50px); margin-bottom: 0; }
 
   .error-boundary-title {
     font-size: 1.2rem;

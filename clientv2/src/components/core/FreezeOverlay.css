@@ -98,8 +98,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--ps-outage-seal, 64px);
-  height: var(--ps-outage-seal, 64px);
+  width: var(--ps-sys-seal, 64px);
+  height: var(--ps-sys-seal, 64px);
   flex-shrink: 0;
   border-radius: 50%;
   background: radial-gradient(circle at 38% 32%,
@@ -220,6 +220,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Only the strip needs the hold note: the full curtain says it properly in
+   `.freeze-body`, and it has no dimmed CTAs sitting under it to explain. */
+.freeze-status__note { display: none; }
+
 .freeze-escape {
   margin-top: 0.85rem;
   width: 100%;
@@ -280,12 +284,15 @@ body.ps-results-open .freeze-overlay {
    owner directive is no overlap at ANY viewport, and at 375 the results panel
    fills the screen top to bottom. Same reserve pattern the toast rail already
    uses on this scrim (components/ui/toastRail.css). The two heights are the
-   strip WITHOUT and WITH the 20s manual-escape button. */
+   strip WITHOUT and WITH the 20s manual-escape button — and they are now the
+   SAME TOKEN the in-game action toast steps down by (toastRail.css :root), so
+   the strip's height is one number with three consumers instead of a literal
+   repeated in two files and forgotten in a third. */
 body.ps-results-open:has(.freeze-overlay) .ps-victory-scrim {
-  padding-top: calc(env(safe-area-inset-top, 0px) + 100px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--ps-outage-strip, 116px));
 }
 body.ps-results-open:has(.freeze-overlay .freeze-escape) .ps-victory-scrim {
-  padding-top: calc(env(safe-area-inset-top, 0px) + 150px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--ps-outage-strip-tall, 170px));
 }
 
 /* A dead line must never present a live CTA: REMATCH! and the secondary actions
@@ -294,6 +301,14 @@ body.ps-results-open:has(.freeze-overlay .freeze-escape) .ps-victory-scrim {
 body.ps-results-open:has(.freeze-overlay) .ps-victory-btn--primary,
 body.ps-results-open:has(.freeze-overlay) .ps-cta-secondary {
   pointer-events: none;
+  opacity: 0.45;
+}
+
+/* The rematch tally / "Majority vote starts the rematch" hint are siblings of
+   the primary CTA in its flex column (VictoryScreen.tsx:180-202, no class of
+   their own). Left at full strength they described a live vote next to a button
+   that had just turned to stone. They fade WITH the control they annotate. */
+body.ps-results-open:has(.freeze-overlay) .ps-victory-btn--primary ~ div {
   opacity: 0.45;
 }
 
@@ -306,7 +321,10 @@ body.ps-results-open .freeze-overlay .freeze-card {
   gap: 0.85rem;
   max-width: none;
   width: 100%;
-  padding: 0.6rem 1rem;
+  /* The seal used to sit 16px off the raw viewport edge while the case file
+     below it was centred in a 24px-padded scrim — the strip read as bolted on
+     rather than as the same document's header. */
+  padding: 0.6rem clamp(1rem, 4vw, 2.5rem);
   border-radius: 0;
   border-width: 0 0 1px;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
@@ -322,8 +340,45 @@ body.ps-results-open .freeze-overlay .freeze-seal {
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 
+/* …and the MARK scales with the disc. See FreezeOverlay.tsx: the glyph used to
+   be sized off the `variant` prop, which does not know about the results-beat
+   strip, so a 30px Pause shipped inside this 38px disc — a crowded pause button
+   where the lobby banner shows a stamp. */
+.freeze-overlay--banner .freeze-seal svg,
+body.ps-results-open .freeze-overlay .freeze-seal svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── The strip's inner measure ────────────────────────────────────────────────
+   The banner card is full-bleed by design, but its CONTENT was too: at 1920 the
+   3px retry bar stretched ~1780px (reading as a decorative rule that stopped
+   drawing at 43%, the exact opposite of a live instrument) and
+   `justify-content: space-between` threw the clock ~1400px away from the label
+   it belongs to. The same markup reads correctly at 375 purely because the
+   viewport imposed a measure. So impose one. */
 .freeze-overlay--banner .freeze-card__text,
-body.ps-results-open .freeze-overlay .freeze-card__text { gap: 0.25rem; }
+body.ps-results-open .freeze-overlay .freeze-card__text {
+  gap: 0.25rem;
+  max-width: 560px;
+}
+
+/* Label · count · clock · hold note read as ONE group, left to right, instead
+   of two things pushed to opposite ends of the screen. */
+.freeze-overlay--banner .freeze-status,
+body.ps-results-open .freeze-overlay .freeze-status {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.25rem;
+}
+
+.freeze-overlay--banner .freeze-status__note,
+body.ps-results-open .freeze-overlay .freeze-status__note {
+  display: inline;
+  flex: 1 1 100%;
+  opacity: 0.75;
+  overflow-wrap: anywhere;
+}
 
 .freeze-overlay--banner .freeze-title,
 body.ps-results-open .freeze-overlay .freeze-title { font-size: 1rem; }
@@ -339,7 +394,7 @@ body.ps-results-open .freeze-overlay .freeze-escape { margin-top: 0.5rem; width:
 @media (max-width: 400px) {
   .freeze-overlay { padding: 16px; }
   .freeze-card { padding: 1.5rem 1.15rem 1.35rem; gap: var(--ps-outage-gap-sm, 0.75rem); }
-  .freeze-seal { width: var(--ps-outage-seal-sm, 56px); height: var(--ps-outage-seal-sm, 56px); }
+  .freeze-seal { width: var(--ps-sys-seal-sm, 56px); height: var(--ps-sys-seal-sm, 56px); }
   .freeze-status { font-size: 0.68rem; letter-spacing: 0.08em; }
 }
 
@@ -347,7 +402,7 @@ body.ps-results-open .freeze-overlay .freeze-escape { margin-top: 0.5rem; width:
 @media (orientation: landscape) and (max-height: 500px) {
   .freeze-card { flex-direction: row; align-items: center; text-align: left; padding: 1.1rem 1.25rem; gap: 1rem; max-width: 560px; }
   .freeze-card__text::before { display: none; }
-  .freeze-seal { width: var(--ps-outage-seal-land, 50px); height: var(--ps-outage-seal-land, 50px); }
+  .freeze-seal { width: var(--ps-sys-seal-land, 50px); height: var(--ps-sys-seal-land, 50px); }
   .freeze-title { font-size: 1.1rem; }
   .freeze-body { font-size: 0.8rem; }
   .freeze-escape { margin-top: 0.5rem; }

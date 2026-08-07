@@ -556,6 +556,39 @@
 
   .game-header .video-join-text { display: none; }
 
+  /* ROUND 5 — THE WORDMARK IS NOT THE THING THAT GIVES.
+     At 1024 the reclaims above still left a deficit, so the last-resort ellipsis
+     on `.game-header-logo-text` fired: the header read "Prime…" while twelve
+     chrome controls kept full width. A game truncating its own NAME reads as a
+     broken build, so the trade is inverted here — "TRY ANOTHER GAME /
+     GAMEBUDDIES.IO" is the lowest-information label in the row and is a two-line
+     block worth ~150px, far more than the ~55px the wordmark needs. It collapses
+     to its ArrowLeft icon (the button keeps its `title`, exactly like RETURN TO
+     LOBBY and Leave Room already do at this width) and the two-word "Prime
+     Suspect" lockup is pinned at its intrinsic size. */
+  .game-header .gamebuddies-return-btn.inline .gb-return-label { display: none; }
+
+  .game-header .gamebuddies-return-btn.inline {
+    padding-inline: 0.45rem !important;
+    min-width: 34px;
+    justify-content: center;
+  }
+
+  .game-header .game-header-logo,
+  .game-header .game-header-logo-text-container {
+    flex: 0 0 auto;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .game-header .game-header-logo-text {
+    flex: 0 0 auto;
+    max-width: none;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
   .game-header .game-header-lobby-btn,
   .game-header .game-header-leave-btn {
     padding-inline: 0.45rem;
@@ -634,3 +667,62 @@
    contract and guards against a template refresh re-introducing them. */
 .game-header-player-count,
 .game-header-player-info { display: none; }
+
+/* ============================================================================
+   ROUND 5 — CTA HIERARCHY: JOIN VIDEO IS CHROME, NOT THE PRIMARY ACTION
+
+   `prime-suspect-ingame.css` §8.1 + §12.1 enrol `.video-join-btn` in the
+   PRIMARY button tier — saturated crimson slab, gold ring, 5px crimson riser,
+   30px shadow. Measured across play-1024/1366/1920 and lobby-1920 it was the
+   single loudest element on screen: it out-shouted DRAW, it out-shouted START
+   GAME, and it framed the "YOUR TURN" set-piece it is supposed to sit beside.
+   One saturated crimson fill per screen, and that fill belongs to the in-stage
+   primary action (DRAW / START GAME / REMATCH).
+
+   The header CTA drops to the SECONDARY (velvet + gold hairline) tier — the
+   same face the settings/leave/return controls already wear, so the whole bar
+   reads as one quiet chrome family. Scoped to `.game-header` so the video CTA
+   keeps its own treatment anywhere else it is mounted, and written at
+   `[data-theme] .game-header .video-join-btn` (0-3-0) because §8.1/§12.1 are
+   0-2-0 `!important` in a LATER file — equal specificity would lose the
+   tie-break. Interactive feedback stays brightness/box-shadow only; the shared
+   :focus-visible ring in §12.6 is deliberately left alone.
+   ============================================================================ */
+[data-theme="primesuspect"] .game-header .video-join-btn {
+  background: var(--psb-sec-face,
+    linear-gradient(180deg, var(--velvet-raise, #34262f), var(--velvet-panel, #2c2029))) !important;
+  border: 1px solid var(--royal-gold, #d2b25a) !important;
+  color: var(--royal-gold-light, #e7cc7a) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1px 0 rgba(231, 204, 122, 0.14) !important;
+  transform: none !important;
+}
+
+[data-theme="primesuspect"] .game-header .video-join-btn:hover:not(:disabled) {
+  background: var(--psb-sec-face,
+    linear-gradient(180deg, var(--velvet-raise, #34262f), var(--velvet-panel, #2c2029))) !important;
+  border-color: var(--royal-gold-light, #e7cc7a) !important;
+  color: var(--royal-gold-light, #e7cc7a) !important;
+  filter: brightness(1.16);
+  transform: none !important;
+  box-shadow:
+    0 0 14px rgba(231, 204, 122, 0.18),
+    inset 0 1px 0 rgba(231, 204, 122, 0.2) !important;
+}
+
+[data-theme="primesuspect"] .game-header .video-join-btn:active:not(:disabled) {
+  transform: none !important;
+  filter: brightness(0.94);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Live/active state keeps a tint so "you are in video" is still legible without
+   returning to a full crimson slab. */
+[data-theme="primesuspect"] .game-header .video-join-btn.active,
+[data-theme="primesuspect"] .game-header .video-join-btn.is-active {
+  border-color: var(--royal-gold-light, #e7cc7a) !important;
+  box-shadow:
+    0 0 12px rgba(231, 204, 122, 0.22),
+    inset 0 1px 0 rgba(231, 204, 122, 0.2) !important;
+}

@@ -30,7 +30,9 @@ const GameExplainerModal: React.FC<Props> = ({
   onClose,
 }) => {
   const [paused, setPaused] = useState(false);
-  const tClock = useExplainerClock(demoSpec.durationMs, paused);
+  // Manual seek channel for the NEXT control (see useExplainerClock).
+  const seekRef = useRef<number | null>(null);
+  const tClock = useExplainerClock(demoSpec.durationMs, paused, seekRef);
   const reducedMotion = prefersReduced();
   const lastTRef = useRef(0);
   const closedRef = useRef(false);
@@ -89,6 +91,24 @@ const GameExplainerModal: React.FC<Props> = ({
   const Demo = demoSpec.Component;
   // Step pips: without them the reader cannot tell how long the briefing is.
   const activeBeatIndex = Math.max(0, demoSpec.beats.indexOf(activeBeat));
+  const isLastBeat = activeBeatIndex >= demoSpec.beats.length - 1;
+
+  /**
+   * Forward affordance. The briefing had five pips and a SKIP and nothing that
+   * said "advance" — a reader who already understood a beat could only wait
+   * out the clock. NEXT seeks to the following beat; on the last beat it opens
+   * the case (i.e. dismisses the briefing), so the two ends of the row are
+   * "leave now" and "carry on", never two ways of quitting.
+   */
+  const handleNext = () => {
+    if (isLastBeat) {
+      handleClose();
+      return;
+    }
+    const next = demoSpec.beats[activeBeatIndex + 1];
+    // +1ms so the beat scan lands ON the next beat, never a rounding tick short.
+    seekRef.current = Math.min(0.999, (next.atMs + 1) / demoSpec.durationMs);
+  };
 
   return createPortal(
     <div
@@ -144,20 +164,10 @@ const GameExplainerModal: React.FC<Props> = ({
           )}
         </div>
 
-        {/* Candlelit step pips — how many beats there are, and where we are. */}
-        {!reducedMotion && demoSpec.beats.length > 1 && (
-          <div className="game-explainer-pips" aria-hidden="true">
-            {demoSpec.beats.map((b, i) => (
-              <span
-                key={b.captionKey}
-                className={`game-explainer-pip${i === activeBeatIndex ? ' is-active' : ''}`}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Footer row — SKIP no longer floats over the last copy line. */}
-        <div className="game-explainer-footer">
+        {/* Navigation row: quiet SKIP · step pips · gold NEXT. The pips used to
+            float on their own line above a lone right-aligned SKIP, so the only
+            control in the briefing was a way OUT of it. */}
+        <div className="game-explainer-footer game-explainer-nav">
           <button
             type="button"
             className="game-explainer-skip"
@@ -165,6 +175,30 @@ const GameExplainerModal: React.FC<Props> = ({
           >
             {t('gameExplainer.skip')}
           </button>
+
+          {/* Candlelit step pips — how many beats there are, and where we are. */}
+          {!reducedMotion && demoSpec.beats.length > 1 ? (
+            <div className="game-explainer-pips" aria-hidden="true">
+              {demoSpec.beats.map((b, i) => (
+                <span
+                  key={b.captionKey}
+                  className={`game-explainer-pip${i === activeBeatIndex ? ' is-active' : ''}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <span className="game-explainer-nav-spacer" aria-hidden="true" />
+          )}
+
+          {!reducedMotion && demoSpec.beats.length > 1 && (
+            <button
+              type="button"
+              className="game-explainer-next"
+              onClick={handleNext}
+            >
+              {isLastBeat ? t('gameExplainer.openCase') : t('common.next')}
+            </button>
+          )}
         </div>
       </div>
     </div>,

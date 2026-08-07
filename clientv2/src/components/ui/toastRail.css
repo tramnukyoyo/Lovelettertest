@@ -51,18 +51,38 @@
   --z-toast: 10045;
   --z-error-boundary: 10050;
 
-  /* ── The shared outage rhythm ───────────────────────────────────────────────
-     FreezeOverlay and ReconnectOverlay are two beats of ONE story ("the line
-     died" → "the case reopened") and a player commonly sees them back to back.
-     Retuning one and not the other made the wax-seal mark jump 12px and the
-     card re-space between two screens that are meant to be the same card. The
-     rhythm is declared once here (the file that already owns the shared
-     system-state tokens) and consumed by both. */
-  --ps-outage-seal: 64px;
-  --ps-outage-seal-sm: 56px;      /* ≤400px */
-  --ps-outage-seal-land: 50px;    /* landscape phone */
+  /* ── The shared SYSTEM-STATE rhythm ─────────────────────────────────────────
+     FreezeOverlay, ReconnectOverlay and the crash screen are three beats of ONE
+     story ("the line died" → "the case reopened" / "the evidence room burned")
+     and a player commonly sees two of them back to back. Retuning one and not
+     the others made the wax-seal mark jump 12px and the card re-space between
+     screens that are meant to be the same card — the crash screen was still on
+     its own 76/64/52 scale after the outage pair moved to 64/56/50.
+     The rhythm is declared once here (the file that already owns the shared
+     system-state tokens) and consumed by all THREE — hence `sys`, not `outage`. */
+  --ps-sys-seal: 64px;
+  --ps-sys-seal-sm: 56px;      /* ≤400px / ≤767px on the crash card */
+  --ps-sys-seal-land: 50px;    /* landscape phone */
   --ps-outage-gap: 0.85rem;
   --ps-outage-gap-sm: 0.75rem;
+
+  /* ── The interruption strip's own height ────────────────────────────────────
+     When the line dies on the results beat the freeze curtain becomes a top
+     STRIP (FreezeOverlay.css "BANNER MODE"). Three separate things have to know
+     how tall that strip is, and until now all three carried the number as a
+     literal in a different file:
+       1. the strip itself (nothing — it is content-sized),
+       2. the results scrim, which reserves the row so the case file starts
+          below it (FreezeOverlay.css),
+       3. the in-game action toast, which is a `position: fixed` SIBLING of the
+          rail on <body> and therefore was NOT covered by the rail's reserve —
+          a 3s "not your turn" toast landed straight inside the strip.
+     One number, three consumers. The tall variant is the strip once the 20s
+     manual-escape button has appeared inside it. Sized against the measured
+     strip (91px @375 / 93px @1920) plus the hold-note row added in round 5,
+     with a margin so a longer localisation cannot close the gap. */
+  --ps-outage-strip: 116px;
+  --ps-outage-strip-tall: 170px;
 
   --ps-toast-band-top: calc(var(--header-height, 66px) + env(safe-area-inset-top, 0px) + 12px);
 }
@@ -99,69 +119,83 @@
    of its own file: same band as the rail, same rung of the ladder, same row
    geometry as `.ps-toast` (4px leading accent → 18px inset). The velvet/gold
    ground already comes from `.hg-panel.hg-candlelight`
-   (styles/game/hearts-gambit-old.css:18), which is the family ground. */
+   (styles/game/hearts-gambit-old.css:18), which is the family ground.
+
+   As of round 5 the component itself carries `.ps-toast` + a tone modifier, so
+   the skin, the accent rail, the icon plate and the close control all come from
+   the family below and the ~45 lines of compensating CSS that used to fake them
+   here are GONE. What is left is only what is TRUE OF THIS MEMBER ALONE: it is
+   `position: fixed` and centre-pinned rather than a rail child. */
 .hg-panel.hg-candlelight.fixed.top-4 {
+  /* Four class levels, so this beats `.ps-toast`'s `position: relative` (one)
+     without touching the family rule. */
+  position: fixed;
   top: var(--ps-toast-band-top) !important;
   /* Was `z-[100001]` — above the crash screen, i.e. off the ladder entirely. */
   z-index: var(--z-toast, 10045) !important;
-  padding: 12px 14px 12px 18px !important;
+  /* Was `min-w-[260px] max-w-[420px]` with `left:50%; translateX(-50%)` and no
+     viewport clamp: any message long enough to hit the 420px cap hung 22px off
+     BOTH edges at 375 and clipped the close button. Same clamp the rail lane
+     uses (`.ps-toast-rail__lane`, below), so the two toast species measure
+     identically at every viewport. */
+  width: min(420px, calc(100vw - 24px)) !important;
+  /* framer-motion drives this member's entrance/exit through inline transforms
+     (including the `x: '-50%'` that centres it). A running CSS animation beats
+     inline style, so the family's `ps-toast-in` would hijack the centring for
+     its first 250ms and snap the card sideways. */
+  animation: none;
 }
 
-/* …and it takes the family's TYPOGRAPHY and icon plate too. It is the toast
-   players see most often, and it was the one member still rendering a bare
-   `text-sm font-medium` sentence row next to a 20px lucide glyph while the five
-   rail members carry a typewriter eyebrow + Cinzel title. The eyebrow tier needs
-   a DOM node this file cannot add (reported to the surface owner); everything
-   that CSS can carry is carried here so the family reads as one at a glance.
-   Four class levels beat Tailwind's single-class utilities without !important. */
-.hg-panel.hg-candlelight.fixed.top-4 > span {
-  font-family: var(--font-title, 'Cinzel', serif);
-  font-weight: 700;
-  font-size: 0.95rem;
-  line-height: 1.25;
-  color: var(--parchment, #f6f0e6);
-  overflow-wrap: anywhere;
-}
-
-/* The bare glyph becomes the family's 40px accent plate. `currentColor` is the
-   tone colour the component already puts on the icon, so the plate tints itself
-   danger/reward without this file naming a single hex. */
-.hg-panel.hg-candlelight.fixed.top-4 > svg {
-  box-sizing: content-box;
-  width: 20px;
-  height: 20px;
-  padding: 10px;
-  flex-shrink: 0;
-  border-radius: var(--radius-sm, 6px);
-  background: color-mix(in srgb, currentColor 16%, transparent);
-  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
-}
-
-/* The close control had no focus-visible ring at all — the only toast in the
-   game a keyboard player could not see themselves reach. */
-.hg-panel.hg-candlelight.fixed.top-4 > button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  border-radius: var(--radius-sm, 6px);
-  color: var(--parchment-dark, #d9cfbe);
-  transition: color 0.15s ease, background 0.15s ease;
-}
-.hg-panel.hg-candlelight.fixed.top-4 > button:hover {
-  color: var(--parchment, #f6f0e6);
-  background: rgba(210, 178, 90, 0.12);
-}
-.hg-panel.hg-candlelight.fixed.top-4 > button:focus-visible {
-  outline: 2px solid var(--royal-gold-light, #e7cc7a);
-  outline-offset: 2px;
+/* The family's leading accent rail is a `::before` — and on THIS member alone
+   `[data-theme="primesuspect"] .hg-panel.hg-candlelight::before` (0,3,0, the
+   inset:-40px candle bloom, hearts-gambit-old.css:48) outranks `.ps-toast`'s
+   (0,1,0) and would swallow it. Five class levels take it back, which is why
+   the component no longer needs the hand-rolled `absolute left-0 w-1` div that
+   was painting the WRONG red (`--primary-rgb` = the near-black wax maroon
+   #6a1623) next to an icon tinted with the family's danger accent #8a2233. */
+.hg-panel.hg-candlelight.fixed.top-4.ps-toast::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  opacity: 1;
+  mix-blend-mode: normal;
+  background: var(--ps-toast-accent);
+  animation: none;
 }
 
 /* Reserve the row it occupies so a system toast can never land on top of it. */
 body:has(.hg-panel.hg-candlelight.fixed.top-4) #ps-toast-rail {
   padding-top: 58px;
+}
+
+/* ── …and the same reservation in the other direction ─────────────────────────
+   On the results beat the freeze curtain becomes a top STRIP
+   (FreezeOverlay.css "BANNER MODE") docked at the very top edge on rung 10042.
+   The rail's 58px reserve above was cancelled for that beat (bottom-docked,
+   see the `body.ps-results-open` block at the end of this file) — but the
+   in-game action toast is NOT a rail child, it is a fixed sibling on <body> at
+   `--ps-toast-band-top` on the HIGHER rung 10045. So a 3s "not your turn" /
+   "no cards left" toast fired as the case was solved landed 31px INSIDE the
+   strip at 375, on top of "RETRYING THE LINE · 1" and the clock, and won.
+   Owner directive is no overlap EVER, so the toast steps below the strip for as
+   long as the strip is up. The height comes from the strip's own token, so one
+   number governs the strip, the scrim reserve and this offset. */
+body.ps-results-open:has(.freeze-overlay) .hg-panel.hg-candlelight.fixed.top-4 {
+  top: calc(env(safe-area-inset-top, 0px) + var(--ps-outage-strip)) !important;
+}
+body.ps-results-open:has(.freeze-overlay .freeze-escape) .hg-panel.hg-candlelight.fixed.top-4 {
+  top: calc(env(safe-area-inset-top, 0px) + var(--ps-outage-strip-tall)) !important;
+}
+
+/* The lobby banner (`variant="lobby"`) has the same problem one row lower: it
+   docks under the header, exactly where the rail's band starts. A kick or site
+   notice arriving while the lobby is marked offline would sit on the strip. */
+body:has(.freeze-overlay--banner) #ps-toast-rail {
+  top: calc(var(--ps-toast-band-top) + var(--ps-outage-strip));
+}
+body:has(.freeze-overlay--banner .freeze-escape) #ps-toast-rail {
+  top: calc(var(--ps-toast-band-top) + var(--ps-outage-strip-tall));
 }
 
 .ps-toast-rail__lane {
@@ -399,5 +433,5 @@ body.ps-results-open:has(.hg-panel.hg-candlelight.fixed.top-4) #ps-toast-rail {
   .ps-toast,
   .ps-toast.is-exiting { animation: none; }
   .ps-toast__action,
-  .hg-panel.hg-candlelight.fixed.top-4 > button { transition: none; }
+  .ps-toast__close { transition: none; }
 }

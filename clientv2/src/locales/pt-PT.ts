@@ -344,6 +344,8 @@ export const ptPT: Translations = {
       error: 'Erro',
       message: 'Mensagem',
       action: 'Nota do processo',
+      blocked: 'Bloqueado',
+      done: 'Concluído',
     },
   },
 
@@ -629,6 +631,7 @@ export const ptPT: Translations = {
     frozenTitle: 'INVESTIGAÇÃO INTERROMPIDA',
     frozenBody: 'O processo fica selado até a ligação voltar. Nada do que anotaste se perde.',
     frozenOverline: 'Caso em pausa',
+    frozenCtaHold: 'As ações retomam assim que a ligação voltar.',
     attempt: 'Tentativa {n}',
     retrying: 'A restabelecer a ligação',
     restoredOverline: 'Caso reaberto',

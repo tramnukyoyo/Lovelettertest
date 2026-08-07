@@ -335,6 +335,8 @@ export const de: Translations = {
       error: 'Fehler',
       message: 'Nachricht',
       action: 'Fallnotiz',
+      blocked: 'Blockiert',
+      done: 'Erledigt',
     },
   },
 
@@ -619,6 +621,7 @@ export const de: Translations = {
     frozenTitle: 'ERMITTLUNG UNTERBROCHEN',
     frozenBody: 'Die Akte ist versiegelt, bis die Leitung zurück ist. Nichts von deinen Notizen geht verloren.',
     frozenOverline: 'Fall pausiert',
+    frozenCtaHold: 'Aktionen sind wieder möglich, sobald die Leitung zurück ist.',
     attempt: 'Versuch {n}',
     retrying: 'Leitung wird wiederhergestellt',
     restoredOverline: 'Fall wieder eröffnet',

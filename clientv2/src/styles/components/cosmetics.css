@@ -799,11 +799,33 @@
   margin-top: -84px;
   background: linear-gradient(
     to top,
-    var(--velvet-900, #1c0f14) 0 46%,
-    rgba(28, 15, 20, 0.92) 68%,
-    rgba(28, 15, 20, 0.55) 84%,
+    var(--velvet-900, #1c0f14) 0 12%,
+    rgba(28, 15, 20, 0.85) 45%,
+    rgba(28, 15, 20, 0.4) 75%,
     rgba(28, 15, 20, 0) 100%
   );
+}
+
+/* ============ ROUND 5 — the scrim stopped being a lid ==================== */
+/* Round 4 went too far the other way: fully opaque across the lower 46% of an
+ * 84px band meant the bottom ~70px of the panel was solid #1C0F14 holding only
+ * the chevron, and the "NAME FLAIR" heading above it was dimmed to maxLum 103
+ * with its hint at maxLum 22 over a floor of 19 (≈1.02:1 — invisible). The ramp
+ * above pulls the opaque stop back to 12%; the heading itself is now protected
+ * structurally by `position: sticky` on `.psshop-section-title`
+ * (style-shop.css), because a fade sized for the last CHIP ROW can never also
+ * protect a section TITLE.
+ *
+ * The band also has to span the panel interior: it is `width: 100%` of
+ * `.psshop-body`'s CONTENT box while the body carries `padding: 12px 1rem 0`,
+ * so it stopped 16px short on both sides and a gold chip border leaked through
+ * the dark floor as an unexplained 2x28px sliver. Bleeding it into the padding
+ * keeps the chevron at the same absolute inset (was 14px from the content edge,
+ * i.e. 30px from the panel interior). */
+.psshop-backdrop .psshop-body .gs-scroll-hint {
+  margin-inline: -1rem;
+  width: calc(100% + 2rem);
+  padding: 0 30px 10px 0;
 }
 
 .psshop-backdrop .psshop-body > .psshop-section:last-child,

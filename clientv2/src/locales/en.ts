@@ -341,6 +341,8 @@ export const en = {
       error: 'Error',
       message: 'Message',
       action: 'Case note',
+      blocked: 'Blocked',
+      done: 'Done',
     },
   },
 
@@ -616,6 +618,7 @@ export const en = {
     frozenTitle: 'INVESTIGATION INTERRUPTED',
     frozenBody: 'The file is sealed until the line is back. Nothing you have noted is lost.',
     frozenOverline: 'Case on hold',
+    frozenCtaHold: 'Actions resume when the line is back',
     attempt: 'Attempt {n}',
     retrying: 'Retrying the line',
     restoredOverline: 'Case reopened',

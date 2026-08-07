@@ -82,8 +82,12 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="error-boundary" role="alertdialog" aria-modal="true" aria-labelledby="error-boundary-title">
           <div className="error-boundary-content">
+            {/* 30 on the shared 64px disc (--ps-sys-seal), the same
+                glyph-to-seal ratio FreezeOverlay's Pause and
+                ReconnectOverlay's RotateCcw carry. 38 on the old 76px disc
+                made the crash card its own product. */}
             <span className="error-boundary-seal" aria-hidden="true">
-              <FileWarning size={38} strokeWidth={1.5} />
+              <FileWarning size={30} strokeWidth={1.5} />
             </span>
             <p className="error-boundary-eyebrow">
               {tr('errorBoundary.overline', 'Evidence room')}

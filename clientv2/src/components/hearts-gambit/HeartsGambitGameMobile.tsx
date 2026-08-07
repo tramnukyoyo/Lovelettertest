@@ -465,7 +465,7 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
             card,
             source: 'discard',
             label: getTranslatedCardName(card as any, language),
-            meta: `${p.name}'s discard`,
+            meta: t('game.playerDiscard').replace('{name}', p.name),
           });
         });
       });
@@ -707,7 +707,16 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 </div>
               ))}
               {(!lobby.messages || lobby.messages.length === 0) && (
-                <div className="text-[11px] text-[rgba(246,240,230,0.72)] italic">{t('mobile.noEventsYet')}</div>
+                // Empty case log = a ghost of the real log (dashed parchment
+                // rule-lines at the log's own line-height), never a single
+                // italic line pinned to a 160px void. Same recipe as the empty
+                // evidence locker (.hg-mobile-evidence-empty).
+                <div className="hg-mobile-notes-empty">
+                  <i aria-hidden="true" />
+                  <i aria-hidden="true" />
+                  <i aria-hidden="true" />
+                  <span className="hg-mobile-notes-empty__label">{t('mobile.noEventsYet')}</span>
+                </div>
               )}
             </div>
           </div>
@@ -717,7 +726,10 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
 
       {/* Waiting overlay - FIXED to cover full screen (never shown in PP mode) */}
       {lobby.state === 'LOBBY' && !isPP && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center flex-col gap-2 z-[100] backdrop-blur-sm overflow-y-auto py-2 hg-lobby-overlay">
+        // .ps-modal-scrim is the candlelit scrim every other mobile modal now
+        // uses (TARGET_SELECT / GUESS_SELECT / READY_TO_PLAY below); a flat
+        // bg-black/70 erased the noir table behind the lobby card.
+        <div className="ps-modal-scrim fixed inset-0 flex items-center justify-center flex-col gap-2 z-[100] overflow-y-auto py-2 hg-lobby-overlay">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-[var(--parchment)]">{t('game.waitingForPlayers')}</h2>
             <GameExplainerHelpButton gameId={GAME_META.id} ariaLabel={t('tutorial.howToPlay')} />
@@ -745,14 +757,16 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
               aria-label={t('gameHeader.copyInviteLink')}
             >
               {copyFeedback ? (
-                <Check className="w-4 h-4 text-green-400" />
+                // gold "filed" confirmation, not a Tailwind green inside a
+                // gold/crimson game (same treatment as .pp-advance-check)
+                <Check className="w-4 h-4 text-[var(--royal-gold-light)]" />
               ) : (
                 <Copy size={16} color="var(--parchment)" />
               )}
             </button>
           </div>
           {copyFeedback && (
-            <p className="text-xs text-green-400">{t('lobby.inviteLinkCopied')}</p>
+            <p className="text-xs text-[var(--royal-gold-light)]">{t('lobby.inviteLinkCopied')}</p>
           )}
 
           {/* Pass & Play Toggle */}
@@ -834,6 +848,12 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
                 ownerFrameClass={frameThemeClass(getPlayerProfile(me?.id)?.cosmetics.frameId)}
                 className="hg-mobile-hand-card"
               />
+              {/* Landscape only (CSS): the 56x84 thumbnail has no room for the
+                  rule copy, so it gets a designed dossier footer pointing at
+                  the full exhibit instead of nothing at all. */}
+              <span className="hg-mobile-hand-hint" aria-hidden="true">
+                {t('cardInspector.tapForRules')}
+              </span>
             </button>
           ))}
         </div>
@@ -1097,17 +1117,20 @@ const HeartsGambitGameMobile: React.FC<HeartsGambitGameMobileProps> = ({ lobby, 
       {/* Elimination Alert Banner — top of screen on mobile */}
       <AnimatePresence>
         {eliminationMessage && (
+          // .ps-elim-banner carries the candlelit crimson slab itself — NOT
+          // .hg-panel, which sets position:relative at `[data-theme] .hg-panel`
+          // (0,2,0) and would beat Tailwind's `fixed` (0,1,0): the same trap
+          // already documented on .hg-orientation-hint.
           <motion.div
-            className="fixed top-4 left-4 right-4 z-[55] border-2 border-[var(--royal-crimson-light)] rounded-xl p-3 shadow-[0_0_20px_rgba(168,52,74,0.35)]"
-            style={{ background: 'linear-gradient(135deg, rgba(30,10,10,0.95), rgba(60,15,15,0.95))' }}
+            className="ps-elim-banner fixed top-4 left-4 right-4 z-[55] p-3"
             initial={{ y: -80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           >
             <div className="flex items-center gap-2 mb-1">
-              <Skull className="w-6 h-6 text-[var(--danger-500)] flex-shrink-0" />
-              <span className="text-base font-black text-[var(--danger-500)] uppercase tracking-widest">
+              <Skull className="ps-elim-banner__icon w-6 h-6 flex-shrink-0" />
+              <span className="ps-elim-banner__title text-base uppercase">
                 {t('game.eliminated')}
               </span>
             </div>

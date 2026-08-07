@@ -46,6 +46,33 @@ function tokensToWin(playerCount: number): number {
   return 4;
 }
 
+/**
+ * The circled "?" of the scene header's help button, inline. The sentence
+ * "Full briefing in the ? button" is the only navigational instruction on the
+ * surface, and as a bare typewriter line it pointed at a control the eye had
+ * to hunt for. Drawn (not an emoji, not a font glyph — owner rule 7) so the
+ * sentence names an OBJECT that looks like the thing it names.
+ */
+const HelpChip: React.FC = () => (
+  <svg
+    className="ps-brief-more__chip"
+    viewBox="0 0 16 16"
+    width="14"
+    height="14"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.4"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="8" cy="8" r="6.4" />
+    <path d="M6.3 6.2a1.75 1.75 0 1 1 2.4 1.62c-.45.2-.7.6-.7 1.08v.35" />
+    <path d="M8 11.5h.01" />
+  </svg>
+);
+
 const GuestBriefingPanel: React.FC<GuestBriefingPanelProps> = ({ lobby, footerSlot }) => {
   const language = getCurrentLanguage();
   const t = (key: Parameters<typeof getTranslation>[0]) => getTranslation(key, language);
@@ -77,7 +104,10 @@ const GuestBriefingPanel: React.FC<GuestBriefingPanelProps> = ({ lobby, footerSl
         <li>{t('briefing.step2')}</li>
         <li>{t('briefing.step3')}</li>
       </ol>
-      <p className="ps-brief-more">{t('briefing.openFullBriefing')}</p>
+      <p className="ps-brief-more">
+        <HelpChip />
+        <span>{t('briefing.openFullBriefing')}</span>
+      </p>
 
       {/* Host controls, filed under the case facts (see footerSlot). */}
       {footerSlot && <div className="ps-brief-controls">{footerSlot}</div>}

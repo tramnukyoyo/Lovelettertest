@@ -795,6 +795,7 @@ export const translations = {
     // Card Inspector
     'cardInspector.closeInspector': 'Close inspector',
     'cardInspector.exhibitN': 'EXHIBIT {number}',
+    'game.playerDiscard': "{name}'s discard",
     'cardInspector.emptyHint': 'Nothing has been filed in this locker yet.',
     'cardInspector.previousCard': 'Previous card',
     'cardInspector.nextCard': 'Next card',
@@ -817,6 +818,7 @@ export const translations = {
     'cardInspector.eyebrowGuess': 'CALL THE CARD',
     'cardInspector.eyebrowConfirm': 'FILE THE ACCUSATION',
     'cardInspector.caseNotes': 'Case Notes',
+    'cardInspector.tapForRules': 'TAP FOR RULES',
 
     // Evidence
     'evidence.chronology': 'Chronology',
@@ -858,6 +860,7 @@ export const translations = {
     'game.targetEliminated': '{target} was forced to discard The Murderer — instant elimination!',
     'game.playerImmune': '{player} is now immune until their next turn.',
     'game.noValidTarget': 'No valid target - no effect.',
+    'cardInspector.noSuspects': 'No one left to accuse.',
     'game.inspectorCorrect': 'Inspector guessed right! {target} was holding {card} — busted and eliminated!',
     'game.inspectorWrong': 'Wrong guess! {target} did not have {card}.',
     'game.butlerSees': '{player} sees {target}\'s hand.',
@@ -1069,6 +1072,7 @@ export const translations = {
     'gameExplainer.skip': 'Skip',
     'gameExplainer.howToPlay': 'How to play',
     'gameExplainer.caseBriefingTab': 'Case briefing',
+    'gameExplainer.openCase': 'Open the case',
     'game.unknown': 'Unknown',
     'game.empty': 'Empty',
     'game.caseFile': 'Case File',
@@ -1890,6 +1894,7 @@ export const translations = {
     // Card Inspector
     'cardInspector.closeInspector': 'Inspektor schließen',
     'cardInspector.exhibitN': 'BEWEISSTÜCK {number}',
+    'game.playerDiscard': "Ablage von {name}",
     'cardInspector.emptyHint': 'In diesem Fach wurde noch nichts abgelegt.',
     'cardInspector.previousCard': 'Vorherige Karte',
     'cardInspector.nextCard': 'Nächste Karte',
@@ -1912,6 +1917,7 @@ export const translations = {
     'cardInspector.eyebrowGuess': 'KARTE BENENNEN',
     'cardInspector.eyebrowConfirm': 'ANKLAGE EINREICHEN',
     'cardInspector.caseNotes': 'Fallnotizen',
+    'cardInspector.tapForRules': 'REGELN TIPPEN',
 
     // Evidence
     'evidence.chronology': 'Chronologie',
@@ -1953,6 +1959,7 @@ export const translations = {
     'game.targetEliminated': '{target} musste den Mörder ablegen — sofort eliminiert!',
     'game.playerImmune': '{player} ist jetzt immun bis zum nächsten Zug.',
     'game.noValidTarget': 'Kein gültiges Ziel - kein Effekt.',
+    'cardInspector.noSuspects': 'Niemand mehr, den du anklagen kannst.',
     'game.inspectorCorrect': 'Inspektor hat richtig geraten! {target} hatte {card} — erwischt und eliminiert!',
     'game.inspectorWrong': 'Falsch geraten! {target} hatte nicht {card}.',
     'game.butlerSees': '{player} sieht die Hand von {target}.',
@@ -2164,6 +2171,7 @@ export const translations = {
     'gameExplainer.skip': 'Überspringen',
     'gameExplainer.howToPlay': 'Spielanleitung',
     'gameExplainer.caseBriefingTab': 'Fallakte',
+    'gameExplainer.openCase': 'Fall öffnen',
     'game.unknown': 'Unbekannt',
     'game.empty': 'Leer',
     'game.caseFile': 'Fallakte',
@@ -2984,6 +2992,7 @@ export const translations = {
     // Card Inspector
     'cardInspector.closeInspector': 'Cerrar inspector',
     'cardInspector.exhibitN': 'PRUEBA {number}',
+    'game.playerDiscard': "Descarte de {name}",
     'cardInspector.emptyHint': 'Aún no se ha archivado nada en este casillero.',
     'cardInspector.previousCard': 'Carta anterior',
     'cardInspector.nextCard': 'Siguiente carta',
@@ -3006,6 +3015,7 @@ export const translations = {
     'cardInspector.eyebrowGuess': 'ADIVINA LA CARTA',
     'cardInspector.eyebrowConfirm': 'PRESENTA LA ACUSACIÓN',
     'cardInspector.caseNotes': 'Notas del caso',
+    'cardInspector.tapForRules': 'TOCAR REGLAS',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -3047,6 +3057,7 @@ export const translations = {
     'game.targetEliminated': '{target} fue obligado a descartar El Asesino — eliminacion instantanea!',
     'game.playerImmune': '{player} ahora es inmune hasta su proximo turno.',
     'game.noValidTarget': 'Sin objetivo valido - sin efecto.',
+    'cardInspector.noSuspects': 'No queda nadie a quien acusar.',
     'game.inspectorCorrect': 'El Inspector adivino correctamente! {target} tenia {card} — atrapado y eliminado!',
     'game.inspectorWrong': 'Adivinanza incorrecta! {target} no tenia {card}.',
     'game.butlerSees': '{player} ve la mano de {target}.',
@@ -3258,6 +3269,7 @@ export const translations = {
     'gameExplainer.skip': 'Saltar',
     'gameExplainer.howToPlay': 'Cómo jugar',
     'gameExplainer.caseBriefingTab': 'Resumen del caso',
+    'gameExplainer.openCase': 'Abrir el caso',
     'game.unknown': 'Desconocido',
     'game.empty': 'Vacío',
     'game.caseFile': 'Expediente',
@@ -4080,6 +4092,7 @@ export const translations = {
     // Card Inspector
     'cardInspector.closeInspector': 'Fechar inspetor',
     'cardInspector.exhibitN': 'PROVA {number}',
+    'game.playerDiscard': "Descarte de {name}",
     'cardInspector.emptyHint': 'Ainda não há nada arquivado neste armário.',
     'cardInspector.previousCard': 'Carta anterior',
     'cardInspector.nextCard': 'Próxima carta',
@@ -4102,6 +4115,7 @@ export const translations = {
     'cardInspector.eyebrowGuess': 'ADIVINHE A CARTA',
     'cardInspector.eyebrowConfirm': 'REGISTRE A ACUSAÇÃO',
     'cardInspector.caseNotes': 'Notas do caso',
+    'cardInspector.tapForRules': 'TOCAR REGRAS',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -4143,6 +4157,7 @@ export const translations = {
     'game.targetEliminated': '{target} foi obrigado a descartar O Assassino — eliminação na hora!',
     'game.playerImmune': '{player} agora está imune até o próximo turno.',
     'game.noValidTarget': 'Nenhum alvo válido - sem efeito.',
+    'cardInspector.noSuspects': 'Não sobrou ninguém para acusar.',
     'game.inspectorCorrect': 'O Inspetor acertou! {target} tinha {card} — pego e eliminado!',
     'game.inspectorWrong': 'Chute errado! {target} não tinha {card}.',
     'game.butlerSees': '{player} vê a mão de {target}.',
@@ -4354,6 +4369,7 @@ export const translations = {
     'gameExplainer.skip': 'Pular',
     'gameExplainer.howToPlay': 'Como jogar',
     'gameExplainer.caseBriefingTab': 'Resumo do caso',
+    'gameExplainer.openCase': 'Abrir o caso',
     'game.unknown': 'Desconhecido',
     'game.empty': 'Vazio',
     'game.caseFile': 'Arquivo do caso',
@@ -5176,6 +5192,7 @@ export const translations = {
     // Card Inspector
     'cardInspector.closeInspector': 'Fechar inspetor',
     'cardInspector.exhibitN': 'PROVA {number}',
+    'game.playerDiscard': "Descarte de {name}",
     'cardInspector.emptyHint': 'Ainda não foi arquivado nada neste cacifo.',
     'cardInspector.previousCard': 'Carta anterior',
     'cardInspector.nextCard': 'Carta seguinte',
@@ -5198,6 +5215,7 @@ export const translations = {
     'cardInspector.eyebrowGuess': 'ADIVINHE A CARTA',
     'cardInspector.eyebrowConfirm': 'REGISTE A ACUSAÇÃO',
     'cardInspector.caseNotes': 'Notas do caso',
+    'cardInspector.tapForRules': 'TOCAR REGRAS',
 
     // Evidence
     'evidence.chronology': 'Cronologia',
@@ -5239,6 +5257,7 @@ export const translations = {
     'game.targetEliminated': '{target} foi obrigado a descartar O Assassino — eliminação imediata!',
     'game.playerImmune': '{player} está agora imune até ao próximo turno.',
     'game.noValidTarget': 'Nenhum alvo válido - sem efeito.',
+    'cardInspector.noSuspects': 'Já não há ninguém para acusar.',
     'game.inspectorCorrect': 'O Inspetor acertou! {target} tinha {card} — apanhado e eliminado!',
     'game.inspectorWrong': 'Palpite errado! {target} não tinha {card}.',
     'game.butlerSees': '{player} vê a mão de {target}.',
@@ -5450,6 +5469,7 @@ export const translations = {
     'gameExplainer.skip': 'Saltar',
     'gameExplainer.howToPlay': 'Como jogar',
     'gameExplainer.caseBriefingTab': 'Resumo do caso',
+    'gameExplainer.openCase': 'Abrir o processo',
     'game.unknown': 'Desconhecido',
     'game.empty': 'Vazio',
     'game.caseFile': 'Ficheiro do caso',
@@ -6270,6 +6290,7 @@ export const translations = {
     // Card Inspector
     'cardInspector.closeInspector': '關閉檢視器',
     'cardInspector.exhibitN': '證物 {number}',
+    'game.playerDiscard': '{name} 的棄牌',
     'cardInspector.emptyHint': '這個置物櫃目前還沒有任何存檔。',
     'cardInspector.previousCard': '上一張牌',
     'cardInspector.nextCard': '下一張牌',
@@ -6292,6 +6313,7 @@ export const translations = {
     'cardInspector.eyebrowGuess': '喊出卡牌',
     'cardInspector.eyebrowConfirm': '提出指控',
     'cardInspector.caseNotes': '案件筆記',
+    'cardInspector.tapForRules': '點按規則',
 
     // Evidence
     'evidence.chronology': '時序',
@@ -6333,6 +6355,7 @@ export const translations = {
     'game.targetEliminated': '{target} 被迫棄掉兇手 — 立即淘汰！',
     'game.playerImmune': '{player} 現在不受效果影響，直到他的下一回合。',
     'game.noValidTarget': '沒有有效目標 — 無效果。',
+    'cardInspector.noSuspects': '沒有可以指控的對象了。',
     'game.inspectorCorrect': '探長猜對了！{target} 握有 {card} — 被當場逮捕並淘汰！',
     'game.inspectorWrong': '猜錯了！{target} 沒有 {card}。',
     'game.butlerSees': '{player} 看到了 {target} 的手牌。',
@@ -6544,6 +6567,7 @@ export const translations = {
     'gameExplainer.skip': '略過',
     'gameExplainer.howToPlay': '玩法說明',
     'gameExplainer.caseBriefingTab': '案情簡報',
+    'gameExplainer.openCase': '開啟案件',
     'game.unknown': '未知',
     'game.empty': '空',
     'game.caseFile': '案件檔案',

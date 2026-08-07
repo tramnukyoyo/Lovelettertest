@@ -18,6 +18,23 @@ type ModalStep = 'BROWSING' | 'SELECTED' | 'TARGET_SELECT' | 'GUESS_SELECT' | 'R
 const CARDS_NEEDING_TARGET = [1, 2, 3, 5, 6];
 const CARDS_NEEDING_GUESS = [1]; // Only Inspector
 
+/* The sealed sleeve — a dashed ghost of the exhibit that is not there yet.
+   Shared by the empty locker and the empty suspect list so both "nothing here"
+   states speak with the same object instead of one slate and one bare region. */
+const SealedSleeve: React.FC = () => (
+  <div className="hgi-empty-sleeve" aria-hidden="true">
+    <svg viewBox="0 0 72 100" role="presentation" focusable="false">
+      <rect
+        className="hgi-empty-sleeve-edge"
+        x="1.5" y="1.5" width="69" height="97" rx="7"
+      />
+      <path className="hgi-empty-sleeve-flap" d="M8 12 L36 40 L64 12" />
+      <circle className="hgi-empty-sleeve-seal" cx="36" cy="62" r="11" />
+      <path className="hgi-empty-sleeve-mark" d="M31 62 L36 67 L42 56" />
+    </svg>
+  </div>
+);
+
 export interface InspectorCard {
   card: CardType;
   source: 'hand' | 'discard' | 'evidence' | 'opponent';
@@ -67,6 +84,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
   const reduceMotion = useReducedMotion();
 
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const subBackRef = useRef<HTMLButtonElement | null>(null);
 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
@@ -229,7 +247,16 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'Escape':
-          onClose();
+          // A sub-scene is a step in the accusation, not a dialog of its own to
+          // dismiss: Escape used to throw the whole accusation away from
+          // TARGET_SELECT / GUESS_SELECT / READY_TO_PLAY. It now steps back.
+          if (step === 'TARGET_SELECT' || step === 'GUESS_SELECT' || step === 'READY_TO_PLAY') {
+            handleBack();
+          } else if (step === 'SELECTED') {
+            handleCancelSelection();
+          } else {
+            onClose();
+          }
           break;
         case 'ArrowLeft':
           goToPrev();
@@ -242,7 +269,16 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, currentIndex, cards.length]);
+  }, [isOpen, currentIndex, cards.length, step, handleBack, handleCancelSelection, onClose]);
+
+  // A sub-scene covers the panel that currently holds focus, so the caret has to
+  // travel with it — same reason the parent panel focuses its close button.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (step === 'TARGET_SELECT' || step === 'GUESS_SELECT' || step === 'READY_TO_PLAY') {
+      subBackRef.current?.focus();
+    }
+  }, [isOpen, step]);
 
   const goToPrev = useCallback(() => {
     if (cards.length <= 1) return;
@@ -301,6 +337,12 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
   // never contradict the pill. Above 10 cards there is no pager, so the eyebrow
   // takes the counter back rather than leaving the reader without one.
   const hasPager = !isEmpty && cards.length > 1 && cards.length <= 10;
+  // The footer is a gold-hairline rail: it may only mount when it has something
+  // to carry. Above 10 exhibits (a 4-player discard pile reaches that) the pager
+  // is suppressed and `.hgi-hint` is `display:none` on a fine pointer, so a
+  // browse-only source used to mount a bare ~12px strip with only its border.
+  // The eyebrow already takes the counter back in exactly that case.
+  const hasAction = !isEmpty && currentCard.source === 'hand' && currentCard.handIndex !== undefined;
   const eyebrow = !isEmpty && cards.length > 1 && !hasPager
     ? `${title} · ${currentIndex + 1}/${cards.length}`
     : title;
@@ -354,18 +396,9 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 /* Sealed sleeve — a dashed ghost of the exhibit that is not
                    there yet, so the locker reads as empty rather than broken. */
                 <div className="hgi-empty">
-                  <div className="hgi-empty-sleeve" aria-hidden="true">
-                    <svg viewBox="0 0 72 100" role="presentation" focusable="false">
-                      <rect
-                        className="hgi-empty-sleeve-edge"
-                        x="1.5" y="1.5" width="69" height="97" rx="7"
-                      />
-                      <path className="hgi-empty-sleeve-flap" d="M8 12 L36 40 L64 12" />
-                      <circle className="hgi-empty-sleeve-seal" cx="36" cy="62" r="11" />
-                      <path className="hgi-empty-sleeve-mark" d="M31 62 L36 67 L42 56" />
-                    </svg>
-                  </div>
-                  <div className="hgi-empty-eyebrow">{title}</div>
+                  <SealedSleeve />
+                  {/* No second print of `title` here — the header eyebrow above
+                      already carries it, 120px away. */}
                   {(() => {
                     const emptyHint = t('cardInspector.emptyHint');
                     const showEmptyHint = emptyHint !== 'cardInspector.emptyHint';
@@ -451,7 +484,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
             </div>
 
             {/* Hairline footer: pagination · hint · the one primary action */}
-            {!isEmpty && (cards.length > 1 || (currentCard.source === 'hand' && currentCard.handIndex !== undefined)) && (
+            {!isEmpty && (hasPager || hasAction) && (
               <div className="settings-modal-footer hgi-footer">
                 {hasPager && (
                   <div className="hgi-dots">
@@ -535,17 +568,31 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.22 }}
                 className="settings-modal-panel hg-panel hg-candlelight hgi-subpanel"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="hgi-target-title"
               >
                 <div className="settings-modal-header">
                   <div className="settings-modal-title">
                     <div className="settings-modal-eyebrow hgi-eyebrow">
                       {t('cardInspector.eyebrowTarget')}
                     </div>
-                    <h2>{t('cardInspector.selectTarget')}</h2>
+                    <h2 id="hgi-target-title">{t('cardInspector.selectTarget')}</h2>
                   </div>
                 </div>
 
                 <div className="settings-modal-content hgi-subcontent">
+                  {/* `availableTargets` and `allOpponentsProtected` are computed
+                      in different places and card 1 may target immune players,
+                      so they can disagree: the list can come back empty while
+                      the flow still routed here. Same sealed sleeve as the empty
+                      locker rather than a header over a blank region. */}
+                  {availableTargets.length === 0 && pendingCard !== 5 ? (
+                    <div className="hgi-empty">
+                      <SealedSleeve />
+                      <p className="hgi-empty-line">{t('cardInspector.noSuspects')}</p>
+                    </div>
+                  ) : (
                   <div className="hgi-suspects">
                     {availableTargets.map(player => (
                       <button
@@ -584,10 +631,12 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                       </button>
                     )}
                   </div>
+                  )}
                 </div>
 
                 <div className="settings-modal-footer hgi-subfooter">
                   <button
+                    ref={subBackRef}
                     type="button"
                     onClick={handleBack}
                     className="ps-btn ps-btn--ghost"
@@ -611,13 +660,16 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.22 }}
                 className="settings-modal-panel hg-panel hg-candlelight hgi-subpanel hgi-subpanel--wide"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="hgi-guess-title"
               >
                 <div className="settings-modal-header">
                   <div className="settings-modal-title">
                     <div className="settings-modal-eyebrow hgi-eyebrow">
                       {t('cardInspector.eyebrowGuess')}
                     </div>
-                    <h2>{t('cardInspector.guessTheirCard')}</h2>
+                    <h2 id="hgi-guess-title">{t('cardInspector.guessTheirCard')}</h2>
                   </div>
                 </div>
 
@@ -643,6 +695,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
 
                 <div className="settings-modal-footer hgi-subfooter">
                   <button
+                    ref={subBackRef}
                     type="button"
                     onClick={handleBack}
                     className="ps-btn ps-btn--ghost"
@@ -666,11 +719,14 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.22 }}
                 className="settings-modal-panel hg-panel hg-candlelight hgi-subpanel"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="hgi-confirm-title"
               >
                 <div className="settings-modal-header">
                   <div className="settings-modal-title">
                     <div className="settings-modal-eyebrow hgi-eyebrow">{t('cardInspector.eyebrowConfirm')}</div>
-                    <h2>{getTranslatedCardName(pendingCard, language)}</h2>
+                    <h2 id="hgi-confirm-title">{getTranslatedCardName(pendingCard, language)}</h2>
                   </div>
                 </div>
 
@@ -702,6 +758,7 @@ const CardInspectorModal: React.FC<CardInspectorModalProps> = ({
 
                 <div className="settings-modal-footer hgi-subfooter">
                   <button
+                    ref={subBackRef}
                     type="button"
                     onClick={handleBack}
                     className="ps-btn ps-btn--ghost"

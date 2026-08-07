@@ -3553,9 +3553,12 @@
 
 /* ===== DEVICE SETTINGS MODAL (Video/Audio) - NOIR OVERRIDES ===== */
 /* Overrides Tailwind classes used in WebcamDisplay.tsx DeviceSettingsModal */
+/* Face comes from the shared `--ps-modal-face` token (settings-modal.css) so
+   this panel wears the same candlelight radial + grain as settings / auth /
+   feedback. It used to paint flat #c9b8a0 + grain with no radial at all — the
+   one member of the family that broke the moment you opened it. */
 [data-theme="primesuspect"] .device-settings-modal {
-  background: #c9b8a0 !important;
-  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.08"/%3E%3C/svg%3E') !important;
+  background: var(--ps-modal-face, #c9b8a0) !important;
   border: 4px solid var(--tobacco-brown) !important;
   border-radius: 0 !important;
   box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.4) !important;
@@ -3895,8 +3898,11 @@
    breathing room (was a fixed 480x680 that forced an inner scrollbar). Scoped to
    desktop so the mobile fullscreen layout is untouched. */
 @media (min-width: 768px) {
+  /* One family, one width: `--ps-modal-width` (settings-modal.css) is what the
+     settings/shop panels consume — 680px here made the fourth panel visibly
+     wider than the three it sits beside. */
   [data-theme="primesuspect"] .device-settings-modal {
-    max-width: min(680px, 94vw) !important;
+    max-width: min(var(--ps-modal-width, 560px), 94vw) !important;
     width: 100% !important;
     height: auto !important;
     min-height: min(640px, 86vh) !important;
@@ -5174,22 +5180,22 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   box-shadow: none !important;
 }
 
-/* Mobile opponent card size - hybrid: min px for readability + vw for scaling */
+/* Mobile opponent card size - hybrid: min px for readability + vw for scaling.
+   The suspects' hidden hands are real DynamicCard BACKS (MobileOpponentStrip
+   renders <DynamicCard showFace={false}>), so they must keep the same frame the
+   CASE FILE deck stack wears. The old `border/background/box-shadow: none
+   !important` block existed for a raw <img> wrapper and, once the strip moved to
+   DynamicCard, was the single reason the gold hairline + candle drop
+   (.hg-mobile-layout .hg-dynamic-card.hg-card-back) could never reach it — two
+   card languages in one viewport. Sizing only now. */
 [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-opponent-card {
   --hg-card-width: clamp(60px, 6.5vw, 8vw);
   --hg-card-height: clamp(90px, 10vw, 12vw);
-  background-color: transparent !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
 }
 
 [data-theme="primesuspect"] .hg-mobile-opponent-card {
   width: clamp(60px, 6.5vw, 8vw);
   height: clamp(90px, 10vw, 12vw);
-  background-color: transparent !important;
-  background: transparent !important;
-  border: none !important;
 }
 
 /* Mobile deck/discard card size - hybrid: min px for readability + vw for scaling */
@@ -5568,6 +5574,17 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
 
 .hg-suspects-strip { min-width: 0; }
 
+/* The roster is a BAND, not a left-packed list: with 3 suspects in a 728px band
+   the tiles used to stop at x≈340 and leave 44% of the gold-ruled velvet dead.
+   `safe center` (not plain `center`) so a 6-seat overflow still starts flush
+   left and stays fully scrollable — plain centring would push the first tile
+   out of reach in the scroll container. */
+[data-theme="primesuspect"] .hg-mobile-layout .hg-suspects-track {
+  justify-content: safe center;
+}
+/* (an engine without `safe center` drops the declaration and falls back to the
+   flex default, flex-start — i.e. exactly the previous behaviour.) */
+
 /* tiles are clickable → brightness/opacity feedback ONLY (never transform) */
 .hg-suspect-tile {
   transition: filter 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -5668,6 +5685,16 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   .hg-mobile-hand-slot,
   .hg-suspect-tile,
   .hg-suspects-more { transition: none; }
+}
+
+/* ONE back treatment for every face-down card on the mobile table — deck stack,
+   suspect hands, previews. The base .hg-dynamic-card border is `solid white`,
+   which on a velvet/parchment board made every back the brightest object in the
+   frame; the portrait block used to re-state this for itself only, so landscape
+   kept the white rule. Base scope now, portrait/tablet inherit. */
+[data-theme="primesuspect"] .hg-mobile-layout .hg-dynamic-card.hg-card-back {
+  border-color: rgba(210, 178, 90, 0.55);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
 }
 
 /* deck STACK layers — DynamicCard backs filling the button, same card language
@@ -5852,27 +5879,37 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     transform: none !important;
   }
 
-  /* The deck BACK inherited `border: ... solid white` from the .hg-dynamic-card
-     base (prime-suspect-ingame.css only re-skins :not(.hg-card-back)), so on a
-     parchment/gold board the CASE FILE frame was the single brightest object in
-     the frame. Gold hairline instead, to match the face cards beside it. */
-  [data-theme="primesuspect"] .hg-mobile-layout .hg-dynamic-card.hg-card-back {
-    border-color: rgba(210, 178, 90, 0.55);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
-  }
+  /* (the shared face-down back treatment lives in the base block above) */
 
   /* The backdrop moon (.gb-backdrop is mounted at App root, so the band's custom
      properties do not reach it) used to sit at top:4vh — its top half rendered
      crisp above the roster band and its bottom half as a blurred smear inside
      it, a half-sprite straddling a panel edge. Re-anchor the whole disc into the
      evidence band's night sky so it is lit uniformly. The clamp mirrors
-     --ps-m-suspects-h; the tablet block below re-states it for its own value. */
+     --ps-m-suspects-h; the tablet block below re-states it for its own value.
+     The band's `backdrop-filter: blur(3px)` is what softens the disc — at TABLET
+     size that reads as a moon behind gauze; on a PHONE the same blur over a 60px
+     disc is just a brown stain on the dossier, so the phone drops it entirely
+     (below) and lets the band's candle pool carry the atmosphere. */
   [data-theme="primesuspect"] .gb-backdrop .gb-moon {
     top: calc(54px + env(safe-area-inset-top, 0px) + clamp(138px, 22svh, 178px) + 14px);
     right: 6vw;
     width: clamp(52px, 16vmin, 88px);
     height: clamp(52px, 16vmin, 88px);
   }
+}
+
+/* A 60px blurred disc on a 375-wide dossier is a smudge, not a moon: no craters
+   survive the band's backdrop blur and it has no sky to hang in. Phones get the
+   candle glow instead. (Own query so the tablet block below keeps its moon.) */
+@media (max-width: 599.98px) and (orientation: portrait) {
+  [data-theme="primesuspect"] .gb-backdrop .gb-moon,
+  [data-theme="primesuspect"] .gb-backdrop .gb-moonglow {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) and (orientation: portrait) {
 
   /* --- band 3: the Case Log as a bottom sheet, not a 60px edge gutter ----- */
   [data-theme="primesuspect"] .hg-mobile-notes-area {
@@ -5911,49 +5948,13 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     height: var(--hg-m-hand-h) !important;
   }
 
-  /* at this size the card can finally carry its real dossier copy again */
-  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-name,
-  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .effect-tag {
-    font-size: 11px !important;
-    line-height: 1.2 !important;
-  }
-  /* The hand card needs a body that can actually hold its dossier sentence.
-     prime-suspect-ingame.css §17.3 exempts .hg-mobile-hand-card from the 57/43
-     split, so the card was still on the 62/38 base — a ~52px body at 768 and a
-     ~36px one at 375. Give the copy 46% of the card. */
-  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-art {
-    height: 54% !important;
-  }
-  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-body {
-    height: 46% !important;
-  }
-
-  /* NOTE: every declaration here needs !important. prime-suspect-ingame.css
-     §17.3 sets `-webkit-line-clamp: 6` on `[data-theme] .hg-dynamic-card:not(
-     .hg-card-back) .card-description` at the SAME specificity and is @imported
-     later, so without !important the clamp lost and the copy was guillotined
-     mid-glyph by `overflow:hidden`.
-     THE CLAMP ALONE IS NOT ENOUGH: .card-description also inherits `flex: 1`
-     from the base rule, so inside the fixed-height .card-body the box was
-     stretched TALLER than its clamped line count — legacy -webkit-box painted an
-     ellipsis at the clamp line but `overflow:hidden` had nothing to clip, so
-     lines 4-5 kept rendering past the card's gold border ('ROUND' guillotined
-     mid-glyph at 768); at 375 the body was SHORTER than 3 lines so line 3 was
-     sliced across the letter waists instead. `flex: 0 1 auto` + an explicit
-     max-height ties the box to the line count in BOTH directions, and the type
-     scales with the card instead of a hard 10px that only suited 132px. */
-  [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .card-description {
-    display: -webkit-box !important;
-    -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 4 !important;
-    line-clamp: 4 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis;
-    flex: 0 1 auto !important;
-    max-height: calc(4 * 1.2em) !important;
-    font-size: clamp(8px, calc(var(--hg-card-width) * 0.082), 11px) !important;
-    line-height: 1.2 !important;
-  }
+  /* TYPE + ART/BODY SPLIT for the portrait hand card now live in ONE place:
+     prime-suspect-ingame.css §19.5, which drives them off the card's own body
+     box (container queries), not off the viewport. Four rounds of viewport
+     guesses (line-clamp 6 → 4 → 3 → 2@max-height:700px, art 62/38 → 54/46) each
+     fixed one phone and broke another; the box is the only honest authority.
+     Nothing hand-card-specific may be set here again — it would just be a fifth
+     guess racing §19.5 on import order. */
   [data-theme="primesuspect"] .hg-dynamic-card.hg-mobile-hand-card .hold-badge {
     font-size: 8px !important;
     padding: 2px 4px !important;
@@ -5983,6 +5984,17 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
   [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-notes-area {
     left: 20px;
     right: 20px;
+  }
+
+  /* …and so do their TILES. The Tailwind cap (max-w-[120px]) left three seats
+     occupying 340px of a 728px band. The tile now scales with the band so 3-4
+     suspects actually fill it; `safe center` above does the rest. */
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-suspect-tile {
+    min-width: clamp(120px, 20vw, 168px);
+    max-width: clamp(120px, 20vw, 168px);
+  }
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-suspects-track {
+    gap: clamp(10px, 2vw, 20px);
   }
 
   /* the suspects get real presence instead of 42px thumbnails */
@@ -6023,6 +6035,18 @@ html.has-filmstrip [data-theme="primesuspect"] .hearts-gambit-game > div > div:l
     top: calc(54px + env(safe-area-inset-top, 0px) + clamp(178px, 22svh, 230px) + 16px);
     width: clamp(72px, 16vmin, 110px);
     height: clamp(72px, 16vmin, 110px);
+  }
+
+  /* …and the disc needs a SKY to hang in. The band's velvet is a flat dossier
+     face, so a warm blurred circle on it read as a stain. A cool night wash in
+     the moon's own corner (matched to its anchor: ~88% across, ~18% down) turns
+     the same disc into a moon behind a window. First layer = topmost, so it
+     sits over the velvet the moon shows through. */
+  [data-theme="primesuspect"] .hg-mobile-layout .hg-mobile-deck-area {
+    background:
+      radial-gradient(120% 90% at 88% 18%, rgba(24, 30, 52, 0.5), transparent 60%),
+      radial-gradient(700px at 30% 0%, rgba(246, 240, 230, 0.05), transparent 60%),
+      linear-gradient(135deg, rgba(52, 38, 47, 0.86), rgba(36, 27, 34, 0.72));
   }
 }
 

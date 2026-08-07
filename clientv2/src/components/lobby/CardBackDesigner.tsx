@@ -352,10 +352,12 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
                 <div className="psshop-confirm-actions">
                   <button type="button" className="psshop-cancel" onClick={() => { setConfirm(null); setTryOn(null); }} disabled={confirmBusy}>{t('playerList.cancel')}</button>
                   {/* The money moment always offers a WAY FORWARD. Without these
-                      two, a signed-out player who taps a locked frame — and a
-                      free player who taps a Premium exclusive — got a sheet whose
-                      only button was CANCEL. */}
-                  {confirmPremiumOnly ? (
+                      three, a signed-out player who taps a locked frame, a free
+                      player who taps a Premium exclusive — and a signed-in player
+                      who is simply SHORT ON GP — got a sheet whose only live
+                      button was CANCEL. Premium includes every platform item, so
+                      it is the honest answer to "you can't afford this" too. */}
+                  {confirmPremiumOnly || (platform.status !== 'guest' && !affordable) ? (
                     <button
                       type="button"
                       className="psshop-buy"
@@ -368,8 +370,8 @@ export default function CardBackDesigner({ players, mySocketId, onClose }: Props
                       <LogIn size={12} aria-hidden="true" />{t('header.login')}
                     </button>
                   ) : null}
-                  {platform.status !== 'guest' && !confirmPremiumOnly && (
-                    <button type="button" className="psshop-buy" disabled={confirmBusy || !affordable} onClick={() => buyPlatformCosmetic(confirm.slot, confirm.id)}>
+                  {platform.status !== 'guest' && !confirmPremiumOnly && affordable && (
+                    <button type="button" className="psshop-buy" disabled={confirmBusy} onClick={() => buyPlatformCosmetic(confirm.slot, confirm.id)}>
                       <Coins size={12} aria-hidden="true" />{confirmBusy ? t('designer.buying') : t('designer.buyFor', { gp: confirmPrice })}
                     </button>
                   )}
