@@ -124,7 +124,7 @@ function doInit(): void {
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
         persistence: 'localStorage+cookie',
-        capture_pageview: false,
+        capture_pageview: true,
         capture_pageleave: false,
         // Dead clicks + heatmaps must be opted into explicitly here: the
         // project's remote config leaves dead clicks OFF, and only the platform
