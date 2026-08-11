@@ -55,5 +55,8 @@ export function trackPremiumGateShown(surface: string, item: string): void {
 export function openPremium(surface: string): void {
   trackEvent('premium_upsell_clicked', { surface });
   const hash = isNativeWrapper() ? '#trial' : '';
-  window.open(`${PLATFORM_BASE}/premium?src=${PAGE_SRC}${hash}`, '_blank', 'noopener');
+  // utm_* feeds the platform's first-touch attribution (kpi_user_first_seen);
+  // ?src= stays for the premium page's own analytics (both are read there).
+  const utm = `&utm_source=game&utm_medium=upsell&utm_campaign=${encodeURIComponent(surface)}`;
+  window.open(`${PLATFORM_BASE}/premium?src=${PAGE_SRC}${utm}${hash}`, '_blank', 'noopener');
 }

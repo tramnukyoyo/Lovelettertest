@@ -38,7 +38,7 @@ const PostGameShareCta: React.FC<PostGameShareCtaProps> = ({ roomCode, gameName 
 
   const handleShare = useCallback(async () => {
     if (!roomCode) return;
-    const url = `${SHARE_ORIGIN}/?join=${encodeURIComponent(roomCode)}&postgame=1`;
+    const url = `${SHARE_ORIGIN}/?join=${encodeURIComponent(roomCode)}&postgame=1&utm_source=postgame_share&utm_medium=game`;
     const text = `I just played ${gameName} on GameBuddies.io — think you can beat us?`;
     try {
       if (typeof navigator.share === 'function') {

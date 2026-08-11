@@ -118,6 +118,11 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
   // gbRegion: room→region pin — invitees (copy/share/QR) must land on THIS
   // room's regional server, not their own latency race (split-brain guard).
   const directRoomUrl = `${window.location.origin}${import.meta.env.BASE_URL}?room=${roomCode}&gbRegion=${socketService.getCurrentRegion()}`;
+  // utm per share surface: same-origin localStorage capture (utils/utmCapture)
+  // feeds the platform's first-touch signup attribution (kpi_user_first_seen).
+  // Streamer token links stay untagged by design (mirrors the platform).
+  const withUtm = (medium: 'game_copy' | 'game_share' | 'game_qr'): string =>
+    `${directRoomUrl}&utm_source=invite&utm_medium=${medium}`;
 
   // Streamer mode: ask server for a real invite-token UUID, then copy/share the ?invite=<uuid> URL
   useEffect(() => {
@@ -155,7 +160,7 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
       return;
     }
     try {
-      await navigator.clipboard.writeText(directRoomUrl);
+      await navigator.clipboard.writeText(withUtm('game_copy'));
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch (err) {
@@ -173,15 +178,16 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
       return;
     }
     try {
+      const url = withUtm('game_share');
       await navigator.share({
         title: gameName,
-        text: t('home.whatsappText', { game: gameName, url: directRoomUrl }),
-        url: directRoomUrl,
+        text: t('home.whatsappText', { game: gameName, url }),
+        url,
       });
     } catch {
       // User cancelled or share failed silently
     }
-  }, [gameName, directRoomUrl, hideRoomCode]);
+  }, [gameName, withUtm, hideRoomCode]);
 
   const playersNeeded = Math.max(0, minPlayers - currentPlayers);
 
@@ -229,7 +235,7 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
 
       {showQr && !hideRoomCode && (
         <div className="solo-invite-qr">
-          <QRCodeSVG value={directRoomUrl} size={132} bgColor="#ffffff" fgColor="#05020e" includeMargin />
+          <QRCodeSVG value={withUtm('game_qr')} size={132} bgColor="#ffffff" fgColor="#05020e" includeMargin />
         </div>
       )}
 

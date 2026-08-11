@@ -14,6 +14,7 @@ import { usePostgame, resetPostgame } from '../../services/postgame';
 import { trackGameFinishedNow } from '../../services/analyticsService';
 import { GameAdRectangle } from '../ads';
 import PostGameShareCta from '../ui/PostGameShareCta';
+import PostGameGuestNudge from '../ui/PostGameGuestNudge';
 import DynamicCard from './DynamicCard';
 import '../../styles/game/surface-victory.css';
 
@@ -638,6 +639,10 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
                 {!isBroadcastMirror && (
                   <div className="ps-victory-share">
                     <PostGameShareCta roomCode={lobby.code} gameName="Prime Suspect" />
+                    {/* Guests just saw +XP/+GP above — tell them it evaporates
+                        without an account. Once per session; opens the in-room
+                        GameAuthModal. Fleet-standard. */}
+                    <PostGameGuestNudge isGuest={me?.isGuest ?? false} roomCode={lobby.code} playerName={me?.name} />
                   </div>
                 )}
 
