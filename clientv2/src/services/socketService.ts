@@ -59,6 +59,11 @@ class SocketService {
   private visibilityListener: (() => void) | null = null;
   private onlineListener: (() => void) | null = null;
   private offlineListener: (() => void) | null = null;
+  // Engagement beacons (2026-08-11): one load beacon per page load and one
+  // pagehide listener per page — reconnects create new sockets and must not
+  // re-fire either.
+  private loadBeaconSent = false;
+  private pagehideListenerSetup = false;
 
   /**
    * Resolve the room code from the GameBuddies session token BEFORE the socket
@@ -161,6 +166,7 @@ class SocketService {
     if (!_routingRoomCode) {
       _routingRoomCode = await this.resolveRoutingRoomCode();
     }
+    const connectStartedAt = performance.now();
     this.socket = io(`${serverUrl}${GAME_NAMESPACE}`, {
       ...(_routingRoomCode ? { query: { roomCode: _routingRoomCode.toUpperCase() } } : {}),
       // Discord Activity: route the engine.io transport through the proxy.
@@ -179,6 +185,26 @@ class SocketService {
     this.socket.on('connect', () => {
       console.log('[Video/socket] Connected:', this.socket?.id);
       this.reconnectAttempts = 0;
+
+      // Engagement beacons: boot-time load report (navigation start -> socket
+      // connect) plus the pagehide hint that lets the server tell tab-close
+      // from connection loss (kpi_player_sessions.left_reason).
+      if (!this.loadBeaconSent) {
+        this.loadBeaconSent = true;
+        this.socket?.emit('gb:client:load', {
+          loadMs: Math.round(performance.now()),
+          connectMs: Math.round(performance.now() - connectStartedAt),
+          isMobile: typeof window.matchMedia === 'function'
+            ? window.matchMedia('(pointer: coarse)').matches
+            : null,
+        });
+      }
+      if (!this.pagehideListenerSetup) {
+        this.pagehideListenerSetup = true;
+        window.addEventListener('pagehide', () => {
+          this.socket?.emit('gb:client:leaving', { reason: 'pagehide' });
+        });
+      }
 
       // Check for automatic state recovery (Socket.IO v4.5+)
       if ((this.socket as any).recovered) {

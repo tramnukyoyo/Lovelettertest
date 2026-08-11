@@ -19,6 +19,7 @@
  * id and keep event names identical.
  */
 import { trackEvent } from './analyticsService';
+import socketService from './socketService';
 
 const PAGE_SRC = 'game_primesuspect';
 
@@ -40,6 +41,9 @@ export function isNativeWrapper(): boolean {
  *  doing that made the platform's biggest "paywall" numbers pure noise. */
 export function trackPremiumLocked(surface: string, item: string): void {
   trackEvent('premium_feature_locked', { surface, item });
+  // Server-written twin (metrics_premium_gates): PostHog is consent-gated,
+  // the funnel the owner decides on runs through the gameserver.
+  socketService.emit('gb:premium:gate', { surface, item, event: 'locked' });
 }
 
 /** Fire when a free player merely SEES a locked premium surface (mount-based
@@ -49,11 +53,13 @@ export function trackPremiumLocked(surface: string, item: string): void {
  *  {surface, item} shape so the two slice identically in PostHog. */
 export function trackPremiumGateShown(surface: string, item: string): void {
   trackEvent('premium_gate_shown', { surface, item });
+  socketService.emit('gb:premium:gate', { surface, item, event: 'shown' });
 }
 
 /** Open the platform premium page in a new tab (room stays alive). */
 export function openPremium(surface: string): void {
   trackEvent('premium_upsell_clicked', { surface });
+  socketService.emit('gb:premium:gate', { surface, event: 'clicked' });
   const hash = isNativeWrapper() ? '#trial' : '';
   // utm_* feeds the platform's first-touch attribution (kpi_user_first_seen);
   // ?src= stays for the premium page's own analytics (both are read there).
