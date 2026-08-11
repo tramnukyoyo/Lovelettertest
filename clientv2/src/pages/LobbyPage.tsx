@@ -202,7 +202,9 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
   const isHost = myPlayer?.isHost || false;
   const connectedPlayers = lobby.players.filter(p => p.connected);
   const minPlayers = lobby.settings?.minPlayers || GAME_META.minPlayers;
-  const canStart = isHost && connectedPlayers.length >= minPlayers;
+  // Mirrors the server gate at games/hearts-gambit/plugin.ts:831-836 — spectators don't count toward the start minimum.
+  const startEligibleCount = connectedPlayers.filter(p => !p.isSpectator).length;
+  const canStart = isHost && startEligibleCount >= minPlayers;
   // Enough players are in and everyone is waiting on the host to press
   // Start. canStart already means "host AND enough players", so this only
   // ever fires for the one person who can actually act.
