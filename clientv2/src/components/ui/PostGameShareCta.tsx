@@ -1,8 +1,7 @@
 /**
  * PostGameShareCta — fleet-standard postgame share button (2026-08-05).
  *
- * Builds the room's `?join=CODE&postgame=1` link (which unfurls as a
- * winner/result card via the platform's /api/og/result endpoint), shares via
+ * Preloads the immutable result URL from the platform resolver, shares via
  * navigator.share with a clipboard fallback, and reports `invite_shared`
  * (surface: game_postgame) so the share rate is measurable against the
  * platform's existing invite funnel.
@@ -11,7 +10,7 @@
  * gameName the parent passes in. Place it on the results screen near the
  * rematch controls.
  */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { trackEvent } from '../../services/analyticsService';
 
@@ -28,6 +27,31 @@ const SKIN = {
 
 const SHARE_ORIGIN = 'https://gamebuddies.io';
 
+const GAME_TYPES: Record<string, string> = {
+  badactor: 'badactor',
+  bingobuddies: 'bingo',
+  bingo: 'bingo',
+  blindspot: 'blindspot',
+  bluffalo: 'bluffalo',
+  canvaschaos: 'canvas-chaos',
+  cluescale: 'cluescale',
+  decoded: 'decoded',
+  hotpotato: 'hotpotato',
+  lastbrainstanding: 'lastbrainstanding',
+  letterrush: 'letter-rush',
+  primesuspect: 'primesuspect',
+  schooled: 'schooled',
+  soundbite: 'soundbite',
+  thinkalike: 'thinkalike',
+  tierbattle: 'tierbattle',
+  zoomies: 'zoomies',
+};
+const toGameType = (name: string) => {
+  const key = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return GAME_TYPES[key] || name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+};
+
+
 interface PostGameShareCtaProps {
   roomCode: string | null | undefined;
   gameName: string;
@@ -36,9 +60,43 @@ interface PostGameShareCtaProps {
 const PostGameShareCta: React.FC<PostGameShareCtaProps> = ({ roomCode, gameName }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleShare = useCallback(async () => {
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [isPreparing, setIsPreparing] = useState(true);
+
+  useEffect(() => {
     if (!roomCode) return;
-    const url = `${SHARE_ORIGIN}/?join=${encodeURIComponent(roomCode)}&postgame=1&utm_source=postgame_share&utm_medium=game`;
+    const controller = new AbortController();
+    const gameType = toGameType(gameName);
+    const resolve = async () => {
+      for (let attempt = 0; attempt < 8 && !controller.signal.aborted; attempt += 1) {
+        try {
+          const response = await fetch(
+            `${SHARE_ORIGIN}/api/share/resolve/latest?roomCode=${encodeURIComponent(roomCode)}&gameType=${encodeURIComponent(gameType)}`,
+            { signal: controller.signal },
+          );
+          if (response.ok) {
+            const body = await response.json();
+            if (body?.success && body.shareUrl) {
+              setShareUrl(new URL(body.shareUrl, SHARE_ORIGIN).toString());
+              setIsPreparing(false);
+              return;
+            }
+          }
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+        }
+        if (attempt < 7) await new Promise(resolveDelay => window.setTimeout(resolveDelay, 750));
+      }
+      if (!controller.signal.aborted) setIsPreparing(false);
+    };
+    void resolve();
+    return () => controller.abort();
+  }, [roomCode, gameName]);
+
+
+  const handleShare = useCallback(async () => {
+    if (!shareUrl) return;
+    const url = shareUrl;
     const text = `I just played ${gameName} on GameBuddies.io — think you can beat us?`;
     try {
       if (typeof navigator.share === 'function') {
@@ -59,7 +117,7 @@ const PostGameShareCta: React.FC<PostGameShareCtaProps> = ({ roomCode, gameName 
     } catch {
       // Share sheet dismissed / clipboard blocked — not an error, not tracked.
     }
-  }, [roomCode, gameName]);
+  }, [shareUrl, gameName]);
 
   if (!roomCode) return null;
 
@@ -67,6 +125,8 @@ const PostGameShareCta: React.FC<PostGameShareCtaProps> = ({ roomCode, gameName 
     <button
       type="button"
       onClick={handleShare}
+      disabled={!shareUrl}
+      aria-busy={isPreparing}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -87,7 +147,7 @@ const PostGameShareCta: React.FC<PostGameShareCtaProps> = ({ roomCode, gameName 
       }}
     >
       {copied ? <Check size={15} strokeWidth={3} aria-hidden="true" /> : <Share2 size={15} strokeWidth={2.5} aria-hidden="true" />}
-      {copied ? 'Link copied!' : 'Challenge friends'}
+      {copied ? 'Link copied!' : isPreparing ? 'Preparing result…' : shareUrl ? 'Share result' : 'Result unavailable'}
     </button>
   );
 };
