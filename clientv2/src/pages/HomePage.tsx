@@ -200,6 +200,10 @@ const HomePage: React.FC<HomePageProps> = ({
             <img
               src={`${import.meta.env.BASE_URL}mascot.webp`}
               alt={GAME_META.mascotAlt}
+              width={601}
+              height={515}
+              fetchPriority="high"
+              decoding="async"
               className="home-mascot"
             />
             <h1 className="home-title">

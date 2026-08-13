@@ -23,6 +23,8 @@
     <!-- Warm TLS to the game socket servers while the bundle downloads -->
     <link rel="preconnect" href="https://unified-game-server.onrender.com" />
     <link rel="preconnect" href="https://unified-game-server-us.onrender.com" />
+    <!-- LCP: home hero + room-join LoadingScreen share mascot.webp — discover it before JS runs -->
+    <link rel="preload" as="image" href="%BASE_URL%mascot.webp" fetchpriority="high" />
     <!-- Pre-React splash: static HTML + inline CSS only (no scripts, no inline
          handlers - platform proxy CSP has script-src-attr 'none'). Paints the
          instant the HTML arrives, so the lobby->game hop never shows a blank
