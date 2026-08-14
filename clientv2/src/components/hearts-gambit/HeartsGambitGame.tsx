@@ -18,7 +18,7 @@ import { playDrawSound, playDropSound, playEliminatedSound } from '../../utils/s
 import { CardLegendModal } from '../CardLegendModal';
 import { RulesModal } from '../RulesModal';
 import TutorialCarousel from '../TutorialCarousel';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useGameIsMobile } from '../../hooks/useGameViewport';
 import HeartsGambitGameMobile from './HeartsGambitGameMobile';
 import { VictoryScreen } from './VictoryScreen';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
@@ -83,7 +83,7 @@ type ZoomContext = {
  * This wrapper ensures hooks aren't called conditionally.
  */
 const HeartsGambitGame: React.FC<HeartsGambitGameProps> = (props) => {
-  const isMobile = useIsMobile();
+  const isMobile = useGameIsMobile();
 
   if (props.viewMode === 'broadcast') {
     return <HeartsGambitGameDesktop {...props} />;

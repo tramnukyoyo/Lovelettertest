@@ -664,6 +664,7 @@ export const ptPT: Translations = {
     sent: 'Enviado!',
     failed: 'Falhou',
     qr: 'Código QR',
+    qrCloseHint: 'Toque para fechar',
   },
   installPrompt: {
     title: 'Instalar jogo',

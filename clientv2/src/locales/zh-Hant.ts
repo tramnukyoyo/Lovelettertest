@@ -733,5 +733,6 @@ export const zhHant: Translations = {
     sent: '已送出！',
     failed: '失敗',
     qr: 'QR Code',
+    qrCloseHint: '點擊關閉',
   },
 };

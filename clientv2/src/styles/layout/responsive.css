@@ -61,10 +61,12 @@
 
   /* Mobile drawer - narrower in landscape */
 
-  /* Hamburger menu: 2-column layout for landscape */
+  /* Hamburger menu: 2-column layout for landscape. Wider (520px) so the
+     two-column item grid + sublabels have room on landscape phones/tablets
+     (fleet mobile-lobby format). */
   .mobile-game-menu-panel {
     max-height: calc(100dvh - 60px);
-    width: min(280px, calc(100vw - 24px));
+    width: min(520px, calc(100vw - 24px));
   }
 
   .mobile-game-menu-items {

@@ -234,8 +234,19 @@ const SoloInvitePanel: React.FC<SoloInvitePanelProps> = ({
       </div>
 
       {showQr && !hideRoomCode && (
-        <div className="solo-invite-qr">
-          <QRCodeSVG value={withUtm('game_qr')} size={132} bgColor="#ffffff" fgColor="#05020e" includeMargin />
+        /* Tap anywhere to dismiss — on landscape phones this renders as a
+           fixed overlay (shell.css) and used to be an unclosable bare QR. */
+        <div
+          className="solo-invite-qr"
+          onClick={() => setShowQr(false)}
+          role="button"
+          aria-label={t('common.close')}
+        >
+          <div className="solo-invite-qr-card">
+            <QRCodeSVG value={withUtm('game_qr')} size={132} bgColor="#ffffff" fgColor="#05020e" includeMargin />
+            <span className="solo-invite-qr-caption">{roomCode}</span>
+            <span className="solo-invite-qr-hint">{t('invitePanel.qrCloseHint')}</span>
+          </div>
         </div>
       )}
 

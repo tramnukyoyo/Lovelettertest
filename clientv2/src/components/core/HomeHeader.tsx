@@ -11,7 +11,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Menu, X, HelpCircle, Globe, MessageSquareWarning, LogIn, LogOut } from 'lucide-react';
 import { GAME_META } from '../../config/gameMeta';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useIsLobbyCompact } from '../../hooks/useIsMobile';
 import { t } from '../../utils/translations';
 import SettingsModal from './SettingsModal';
 import FeedbackModal from './FeedbackModal';
@@ -31,7 +31,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onTutorial }) => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const isMobile = useIsLobbyCompact();
 
   // Account control on the landing screen — no room yet, so identity comes
   // straight from the shared platform session (supabaseAuth store).

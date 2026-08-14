@@ -470,7 +470,8 @@
 .gs-chrome-toggle-icon { font-size: 15px; }
 
 /* A2: >=44px tap targets for modal/menu close buttons on touch viewports. */
-@media (max-width: 1024px) {
+/* LOBBY_COMPACT_MEDIA_QUERY */
+@media (max-width: 1023px), (pointer: coarse) {
   .settings-modal-close,
   .settings-close,
   .device-settings-close,
@@ -483,7 +484,10 @@
   .popup-close-btn,
   .tutorial-close,
   .chat-close-btn,
-  .home-header-menu-close {
+  .home-header-menu-close,
+  /* Prime Suspect-specific closers (card-back shop + QR scanner). */
+  .psshop-close,
+  .qr-scanner-close {
     min-width: 44px;
     min-height: 44px;
   }
@@ -503,18 +507,99 @@
 }
 
 /* ============================================================================
-   MOBILE LOBBY FLOW (appended) — single-column, flat, ONE natural scroll.
-   Targets shared lobby classes so it applies across all games despite each
-   game's LobbyPage being unique. Mobile only; desktop unchanged.
-
-   Breakpoint: 1023.98px, NOT 1024px. The rail media query above and
-   hooks/useIsMobile both flip below 1024 — a `max-width: 1024px` here made
-   exactly 1024 both "desktop rail" and "mobile lobby" at the same time.
+   COMPACT LOBBY REGIME (fleet mobile format, 2026-08-14) — replaces the old
+   "MOBILE LOBBY FLOW" natural-scroll layer. Base = every compact device
+   (LOBBY_COMPACT_MEDIA_QUERY). Arms on top:
+     PHONE PORTRAIT   <=767 portrait: one-page scroll under a STICKY START
+                      (soft velvet FADE, not the old opaque bar — the column
+                      fades under it, not covered at rest), so START is always
+                      visible (startVisible gate) without occluding the room.
+     PHONE LANDSCAPE  landscape + <=500 tall + <=1023 wide: two-zone grid,
+                      crew LEFT / invite+settings+START RIGHT, the page never
+                      scrolls (the crew scrolls internally).
+     TABLET           coarse pointer >=768, taller than 500: narrow desktop.
+   PS keeps its velvet case-file panes (the backdrop-moon bleed guard in
+   lobby.css:2383 needs the fill) — CC's "flatten to background:none" rules
+   are deliberately NOT ported. The invite-first order stays a PS UX choice.
    ============================================================================ */
-@media (max-width: 1023.98px) {
-  /* The lobby scrolls as ONE page (not per-pane). This removes the per-pane
-     internal scroll + the ScrollHint chevron, and makes portrait flow from the
-     top exactly like the short/landscape layout does. */
+/* LOBBY_COMPACT_MEDIA_QUERY */
+@media (max-width: 1023px), (pointer: coarse) {
+  /* One clean column by default; the arms below re-shape it. */
+  .gs-lobby-panes {
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    gap: clamp(0.75rem, 3cqb, 1.25rem) !important;
+  }
+
+  /* Full-width START, pinned to the bottom so it is always reachable. A soft
+     velvet fade instead of PS's old opaque slab — the column fades UNDER it
+     rather than being covered at rest (owner directive 1). */
+  .gs-lobby-scene .gs-scene-actions {
+    position: sticky !important;
+    bottom: 0;
+    z-index: 3;
+    background: linear-gradient(
+      to top,
+      var(--velvet-panel, var(--bg-darker, #15131f)) 55%,
+      transparent
+    );
+    padding-top: 0.35rem;
+    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+  }
+  .lobby-start-section { width: 100%; }
+  .lobby-start-btn { width: 100%; min-height: 44px; }
+
+  /* Touch floor (44px) for the lobby's tap targets. */
+  .gs-scene-header button,
+  [class*="designer-btn"],
+  .solo-invite-panel button,
+  .collapsible-section-header,
+  .lobby-settings-trigger {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Quiet settings row (phones): opens the bottom sheet. Hairline gold chrome —
+     it must read as a row, not a card. */
+  .lobby-settings-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(210, 178, 90, 0.4);
+    border-radius: var(--radius-md);
+    color: var(--royal-gold-light, #e7cc7a);
+    font-family: var(--font-typewriter, var(--font-title));
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .lobby-settings-trigger-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .lobby-settings-trigger:focus-visible {
+    outline: 2px solid var(--royal-gold-light, #e7cc7a);
+    outline-offset: 2px;
+  }
+
+  /* Height-squeezed panes: the crew block keeps its intrinsic height and the
+     pane-scroll wrapper scrolls. Without this, flex:1 + min-height:0 collapse
+     the crew grid to 0px and the seat cards bleed under the invite band. */
+  .gs-crew {
+    flex: none !important;
+    min-height: auto !important;
+  }
+  [class*="crew__grid"] {
+    flex: none !important;
+    min-height: auto !important;
+  }
+}
+
+/* PHONE PORTRAIT — one natural page scroll under the sticky START. PS keeps
+   the invite band pinned to the TOP of the column (invite-first UX). */
+@media (max-width: 767px) and (orientation: portrait) {
   .gs-stage-inner:has(.gs-lobby-scene) {
     overflow-y: auto;
     overflow-x: hidden;
@@ -524,115 +609,282 @@
     min-height: 100% !important;
     height: auto !important;
   }
+  /* In-scene per-pane hints off; the sticky START + the stage-level GameShell
+     hint carry the "there is more here" affordance. */
   .gs-lobby-scene .gs-scroll-hint { display: none !important; }
+  /* Invite band above the seats — the host opens the lobby to share. */
+  .gs-lobby-scene .gs-crew-scroll .gs-crew-invite { order: -1; }
+  /* Drop the decorative mascot to save vertical space. */
+  .lobby-mascot { display: none !important; }
+}
 
-  /* One clean column, TOP-aligned flow (invite -> settings -> start). */
-  .gs-lobby-panes {
-    grid-template-columns: 1fr !important;
-    align-content: start !important;
-    gap: clamp(0.75rem, 3cqb, 1.25rem) !important;
+/* PHONE LANDSCAPE (short viewport) — the whole lobby scene becomes ONE grid:
+   crew fills the LEFT column full-height; the right column stacks invite ->
+   settings row -> START. Nothing scrolls at page level. COMPACT_MEDIA_QUERY */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023px) {
+  /* No dock in phone landscape (also gated in LobbyPage — belt and braces). */
+  .gs-shell:has(.gs-lobby-scene) .gs-dock { display: none !important; }
+
+  /* The scene is the grid; every wrapper between it and the real content is
+     dissolved so crew / invite / settings / START sit on it directly.
+     Rows: header / invite / SPACER / settings / START / (row 6 for hints). */
+  .gs-scene.gs-lobby-scene {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+    column-gap: clamp(0.6rem, 2cqi, 1.2rem);
+    row-gap: clamp(0.35rem, 1.5cqb, 0.7rem);
+  }
+  .gs-scene.gs-lobby-scene > .gs-scene-body,
+  .gs-lobby-panes,
+  [class*="lobby-col--crew"],
+  [class*="lobby-col--crew"] > .gs-pane-scroll,
+  .gs-scene.gs-lobby-scene > .gs-scene-actions,
+  .lobby-start-section {
+    display: contents !important;
   }
 
-  /* Flatten the lobby "cards" into plain stacked sections — no box, no clip.
-     padding-top is NOT zero: the card's folder tab (::after, top:-14px) has to
-     straddle empty space above the card. With `padding: 0` the gold CASE FILE
-     tab landed straight on top of the in-card PLAYERS heading at 375. */
-  .lobby-waiting-card {
+  /* Header: one line spanning both columns — LEFT-aligned so the centered
+     chrome reveal pill (.gs-chrome-toggle, fixed top-center) has free air. */
+  .gs-lobby-scene .gs-scene-header {
+    grid-area: 1 / 1 / 2 / 3;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 0.25rem;
+  }
+  .gs-lobby-scene .gs-scene-header > * { margin: 0; }
+  .gs-lobby-scene .gs-scene-header .lobby-waiting-title { font-size: 1.05rem; }
+
+  /* Crew: left column, full height, internal scroll with a HIDDEN scrollbar
+     (the in-crew ScrollHint chevron is the affordance — never scrollbars).
+     Seat cards STRETCH to fill the column height. */
+  .gs-crew {
+    grid-area: 2 / 1 / 6 / 2;
+    overflow-y: auto;
+    min-height: 0 !important;
+    scrollbar-width: none;
+  }
+  .gs-crew::-webkit-scrollbar { display: none; }
+  .lobby-page li[class*="crew__card"],
+  [class*="crew__card"] {
+    aspect-ratio: auto !important;
+    height: auto !important;
+    align-self: stretch !important;
+  }
+  [class*="crew__grid"] {
+    height: 100%;
+    align-content: stretch !important;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+  [class*="crew__card"] { justify-content: flex-start !important; }
+  [class*="crew__av"] { margin-block: auto !important; }
+
+  /* Right column: the invite is ONE slim top-anchored stack — it must NEVER
+     stretch to the column height (that blew the action buttons up to ~450px). */
+  [class*="crew-invite"] {
+    grid-area: 2 / 2 / 3 / 3;
+    align-self: start;
+    height: max-content !important;
+    max-height: 100%;
+    overflow: hidden;
+    min-height: 0;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .solo-invite-hint,
+  .solo-invite-subtext,
+  .solo-invite-panel .invite-friends { display: none !important; }
+
+  /* START must never kiss the bottom edge (its dashed frame + offset shadow
+     reach past the box): compact type, no hard cap, scene bottom padding. */
+  .lobby-page .lobby-start-btn {
+    min-height: 44px !important;
+    padding-block: 4px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Top-anchored stack: code tiles, then the action row. Never centre/stretch
+     (a centred flex column with justify-content grew the buttons full-height). */
+  .solo-invite-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    height: max-content !important;
+    gap: 8px !important;
+    padding: 0 !important;
     background: none !important;
     border: none !important;
     box-shadow: none !important;
-    margin-top: 16px !important;
-    padding: 1.25rem 0 0 !important;
-    overflow: visible !important;
+  }
+  .solo-invite-title { display: none !important; }
+  .solo-invite-code-tiles {
+    display: flex !important;
+    width: 100%;
+    gap: 6px !important;
+    margin: 0 !important;
+    flex: 0 0 auto;
+  }
+  .solo-invite-tile {
+    font-size: 1rem !important;
+    padding: 6px 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    flex: 1 1 0;
+  }
+  /* Flex-wrap so the icon actions (copy / share / QR) share row 1 and the
+     card-back designer (long label) wraps to a full-width row 2 — putting the
+     designer in a narrow grid column made its text wrap tall and dragged the
+     whole action row up to the column height. Fixed 44px heights, no stretch. */
+  .solo-invite-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    width: 100%;
+    gap: 8px !important;
+    margin: 0 !important;
+    flex: 0 0 auto;
+  }
+  .solo-invite-btn span { display: none !important; }
+  .solo-invite-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    background: var(--bg-darker) !important;
+    border: 1px solid rgba(210, 178, 90, 0.4) !important;
+    border-radius: var(--radius-md) !important;
+  }
+  /* Card-back designer: its own full-width row (never a narrow tall cell). */
+  .solo-invite-actions [class*="designer-btn"],
+  [class*="crew-invite"] [class*="designer-btn"] {
+    flex: 1 1 100% !important;
+    width: 100%;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    font-size: 0.78rem;
+  }
+
+  /* QR panel becomes a centered overlay instead of stretching the column. */
+  .solo-invite-qr {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    margin: 0 !important;
+    background: color-mix(in srgb, var(--bg-darker, #0d0f1a) 82%, transparent);
+  }
+
+  /* Settings as a quiet row above START (right column). PS's brief pane carries
+     the heavy case briefing — hide it here and show ONLY the settings controls
+     so the two-zone grid fits by construction (the full briefing is portrait /
+     ?-modal territory). */
+  [class*="lobby-col--brief"] {
+    grid-area: 4 / 2 / 5 / 3;
     align-items: stretch !important;
     justify-content: flex-start !important;
+    overflow: hidden;
+    min-height: 0;
   }
-
-  /* Drop the decorative mascot on phones to save vertical space. */
-  .lobby-mascot { display: none !important; }
-
-  /* INVITE-FIRST (round 4). Fleet reference — BlindSpot's lobby at 375 opens
-     with the share block: room code, Copy Invite Link, QR. Prime Suspect kept
-     the desktop order (seats, then invite at the foot of the crew pane), which
-     put the one thing a host opens the lobby to do at the very bottom of a
-     two-screen column. `.gs-crew-invite` is a direct flex child of
-     `.gs-crew-scroll`, so one `order` flips it without touching the DOM — and
-     desktop (≥1024) is untouched, where the band belongs under the seats. */
-  .gs-lobby-scene .gs-crew-scroll .gs-crew-invite { order: -1; }
-
-  /* ROUND 4 — the sticky START bar is GONE on mobile.
-     Round 2 made it sticky so START was always reachable; round 3 added an
-     88px trailing reserve so content could be scrolled clear of it. Both
-     treated the symptom. An opaque bar pinned to the scrollport bottom covers
-     whatever is at the fold AT REST, and at 375 that was the entire invite
-     block: below the "INVITE YOUR FRIENDS" heading the room-code tiles, Copy
-     Invite Link, QR and card-back buttons were 100% hidden behind it on first
-     paint, with nothing on screen saying they existed. Owner directive 1 (no
-     element may cover another, ever) has no sticky exemption.
-     The lobby now flows as one honest column — crew, invite band, START —
-     and the stage-level ScrollHint (GameShell + stage.css) is what tells the
-     player the column continues. START keeps its lit ground so it still reads
-     as the scene's one primary, it just no longer floats over the room. */
-  .gs-lobby-scene .gs-scene-actions {
-    position: static;
-    z-index: auto;
-    margin-top: clamp(0.75rem, 3cqb, 1.25rem);
-    background:
-      linear-gradient(180deg,
-        var(--velvet-panel, var(--bg-secondary, #15131f)),
-        var(--velvet-darker, var(--bg-darker, #0f0b12)));
-    border-top: 1px solid rgba(210, 178, 90, 0.42);
-    box-shadow: 0 -12px 20px -8px rgba(0, 0, 0, 0.6);
-    padding-top: 0.6rem;
-    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
-  }
-  /* Only the safe-area is reserved now; the 88px sticky-bar lane is obsolete
-     and was reading as a strip of dead velvet under the CTA. */
-  .gs-lobby-scene:has(.gs-scene-actions) {
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
-  }
-  .lobby-start-section { width: 100%; }
-  .lobby-start-btn { width: 100%; }
-}
-
-/* ----- ...AND IT HAS TO STAY UN-STUCK ------------------------------------
-   `pages/lobby.css` re-declares the sticky bar in three later blocks
-   (`@media (min-width:1024px) and (max-width:1024.98px)` ~1707-1745,
-   `@media (max-width:1024.98px)` ~2133-2172 incl. a 118px `!important`
-   reserve, and the ≤767 scrim bump ~2431). It loads after this file, so the
-   round-4 un-stick above is silently reverted by them.
-   Sticky CTAs are a SHARED SHELL MECHANIC — per the brief they live with the
-   chrome owner and are never re-patched per surface — and an opaque bar
-   pinned to the fold is an occlusion under owner directive 1. So the three
-   declarations are asserted here at `.app-layout.lobby-page` (0-4-0) +
-   `!important`, which is the smallest thing that outranks the later blocks.
-   FOLLOW-UP for the lobby owner: delete those three blocks so the cascade
-   stops carrying two opposite intentions. Range is ≤1024.98 (not 1023.98):
-   exactly-1024 runs the same single-column scrolling lobby. */
-@media (max-width: 1024.98px) {
-  .app-layout.lobby-page .gs-lobby-scene .gs-scene-actions {
-    position: static !important;
-    bottom: auto !important;
-    z-index: auto !important;
-  }
-
-  /* The receding scrim only made sense above a floating bar; with the bar in
-     flow its `bottom: 100%` would resolve against the stage instead. */
-  .app-layout.lobby-page .gs-lobby-scene .gs-scene-actions::before {
+  [class*="lobby-col--brief"] .ps-brief > :not(.ps-brief-controls) {
     display: none !important;
   }
+  [class*="lobby-col--brief"] .ps-brief-controls {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
 
-  /* No sticky bar → no 118px landing lane. But the stage-level ScrollHint
-     (GameShell, `.gs-stage > .gs-scroll-hint`, 46px tall + its scrim) IS pinned
-     to the stage's bottom edge on this breakpoint, and round 4 left it nothing
-     to land in: at 375 the chevron tab came to rest directly on the #01/#02
-     dossier cards. 52px reserves exactly the strip, so the column always ENDS
-     in empty velvet and no element ever finishes underneath the tab. */
-  .app-layout.lobby-page .gs-lobby-scene,
-  .app-layout.lobby-page .gs-lobby-scene:has(.gs-scene-actions) {
-    padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+  /* START on the bottom edge of the right column (host). Guests get their
+     "waiting for host" line in the crew zone (that is where it lives in DOM). */
+  .lobby-start-btn { grid-area: 5 / 2 / 6 / 3; width: 100%; min-height: 44px; }
+  .lobby-start-hint { grid-column: 2; grid-row: 6; margin: 0; text-align: center; }
+
+  .lobby-mascot { display: none !important; }
+
+  /* Contents-promotion strands the crew pane's other hints as grid items —
+     hide THOSE; the in-crew hint (last child of .gs-crew) is the sanctioned
+     overflow affordance and turns ON here (display:none everywhere else). */
+  [class*="lobby-col--crew"] > .gs-scroll-hint,
+  [class*="lobby-col--brief"] .gs-scroll-hint { display: none !important; }
+  .gs-crew > .gs-scroll-hint { display: flex !important; }
+
+  /* Compact crew cards — sized so the seat row is fully visible. */
+  [class*="crew__head"] { display: none !important; }
+  [class*="crew__card"] { padding: 8px 6px 6px !important; gap: 5px !important; }
+  [class*="crew__av"] { width: clamp(36px, min(24cqb, 58%), 84px) !important; }
+  [class*="crew__name"],
+  [class*="crew__tag"],
+  [class*="crew__slug"] { font-size: 0.72rem !important; }
+
+  /* The two-zone layout fits by construction — keep the stage height-bound so
+     the scene never grows a scrollbar; belt against sideways scroll. */
+  .gs-stage-inner:has(.gs-lobby-scene) { overflow-y: hidden; overflow-x: hidden; }
+  .gs-scene.gs-lobby-scene { flex: 1; min-height: 0; height: auto; }
+
+  /* Keep the lobby out of the landscape notch; the bottom padding keeps START's
+     dashed frame off the viewport edge. */
+  .gs-scene.gs-lobby-scene {
+    padding-left: max(var(--gs-pad-inline), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--gs-pad-inline), env(safe-area-inset-right, 0px));
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+/* TABLET LANDSCAPE (coarse pointer, >=900 wide, taller than 500) — the
+   two-column touch board: desktop anatomy, tablet sizing. */
+@media (pointer: coarse) and (orientation: landscape) and (min-width: 900px) and (min-height: 501px) {
+  .gs-lobby-panes {
+    grid-template-columns: clamp(280px, 34cqi, 400px) minmax(0, 1fr) !important;
+    align-content: stretch !important;
+    gap: clamp(12px, 1.6cqi, 26px) !important;
+  }
+  [class*="lobby-col--brief"] { grid-column: 1; grid-row: 1; }
+  [class*="lobby-col--crew"] { grid-column: 2; grid-row: 1; }
+
+  /* Invite band rides horizontally like the desktop band (mascot | panel), the
+     designer button on a full row beneath. */
+  [class*="crew-invite"] {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center !important;
+    gap: clamp(8px, 1.6cqb, 16px) clamp(10px, 2cqi, 24px);
+  }
+  [class*="crew-invite"] .solo-invite-panel { min-width: 0; }
+  [class*="crew-invite"] [class*="designer-btn"] {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(100%, 380px);
+  }
+}
+
+/* TABLET PORTRAIT (coarse pointer, >=768, portrait) — single column; START
+   centered at fleet width under the sticky bar. */
+@media (pointer: coarse) and (orientation: portrait) and (min-width: 768px) {
+  .gs-lobby-scene .gs-scene-actions {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+  }
+  .lobby-start-section { width: min(100%, 620px); }
+}
+
+/* The in-crew ScrollHint exists ONLY for the phone-landscape scroller —
+   everywhere else it must not take part in layout (its flex-gap shaves height
+   off the desktop crew grid when it renders inertly). */
+.gs-crew > .gs-scroll-hint { display: none; }
 
 
 /* ============================================================================
@@ -927,4 +1179,39 @@ button.gs-chrome-toggle:active {
 button.gs-chrome-toggle::before {
   background: none !important;
   opacity: 1 !important;
+}
+
+/* ============================================================================
+   QR OVERLAY CARD (fleet mobile format) — the bare floating QR read as cheap
+   and, on landscape phones (fixed overlay), had no visible way to close. A
+   framed velvet card + room code + tap-to-close hint; the whole overlay
+   dismisses on tap (SoloInvitePanel onClick).
+   ============================================================================ */
+.solo-invite-qr { cursor: pointer; }
+.solo-invite-qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 10px;
+  background: var(--bg-darker, #0d0f1a);
+  border: 2px solid var(--px-border, #34405a);
+  border-radius: var(--radius-md, 10px);
+  box-shadow: 4px 4px 0 var(--px-border-dark, rgba(0, 0, 0, 0.55));
+}
+.solo-invite-qr-card svg {
+  display: block;
+  background: #fff;
+  padding: 6px;
+  border-radius: 6px;
+}
+.solo-invite-qr-caption {
+  font-family: var(--font-marker, var(--font-title));
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--royal-gold-light, var(--text-primary, #fff));
+}
+.solo-invite-qr-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted, #7b8496);
 }

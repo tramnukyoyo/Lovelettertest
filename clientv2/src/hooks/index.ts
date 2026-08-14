@@ -12,8 +12,10 @@ export type {
   RegisterGameEventsHelpers,
 } from './useGameBuddiesClient';
 
-// Device detection hooks
-export { useIsMobile, useDeviceType, useOrientation, useHasTouch } from './useIsMobile';
+// Device detection hooks (shell compact regime)
+export { useIsMobile, useIsCompact, useIsLobbyCompact, useIsPhoneLandscape } from './useIsMobile';
+// Game-surface viewport hooks (card table's own <1024 thresholds)
+export { useGameIsMobile, useGameOrientation } from './useGameViewport';
 
 // Video hooks
 export { useVideoKeyboardShortcuts } from './useVideoKeyboardShortcuts';

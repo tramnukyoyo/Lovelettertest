@@ -33,7 +33,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { WebRTCProvider, useWebRTC } from './contexts/WebRTCContext';
 import { VideoUIProvider, useVideoUI } from './contexts/VideoUIContext';
 import { DeviceSettingsModal, VideoFilmstrip, StreamerBroadcastWindow } from './components/video';
-import { useVideoKeyboardShortcuts, useVideoPreferences, useIsMobile } from './hooks';
+import { useVideoKeyboardShortcuts, useVideoPreferences, useIsLobbyCompact } from './hooks';
 import { backgroundMusic, soundEffects, playBackgroundMusic, initAudio } from './utils/audio';
 import HomePage from './pages/HomePage';
 import PaperDeductionBackdrop from './components/ui/decor/PaperDeductionBackdrop';
@@ -136,7 +136,7 @@ function AppContent({
   lobby: Lobby | null;
   renderContent: () => React.ReactNode;
 }) {
-  const isMobile = useIsMobile();
+  const isMobile = useIsLobbyCompact();
   const { isVideoChatActive } = useWebRTC();
 
   const webcamPlayers: WebcamPlayer[] = useMemo(() => lobby?.players

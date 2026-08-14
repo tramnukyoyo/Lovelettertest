@@ -726,3 +726,55 @@
     0 0 12px rgba(231, 204, 122, 0.22),
     inset 0 1px 0 rgba(231, 204, 122, 0.2) !important;
 }
+
+/* ============================================================================
+   PHONE LOBBY INVITE BAR (.game-header--invite) — the header IS the invite
+   surface on phones: tap-to-copy room-code chip left, share + hamburger right.
+   Rendered only when GameHeader gets lobbyInvite + a phone viewport
+   (see GameHeader.tsx). Tablets/desktop never see these classes.
+   ============================================================================ */
+.game-header--invite .game-header-container {
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-sm);
+}
+
+/* The chip inherits the desktop room-code chip's pixel-ring look but is one
+   tappable button (the whole thing copies the invite link). */
+.game-header-invite-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-height: 44px;
+  min-width: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-darker);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 -2px 0 0 var(--px-border),
+    0 2px 0 0 var(--px-border),
+    -2px 0 0 0 var(--px-border),
+    2px 0 0 0 var(--px-border),
+    var(--px) var(--px) 0 0 var(--px-border-dark);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.game-header-invite-chip .game-header-room-value {
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.game-header-invite-chip:active { transform: translate(1px, 1px); }
+
+.game-header-invite-chip:focus-visible {
+  outline: 2px solid var(--royal-gold-light, #e7cc7a);
+  outline-offset: 2px;
+}
+
+.game-header-invite-chip--streamer {
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}

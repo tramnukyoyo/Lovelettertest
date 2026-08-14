@@ -25,7 +25,7 @@ import { ChatWindow, PlayerList } from '../components/lobby';
 import { MobileDrawer } from '../components/mobile';
 import type { DrawerContent } from '../components/mobile';
 import { useWebRTC } from '../contexts/WebRTCContext';
-import { useIsMobile } from '../hooks/useIsMobile';
+import { useIsCompact } from '../hooks/useIsMobile';
 import GameShell from '../shell/GameShell';
 import PresenceDock from '../shell/PresenceDock';
 import type { DockPlayer } from '../shell/PresenceDock';
@@ -72,7 +72,7 @@ const GamePage: React.FC<GamePageProps> = ({ lobby, messages = [], gameBuddiesSe
   const hasAutoOpenedVideoRef = useRef(false);
 
   const { prepareVideoChat, isVideoChatActive, disableVideoChat } = useWebRTC();
-  const isMobile = useIsMobile();
+  const isMobile = useIsCompact();
 
   useEffect(() => {
     if (!socket) return;

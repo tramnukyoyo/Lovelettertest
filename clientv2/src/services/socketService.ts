@@ -153,6 +153,9 @@ class SocketService {
       // and lands on the worker that owns the room instead of IP-hashing to a
       // random worker (room_closed / cross-worker split-brain). No network call.
       sessionStorage.getItem(STORAGE_KEYS.SESSION.ROOM_CODE) ||
+      // PWA relaunch: sessionStorage is gone entirely — the durable mirror
+      // (localStorage, 6h cap) is the only surviving hint (room C2CGEC).
+      this.getDurableReconnectionData()?.roomCode ||
       undefined;
     // Visible debug marker so users can confirm in DevTools whether the
     // bundle they loaded is actually executing the cluster-routing patch.
@@ -396,6 +399,30 @@ class SocketService {
     // Cluster routing hint: keep lastRoomCode in sync so a reconnect after a
     // server reboot routes to the worker that owns this room (see connect()).
     sessionStorage.setItem('lastRoomCode', roomCode);
+    // PWA: sessionStorage dies when the installed app is closed, so an AFK
+    // player relaunching the PWA lost BOTH the routing hint and the session
+    // token and IP-hashed to a random worker (room C2CGEC, owner 2026-08-14).
+    // Mirror to localStorage with a timestamp; reads honor a 6h freshness cap
+    // (matches server room retention).
+    try {
+      localStorage.setItem('gb:reconnect', JSON.stringify({
+        roomCode, playerName, sessionToken, savedAt: Date.now(),
+      }));
+    } catch { /* storage full/blocked — session-only behavior remains */ }
+  }
+
+  /** localStorage mirror of the reconnection data (PWA restarts wipe
+      sessionStorage). Returns null when absent or older than 6h. */
+  private getDurableReconnectionData(): { roomCode: string; playerName: string; sessionToken: string } | null {
+    try {
+      const raw = localStorage.getItem('gb:reconnect');
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data?.roomCode || Date.now() - (data.savedAt ?? 0) > 6 * 60 * 60 * 1000) return null;
+      return data;
+    } catch {
+      return null;
+    }
   }
 
   getStoredReconnectionData(): {
@@ -404,10 +431,11 @@ class SocketService {
     sessionToken: string | null;
     avatarUrl: string | null;
   } {
+    const durable = this.getDurableReconnectionData();
     return {
-      roomCode: sessionStorage.getItem(STORAGE_KEYS.SESSION.ROOM_CODE),
-      playerName: sessionStorage.getItem(STORAGE_KEYS.SESSION.PLAYER_NAME),
-      sessionToken: sessionStorage.getItem(STORAGE_KEYS.SESSION.SESSION_TOKEN),
+      roomCode: sessionStorage.getItem(STORAGE_KEYS.SESSION.ROOM_CODE) ?? durable?.roomCode ?? null,
+      playerName: sessionStorage.getItem(STORAGE_KEYS.SESSION.PLAYER_NAME) ?? durable?.playerName ?? null,
+      sessionToken: sessionStorage.getItem(STORAGE_KEYS.SESSION.SESSION_TOKEN) ?? durable?.sessionToken ?? null,
       avatarUrl: sessionStorage.getItem('avatarUrl'),
     };
   }
@@ -419,6 +447,7 @@ class SocketService {
     sessionStorage.removeItem(STORAGE_KEYS.SESSION.SESSION_TOKEN);
     // Drop the cluster routing hint too so a fresh connect doesn't route by a stale code.
     sessionStorage.removeItem('lastRoomCode');
+    try { localStorage.removeItem('gb:reconnect'); } catch { /* ignore */ }
   }
 
   // ===== Browser Event Listeners =====

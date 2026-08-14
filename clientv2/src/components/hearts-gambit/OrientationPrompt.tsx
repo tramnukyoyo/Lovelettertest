@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { RotateCcw, X } from 'lucide-react';
-import { useOrientation } from '../../hooks/useIsMobile';
+import { useGameOrientation } from '../../hooks/useGameViewport';
 import { getTranslation, getCurrentLanguage } from '../../utils/gameTranslations';
 
 interface OrientationPromptProps {
@@ -19,7 +19,7 @@ const AUTO_DISMISS_MS = 6000;
  * the bottom edge, auto-retires after 6s, and never covers the whole screen.
  */
 const OrientationPrompt: React.FC<OrientationPromptProps> = ({ className = '' }) => {
-  const orientation = useOrientation();
+  const orientation = useGameOrientation();
   const [isDismissed, setIsDismissed] = useState(false);
   const reduced = useReducedMotion();
 

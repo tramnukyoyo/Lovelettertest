@@ -13,7 +13,7 @@ import WebcamDisplay from './WebcamDisplay';
 import type { WebcamPlayer } from '../../config/WebcamConfig';
 import type { Team } from '../../types';
 import { t } from '../../utils/translations';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useIsLobbyCompact } from '../../hooks/useIsMobile';
 
 // Filmstrip resize constants
 const MIN_HEIGHT = 80;
@@ -55,7 +55,7 @@ const VideoFilmstrip: React.FC<VideoFilmstripProps> = ({
   const { isFilmstripExpanded, toggleFilmstrip, isStreamerBroadcastOpen } = useVideoUI();
   // No bottom video filmstrip on mobile — it reserved dead space at the bottom of
   // the screen. Mobile users reach video via the menu/drawer instead.
-  const isMobile = useIsMobile();
+  const isMobile = useIsLobbyCompact();
 
   const getPlayerTeamColor = (playerId: string): string | undefined => {
     for (const team of teams) {

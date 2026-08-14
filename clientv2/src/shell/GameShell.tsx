@@ -13,7 +13,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useShellOverflowGuard } from './useShellOverflowGuard';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
-import { useIsMobile } from '../hooks/useIsMobile';
+import { useGameIsMobile } from '../hooks/useGameViewport';
 import ScrollHint from './ScrollHint';
 import { t } from '../utils/translations';
 
@@ -78,12 +78,17 @@ const GameShell: React.FC<GameShellProps> = ({
   // keyboard opens — without this the bottom of the stage sits under the keys.
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHeight();
 
-  // Mobile immersive mode: on phones (≤1024px) the top header AND the bottom
-  // presence dock are HIDDEN by default while in-game so the stage gets the full
-  // screen. A floating toggle (▾ reveal / ▴ hide) brings them back together — the
-  // header carries the menu (settings / leave / chat), so the toggle must always
-  // be reachable. Desktop (≥1024px) is unaffected: everything stays visible.
-  const isMobile = useIsMobile();
+  // Mobile immersive mode: on phones (width < 1024px) the top header AND the
+  // bottom presence dock are HIDDEN by default while in-game so the stage gets
+  // the full screen. A floating toggle (▾ reveal / ▴ hide) brings them back
+  // together — the header carries the menu (settings / leave / chat), so the
+  // toggle must always be reachable. Desktop (≥1024px) is unaffected.
+  //
+  // Driven by useGameIsMobile (< 1024), the game-surface threshold — NOT the
+  // shell compact hooks — so the in-game pill fires on exactly the widths it
+  // always has (in-game behaviour must never change). The LOBBY arms the same
+  // pill in phone landscape via chromeAutoHide={isPhoneLandscape}.
+  const isMobile = useGameIsMobile();
   const [chromeHidden, setChromeHidden] = useState(true);
   const immersive = isMobile && chromeAutoHide && chromeHidden;
 

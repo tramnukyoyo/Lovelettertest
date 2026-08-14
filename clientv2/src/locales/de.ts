@@ -654,6 +654,7 @@ export const de: Translations = {
     sent: 'Gesendet!',
     failed: 'Fehler',
     qr: 'QR-Code',
+    qrCloseHint: 'Zum Schließen tippen',
   },
   installPrompt: {
     title: 'Spiel installieren',

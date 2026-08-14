@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Mail, Send, X } from 'lucide-react';
 import { t } from '../../utils/translations';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useIsLobbyCompact } from '../../hooks/useIsMobile';
 import {
   useAdminInbox,
   closeInbox,
@@ -46,7 +46,7 @@ const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min)
 
 const MessagesPanel: React.FC = () => {
   const { open, status, messages, threadId, sending, failedIds } = useAdminInbox();
-  const isMobile = useIsMobile();
+  const isMobile = useIsLobbyCompact();
   const [draft, setDraft] = useState('');
   const [pos, setPos] = useState<Pos | null>(readPos);
 

@@ -17,7 +17,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useWebRTC } from '../../contexts/WebRTCContext';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useIsLobbyCompact } from '../../hooks/useIsMobile';
 import { t, getCurrentLanguage } from '../../utils/translations';
 import { getTranslation } from '../../utils/gameTranslations';
 // Heavy effect services (MediaPipe / three.js) are dynamically imported in the
@@ -70,7 +70,7 @@ const DeviceSettingsModal: React.FC<DeviceSettingsModalProps> = ({
     setPttEnabled
   } = useWebRTC();
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsLobbyCompact();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [activeTab, setActiveTab] = useState<TabId>('devices');
 

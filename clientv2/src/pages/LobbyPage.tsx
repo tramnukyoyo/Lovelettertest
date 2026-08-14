@@ -20,7 +20,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Play, Crown } from 'lucide-react';
+import { Play, Crown, Settings } from 'lucide-react';
 import type { Lobby, ChatMessage, Player } from '../types';
 import type { GameBuddiesSession } from '../services/gameBuddiesSession';
 import type { WebcamPlayer } from '../config/WebcamConfig';
@@ -28,7 +28,7 @@ import socketService from '../services/socketService';
 import { getTranslation, getCurrentLanguage } from '../utils/gameTranslations';
 import { t as tShell } from '../utils/translations';
 import { useWebRTC } from '../contexts/WebRTCContext';
-import { useIsMobile } from '../hooks/useIsMobile';
+import { useIsCompact, useIsLobbyCompact, useIsPhoneLandscape } from '../hooks/useIsMobile';
 import { GameHeader, SidebarTabs, FlairName } from '../components/core';
 import type { SidebarTab } from '../components/core';
 import { Avatar } from '../components/core/Avatar';
@@ -182,7 +182,11 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
   const lastMessageCountRef = useRef(chatMessages.length);
 
   const { prepareVideoChat, isVideoChatActive, disableVideoChat } = useWebRTC();
-  const isMobile = useIsMobile();
+  // Compact regime (see hooks/useIsMobile.ts). isCompact = phones; isLobbyCompact
+  // = phones + coarse tablets; isPhoneLandscape = phone landscape only.
+  const isCompact = useIsCompact();
+  const isLobbyCompact = useIsLobbyCompact();
+  const isPhoneLandscape = useIsPhoneLandscape();
 
   // Track unread messages when chat tab is not active (chat-only, excludes log)
   useEffect(() => {
@@ -283,11 +287,11 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
   }, [isVideoChatActive]);
 
   useEffect(() => {
-    if (isMobile && isVideoChatActive && !hasAutoOpenedVideoRef.current) {
+    if (isLobbyCompact && isVideoChatActive && !hasAutoOpenedVideoRef.current) {
       hasAutoOpenedVideoRef.current = true;
       setDrawerContent('video');
     }
-  }, [isMobile, isVideoChatActive]);
+  }, [isLobbyCompact, isVideoChatActive]);
 
   // PresenceDock: everyone visible while waiting
   const dockPlayers: DockPlayer[] = useMemo(() =>
@@ -310,10 +314,15 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
     <>
       <div className="app-layout lobby-page">
         <GameShell
+          /* Phone landscape: arm the existing immersive pill (header + dock
+             auto-hide, reveal pill) — the room code stays visible in the invite
+             bar. Portrait keeps the header. Tablets/desktop: prop is false. */
+          chromeAutoHide={isPhoneLandscape}
           hud={
             <GameHeader
               lobby={lobby}
               gameBuddiesSession={gameBuddiesSession}
+              lobbyInvite
               onOpenChat={handleOpenChat}
               onOpenPlayers={handleOpenPlayers}
               onOpenVideo={handleOpenVideo}
@@ -348,7 +357,8 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
           }
           railUnread={unreadCount}
           railLabel={t('chat.title')}
-          dock={<PresenceDock players={dockPlayers} />}
+          /* No dock on compact devices — the crew roster IS the presence view. */
+          dock={isCompact ? undefined : <PresenceDock players={dockPlayers} />}
         >
           <div className="gs-stage-inner">
             <Scene className="gs-lobby-scene">
@@ -423,6 +433,12 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                             inside the crew block it reads as the seat row's own
                             stamp, tight under the seats. */}
                         {!isHost && <p className="lobby-waiting-host">{t('game.waitingForHost')}</p>}
+
+                        {/* Phone-landscape scroller affordance: the crew zone
+                            scrolls internally there and shell.css turns this hint
+                            ON (display:none everywhere else — an inert hint costs
+                            flex-gap on the desktop crew grid). */}
+                        <ScrollHint watch="parent" />
                       </div>
 
                       {/* Invite band pinned to the crew pane's bottom edge:
@@ -481,14 +497,26 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
                       <GuestBriefingPanel
                         lobby={lobby}
                         footerSlot={isHost ? (
-                          isMobile ? (
-                            /* Round 5: on a PHONE the folder opens collapsed.
-                               The primary CTA (START) is the last thing in a
-                               ~2.5-viewport column at 375, and the settings
-                               accordion is the only block between the briefing
-                               and it that nobody has to read to start a game.
-                               Tablets (768–1023) keep it open — START is
-                               already inside ~1.3 viewports there. */
+                          isCompact ? (
+                            /* PHONES (fleet mobile-lobby format): the host
+                               settings move into a bottom sheet behind this
+                               quiet row, so the primary flow (crew → invite →
+                               START) stays uncluttered and START fits without a
+                               ~2.5-viewport column. The case briefing above
+                               stays in-pane. */
+                            <button
+                              type="button"
+                              className="lobby-settings-trigger"
+                              onClick={() => setDrawerContent('settings')}
+                            >
+                              <Settings className="lobby-settings-trigger-icon" aria-hidden="true" />
+                              <span>{t('settings.title')}</span>
+                            </button>
+                          ) : isLobbyCompact ? (
+                            /* Tablets (768–1023 / coarse): the folder opens
+                               collapsed in portrait (an open accordion buried the
+                               invite below the fold), open in landscape. Initial
+                               state only. */
                             <CollapsibleSection
                               title={t('settings.title')}
                               defaultOpen={typeof window === 'undefined' ? true : window.innerWidth > 767}
@@ -561,6 +589,17 @@ const LobbyPage: React.FC<LobbyPageProps> = ({
         teams={[]}
         showCardStylePicker
         onOpenDesigner={() => { handleCloseDrawer(); setShowDesigner(true); }}
+        settingsContent={
+          /* The sheet portals to document.body — OUTSIDE .lobby-page and
+             .lobby-settings-pane, which together scope the ps-host-settings
+             rules (lobby.css). display:contents restores the selector scope
+             without adding layout boxes. Host-only (guests get no trigger). */
+          <div className="lobby-page" style={{ display: 'contents' }}>
+            <div className="lobby-settings-pane" style={{ display: 'contents' }}>
+              <HostSettings lobby={lobby} socket={socket} isHost={isHost} />
+            </div>
+          </div>
+        }
       />
 
       {/* "Your card back" designer — the only place ps_style items are bought. */}

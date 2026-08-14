@@ -651,6 +651,7 @@ export const en = {
     sent: 'Sent!',
     failed: 'Failed',
     qr: 'QR code',
+    qrCloseHint: 'Tap to close',
   },
   installPrompt: {
     title: 'Install Game',

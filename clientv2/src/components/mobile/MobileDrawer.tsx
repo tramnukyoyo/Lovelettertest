@@ -8,7 +8,7 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MessageCircle, Users, Video } from 'lucide-react';
+import { X, MessageCircle, Users, Video, Settings } from 'lucide-react';
 import type { ChatMessage, Player, Team } from '../../types';
 import ChatWindow from '../lobby/ChatWindow';
 import PlayerList from '../lobby/PlayerList';
@@ -17,7 +17,7 @@ import { isDiscordActivity } from '../../services/discordActivity';
 import type { WebcamPlayer } from '../../config/WebcamConfig';
 import { t } from '../../utils/translations';
 
-export type DrawerContent = 'chat' | 'players' | 'video' | null;
+export type DrawerContent = 'chat' | 'players' | 'video' | 'settings' | null;
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -42,6 +42,9 @@ interface MobileDrawerProps {
   showCardStylePicker?: boolean;
   /** Opens the "Your card back" designer (forwarded to PlayerList). */
   onOpenDesigner?: () => void;
+  /** Lobby only (compact): the host settings / guest briefing rendered in a
+   *  bottom sheet instead of the primary flow (fleet mobile-lobby format). */
+  settingsContent?: React.ReactNode;
 }
 
 const MobileDrawer: React.FC<MobileDrawerProps> = ({
@@ -61,7 +64,8 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
   teams = [],
   className = '',
   showCardStylePicker = false,
-  onOpenDesigner
+  onOpenDesigner,
+  settingsContent
 }) => {
   // Lock background scroll while the overlay is open (touch can otherwise
   // scroll the page behind the modal).
@@ -82,6 +86,8 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
         return t('menu.players');
       case 'video':
         return t('menu.videoChat');
+      case 'settings':
+        return t('menu.settings');
       default:
         return '';
     }
@@ -95,6 +101,8 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
         return <Users className="w-5 h-5" />;
       case 'video':
         return <Video className="w-5 h-5" />;
+      case 'settings':
+        return <Settings className="w-5 h-5" />;
       default:
         return null;
     }
@@ -172,6 +180,10 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   teams={teams}
                   mySocketId={mySocketId}
                 />
+              )}
+
+              {content === 'settings' && (
+                <div className="mobile-overlay-settings">{settingsContent}</div>
               )}
             </div>
           </motion.div>

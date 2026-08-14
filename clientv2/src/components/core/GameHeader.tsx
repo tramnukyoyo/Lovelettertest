@@ -12,7 +12,7 @@ import { clearSession, type GameBuddiesSession } from '../../services/gameBuddie
 import socketService from '../../services/socketService';
 import { useVideoUI } from '../../contexts/VideoUIContext';
 import { useWebRTC } from '../../contexts/WebRTCContext';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useIsCompact, useIsLobbyCompact } from '../../hooks/useIsMobile';
 import { GAME_META } from '../../config/gameMeta';
 import { t } from '../../utils/translations';
 import MobileGameMenu from './MobileGameMenu';
@@ -39,6 +39,10 @@ interface GameHeaderProps {
   onOpenVideo?: () => void;
   unreadChatCount?: number;
   onReturnToLobby?: () => void;
+  /** Lobby route on PHONES: the header becomes an invite bar — tap-to-copy
+      room-code chip + share + hamburger; logo/mute/messages move into the
+      hamburger menu (fleet mobile-lobby format). Tablets/desktop unaffected. */
+  lobbyInvite?: boolean;
 }
 
 const GameHeader: React.FC<GameHeaderProps> = ({
@@ -48,7 +52,8 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   onOpenPlayers,
   onOpenVideo,
   unreadChatCount = 0,
-  onReturnToLobby
+  onReturnToLobby,
+  lobbyInvite = false
 }) => {
   const hideRoomCode = gameBuddiesSession?.hideRoomCode || lobby.hideRoomCode || lobby.isStreamerMode || false;
   const myPlayer = lobby.players.find((p: Player) => p.socketId === lobby.mySocketId);
@@ -131,7 +136,8 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   const socket = socketService.getSocket();
   const videoUI = useVideoUI();
   const webrtc = useWebRTC();
-  const isMobile = useIsMobile();
+  const isMobile = useIsLobbyCompact();
+  const isCompactPhone = useIsCompact();
 
   // Listen for invite token response
   useEffect(() => {
@@ -217,6 +223,114 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   const phaseDisplay = getPhaseDisplay(lobby.state);
 
   const connectedCount = lobby.players.filter((p: Player) => p.connected).length;
+  const isPhoneInviteBar = lobbyInvite && isCompactPhone;
+
+  // Shared between the default mobile header and the phone invite bar — one
+  // instance, no behavior drift. onSoundSettings lights up the menu's sound row
+  // (the invite bar drops the header MuteButton, so audio stays reachable).
+  const mobileMenu = (
+    <MobileGameMenu
+      roomCode={lobby.code}
+      onCopyLink={copyRoomLink}
+      linkCopied={copyFeedback}
+      onLeave={handleLeave}
+      onLogin={canAuth && !isLoggedIn ? handleLogin : undefined}
+      onLogout={canAuth && isLoggedIn ? handleLogout : undefined}
+      onMessages={openInbox}
+      playerName={accountName}
+      isPremium={isPremiumMe}
+      isLoggedIn={isLoggedIn}
+      onChat={onOpenChat}
+      unreadCount={unreadChatCount}
+      onPlayers={onOpenPlayers}
+      playerCount={`${connectedCount}`}
+      isVideoEnabled={webrtc.isVideoChatActive}
+      onVideo={isDiscordActivity() ? undefined : onOpenVideo}
+      onSoundSettings={() => setIsSettingsOpen(true)}
+      onSettings={() => setIsSettingsOpen(true)}
+      onReportBug={() => setIsFeedbackOpen(true)}
+      hideRoomCode={hideRoomCode}
+      isLobby={lobby.state === 'LOBBY'}
+      onReturnToLobby={onReturnToLobby}
+      onReturnToGameBuddies={lobby.isGameBuddiesRoom ? () => {
+        // Seed the portal overlay immediately — App.tsx listens for this event
+        // and shows the animation regardless of server response timing.
+        window.dispatchEvent(new CustomEvent('gb:portal-begin', {
+          detail: {
+            mode: 'group',
+            roomCode: lobby.code,
+            playerName: myPlayer?.name || sessionStorage.getItem('gamebuddies_playerName') || '',
+          }
+        }));
+        const sock = socketService.getSocket();
+        if (sock) {
+          sock.emit('gamebuddies:return', {
+            roomCode: lobby.code,
+            playerId: myPlayer?.socketId,
+            mode: isHost ? 'group' : 'individual'
+          });
+        }
+      } : undefined}
+    />
+  );
+
+  const modals = (
+    <>
+      {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+      {isFeedbackOpen && <FeedbackModal lobby={lobby} onClose={() => setIsFeedbackOpen(false)} />}
+      {isAuthOpen && (
+        <GameAuthModal
+          onClose={() => setIsAuthOpen(false)}
+          roomCode={lobby.code}
+          playerName={myPlayer?.name}
+        />
+      )}
+    </>
+  );
+
+  // PHONE LOBBY: the header IS the invite bar (room code always visible,
+  // tap-to-copy — Jackbox convention). Logo/mute/messages live in the menu.
+  if (isPhoneInviteBar) {
+    return (
+      <header className="game-header game-header--invite">
+        <div className="game-header-container">
+          {!hideRoomCode ? (
+            <button
+              type="button"
+              onClick={copyRoomLink}
+              className="game-header-invite-chip"
+              title={t('header.copyRoomLink')}
+            >
+              <span className="game-header-room-label">{t('header.room')}</span>
+              <span className="game-header-room-value">{lobby.code}</span>
+              {copyFeedback ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={copyRoomLink}
+              className="game-header-invite-chip game-header-invite-chip--streamer"
+              title={t('header.copyInviteLink')}
+            >
+              <span>{t('header.streamerMode')}</span>
+              {copyFeedback ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          )}
+          <div className="game-header-right">
+            <button
+              onClick={copyRoomLink}
+              className="game-header-copy-btn"
+              title={hideRoomCode ? t('header.copyInviteLink') : t('header.copyRoomLink')}
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+            {mobileMenu}
+          </div>
+        </div>
+        {modals}
+      </header>
+    );
+  }
 
   return (
     <header className="game-header">
@@ -418,66 +532,12 @@ const GameHeader: React.FC<GameHeaderProps> = ({
               title={hideRoomCode ? t('header.copyInviteLink') : t('header.copyRoomLink')}>
               {copyFeedback ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
             </button>
-            <MobileGameMenu
-              roomCode={lobby.code}
-              onCopyLink={copyRoomLink}
-              linkCopied={copyFeedback}
-              onLeave={handleLeave}
-              onLogin={canAuth && !isLoggedIn ? handleLogin : undefined}
-              onLogout={canAuth && isLoggedIn ? handleLogout : undefined}
-              onMessages={openInbox}
-              playerName={accountName}
-              isPremium={isPremiumMe}
-              isLoggedIn={isLoggedIn}
-              onChat={onOpenChat}
-              unreadCount={unreadChatCount}
-              onPlayers={onOpenPlayers}
-              playerCount={`${connectedCount}`}
-              isVideoEnabled={webrtc.isVideoChatActive}
-              onVideo={isDiscordActivity() ? undefined : onOpenVideo}
-              onSettings={() => setIsSettingsOpen(true)}
-              onReportBug={() => setIsFeedbackOpen(true)}
-              hideRoomCode={hideRoomCode}
-              isLobby={lobby.state === 'LOBBY'}
-              onReturnToLobby={onReturnToLobby}
-              onReturnToGameBuddies={lobby.isGameBuddiesRoom ? () => {
-                // Seed the portal overlay immediately — App.tsx listens for this event
-                // and shows the animation regardless of server response timing.
-                window.dispatchEvent(new CustomEvent('gb:portal-begin', {
-                  detail: {
-                    mode: 'group',
-                    roomCode: lobby.code,
-                    playerName: myPlayer?.name || sessionStorage.getItem('gamebuddies_playerName') || '',
-                  }
-                }));
-                const socket = socketService.getSocket();
-                if (socket) {
-                  socket.emit('gamebuddies:return', {
-                    roomCode: lobby.code,
-                    playerId: myPlayer?.socketId,
-                    mode: isHost ? 'group' : 'individual'
-                  });
-                }
-              } : undefined}
-            />
+            {mobileMenu}
           </div>
         )}
       </div>
 
-      {/* Settings Modal */}
-      {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
-
-      {/* Feedback / Report-a-problem Modal */}
-      {isFeedbackOpen && <FeedbackModal lobby={lobby} onClose={() => setIsFeedbackOpen(false)} />}
-
-      {/* In-game login/signup — auth without leaving the room */}
-      {isAuthOpen && (
-        <GameAuthModal
-          onClose={() => setIsAuthOpen(false)}
-          roomCode={lobby.code}
-          playerName={myPlayer?.name}
-        />
-      )}
+      {modals}
     </header>
   );
 };

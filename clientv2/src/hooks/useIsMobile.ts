@@ -1,108 +1,76 @@
-/**
- * Mobile Detection Hooks
- *
- * Hooks for detecting device type, orientation, and responsive breakpoints.
- */
-
 import { useState, useEffect } from 'react';
 
+const MOBILE_QUERY = '(max-width: 767px)';
+
 /**
- * Hook to detect if the current device is mobile based on viewport width.
- * Mobile is defined as viewport width < 1024px (includes tablets).
- * Updates on window resize.
+ * Phones in EITHER orientation: narrow (portrait) OR wide-but-short
+ * (landscape). Landscape phones are 844-932px wide, so a width-only query
+ * misses them and they'd get the desktop layout squeezed into ~400px of
+ * height. The max-width:1023px arm keeps short desktop windows >=1024px on
+ * the desktop layout.
  *
- * The `< 1024` boundary is load-bearing: styles/shell/shell.css hides the
- * desktop rail at `max-width: 1023.98px`. With the old `<= 1024` test, a
- * viewport of exactly 1024px was "mobile" in JS (GameShell stripped the header
- * + presence dock) while CSS still painted the rail — 1024 rendered as a bare
- * stage with a floating chevron and nothing else. JS and CSS must flip on the
- * same pixel.
+ * MUST stay byte-identical to the media queries tagged "COMPACT_MEDIA_QUERY"
+ * in shell.css — the CSS styles the markup this flag renders.
  */
-export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    // Initial check
-    checkIsMobile();
-
-    // Listen for resize events
-    window.addEventListener('resize', checkIsMobile);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  return isMobile;
-};
+export const COMPACT_MEDIA_QUERY =
+  '(max-width: 767px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023px)';
 
 /**
- * Hook to detect device type with more granularity
+ * The shell/lobby compact regime (ported from the platform hub's RoomLobby,
+ * responsive audit 2026-07-09 R2A):
+ * - `(max-width: 1023px)`: matches the existing shell seam (rail hide /
+ *   hamburger at <=1023.98px) so JS and CSS agree at every boundary. The old
+ *   width-only hook said "mobile" at exactly 1024px while the CSS rendered
+ *   the desktop board - that hybrid is the bug this port fixes.
+ * - `(pointer: coarse)`: touch devices >=1024px (iPad landscape, iPad Air)
+ *   got the squeezed desktop board with mouse-sized targets. Touch always
+ *   gets the compact regime; the desktop board is pointer-fine-only.
+ *
+ * MUST stay byte-identical to the media queries tagged
+ * "LOBBY_COMPACT_MEDIA_QUERY" in shell.css, mobile-menu.css and lobby.css,
+ * whose desktop blocks are gated on the exact complement:
+ *   (min-width: 1024px) and (pointer: fine), (min-width: 1024px) and (pointer: none)
  */
-export const useDeviceType = () => {
-  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
-
-  useEffect(() => {
-    const checkDeviceType = () => {
-      const width = window.innerWidth;
-      if (width <= 480) {
-        setDeviceType('mobile');
-      } else if (width <= 1024) {
-        setDeviceType('tablet');
-      } else {
-        setDeviceType('desktop');
-      }
-    };
-
-    checkDeviceType();
-    window.addEventListener('resize', checkDeviceType);
-    return () => window.removeEventListener('resize', checkDeviceType);
-  }, []);
-
-  return deviceType;
-};
+export const LOBBY_COMPACT_MEDIA_QUERY = '(max-width: 1023px), (pointer: coarse)';
 
 /**
- * Hook to detect screen orientation
+ * Phone LANDSCAPE only — drives the lobby's chrome auto-hide (header hidden,
+ * reveal pill). MUST stay byte-identical to the "PHONE LANDSCAPE" arm in
+ * shell.css and to the second arm of COMPACT_MEDIA_QUERY above.
  */
-export const useOrientation = () => {
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+export const PHONE_LANDSCAPE_MEDIA_QUERY =
+  '(orientation: landscape) and (max-height: 500px) and (max-width: 1023px)';
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia(query).matches;
+  });
 
   useEffect(() => {
-    const checkOrientation = () => {
-      setOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
-    };
+    const mql = window.matchMedia(query);
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, [query]);
 
-    checkOrientation();
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
+  return matches;
+}
 
-    return () => {
-      window.removeEventListener('resize', checkOrientation);
-      window.removeEventListener('orientationchange', checkOrientation);
-    };
-  }, []);
+export function useIsMobile(): boolean {
+  return useMediaQuery(MOBILE_QUERY);
+}
 
-  return orientation;
-};
+export function useIsCompact(): boolean {
+  return useMediaQuery(COMPACT_MEDIA_QUERY);
+}
 
-/**
- * Hook to detect if device has touch support
- */
-export const useHasTouch = () => {
-  const [hasTouch, setHasTouch] = useState(false);
+export function useIsLobbyCompact(): boolean {
+  return useMediaQuery(LOBBY_COMPACT_MEDIA_QUERY);
+}
 
-  useEffect(() => {
-    setHasTouch(
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0
-    );
-  }, []);
-
-  return hasTouch;
-};
+export function useIsPhoneLandscape(): boolean {
+  return useMediaQuery(PHONE_LANDSCAPE_MEDIA_QUERY);
+}
 
 export default useIsMobile;
