@@ -260,7 +260,7 @@ export function trackBlockedClick(control: string, reason: string): void {
  *  fired from the GameBuddies return button / in-game leave actions with the
  *  phase the player was in. Complements the server-side room-level
  *  game_session_ended (drop-off audit 2026-07-22). */
-export function trackGameLeft(reason: 'return_button' | 'leave_button', extra?: Record<string, unknown>): void {
+export function trackGameLeft(reason: 'return_button' | 'leave_button' | 'header_logo', extra?: Record<string, unknown>): void {
   trackEvent('game_left', {
     reason,
     phase: _phaseTracker.current ?? null,

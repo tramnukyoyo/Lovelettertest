@@ -8,8 +8,7 @@
 
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import socketService from '../../services/socketService';
-import { trackGameLeft } from '../../services/analyticsService';
+import { beginPlatformReturn } from '../../services/platformReturn';
 import { t } from '../../utils/translations';
 
 interface GameBuddiesReturnButtonProps {
@@ -33,51 +32,15 @@ const GameBuddiesReturnButton: React.FC<GameBuddiesReturnButtonProps> = ({
   variant = 'inline',
   className = ''
 }) => {
-  const redirectWithReturning = (targetUrl: string) => {
-    // Append ?returning=true for cross-domain detection (sessionStorage doesn't cross domains)
-    try {
-      const url = new URL(targetUrl);
-      url.searchParams.set('returning', 'true');
-      const pName = sessionStorage.getItem('gamebuddies_playerName') || '';
-      if (pName) url.searchParams.set('returningPlayer', pName);
-      window.location.href = url.toString();
-    } catch {
-      window.location.href = targetUrl;
-    }
-  };
-
   const handleClick = () => {
-    trackGameLeft('return_button', { room_code: roomCode, is_host: isHost });
-    const socket = socketService.getSocket();
-    if (!socket) {
-      redirectWithReturning('https://gamebuddies.io');
-      return;
-    }
-
-    // Seed the portal overlay immediately so the animation plays regardless of
-    // server response. App.tsx listens for this event and sets portalRedirect
-    // state with a fallback URL; if the server later emits gamebuddies:return-redirect
-    // (or gamebuddies:lobby-redirect), those listeners overwrite the URL with the
-    // real tokenised one before the 3s animation completes.
-    window.dispatchEvent(new CustomEvent('gb:portal-begin', {
-      detail: {
-        mode: isStandalone ? 'standalone' : 'group',
-        roomCode,
-        playerName: sessionStorage.getItem('gamebuddies_playerName') || '',
-      }
-    }));
-
-    if (isStandalone) {
-      // Standalone mode: create a new lobby on GameBuddies.io
-      socket.emit('gamebuddies:create-lobby', { roomCode, streamerMode });
-    } else {
-      // GB mode: return to existing lobby
-      socket.emit('gamebuddies:return', {
-        roomCode,
-        playerId,
-        mode: isHost ? 'group' : 'individual'
-      });
-    }
+    beginPlatformReturn({
+      roomCode,
+      playerId,
+      isHost,
+      isStandalone,
+      streamerMode,
+      source: 'return_button',
+    });
   };
 
   const title = t('header.tryAnotherGameTitle');

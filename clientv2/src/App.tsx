@@ -233,13 +233,22 @@ function App() {
       return false;
     };
 
+    // Tag the session end BEFORE navigating away: the server maps
+    // 'return_to_platform' -> left_reason 'left_explicit' (otherwise the
+    // pagehide beacon files this as tab_closed).
+    const tagReturnLeave = (): void => {
+      try { socketService.getSocket()?.emit('gb:client:leaving', { reason: 'return_to_platform' }); } catch { /* best-effort */ }
+    };
+
     const onReturnRedirect = (data: { returnUrl: string }) => {
+      tagReturnLeave();
       if (returnViaDiscordParent()) return;
       if (!data.returnUrl) return;
       window.location.replace(data.returnUrl);
     };
 
     const onLobbyRedirect = (data: { redirectUrl: string }) => {
+      tagReturnLeave();
       if (returnViaDiscordParent()) return;
       if (!data.redirectUrl) return;
       window.location.replace(data.redirectUrl);

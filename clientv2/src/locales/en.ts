@@ -372,6 +372,7 @@ export const en = {
   playerList: {
     removingIn: 'Removing in {seconds}s',
     removing: 'Removing...',
+    returnedToLobby: 'Returned to the GameBuddies lobby',
     signInToBuyStyles: 'Sign in to buy styles with Gabu Points',
     buyStyleInDesigner: 'Unlock it in Your style with Gabu Points',
     kick: 'Kick',

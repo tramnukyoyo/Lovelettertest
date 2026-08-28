@@ -366,10 +366,13 @@ const PlayerList: React.FC<PlayerListProps> = ({
                 })()}
               </div>
 
-              {/* Disconnect removal countdown */}
-              {!isConnected && player.disconnectedAt && (
+              {/* Disconnect removal countdown — intentional returns to
+                  GameBuddies show a label instead of a countdown */}
+              {!isConnected && (player.leftReason === 'returned_to_platform' ? (
+                <span className="player-disconnect-timer">{t('playerList.returnedToLobby')}</span>
+              ) : (player.disconnectedAt ? (
                 <DisconnectedTimer disconnectedAt={player.disconnectedAt} />
-              )}
+              ) : null))}
               {/* Platform avatar-frame picker — own card, lobby only. One economy
                   for every game: locked frames preview on the avatar; buying
                   lives in the identity designer. The equipped frame also themes

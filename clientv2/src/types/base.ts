@@ -21,6 +21,9 @@ export interface BasePlayer {
   /** Server-validated logged-in vs guest signal (isGuest = no platform account). */
   isGuest?: boolean;
   disconnectedAt?: number;
+  /** Why the player left, when known. 'returned_to_platform' = an intentional
+   *  clean exit back to GameBuddies (shows a label, not a disconnect countdown). */
+  leftReason?: 'returned_to_platform';
   premiumTier?: 'free' | 'premium' | 'pro' | 'monthly' | 'lifetime';
   /** Premium card style ('' | 'neon' | 'gold' | 'holo' | 'ink') — server-validated. */
   cardStyle?: string;

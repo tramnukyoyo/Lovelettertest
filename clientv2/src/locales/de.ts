@@ -369,6 +369,7 @@ export const de: Translations = {
   playerList: {
     removingIn: 'Entfernt in {seconds}s',
     removing: 'Wird entfernt...',
+    returnedToLobby: 'Zurück in der GameBuddies-Lobby',
     signInToBuyStyles: 'Melde dich an, um Stile mit Gabu Points zu kaufen',
     buyStyleInDesigner: "Schalte ihn in 'Dein Stil' mit Gabu Points frei",
     kick: 'Kicken',

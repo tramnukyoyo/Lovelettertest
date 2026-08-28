@@ -378,6 +378,7 @@ export const ptPT: Translations = {
   playerList: {
     removingIn: 'A remover em {seconds}s',
     removing: 'A remover...',
+    returnedToLobby: 'Voltou ao lobby do GameBuddies',
     signInToBuyStyles: 'Inicia sessão para comprares estilos com Gabu Points',
     buyStyleInDesigner: "Desbloqueia-o em 'O teu estilo' com Gabu Points",
     kick: 'Expulsar',

@@ -10,6 +10,7 @@ import { Copy, ArrowLeft, Settings, Check, Share2, RotateCcw, MessageSquareWarni
 import type { Lobby, Player } from '../../types';
 import { clearSession, type GameBuddiesSession } from '../../services/gameBuddiesSession';
 import socketService from '../../services/socketService';
+import { beginPlatformReturn } from '../../services/platformReturn';
 import { useVideoUI } from '../../contexts/VideoUIContext';
 import { useWebRTC } from '../../contexts/WebRTCContext';
 import { useIsCompact, useIsLobbyCompact } from '../../hooks/useIsMobile';
@@ -196,12 +197,31 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   }, [socket, gameBuddiesSession, hideRoomCode, lobby.code, copyToClipboard]);
 
   const handleLeave = useCallback(() => {
+    // Tell the server this seat is gone for good — a bare disconnect keeps the
+    // seat through the full grace window and reads as a connection drop.
+    try { socketService.getSocket()?.emit('room:leave'); } catch { /* best effort */ }
     socketService.clearReconnectionData();
     clearSession();
     sessionStorage.removeItem('gameSessionToken');
     socketService.disconnect();
     window.location.href = import.meta.env.BASE_URL || '/';
   }, []);
+
+  // Platform rooms: the logo is a clean return path — the same flow as the
+  // "try another game" button. Players habitually click it to get back to
+  // GameBuddies; a bare navigation left a ghost seat and a wrong platform
+  // status. Standalone rooms keep the plain link to the game's home page.
+  const isPlatformRoom = !!gameBuddiesSession || !!lobby.isGameBuddiesRoom;
+  const handleLogoClick = useCallback((e: React.MouseEvent) => {
+    if (!isPlatformRoom) return;
+    e.preventDefault();
+    beginPlatformReturn({
+      roomCode: lobby.code,
+      playerId: myPlayer?.socketId,
+      isHost,
+      source: 'header_logo',
+    });
+  }, [isPlatformRoom, lobby.code, myPlayer?.socketId, isHost]);
 
   // Phase chip copy. `lobby.state` is UPPERCASE (LOBBY / PLAYING / ENDED) —
   // the old lowercase switch never matched, so every desktop header painted an
@@ -253,23 +273,12 @@ const GameHeader: React.FC<GameHeaderProps> = ({
       isLobby={lobby.state === 'LOBBY'}
       onReturnToLobby={onReturnToLobby}
       onReturnToGameBuddies={lobby.isGameBuddiesRoom ? () => {
-        // Seed the portal overlay immediately — App.tsx listens for this event
-        // and shows the animation regardless of server response timing.
-        window.dispatchEvent(new CustomEvent('gb:portal-begin', {
-          detail: {
-            mode: 'group',
-            roomCode: lobby.code,
-            playerName: myPlayer?.name || sessionStorage.getItem('gamebuddies_playerName') || '',
-          }
-        }));
-        const sock = socketService.getSocket();
-        if (sock) {
-          sock.emit('gamebuddies:return', {
-            roomCode: lobby.code,
-            playerId: myPlayer?.socketId,
-            mode: isHost ? 'group' : 'individual'
-          });
-        }
+        beginPlatformReturn({
+          roomCode: lobby.code,
+          playerId: myPlayer?.socketId,
+          isHost,
+          source: 'return_button',
+        });
       } : undefined}
     />
   );
@@ -338,7 +347,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         {/* Left side - Branding and Room Info */}
         <div className="game-header-left">
           {/* Game Branding */}
-          <a href="/" className="game-header-logo">
+          <a href="/" className="game-header-logo" onClick={handleLogoClick}>
             <img
               src={`${import.meta.env.BASE_URL}mascot.webp`}
               alt={GAME_META.mascotAlt}
